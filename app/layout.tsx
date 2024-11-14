@@ -1,4 +1,4 @@
-import { Theme } from "@radix-ui/themes";
+import { Theme, ThemePanel } from "@radix-ui/themes";
 import "@radix-ui/themes/styles.css";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
@@ -33,7 +33,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Theme>{children}</Theme>
+        <Theme accentColor="blue">
+          <main className="p-5"> {children}</main>
+        </Theme>
+
         <ToastContainer />
       </body>
     </html>

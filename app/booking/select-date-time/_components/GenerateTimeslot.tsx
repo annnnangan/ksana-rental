@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import "react-day-picker/style.css";
 import { BookingQuery, timeslotInfo } from "../page";
 import TimeslotList from "./TimeslotList";
+import TimeslotType from "./TimeslotType";
 
 interface Props {
   searchParams: BookingQuery;
@@ -110,10 +111,13 @@ const GenerateTimeslot = async ({ searchParams }: Props) => {
   const availableTimeslots = generateTimeslotList();
 
   return (
-    <TimeslotList
-      availableTimeslots={availableTimeslots}
-      searchParams={searchParams}
-    />
+    <div className="flex flex-col gap-4">
+      <TimeslotType />
+      <TimeslotList
+        availableTimeslots={availableTimeslots}
+        searchParams={searchParams}
+      />
+    </div>
   );
 };
 
