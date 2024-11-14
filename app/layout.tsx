@@ -34,7 +34,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Theme accentColor="blue">
-          <main className="p-5"> {children}</main>
+          <main className="container mx-auto px-5 py-10"> {children}</main>
         </Theme>
 
         <ToastContainer />

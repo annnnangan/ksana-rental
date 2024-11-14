@@ -24,23 +24,17 @@ interface Props {
 const bookingSelectDateTimePage = async (props: Props) => {
   const searchParams = await props.searchParams;
   return (
-    <Box>
-      <Container size="4">
-        <main className="md:container md:mx-auto p-5">
-          <div className="md:flex gap-2 ">
-            <div className="lg:w-2/5  w-full">
-              <Calendar />
-            </div>
-            <div className="lg:w-3/5  w-full">
-              <Flex direction="column" gap="9">
-                <GenerateTimeslot searchParams={searchParams} />
-                <BookingInfo searchParams={searchParams} />
-              </Flex>
-            </div>
-          </div>
-        </main>
-      </Container>
-    </Box>
+    <div className="md:flex gap-5">
+      <div className="lg:w-1/3  w-full">
+        <Calendar />
+      </div>
+      <div className="lg:w-2/3  w-full">
+        <Flex direction="column" gap="9">
+          <GenerateTimeslot searchParams={searchParams} />
+          <BookingInfo searchParams={searchParams} />
+        </Flex>
+      </div>
+    </div>
   );
 };
 
