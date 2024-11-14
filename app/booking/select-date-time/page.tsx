@@ -17,10 +17,11 @@ export interface BookingQuery {
 }
 
 interface Props {
-  searchParams: BookingQuery;
+  searchParams: Promise<BookingQuery>;
 }
 
-const bookingSelectDateTimePage = async ({ searchParams }: Props) => {
+const bookingSelectDateTimePage = async (props: Props) => {
+  const searchParams = await props.searchParams;
   return (
     <Box>
       <Container size="4">
