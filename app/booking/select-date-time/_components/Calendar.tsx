@@ -1,6 +1,6 @@
 "use client";
 import useBookingStore from "@/stores/BookingStore";
-import { addMonths, format } from "date-fns";
+import { addMonths, compareAsc, format } from "date-fns";
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { DayPicker } from "react-day-picker";
@@ -26,13 +26,23 @@ const Calendar = () => {
       today.setHours(0, 0, 0, 0); // Reset time for accurate comparison
       const dateToCheck = new Date(dateStr);
       dateToCheck.setHours(0, 0, 0, 0); // Reset time for accurate comparison
-      if (dateToCheck < today) {
-        toast("invalid date!", {
-          position: "top-center",
-          theme: "colored",
+
+      const maxBookedMonth = new Date(
+        today.getFullYear(),
+        today.getMonth() + 3
+      );
+
+      let isInvalidDate = false;
+
+      if (dateToCheck < today || compareAsc(dateToCheck, maxBookedMonth) > 0) {
+        isInvalidDate = true;
+        toast("無效日期。", {
+          position: "bottom-right",
           type: "error",
           autoClose: 1000,
         });
+      }
+      if (isInvalidDate) {
         router.replace(
           `/booking/select-date-time?studio=${searchParams.get(
             "studio"
