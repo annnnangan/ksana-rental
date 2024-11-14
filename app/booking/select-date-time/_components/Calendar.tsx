@@ -20,8 +20,9 @@ const Calendar = () => {
         ? format(new Date(), "yyyy-MM-dd")
         : format(new Date(dateQueryString!), "yyyy-MM-dd")
     );
-    // Checking the past date
-    function isDateTodayOrPast(dateStr: string) {
+    // Checking if date is valid
+    // Date is not valid when (1) the date is in the past and (2) the selected date exceed the max calendar month
+    function isDateValid(dateStr: string) {
       const today = new Date();
       today.setHours(0, 0, 0, 0); // Reset time for accurate comparison
       const dateToCheck = new Date(dateStr);
@@ -52,7 +53,7 @@ const Calendar = () => {
       }
     }
     if (dateQueryString) {
-      isDateTodayOrPast(dateQueryString);
+      isDateValid(dateQueryString);
     }
   }, [dateQueryString, setBookingDate]);
 
