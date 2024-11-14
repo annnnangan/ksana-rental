@@ -1,0 +1,8 @@
+.radix-themes {
+  --default-font-family: var(--font-inter);
+  --cursor-button: pointer;
+}
+
+.radix-themes button:not([disabled]) {
+  cursor: pointer; /* Apply pointer cursor directly */
+}

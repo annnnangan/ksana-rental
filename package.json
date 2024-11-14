@@ -16,7 +16,9 @@
     "next": "15.0.3",
     "pg": "^8.13.1",
     "react": "19.0.0-rc-66855b96-20241106",
+    "react-day-picker": "^9.3.0",
     "react-dom": "19.0.0-rc-66855b96-20241106",
+    "react-toastify": "^10.0.6",
     "zustand": "^5.0.1"
   },
   "devDependencies": {
