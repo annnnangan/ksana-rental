@@ -9,6 +9,7 @@ export interface timeslotInfo {
   start_time: number;
   price_type: PriceType;
   price: number;
+  isBooked: boolean;
 }
 
 export interface BookingQuery {

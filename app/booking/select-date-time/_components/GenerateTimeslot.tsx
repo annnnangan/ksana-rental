@@ -17,13 +17,6 @@ const GenerateTimeslot = async ({ searchParams }: Props) => {
     new Date().getMonth() + 3
   );
 
-  // if (
-  //   compareAsc(new Date(searchParams.date), new Date()) < 0 ||
-  //   compareAsc(new Date(searchParams.date), endMonth) > 0
-  // ) {
-  //   redirect(`/booking/select-date-time?studio=${studioSlug}`);
-  // }
-
   const selectedBookingDate = searchParams.date
     ? searchParams.date
     : format(new Date(), "yyyy-MM-dd");
@@ -36,6 +29,12 @@ const GenerateTimeslot = async ({ searchParams }: Props) => {
 
   //Get studio timeblock
   const timeblock = await bookingService.getStudioTimeblock(
+    studioSlug,
+    new Date(selectedBookingDate)
+  );
+
+  //Get time that is booked
+  const bookedTimeslots = await bookingService.getBookedTimeslot(
     studioSlug,
     new Date(selectedBookingDate)
   );
@@ -59,6 +58,7 @@ const GenerateTimeslot = async ({ searchParams }: Props) => {
             start_time: i,
             price_type: result.price_type,
             price: result.price,
+            isBooked: false,
           });
         }
       }
@@ -81,9 +81,24 @@ const GenerateTimeslot = async ({ searchParams }: Props) => {
       }
     }
 
+    //filter out time that is blocked by studio owner
     availableTimeslots = availableTimeslots.filter(
       (item) => !timeblockList.includes(item.start_time)
     );
+
+    //Change the booked timeslot's isBooked status to true
+    if (bookedTimeslots.success) {
+      bookedTimeslots.data!.forEach((bookedTime) => {
+        availableTimeslots.forEach((availableTime) => {
+          if (
+            bookedTime.start_time.split(":").map(Number)[0] ===
+            availableTime.start_time
+          ) {
+            availableTime.isBooked = true;
+          }
+        });
+      });
+    }
     //sort the timeslot by order
     availableTimeslots = availableTimeslots.sort(
       (prev, cur) => prev.start_time - cur.start_time

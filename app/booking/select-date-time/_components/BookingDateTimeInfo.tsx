@@ -2,11 +2,7 @@
 import useBookingStore from "@/stores/BookingStore";
 import { BookingQuery } from "../page";
 
-interface Props {
-  searchParams: BookingQuery;
-}
-
-const BookingDateTimeInfo = ({ searchParams }: Props) => {
+const BookingDateTimeInfo = () => {
   const {
     bookingInfo: { bookingTime, bookingDate, bookingPrice },
   } = useBookingStore();

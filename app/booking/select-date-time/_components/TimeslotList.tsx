@@ -22,11 +22,11 @@ const TimeslotList = ({ availableTimeslots, searchParams }: Props) => {
   }
 
   return (
-    <Flex gap="2" wrap="wrap">
+    <Flex gap="3" wrap="wrap">
       {availableTimeslots.map((time) => (
         <Timeslot
           key={searchParams.date + "" + time.start_time}
-          isAvailable={true}
+          isAvailable={time.isBooked ? false : true}
           priceType={time.price_type}
           startTime={`${time.start_time.toString().padStart(2, "0")}:00`}
           isSelected={

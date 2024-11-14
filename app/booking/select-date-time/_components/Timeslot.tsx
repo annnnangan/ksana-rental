@@ -3,7 +3,7 @@ import { Button, Flex, RadioGroup, Text } from "@radix-ui/themes";
 import { addMinutes, getDay, getMonth, getYear } from "date-fns";
 import React, { useState } from "react";
 import classNames from "classnames";
-import { PriceType } from "@/services/models";
+import { PriceType } from "@/services/model";
 
 interface Props {
   isAvailable: boolean;

@@ -98,6 +98,43 @@ export class BookingService {
         .andWhere("date", new Date(date)),
     };
   }
+
+  async getBookedTimeslot(studioSlug: string, date: Date) {
+    const studioId = (
+      await this.knex.select("id").from("studio").where("slug", studioSlug)
+    )[0]?.id;
+
+    //Return error when studio don't exist
+    if (!studioId) {
+      return { success: false, msg: "Studio doesn't exist.", status: 404 };
+    }
+
+    //if the date we get is not in the past, we don't return any result
+    //in the past = -1
+    if (compareAsc(new Date(date), new Date()) < 0) {
+      return {
+        success: false,
+        msg: "The date you pass is in the past.",
+        status: 400,
+      };
+    }
+
+    return {
+      success: true,
+      data: await this.knex
+        .select("start_time", "end_time")
+        .from("booking")
+        .where("studio_id", studioId)
+        .andWhere("date", new Date(date))
+        .andWhere(function () {
+          this.whereIn("status", [
+            "confirm",
+            "completed",
+            "pending for payment",
+          ]);
+        }),
+    };
+  }
 }
 
 export const bookingService = new BookingService(knex);
