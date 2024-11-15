@@ -4,6 +4,8 @@ import "react-day-picker/style.css";
 import BookingInfo from "./_components/BookingInfo";
 import Calendar from "./_components/Calendar";
 import GenerateTimeslot from "./_components/GenerateTimeslot";
+import { redirect } from "next/navigation";
+import { bookingService } from "@/services/BookingService";
 
 export interface timeslotInfo {
   start_time: number;
@@ -23,6 +25,19 @@ interface Props {
 
 const bookingSelectDateTimePage = async (props: Props) => {
   const searchParams = await props.searchParams;
+
+  const studioSlug = searchParams.studio;
+
+  if (!studioSlug) {
+    redirect("/studio");
+  }
+
+  const isStudioExist = await bookingService.isStudioExist(studioSlug);
+
+  if (!isStudioExist.success) {
+    redirect("/studio");
+  }
+
   return (
     <div className="md:flex gap-5">
       <div className="lg:w-1/3  w-full">

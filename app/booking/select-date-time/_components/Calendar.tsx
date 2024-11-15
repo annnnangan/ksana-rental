@@ -16,9 +16,10 @@ const Calendar = () => {
   const dateQueryString = searchParams.get("date");
   const studioQueryString = searchParams.get("studio");
 
-  if (studioQueryString) setStudio(studioQueryString);
-
   useEffect(() => {
+    studioQueryString
+      ? setStudio(studioQueryString)
+      : router.replace("/studio");
     setBookingDate(
       dateQueryString === null
         ? format(new Date(), "yyyy-MM-dd")
