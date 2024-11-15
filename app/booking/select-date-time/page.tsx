@@ -28,12 +28,13 @@ const bookingSelectDateTimePage = async (props: Props) => {
 
   const studioSlug = searchParams.studio;
 
+  //if studio is not exist in the query string, redirect the user to the studio page
   if (!studioSlug) {
     redirect("/studio");
   }
 
   const isStudioExist = await bookingService.isStudioExist(studioSlug);
-
+  //if studio in the query string doesn't exist in the database, redirect user to the studio page
   if (!isStudioExist.success) {
     redirect("/studio");
   }
