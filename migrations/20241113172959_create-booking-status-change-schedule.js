@@ -6,7 +6,7 @@ exports.up = async function (knex) {
   await knex.raw(`
     SELECT cron.schedule(
   'expire_pending_booking',
-  '*/1 * * * *',
+  '30 3 * * 6',
   $$
     UPDATE booking
     SET status = 'expired'
