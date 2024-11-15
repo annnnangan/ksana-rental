@@ -5,6 +5,7 @@ interface BookingInfo {
   bookingDate: string;
   bookingPrice: number;
   studio: string;
+  remarks: string;
 }
 
 interface BookingStore {
@@ -15,6 +16,7 @@ interface BookingStore {
   setBookingPrice: (bookingPrice: number) => void;
   resetBookingPrice: () => void;
   setStudio: (studio: string) => void;
+  setRemarks: (remarks: string) => void;
 }
 
 const useBookingStore = create<BookingStore>((set) => ({
@@ -23,6 +25,7 @@ const useBookingStore = create<BookingStore>((set) => ({
     bookingDate: "",
     bookingPrice: 0,
     studio: "",
+    remarks: "",
   },
   setBookingTime: (bookingTime) =>
     set((store) => ({ bookingInfo: { ...store.bookingInfo, bookingTime } })),
@@ -41,6 +44,10 @@ const useBookingStore = create<BookingStore>((set) => ({
   setStudio: (studio) =>
     set((store) => ({
       bookingInfo: { ...store.bookingInfo, studio },
+    })),
+  setRemarks: (remarks) =>
+    set((store) => ({
+      bookingInfo: { ...store.bookingInfo, remarks },
     })),
 }));
 
