@@ -7,12 +7,16 @@ import { DayPicker } from "react-day-picker";
 import { toast } from "react-toastify";
 
 const Calendar = () => {
+  //Reset the time and price when new date is selected
+  const { resetBookingTime, setBookingDate, resetBookingPrice, setStudio } =
+    useBookingStore();
   const router = useRouter();
   // Get the query string
   const searchParams = useSearchParams();
-  const { resetBookingTime, setBookingDate, resetBookingPrice } =
-    useBookingStore();
   const dateQueryString = searchParams.get("date");
+  const studioQueryString = searchParams.get("studio");
+
+  if (studioQueryString) setStudio(studioQueryString);
 
   useEffect(() => {
     setBookingDate(
