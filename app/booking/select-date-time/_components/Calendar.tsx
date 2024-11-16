@@ -20,11 +20,7 @@ const Calendar = () => {
     studioQueryString
       ? setStudio(studioQueryString)
       : router.replace("/studio");
-    setBookingDate(
-      dateQueryString === null
-        ? format(new Date(), "yyyy-MM-dd")
-        : format(new Date(dateQueryString!), "yyyy-MM-dd")
-    );
+
     // Checking if date is valid
     // Date is not valid when (1) the date is in the past and (2) the selected date exceed the max calendar month
     function isDateValid(dateStr: string) {
@@ -35,19 +31,25 @@ const Calendar = () => {
 
       const maxBookedMonth = new Date(
         today.getFullYear(),
-        today.getMonth() + 3
+        today.getMonth() + 3,
+        0
       );
 
       let isInvalidDate = false;
 
-      if (dateToCheck < today || compareAsc(dateToCheck, maxBookedMonth) > 0) {
+      if (
+        dateToCheck < today ||
+        compareAsc(dateToCheck, maxBookedMonth) > 0 ||
+        isNaN(Date.parse(dateStr)) == true
+      ) {
         isInvalidDate = true;
-        toast("無效日期。", {
+        toast("日期無效。", {
           position: "bottom-right",
           type: "error",
           autoClose: 1000,
         });
       }
+
       if (isInvalidDate) {
         router.replace(
           `/booking/select-date-time?studio=${searchParams.get(
@@ -57,14 +59,21 @@ const Calendar = () => {
         setSelected(new Date());
       }
     }
+
     if (dateQueryString) {
       isDateValid(dateQueryString);
     }
+
+    setBookingDate(
+      dateQueryString === null
+        ? format(new Date(), "yyyy-MM-dd")
+        : format(new Date(dateQueryString!), "yyyy-MM-dd")
+    );
   }, [dateQueryString, setBookingDate]);
 
   // Set the selected date from query string / today's date
   const [selectedDate, setSelected] = useState<Date>(
-    dateQueryString === null ? new Date() : new Date(dateQueryString!)
+    dateQueryString === null ? new Date() : new Date(dateQueryString)
   );
 
   // Set selected date to query string when user select date
