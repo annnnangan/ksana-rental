@@ -5,7 +5,7 @@ import BookingTitle from "./BookingTitle";
 
 const BookingDateTimeInfo = () => {
   const {
-    bookingInfo: { bookingPrice },
+    bookingInfo: { price },
   } = useBookingStore();
   return (
     <Flex gap="2">
@@ -22,9 +22,7 @@ const BookingDateTimeInfo = () => {
         <div className="text-end">
           <BookingTitle>價錢</BookingTitle>
         </div>
-        <p className="text-2xl">
-          HK$ {bookingPrice == 0 ? "---" : bookingPrice}
-        </p>
+        <p className="text-2xl">HK$ {price == 0 ? "---" : price}</p>
       </div>
     </Flex>
   );

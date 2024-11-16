@@ -5,15 +5,15 @@ import BookingTitle from "./BookingTitle";
 
 const BookingDateTimeInfo = () => {
   const {
-    bookingInfo: { bookingTime, bookingDate },
+    bookingInfo: { startTime, date },
   } = useBookingStore();
 
-  const endTime = parseInt(bookingTime.split(":")[0]) + 1 + ":00";
+  const endTime = parseInt(startTime.split(":")[0]) + 1 + ":00";
   return (
     <Flex direction="column" gap="2">
       <BookingTitle>租用日期及時間</BookingTitle>
-      <p>日期: {bookingDate}</p>
-      <p>時間: {bookingTime ? `${bookingTime} - ${endTime}` : "---"}</p>
+      <p>日期: {date}</p>
+      <p>時間: {startTime ? `${startTime} - ${endTime}` : "---"}</p>
     </Flex>
   );
 };

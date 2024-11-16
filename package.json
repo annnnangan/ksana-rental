@@ -13,12 +13,14 @@
     "date-fns": "^4.1.0",
     "dotenv": "^16.4.5",
     "knex": "^3.1.0",
+    "libphonenumber-js": "^1.11.14",
     "next": "15.0.3",
     "pg": "^8.13.1",
     "react": "19.0.0-rc-66855b96-20241106",
     "react-day-picker": "^9.3.0",
     "react-dom": "19.0.0-rc-66855b96-20241106",
     "react-toastify": "^10.0.6",
+    "zod": "^3.23.8",
     "zustand": "^5.0.1"
   },
   "devDependencies": {

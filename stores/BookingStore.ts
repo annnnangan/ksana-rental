@@ -1,42 +1,45 @@
 import { create } from "zustand";
 
 interface BookingInfo {
-  bookingTime: string;
-  bookingDate: string;
-  bookingPrice: number;
+  startTime: string;
+  date: string;
+  price: number;
   studio: string;
   remarks: string;
+  whatsapp: string;
 }
 
 interface BookingStore {
   bookingInfo: BookingInfo;
-  setBookingTime: (bookingTime: string) => void;
+  setBookingTime: (startTime: string) => void;
   resetBookingTime: () => void;
-  setBookingDate: (bookingDate: string) => void;
-  setBookingPrice: (bookingPrice: number) => void;
+  setBookingDate: (date: string) => void;
+  setBookingPrice: (price: number) => void;
   resetBookingPrice: () => void;
   setStudio: (studio: string) => void;
   setRemarks: (remarks: string) => void;
+  setWhatsapp: (whatsapp: string) => void;
 }
 
 const useBookingStore = create<BookingStore>((set) => ({
   bookingInfo: {
-    bookingTime: "",
-    bookingDate: "",
-    bookingPrice: 0,
+    startTime: "",
+    date: "",
+    price: 0,
     studio: "",
     remarks: "",
+    whatsapp: "",
   },
-  setBookingTime: (bookingTime) =>
-    set((store) => ({ bookingInfo: { ...store.bookingInfo, bookingTime } })),
+  setBookingTime: (startTime) =>
+    set((store) => ({ bookingInfo: { ...store.bookingInfo, startTime } })),
   resetBookingTime: () =>
     set((store) => ({
-      bookingInfo: { ...store.bookingInfo, bookingTime: "" },
+      bookingInfo: { ...store.bookingInfo, startTime: "" },
     })),
-  setBookingDate: (bookingDate) =>
-    set((store) => ({ bookingInfo: { ...store.bookingInfo, bookingDate } })),
-  setBookingPrice: (bookingPrice) =>
-    set((store) => ({ bookingInfo: { ...store.bookingInfo, bookingPrice } })),
+  setBookingDate: (date) =>
+    set((store) => ({ bookingInfo: { ...store.bookingInfo, date } })),
+  setBookingPrice: (price) =>
+    set((store) => ({ bookingInfo: { ...store.bookingInfo, price } })),
   resetBookingPrice: () =>
     set((store) => ({
       bookingInfo: { ...store.bookingInfo, bookingPrice: 0 },
@@ -48,6 +51,10 @@ const useBookingStore = create<BookingStore>((set) => ({
   setRemarks: (remarks) =>
     set((store) => ({
       bookingInfo: { ...store.bookingInfo, remarks },
+    })),
+  setWhatsapp: (whatsapp) =>
+    set((store) => ({
+      bookingInfo: { ...store.bookingInfo, whatsapp },
     })),
 }));
 

@@ -4,7 +4,8 @@ import BookingDateTimeInfo from "./BookingDateTimeInfo";
 import BookingStudioInfo from "./BookingStudioInfo";
 import { BookingQuery } from "../page";
 import BookingPrice from "./BookingPrice";
-import BookingRemarks from "./BookingRemarks";
+import BookingInput from "./BookingInput";
+import HandleSubmission from "./HandleSubmission";
 
 interface Props {
   searchParams: BookingQuery;
@@ -16,16 +17,8 @@ const BookingInfo = ({ searchParams }: Props) => {
       <BookingStudioInfo searchParams={searchParams} />
       <BookingDateTimeInfo />
       <BookingPrice />
-      <BookingRemarks />
-      <Flex gap="4">
-        <Button size="2">
-          <p className="px-8">確定</p>
-        </Button>
-
-        <Button variant="outline">
-          <p className="px-8">返回</p>
-        </Button>
-      </Flex>
+      <BookingInput />
+      <HandleSubmission />
     </Flex>
   );
 };

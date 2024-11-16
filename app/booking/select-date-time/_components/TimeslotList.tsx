@@ -12,7 +12,7 @@ interface Props {
 
 const TimeslotList = ({ availableTimeslots, searchParams }: Props) => {
   const {
-    bookingInfo: { bookingTime },
+    bookingInfo: { startTime },
     setBookingTime,
     setBookingPrice,
   } = useBookingStore();
@@ -30,7 +30,7 @@ const TimeslotList = ({ availableTimeslots, searchParams }: Props) => {
           priceType={time.price_type}
           startTime={`${time.start_time.toString().padStart(2, "0")}:00`}
           isSelected={
-            bookingTime === `${time.start_time.toString().padStart(2, "0")}:00`
+            startTime === `${time.start_time.toString().padStart(2, "0")}:00`
           }
           onSelect={() => {
             setBookingPrice(time.price);

@@ -19,6 +19,7 @@ exports.up = async function (knex) {
     table.date("date").notNullable();
     table.time("start_time").notNullable();
     table.time("end_time").notNullable();
+    table.integer("price").unsigned().notNullable();
     table.text("whatsapp").notNullable();
     table.text("remarks");
     table

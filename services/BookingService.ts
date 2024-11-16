@@ -1,4 +1,7 @@
+import { bookingDateTime } from "@/app/booking/select-date-time/_utils/validation";
 import { knex } from "@/services/knex";
+import { formatTime } from "@/utils/formatTime";
+
 import { compareAsc } from "date-fns";
 import { Knex } from "knex";
 
@@ -133,6 +136,38 @@ export class BookingService {
             "pending for payment",
           ]);
         }),
+    };
+  }
+
+  async createBooking(bookingInfo: bookingDateTime, userId: number) {
+    const studioId = (
+      await this.knex
+        .select("id")
+        .from("studio")
+        .where("slug", bookingInfo.studio)
+    )[0]?.id;
+
+    return {
+      success: true,
+      data: (
+        await this.knex
+          .insert({
+            user_id: userId,
+            studio_id: studioId,
+            date: new Date(bookingInfo.date),
+            start_time: formatTime(bookingInfo.startTime),
+            end_time: formatTime(
+              parseInt(bookingInfo.startTime.split(":")[0]) + 1 + ":00"
+            ),
+            price: bookingInfo.price,
+            whatsapp: bookingInfo.whatsapp,
+            remarks: bookingInfo.remarks,
+            status: "pending for payment",
+            is_complained: false,
+          })
+          .into("booking")
+          .returning("reference_no")
+      )[0],
     };
   }
 }
