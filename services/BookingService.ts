@@ -1,6 +1,6 @@
-import { bookingDateTime } from "@/app/booking/select-date-time/_utils/validation";
+import { bookingDateTime } from "@/lib/validations";
 import { knex } from "@/services/knex";
-import { formatTime } from "@/utils/formatTime";
+import { formatTime } from "@/lib/utils";
 
 import { compareAsc } from "date-fns";
 import { Knex } from "knex";

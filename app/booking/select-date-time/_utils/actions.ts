@@ -1,7 +1,7 @@
 "use server";
 
 import { bookingService } from "@/services/BookingService";
-import { bookingDateTime } from "./validation";
+import { bookingDateTime } from "../../../../lib/validations";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
