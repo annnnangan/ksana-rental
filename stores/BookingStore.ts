@@ -1,19 +1,11 @@
+import { bookingDateTime } from "@/lib/validations";
 import { create } from "zustand";
 
-interface BookingInfo {
-  startTime: string;
-  date: string;
-  price: number;
-  studio: string;
-  remarks: string;
-  whatsapp: string;
-}
-
 interface BookingStore {
-  bookingInfo: BookingInfo;
+  bookingInfo: bookingDateTime;
   setBookingTime: (startTime: string) => void;
   resetBookingTime: () => void;
-  setBookingDate: (date: string) => void;
+  setBookingDate: (date: Date) => void;
   setBookingPrice: (price: number) => void;
   resetBookingPrice: () => void;
   setStudio: (studio: string) => void;
@@ -24,7 +16,7 @@ interface BookingStore {
 const useBookingStore = create<BookingStore>((set) => ({
   bookingInfo: {
     startTime: "",
-    date: "",
+    date: new Date(),
     price: 0,
     studio: "",
     remarks: "",

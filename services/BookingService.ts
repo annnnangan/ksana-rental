@@ -1,6 +1,6 @@
 import { bookingDateTime } from "@/lib/validations";
 import { knex } from "@/services/knex";
-import { formatTime } from "@/lib/utils";
+import { convertStringToTime } from "@/lib/utils";
 
 import { compareAsc } from "date-fns";
 import { Knex } from "knex";
@@ -155,8 +155,8 @@ export class BookingService {
             user_id: userId,
             studio_id: studioId,
             date: new Date(bookingInfo.date),
-            start_time: formatTime(bookingInfo.startTime),
-            end_time: formatTime(
+            start_time: convertStringToTime(bookingInfo.startTime),
+            end_time: convertStringToTime(
               parseInt(bookingInfo.startTime.split(":")[0]) + 1 + ":00"
             ),
             price: bookingInfo.price,

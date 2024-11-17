@@ -1,8 +1,9 @@
 "use client";
+import { formatDate, maxBookingDate } from "@/lib/utils";
 import useBookingStore from "@/stores/BookingStore";
-import { addMonths, compareAsc, format } from "date-fns";
+import { compareAsc, format } from "date-fns";
 import { useRouter, useSearchParams } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { DayPicker } from "react-day-picker";
 import { toast } from "react-toastify";
 
@@ -29,11 +30,7 @@ const Calendar = () => {
       const dateToCheck = new Date(dateStr);
       dateToCheck.setHours(0, 0, 0, 0); // Reset time for accurate comparison
 
-      const maxBookedMonth = new Date(
-        today.getFullYear(),
-        today.getMonth() + 3,
-        0
-      );
+      const maxBookedMonth = maxBookingDate();
 
       let isInvalidDate = false;
 
@@ -65,9 +62,7 @@ const Calendar = () => {
     }
 
     setBookingDate(
-      dateQueryString === null
-        ? format(new Date(), "yyyy-MM-dd")
-        : format(new Date(dateQueryString!), "yyyy-MM-dd")
+      dateQueryString === null ? new Date() : new Date(dateQueryString!)
     );
   }, [dateQueryString, setBookingDate]);
 
@@ -84,7 +79,7 @@ const Calendar = () => {
       resetBookingTime();
       resetBookingPrice();
       // Format the date to 'YYYY-MM-DD'
-      const formattedDate = format(date, "yyyy-MM-dd");
+      const formattedDate = formatDate(date);
 
       // Set the query string
       const params = new URLSearchParams();
@@ -106,7 +101,7 @@ const Calendar = () => {
       disabled={{ before: new Date() }}
       defaultMonth={new Date(selectedDate)}
       startMonth={new Date(new Date().getFullYear(), new Date().getMonth())}
-      endMonth={new Date(new Date().getFullYear(), new Date().getMonth() + 2)}
+      endMonth={maxBookingDate()}
     />
   );
 };

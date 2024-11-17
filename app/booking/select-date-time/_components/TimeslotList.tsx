@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Timeslot from "./Timeslot";
 import { BookingQuery, timeslotInfo } from "../page";
 import useBookingStore from "@/stores/BookingStore";
+import { convertTimeToString } from "@/lib/utils";
 
 interface Props {
   availableTimeslots: timeslotInfo[];
@@ -28,13 +29,11 @@ const TimeslotList = ({ availableTimeslots, searchParams }: Props) => {
           key={searchParams.date + "" + time.start_time}
           isAvailable={time.isBooked ? false : true}
           priceType={time.price_type}
-          startTime={`${time.start_time.toString().padStart(2, "0")}:00`}
-          isSelected={
-            startTime === `${time.start_time.toString().padStart(2, "0")}:00`
-          }
+          startTime={convertTimeToString(time.start_time)}
+          isSelected={startTime === time.start_time}
           onSelect={() => {
             setBookingPrice(time.price);
-            setBookingTime(`${time.start_time.toString().padStart(2, "0")}:00`);
+            setBookingTime(time.start_time);
           }}
         />
       ))}

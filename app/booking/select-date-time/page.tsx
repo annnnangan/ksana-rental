@@ -8,7 +8,7 @@ import { redirect } from "next/navigation";
 import { bookingService } from "@/services/BookingService";
 
 export interface timeslotInfo {
-  start_time: number;
+  start_time: string;
   price_type: PriceType;
   price: number;
   isBooked: boolean;

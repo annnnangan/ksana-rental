@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { isValidPhoneNumber, parsePhoneNumber } from "libphonenumber-js";
+import { isValidPhoneNumber } from "libphonenumber-js";
 
 //date.parse("2020-01-01"); // pass
 //date, time, studio slug, remarks (optional), price
@@ -14,8 +14,11 @@ export const bookingDateTimeSchema = z.object({
     .max(new Date(todayDate.getFullYear(), todayDate.getMonth() + 3, 0), {
       message: "You have selected a date exceed the allowed month",
     }),
-  startTime: z.string().time({ message: "Invalid date string!" }),
-  studio: z.string(),
+  startTime: z
+    .string()
+    .time({ message: "Invalid time string." })
+    .min(1, "Time is required"),
+  studio: z.string().min(1, "Studio is required"),
   remarks: z.string().optional(),
   price: z
     .number({

@@ -1,6 +1,6 @@
+import { convertStringToTime, formatDate, getHourFromTime } from "@/lib/utils";
 import { bookingService } from "@/services/BookingService";
-import { compareAsc, format, getDay } from "date-fns";
-import { redirect } from "next/navigation";
+import { getDay } from "date-fns";
 import "react-day-picker/style.css";
 import { BookingQuery, timeslotInfo } from "../page";
 import TimeslotList from "./TimeslotList";
@@ -13,29 +13,27 @@ interface Props {
 const GenerateTimeslot = async ({ searchParams }: Props) => {
   const studioSlug = searchParams.studio;
 
-  const endMonth = new Date(
-    new Date().getFullYear(),
-    new Date().getMonth() + 3
-  );
+  const todayDate = new Date();
 
   const selectedBookingDate = searchParams.date
     ? searchParams.date
-    : format(new Date(), "yyyy-MM-dd");
+    : formatDate(todayDate);
 
   //Get studio business hour by day of week
-  const businessHour = await bookingService.getBusinessHourAndPriceType(
-    getDay(selectedBookingDate),
-    studioSlug
-  );
+  const businessHourListResult =
+    await bookingService.getBusinessHourAndPriceType(
+      getDay(selectedBookingDate),
+      studioSlug
+    );
 
-  //Get studio timeblock
-  const timeblock = await bookingService.getStudioTimeblock(
+  //Get time that is blocked by studio
+  const timeblockListResult = await bookingService.getStudioTimeblock(
     studioSlug,
     new Date(selectedBookingDate)
   );
 
   //Get time that is booked
-  const bookedTimeslots = await bookingService.getBookedTimeslot(
+  const bookedTimeListResult = await bookingService.getBookedTimeslot(
     studioSlug,
     new Date(selectedBookingDate)
   );
@@ -43,43 +41,33 @@ const GenerateTimeslot = async ({ searchParams }: Props) => {
   //Generate available timeslot based on business hour and then deduct timeblock and booked session
   const generateTimeslotList = () => {
     let availableTimeslots: timeslotInfo[] = [];
-    let timeblockList: number[] = [];
+    let timeblockList: string[] = [];
 
-    businessHour.forEach((result) => {
-      if (result.is_closed === false) {
-        const openTime = result.open_time.split(":").map(Number); // [0, 0, 0]
-        let endTime = result.end_time.split(":").map(Number); // [17, 0, 0]
+    businessHourListResult.forEach((businessHour) => {
+      if (businessHour.is_closed === false) {
+        const openTime = getHourFromTime(businessHour.open_time, false);
+        const endTime = getHourFromTime(businessHour.end_time, true);
 
-        if (endTime[0] === 23 && endTime[1] === 59) {
-          endTime = [24, 0, 0];
-        }
-
-        for (let i = openTime[0]; i < endTime[0]; i++) {
+        for (let i = openTime; i < endTime; i++) {
           availableTimeslots.push({
-            start_time: i,
-            price_type: result.price_type,
-            price: result.price,
+            start_time: convertStringToTime(i),
+            price_type: businessHour.price_type,
+            price: businessHour.price,
             isBooked: false,
           });
         }
       }
     });
 
-    if (timeblock.success) {
-      if (timeblock.data?.length! > 0) {
-        timeblock.data?.forEach((time) => {
-          const startTime = time.start_time.split(":").map(Number); // [0, 0, 0]
-          let endTime = time.end_time.split(":").map(Number); // [17, 0, 0]
+    if (timeblockListResult.success && timeblockListResult.data?.length! > 0) {
+      timeblockListResult.data?.forEach((time) => {
+        const startTime = getHourFromTime(time.start_time, false);
+        const endTime = getHourFromTime(time.end_time, true);
 
-          if (endTime[0] === 23 && endTime[1] === 59) {
-            endTime = [24, 0, 0];
-          }
-
-          for (let i = startTime[0]; i < endTime[0]; i++) {
-            timeblockList.push(i);
-          }
-        });
-      }
+        for (let i = startTime; i < endTime; i++) {
+          timeblockList.push(convertStringToTime(i));
+        }
+      });
     }
 
     //filter out time that is blocked by studio owner
@@ -88,13 +76,13 @@ const GenerateTimeslot = async ({ searchParams }: Props) => {
     );
 
     //Change the booked timeslot's isBooked status to true
-    if (bookedTimeslots.success) {
-      bookedTimeslots.data!.forEach((bookedTime) => {
+    if (
+      bookedTimeListResult.success &&
+      bookedTimeListResult.data?.length! > 0
+    ) {
+      bookedTimeListResult.data!.forEach((bookedTime) => {
         availableTimeslots.forEach((availableTime) => {
-          if (
-            bookedTime.start_time.split(":").map(Number)[0] ===
-            availableTime.start_time
-          ) {
+          if (bookedTime.start_time === availableTime.start_time) {
             availableTime.isBooked = true;
           }
         });
@@ -102,7 +90,9 @@ const GenerateTimeslot = async ({ searchParams }: Props) => {
     }
     //sort the timeslot by order
     availableTimeslots = availableTimeslots.sort(
-      (prev, cur) => prev.start_time - cur.start_time
+      (prev, cur) =>
+        getHourFromTime(prev.start_time, false) -
+        getHourFromTime(cur.start_time, false)
     );
 
     return availableTimeslots;
