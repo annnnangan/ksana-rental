@@ -35,7 +35,7 @@ const Timeslot = ({
     <Button
       disabled={!isAvailable}
       size="2"
-      variant={isSelected ? "solid" : "outline"}
+      variant={!isAvailable ? "outline" : isSelected ? "solid" : "outline"}
       color={priceTypeMap[priceType].buttonColor as any}
       radius="full"
       onClick={onSelect}

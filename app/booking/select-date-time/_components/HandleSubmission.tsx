@@ -17,7 +17,9 @@ const HandleSubmission = () => {
         onClick={async () => {
           const result = await createBooking(bookingInfo, 2);
           if (result.success) {
-            router.push(`/booking/accept-tnc`);
+            router.push(
+              `/booking/accept-tnc?booking=${result.data["reference_no"]}`
+            );
           } else {
             router.push(
               `/booking/select-date-time?studio=${bookingInfo.studio}&date=${bookingInfo.date}`

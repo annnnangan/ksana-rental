@@ -13,6 +13,7 @@ export async function createBooking(bookingInfo: any, userId: number) {
     return {
       success: false,
       msg: "Internal Error",
+      data: [],
     };
   }
 }
