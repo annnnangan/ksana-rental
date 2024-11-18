@@ -1,7 +1,7 @@
 "use client";
 import useBookingStore from "@/stores/BookingStore";
-import { Button, Flex } from "@radix-ui/themes";
-import React from "react";
+import { Button, Flex, Spinner } from "@radix-ui/themes";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { toast } from "react-toastify";
@@ -9,10 +9,12 @@ import { formatDate } from "@/lib/utils";
 
 const HandleSubmission = () => {
   const { bookingInfo } = useBookingStore();
+  const [isCreatingBooking, setCreatingBooking] = useState(false);
   const router = useRouter();
 
   const handleClick = async () => {
     try {
+      setCreatingBooking(true);
       const response = await fetch("/api/booking", {
         method: "POST",
         headers: {
@@ -37,7 +39,7 @@ const HandleSubmission = () => {
       );
       router.refresh();
     } catch (error) {
-      console.log(error);
+      setCreatingBooking(false);
       const formattedDate = formatDate(bookingInfo.date);
       const errorMessage =
         (error as Error).message || "An unexpected error occurred.";
@@ -54,11 +56,13 @@ const HandleSubmission = () => {
 
   return (
     <Flex gap="4">
-      <Button size="2" onClick={handleClick}>
+      <Button size="2" onClick={handleClick} disabled={isCreatingBooking}>
+        {isCreatingBooking ? <Spinner loading></Spinner> : ""}
         <p className="px-8">確定</p>
       </Button>
 
-      <Button variant="outline">
+      <Button variant="outline" disabled={isCreatingBooking}>
+        {isCreatingBooking ? <Spinner loading></Spinner> : ""}
         <p className="px-8">返回</p>
       </Button>
     </Flex>
