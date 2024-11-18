@@ -1,6 +1,6 @@
 import { convertStringToTime, formatDate, getHourFromTime } from "@/lib/utils";
 import { bookingService } from "@/services/BookingService";
-import { getDay } from "date-fns";
+import { compareAsc, format, getDay, parse } from "date-fns";
 import "react-day-picker/style.css";
 import { BookingQuery, timeslotInfo } from "../page";
 import TimeslotList from "./TimeslotList";
@@ -94,6 +94,19 @@ const GenerateTimeslot = async ({ searchParams }: Props) => {
         getHourFromTime(prev.start_time, false) -
         getHourFromTime(cur.start_time, false)
     );
+
+    if (selectedBookingDate === formatDate(todayDate)) {
+      availableTimeslots = availableTimeslots.filter(({ start_time }) => {
+        const slotTime = parse(start_time, "HH:mm:ss", new Date());
+
+        const currentTime = parse(
+          format(todayDate, "HH:mm:ss"),
+          "HH:mm:ss",
+          new Date()
+        );
+        return compareAsc(slotTime, currentTime) >= 0;
+      });
+    }
 
     return availableTimeslots;
   };

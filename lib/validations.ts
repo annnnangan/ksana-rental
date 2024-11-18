@@ -4,12 +4,9 @@ import { isValidPhoneNumber } from "libphonenumber-js";
 //date.parse("2020-01-01"); // pass
 //date, time, studio slug, remarks (optional), price
 const todayDate = new Date();
-export const bookingDateTimeSchema = z.object({
-  date: z
-    .date({
-      required_error: "Please select a date.",
-      invalid_type_error: "That's not a date!",
-    })
+export const bookingSchema = z.object({
+  date: z.coerce
+    .date()
     .min(todayDate, { message: "You have selected a date in the past" })
     .max(new Date(todayDate.getFullYear(), todayDate.getMonth() + 3, 0), {
       message: "You have selected a date exceed the allowed month",
@@ -34,4 +31,4 @@ export const bookingDateTimeSchema = z.object({
     ),
 });
 
-export type bookingDateTime = z.infer<typeof bookingDateTimeSchema>;
+export type Tbooking = z.infer<typeof bookingSchema>;

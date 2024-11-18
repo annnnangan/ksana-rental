@@ -1,9 +1,16 @@
-import { bookingDateTime } from "@/lib/validations";
+import { Tbooking } from "@/lib/validations";
 import { knex } from "@/services/knex";
-import { convertStringToTime } from "@/lib/utils";
+import {
+  calculateBookingEndTime,
+  convertStringToTime,
+  isPastDateTime,
+  isTimeInRange,
+} from "@/lib/utils";
 
-import { compareAsc } from "date-fns";
+import { compareAsc, getDate, getDay } from "date-fns";
 import { Knex } from "knex";
+import { NotFoundError, RequestError } from "@/lib/http-errors";
+import handleError from "@/lib/handlers/error";
 
 const dayOfWeekList = [
   "Sunday",
@@ -139,36 +146,111 @@ export class BookingService {
     };
   }
 
-  async createBooking(bookingInfo: bookingDateTime, userId: number) {
-    const studioId = (
-      await this.knex
-        .select("id")
-        .from("studio")
-        .where("slug", bookingInfo.studio)
-    )[0]?.id;
-
-    return {
-      success: true,
-      data: (
+  async createBooking(bookingInfo: Tbooking, userId: number) {
+    try {
+      //1. Validate if the studio exist
+      const studioId = (
         await this.knex
-          .insert({
-            user_id: userId,
-            studio_id: studioId,
-            date: new Date(bookingInfo.date),
-            start_time: convertStringToTime(bookingInfo.startTime),
-            end_time: convertStringToTime(
-              parseInt(bookingInfo.startTime.split(":")[0]) + 1 + ":00"
-            ),
-            price: bookingInfo.price,
-            whatsapp: bookingInfo.whatsapp,
-            remarks: bookingInfo.remarks,
-            status: "pending for payment",
-            is_complained: false,
+          .select("id")
+          .from("studio")
+          .where("slug", bookingInfo.studio)
+      )[0]?.id;
+
+      if (!studioId) {
+        throw new NotFoundError("此場地");
+      }
+
+      //2. Validate if the selected date and time is not in the past
+      const isPastBookingDateTime = isPastDateTime(
+        bookingInfo.date,
+        bookingInfo.startTime
+      );
+
+      if (isPastBookingDateTime) {
+        throw new Error("你所選擇之日期時間已過。");
+      }
+
+      //3. Validate if the selected date and time is available for booking
+      //3a. check if it is inside the booking table with status = confirm & pending for payment -> if yes throw error
+      const isBooked = (
+        await this.knex
+          .select("id")
+          .from("booking")
+          .where("date", bookingInfo.date)
+          .andWhere("start_time", bookingInfo.startTime)
+          .andWhere("studio_id", studioId)
+          .andWhere(function () {
+            this.whereIn("status", [
+              "confirm",
+              "completed",
+              "pending for payment",
+            ]);
           })
-          .into("booking")
-          .returning("reference_no")
-      )[0],
-    };
+      )[0]?.id;
+
+      if (isBooked) {
+        throw new Error("你所選擇之日期時間已被預約。");
+      }
+      //3b. check if it is within the business hour
+      const businessHours = await this.knex
+        .select("open_time", "end_time", "is_closed")
+        .from("studio_business_hour")
+        .where("day_of_week", dayOfWeekList[getDay(bookingInfo.date)])
+        .andWhere("studio_id", studioId);
+
+      if (
+        businessHours[0]["is_closed"] ||
+        !isTimeInRange(bookingInfo.startTime, businessHours)
+      ) {
+        throw new Error("你所選擇之日期時間不在營業時間內。");
+      }
+
+      //3c. check if it is inside the timeblock table -> if yes -> throw error
+      const timeblockList = await this.knex
+        .select("start_time as open_time", "end_time")
+        .from("studio_timeblock")
+        .where("date", bookingInfo.date)
+        .andWhere("studio_id", studioId);
+
+      if (
+        timeblockList.length > 0 &&
+        isTimeInRange(bookingInfo.startTime, timeblockList)
+      ) {
+        throw new Error("你所選擇之日期時間不在營業時間內。");
+      }
+
+      const insertedData = await this.knex
+        .insert({
+          user_id: userId,
+          studio_id: studioId,
+          date: new Date(bookingInfo.date),
+          start_time: convertStringToTime(bookingInfo.startTime),
+          end_time: convertStringToTime(
+            calculateBookingEndTime(bookingInfo.startTime)
+          ),
+          price: bookingInfo.price,
+          whatsapp: bookingInfo.whatsapp,
+          remarks: bookingInfo.remarks,
+          status: "pending for payment",
+          is_complained: false,
+        })
+        .into("booking")
+        .returning("reference_no");
+
+      return {
+        success: true,
+        data: insertedData[0],
+      };
+    } catch (error) {
+      if (error instanceof RequestError) {
+        throw error;
+      } else {
+        throw new RequestError(
+          500,
+          error instanceof Error ? error.message : "An unknown error occurred"
+        );
+      }
+    }
   }
 }
 

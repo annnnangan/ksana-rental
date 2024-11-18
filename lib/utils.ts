@@ -1,4 +1,14 @@
-import { format } from "date-fns";
+import {
+  format,
+  isAfter,
+  isBefore,
+  isWithinInterval,
+  parse,
+  parseISO,
+  setHours,
+  setMinutes,
+  setSeconds,
+} from "date-fns";
 
 //Time format for backend - Get "00:00:00" from "00:00" or "0"
 export function convertStringToTime(time: string | number) {
@@ -33,6 +43,42 @@ export function getHourFromTime(time: string, isEndTime: boolean) {
 export function calculateBookingEndTime(startTime: string) {
   const bookingDurationInHour = 1;
   return parseInt(startTime.split(":")[0]) + bookingDurationInHour + ":00";
+}
+
+export function isPastDateTime(date: Date, time: string) {
+  // Split the start time into hours, minutes, and seconds
+  const [hours, minutes, seconds] = time.split(":").map(Number);
+
+  // Combine selected date with start time
+  const selectedDateTime = setSeconds(
+    setMinutes(setHours(date, hours), minutes),
+    seconds
+  );
+
+  // Get the current date-time in UTC (or adjust to a specific timezone if needed)
+  const todayDate = new Date();
+
+  // Validate if selected date and time are in the past
+  return isBefore(selectedDateTime, todayDate);
+}
+
+export function isTimeInRange(bookingTime: string, timeRanges: any[]) {
+  // Parse the target time as a Date object (use today’s date to create a valid Date)
+  const targetDate = parse(bookingTime, "HH:mm:ss", new Date());
+
+  return timeRanges.some(({ open_time, end_time }) => {
+    // Parse open and end times
+    const openDate = parse(open_time, "HH:mm:ss", new Date());
+    const endDate = parse(end_time, "HH:mm:ss", new Date());
+
+    // Check if the target time is within the range
+    if (isBefore(openDate, endDate)) {
+      return isWithinInterval(targetDate, { start: openDate, end: endDate });
+    } else {
+      // Handle the case when the range spans over midnight
+      return isAfter(targetDate, openDate) || isBefore(targetDate, endDate);
+    }
+  });
 }
 
 //Format date for frontend

@@ -1,8 +1,8 @@
-import { bookingDateTime } from "@/lib/validations";
+import { Tbooking } from "@/lib/validations";
 import { create } from "zustand";
 
 interface BookingStore {
-  bookingInfo: bookingDateTime;
+  bookingInfo: Tbooking;
   setBookingTime: (startTime: string) => void;
   resetBookingTime: () => void;
   setBookingDate: (date: Date) => void;

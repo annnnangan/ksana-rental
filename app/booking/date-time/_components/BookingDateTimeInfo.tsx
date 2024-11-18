@@ -20,7 +20,7 @@ const BookingDateTimeInfo = () => {
       <BookingTitle>租用日期及時間</BookingTitle>
       <p>日期: {formatDate(date)}</p>
       <p>
-        時間:
+        時間:{" "}
         {startTime ? `${convertTimeToString(startTime)} - ${endTime}` : "---"}
       </p>
     </Flex>
