@@ -10,6 +10,8 @@ import {
   setSeconds,
 } from "date-fns";
 
+import { toZonedTime } from "date-fns-tz";
+
 //Time format for backend - Get "00:00:00" from "00:00" or "0"
 export function convertStringToTime(time: string | number) {
   if (typeof time == "number") {
@@ -55,11 +57,27 @@ export function isPastDateTime(date: Date, time: string) {
     seconds
   );
 
-  // Get the current date-time in UTC (or adjust to a specific timezone if needed)
+  // Get the current date-time in UTC+8 (HKT)
   const todayDate = new Date();
+  const hktOffset = 8 * 60; // Offset for Hong Kong Time (HKT = UTC+8)
+  const todayDateHKT = new Date(todayDate.getTime() + hktOffset * 60 * 1000);
 
   // Validate if selected date and time are in the past
   return isBefore(selectedDateTime, todayDate);
+}
+
+export function isPastDate(date: Date) {
+  // Get the current date
+  const today = new Date();
+  // Set the time of today's date to midnight (start of the day)
+  today.setHours(0, 0, 0, 0);
+
+  // Set the time of the selected date to midnight (start of the day)
+  const normalizedSelectedDate = new Date(date);
+  normalizedSelectedDate.setHours(0, 0, 0, 0);
+
+  // Compare the dates
+  return normalizedSelectedDate < today;
 }
 
 export function isTimeInRange(bookingTime: string, timeRanges: any[]) {
@@ -83,7 +101,11 @@ export function isTimeInRange(bookingTime: string, timeRanges: any[]) {
 
 //Format date for frontend
 export function formatDate(date: Date) {
-  return format(new Date(date), "yyyy-MM-dd");
+  const timeZone = "Asia/Hong_Kong";
+  // Convert the input date to the HKT timezone
+  const dateInHKT = toZonedTime(date, timeZone);
+  // Format the date in HKT
+  return format(dateInHKT, "yyyy-MM-dd");
 }
 
 //Return the maximum date that user could book

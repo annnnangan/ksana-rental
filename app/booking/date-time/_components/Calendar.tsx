@@ -4,7 +4,7 @@ import useBookingStore from "@/stores/BookingStore";
 import { compareAsc, format, getDay } from "date-fns";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { DayPicker } from "react-day-picker";
+import { DayPicker, TZDate } from "react-day-picker";
 import { toast } from "react-toastify";
 
 const Calendar = () => {
@@ -72,16 +72,19 @@ const Calendar = () => {
   }, [dateQueryString, setBookingDate]);
 
   // Set the selected date from query string / today's date
+  const timeZone = "Asia/Hong_Kong";
   const [selectedDate, setSelected] = useState<Date>(
-    dateQueryString === null ? new Date() : new Date(dateQueryString)
+    dateQueryString === null
+      ? new TZDate(new Date(), timeZone)
+      : new TZDate(dateQueryString, timeZone)
   );
 
   // Set selected date to query string when user select date
   const handleDateSelect = (date: Date) => {
     if (date) {
       // Format the date to 'YYYY-MM-DD'
-      const formattedDate = formatDate(date);
-      setSelected(date);
+      const formattedDate = formatDate(new TZDate(new Date(date), timeZone));
+      setSelected(new TZDate(new Date(date), timeZone));
       //reset booking time and price on screen when user select another date
       resetBookingTime();
       resetBookingPrice();
@@ -98,6 +101,7 @@ const Calendar = () => {
 
   return (
     <DayPicker
+      timeZone={timeZone}
       required
       className="mb-10"
       mode="single"

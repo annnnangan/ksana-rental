@@ -3,13 +3,19 @@ import { knex } from "@/services/knex";
 import {
   calculateBookingEndTime,
   convertStringToTime,
+  isPastDate,
   isPastDateTime,
   isTimeInRange,
 } from "@/lib/utils";
 
 import { compareAsc, getDate, getDay } from "date-fns";
 import { Knex } from "knex";
-import { NotFoundError, RequestError } from "@/lib/http-errors";
+import {
+  ForbiddenError,
+  NotFoundError,
+  RequestError,
+  UnauthorizedError,
+} from "@/lib/http-errors";
 import handleError from "@/lib/handlers/error";
 
 const dayOfWeekList = [
@@ -91,7 +97,7 @@ export class BookingService {
 
     //if the date we get is not in the past, we don't return any result
     //in the past = -1
-    if (compareAsc(new Date(date), new Date()) < 0) {
+    if (isPastDate(date)) {
       return {
         success: false,
         msg: "The date you pass is in the past.",
@@ -110,18 +116,18 @@ export class BookingService {
   }
 
   async getBookedTimeslot(studioSlug: string, date: Date) {
+    //1. Validate if studio exist
     const studioId = (
       await this.knex.select("id").from("studio").where("slug", studioSlug)
     )[0]?.id;
 
-    //Return error when studio don't exist
     if (!studioId) {
       return { success: false, msg: "Studio doesn't exist.", status: 404 };
     }
 
-    //if the date we get is not in the past, we don't return any result
-    //in the past = -1
-    if (compareAsc(new Date(date), new Date()) < 0) {
+    //2. Validate if the selected date and time is not in the past
+
+    if (isPastDate(date)) {
       return {
         success: false,
         msg: "The date you pass is in the past.",
@@ -240,6 +246,83 @@ export class BookingService {
       return {
         success: true,
         data: insertedData[0],
+      };
+    } catch (error) {
+      if (error instanceof RequestError) {
+        throw error;
+      } else {
+        throw new RequestError(
+          500,
+          error instanceof Error ? error.message : "An unknown error occurred"
+        );
+      }
+    }
+  }
+
+  async getBookingStatus(bookingReference: string, userId: number) {
+    try {
+      const bookingStatus = (
+        await this.knex
+          .select("status")
+          .from("booking")
+          .where("reference_no", bookingReference)
+          .andWhere("user_id", userId)
+      )[0]?.status;
+
+      if (!bookingStatus) {
+        throw new NotFoundError("此預約");
+      }
+
+      return {
+        success: true,
+        data: bookingStatus,
+      };
+    } catch (error) {
+      if (error instanceof RequestError) {
+        throw error;
+      } else {
+        throw new RequestError(
+          500,
+          error instanceof Error ? error.message : "An unknown error occurred"
+        );
+      }
+    }
+  }
+
+  async updateIsAcceptTnCValue(bookingReference: string, userId: number) {
+    try {
+      //check if this booking reference number belong to the user
+      const bookingReferenceResult = (
+        await this.knex
+          .select("status", "is_accept_tnc")
+          .from("booking")
+          .where("reference_no", bookingReference)
+          .andWhere("user_id", userId)
+      )[0];
+
+      //Throw error when no result return
+      if (bookingReferenceResult === undefined) {
+        throw new NotFoundError("此預約");
+      }
+
+      //check the booking reference status
+      if (bookingReferenceResult.status !== "pending for payment") {
+        throw new ForbiddenError("你的預約已過期/已完成，請重新預約。");
+      }
+
+      //If the reference number belongs to the user and the status is pending for payment
+      //Update the is_accept_tnc value from false to true
+      if (bookingReferenceResult.is_accept_tnc === false) {
+        await this.knex("booking")
+          .update("is_accept_tnc", true)
+          .where("reference_no", bookingReference)
+          .andWhere("user_id", userId);
+      }
+
+      return {
+        success: true,
+        message: "Successfully update the is_accept_tnc to true",
+        data: [],
       };
     } catch (error) {
       if (error instanceof RequestError) {

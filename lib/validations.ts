@@ -1,13 +1,15 @@
 import { z } from "zod";
 import { isValidPhoneNumber } from "libphonenumber-js";
+import { TZDate } from "@date-fns/tz";
 
 //date.parse("2020-01-01"); // pass
 //date, time, studio slug, remarks (optional), price
 const todayDate = new Date();
+todayDate.setHours(0, 0, 0, 0);
 export const bookingSchema = z.object({
   date: z.coerce
     .date()
-    .min(todayDate, { message: "You have selected a date in the past" })
+    .min(todayDate, { message: "You have selected a date in the past!" })
     .max(new Date(todayDate.getFullYear(), todayDate.getMonth() + 3, 0), {
       message: "You have selected a date exceed the allowed month",
     }),

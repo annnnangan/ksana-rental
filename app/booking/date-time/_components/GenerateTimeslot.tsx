@@ -95,6 +95,7 @@ const GenerateTimeslot = async ({ searchParams }: Props) => {
         getHourFromTime(cur.start_time, false)
     );
 
+    //Remove timeslot that is in the past
     if (selectedBookingDate === formatDate(todayDate)) {
       availableTimeslots = availableTimeslots.filter(({ start_time }) => {
         const slotTime = parse(start_time, "HH:mm:ss", new Date());

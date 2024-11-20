@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { toast } from "react-toastify";
 import { formatDate } from "@/lib/utils";
+import SubmissionButtons from "../../_components/SubmissionButtons";
 
 const HandleSubmission = () => {
   const { bookingInfo } = useBookingStore();
@@ -46,6 +47,7 @@ const HandleSubmission = () => {
       router.push(
         `/booking/date-time?studio=${bookingInfo.studio}&date=${formattedDate}`
       );
+      router.refresh();
       toast(errorMessage, {
         position: "bottom-right",
         type: "error",
@@ -55,17 +57,10 @@ const HandleSubmission = () => {
   };
 
   return (
-    <Flex gap="4">
-      <Button size="2" onClick={handleClick} disabled={isCreatingBooking}>
-        {isCreatingBooking ? <Spinner loading></Spinner> : ""}
-        <p className="px-8">確定</p>
-      </Button>
-
-      <Button variant="outline" disabled={isCreatingBooking}>
-        {isCreatingBooking ? <Spinner loading></Spinner> : ""}
-        <p className="px-8">返回</p>
-      </Button>
-    </Flex>
+    <SubmissionButtons
+      handleClick={handleClick}
+      isLoading={isCreatingBooking}
+    />
   );
 };
 

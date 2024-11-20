@@ -22,7 +22,7 @@ exports.up = async function (knex) {
     table.integer("price").unsigned().notNullable();
     table.text("whatsapp").notNullable();
     table.text("remarks");
-    table.boolean("isAcceptTnC").defaultTo(false).notNullable();
+    table.boolean("is_accept_tnc").defaultTo(false).notNullable();
     table
       .enu("status", [
         "confirm",
