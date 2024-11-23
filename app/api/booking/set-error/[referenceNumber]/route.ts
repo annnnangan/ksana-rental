@@ -5,8 +5,9 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { referenceNumber: string } }
+  props: { params: Promise<{ referenceNumber: string }> }
 ) {
+  const params = await props.params;
   try {
     if (!params.referenceNumber) {
       throw new NotFoundError("此預約");
