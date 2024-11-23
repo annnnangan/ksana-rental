@@ -1,7 +1,12 @@
-import React from "react";
+import ToastMessage from "./ToastMessage";
 
-const page = () => {
-  return <div>page</div>;
+const StudioPage = ({}) => {
+  return (
+    <>
+      <h1>Hello</h1>
+      <ToastMessage />
+    </>
+  );
 };
 
-export default page;
+export default StudioPage;

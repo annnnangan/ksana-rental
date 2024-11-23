@@ -1,12 +1,11 @@
+import { bookingService } from "@/services/BookingService";
 import { PriceType } from "@/services/model";
-import { Box, Container, Flex } from "@radix-ui/themes";
+import { Flex } from "@radix-ui/themes";
+import { redirect } from "next/navigation";
 import "react-day-picker/style.css";
 import BookingInfo from "./_components/BookingInfo";
 import Calendar from "./_components/Calendar";
 import GenerateTimeslot from "./_components/GenerateTimeslot";
-import { redirect } from "next/navigation";
-import { bookingService } from "@/services/BookingService";
-
 export interface timeslotInfo {
   start_time: string;
   price_type: PriceType;
@@ -27,6 +26,8 @@ const bookingSelectDateTimePage = async (props: Props) => {
   const searchParams = await props.searchParams;
 
   const studioSlug = searchParams.studio;
+
+  // const cookieStore = await cookies();
 
   //if studio is not exist in the query string, redirect the user to the studio page
   if (!studioSlug) {
