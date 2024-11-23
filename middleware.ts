@@ -35,13 +35,11 @@ export async function middleware(request: NextRequest) {
   }
 
   if (bookingReferenceNumberQueryString) {
-    console.log(bookingReferenceNumberQueryString);
     const data = await fetch(
       `${origin}/api/booking/set-error/${bookingReferenceNumberQueryString}`
     );
 
     const res = await data.json();
-    console.log(res);
 
     if (!res.success) {
       response.cookies.set("error", res.error.message);

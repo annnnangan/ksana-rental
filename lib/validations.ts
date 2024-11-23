@@ -33,4 +33,12 @@ export const bookingSchema = z.object({
     ),
 });
 
+export const bookingPhoneRemarksSchema = bookingSchema.partial({
+  date: true,
+  startTime: true,
+  studio: true,
+  price: true,
+});
+
 export type Tbooking = z.infer<typeof bookingSchema>;
+export type TbookingPhoneRemarks = z.infer<typeof bookingPhoneRemarksSchema>;

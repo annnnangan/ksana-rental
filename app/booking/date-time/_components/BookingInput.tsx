@@ -1,15 +1,15 @@
 "use client";
 import { TextArea, Text, Flex, TextField, Strong } from "@radix-ui/themes";
 import React from "react";
-import BookingTitle from "./BookingTitle";
+import SectionTitle from "../../_components/SectionTitle";
 import useBookingStore from "@/stores/BookingStore";
 
 const BookingInput = () => {
-  const { setRemarks, setWhatsapp, bookingInfo } = useBookingStore();
+  const { setRemarks, setWhatsapp } = useBookingStore();
   return (
     <>
       <Flex direction="column" gap="2" maxWidth={{ sm: "100%", lg: "500px" }}>
-        <BookingTitle>Whatsapp</BookingTitle>
+        <SectionTitle>Whatsapp</SectionTitle>
 
         <TextField.Root
           placeholder="請留下你的Whatsapp方便聯絡"
@@ -26,7 +26,7 @@ const BookingInput = () => {
         </TextField.Root>
       </Flex>
       <Flex direction="column" gap="2" maxWidth={{ sm: "100%", lg: "500px" }}>
-        <BookingTitle>備註</BookingTitle>
+        <SectionTitle>備註</SectionTitle>
         <TextArea
           size="2"
           placeholder="留下備註給商戶..."

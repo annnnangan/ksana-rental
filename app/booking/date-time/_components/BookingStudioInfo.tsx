@@ -3,7 +3,7 @@ import React from "react";
 import { bookingService } from "@/services/BookingService";
 import { BookingQuery } from "../page";
 import { Avatar, Flex } from "@radix-ui/themes";
-import BookingTitle from "./BookingTitle";
+import SectionTitle from "../../_components/SectionTitle";
 
 interface Props {
   searchParams: BookingQuery;
@@ -16,7 +16,7 @@ const BookingStudioInfo = async ({ searchParams }: Props) => {
 
   return (
     <Flex direction="column" gap="2">
-      <BookingTitle>租用場地</BookingTitle>
+      <SectionTitle>租用場地</SectionTitle>
       <Flex gap="4">
         <Avatar
           radius="full"

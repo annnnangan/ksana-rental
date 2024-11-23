@@ -1,4 +1,4 @@
-import { Tbooking } from "@/lib/validations";
+import { Tbooking, TbookingPhoneRemarks } from "@/lib/validations";
 import { knex } from "@/services/knex";
 import {
   calculateBookingEndTime,
@@ -378,6 +378,60 @@ export class BookingService {
       return {
         success: true,
         data: studioData,
+      };
+    } catch (error) {
+      if (error instanceof RequestError) {
+        throw error;
+      } else {
+        throw new RequestError(
+          500,
+          error instanceof Error ? error.message : "An unknown error occurred"
+        );
+      }
+    }
+  }
+
+  async updatePhoneRemarks(
+    bookingReference: string,
+    userId: number,
+    bookingInfo: TbookingPhoneRemarks
+  ) {
+    try {
+      //check if this booking reference number belong to the user
+      const bookingReferenceResult = (
+        await this.knex
+          .select("status", "is_accept_tnc")
+          .from("booking")
+          .where("reference_no", bookingReference)
+          .andWhere("user_id", userId)
+      )[0];
+
+      //Throw error when the booking reference doesn't exist
+      if (bookingReferenceResult === undefined) {
+        throw new NotFoundError("此預約");
+      }
+
+      if (bookingReferenceResult["is_accept_tnc"] === false) {
+        throw new ForbiddenError("你還沒同意條款與細則。");
+      }
+
+      if (bookingReferenceResult.status !== "pending for payment") {
+        //Throw error when the booking has been completed/canceled/expired
+        throw new ForbiddenError("你的預約已過期/已完成，請重新預約。");
+      }
+
+      await this.knex("booking")
+        .update({
+          whatsapp: bookingInfo.whatsapp,
+          remarks: bookingInfo.remarks,
+        })
+        .where("reference_no", bookingReference)
+        .andWhere("user_id", userId);
+
+      return {
+        success: true,
+        message: "Whatsapp and remarks are updated successfully.",
+        data: [],
       };
     } catch (error) {
       if (error instanceof RequestError) {

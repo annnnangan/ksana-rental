@@ -33,7 +33,7 @@ const HandleSubmission = () => {
       if (isChecked) {
         //When checkbox is checked, fetch the API to update the is_accept_tnc
         const response = await fetch(
-          `/api/booking?booking=${bookingReferenceNumber}`,
+          `/api/booking/terms-and-conditions?booking=${bookingReferenceNumber}`,
           {
             method: "PATCH",
             headers: {

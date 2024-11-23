@@ -1,7 +1,7 @@
 "use client";
 import useBookingStore from "@/stores/BookingStore";
 import { Flex, Text } from "@radix-ui/themes";
-import BookingTitle from "./BookingTitle";
+import SectionTitle from "../../_components/SectionTitle";
 import {
   calculateBookingEndTime,
   convertTimeToString,
@@ -17,7 +17,7 @@ const BookingDateTimeInfo = () => {
 
   return (
     <Flex direction="column" gap="2">
-      <BookingTitle>租用日期及時間</BookingTitle>
+      <SectionTitle>租用日期及時間</SectionTitle>
       <p>日期: {formatDate(date)}</p>
       <p>
         時間:{" "}
