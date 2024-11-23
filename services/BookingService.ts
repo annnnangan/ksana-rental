@@ -335,6 +335,61 @@ export class BookingService {
       }
     }
   }
+
+  async getBookingInfo(bookingReference: string, userId: number) {
+    try {
+      //check if this booking reference number belong to the user
+      const bookingReferenceResult = (
+        await this.knex
+          .select("status", "is_accept_tnc")
+          .from("booking")
+          .where("reference_no", bookingReference)
+          .andWhere("user_id", userId)
+      )[0];
+
+      //Throw error when the booking reference doesn't exist
+      if (bookingReferenceResult === undefined) {
+        throw new NotFoundError("此預約");
+      }
+
+      //Throw error when the booking has been completed/canceled/expired
+      if (bookingReferenceResult.status !== "pending for payment") {
+        throw new ForbiddenError("你的預約已過期/已完成，請重新預約。");
+      }
+
+      //Get studio info when the booking reference number belongs to user and is pending for payment
+      const studioData = (
+        await this.knex
+          .select(
+            "studio.name",
+            "studio.address",
+            "booking.date",
+            "booking.start_time",
+            "booking.end_time",
+            "booking.price",
+            "booking.whatsapp",
+            "booking.remarks"
+          )
+          .from("booking")
+          .leftJoin("studio", "booking.studio_id", "studio.id")
+          .where("booking.reference_no", bookingReference)
+          .andWhere("booking.user_id", userId)
+      )[0];
+      return {
+        success: true,
+        data: studioData,
+      };
+    } catch (error) {
+      if (error instanceof RequestError) {
+        throw error;
+      } else {
+        throw new RequestError(
+          500,
+          error instanceof Error ? error.message : "An unknown error occurred"
+        );
+      }
+    }
+  }
 }
 
 export const bookingService = new BookingService(knex);

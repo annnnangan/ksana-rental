@@ -10,17 +10,18 @@ const ToastMessage = () => {
   };
 
   useEffect(() => {
-    const cookies = document.cookie
+    const errorCookies = document.cookie
       .split("; ")
       .find((row) => row.startsWith("error="));
-    console.log(cookies);
 
-    if (cookies) {
-      toast("你所選擇的Studio不存在。", {
-        position: "top-right",
-        type: "error",
-        autoClose: 1000,
-      });
+    if (errorCookies) {
+      const errorCookiesMessage = decodeURI(errorCookies.split("=")[1]);
+      if (errorCookiesMessage)
+        toast(errorCookiesMessage, {
+          position: "top-right",
+          type: "error",
+          autoClose: 1000,
+        });
 
       setTimeout(() => {
         deleteCookie("error");
