@@ -28,11 +28,12 @@ exports.up = async function (knex) {
         "confirm",
         "cancel",
         "pending for payment",
-        "expired",
-        "completed",
+        "expire",
+        "complete",
       ])
       .notNullable();
-    table.boolean("is_complained").notNullable().defaultTo(false);
+    table.boolean("is_complaint").notNullable().defaultTo(false);
+    table.text("stripe_payment_id");
     table.timestamps(false, true);
   });
   await knex.raw(`

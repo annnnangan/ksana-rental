@@ -21,9 +21,10 @@ exports.seed = async function (knex) {
       end_time: convertStringToTime("11:00"),
       status: "confirm",
       price: 120,
-      whatsapp: "98765432",
+      whatsapp: "+85298765432",
       remarks: "可唔可以幫我set up一條Hammock。",
-      is_complained: false,
+      is_complaint: false,
+      stripe_payment_id: "pi_3QOf4WE9TWOIiP7J007pRGwF",
     },
     {
       user_id: 2,
@@ -33,9 +34,10 @@ exports.seed = async function (knex) {
       end_time: convertStringToTime("12:00"),
       status: "confirm",
       price: 120,
-      whatsapp: "98765432",
+      whatsapp: "+85298765432",
       remarks: "可唔可以幫我set up一條Hammock。",
-      is_complained: false,
+      is_complaint: false,
+      stripe_payment_id: "pi_3QOf4WE9TWOIiP7J007pRGwF",
     },
     {
       user_id: 2,
@@ -45,9 +47,9 @@ exports.seed = async function (knex) {
       end_time: convertStringToTime("13:00"),
       price: 120,
       status: "pending for payment",
-      whatsapp: "98765432",
+      whatsapp: "+85298765432",
       remarks: "可唔可以幫我set up一條Hammock。",
-      is_complained: false,
+      is_complaint: false,
     },
   ]);
 };

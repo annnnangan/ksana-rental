@@ -17,6 +17,7 @@ import {
   UnauthorizedError,
 } from "@/lib/http-errors";
 import handleError from "@/lib/handlers/error";
+import { BookingStatus } from "./model";
 
 const dayOfWeekList = [
   "Sunday",
@@ -30,6 +31,46 @@ const dayOfWeekList = [
 
 export class BookingService {
   constructor(private knex: Knex) {}
+
+  //Validate if the booking reference number exists and belongs to the user
+  //Validate if the booking status is pending of payment
+  async validateBooking(bookingReference: string, userId: number) {
+    try {
+      //check if this booking reference number belong to the user
+      const bookingReferenceResult = (
+        await this.knex
+          .select("status")
+          .from("booking")
+          .where("reference_no", bookingReference)
+          .andWhere("user_id", userId)
+      )[0];
+
+      //Throw error when the booking reference doesn't exist for the user
+      if (bookingReferenceResult === undefined) {
+        throw new NotFoundError("此預約");
+      }
+
+      //Throw error when the booking reference status is not pending for payment
+      if (bookingReferenceResult.status !== "pending for payment") {
+        //Throw error when the booking has been completed/canceled/expired
+        throw new ForbiddenError("你的預約已過期/已完成，請重新預約。");
+      }
+      return {
+        success: true,
+        message: "The booking reference number exists and belongs to the user",
+        data: [],
+      };
+    } catch (error) {
+      if (error instanceof RequestError) {
+        throw error;
+      } else {
+        throw new RequestError(
+          500,
+          error instanceof Error ? error.message : "An unknown error occurred"
+        );
+      }
+    }
+  }
 
   async isStudioExist(studioSlug: string) {
     const studioId = (
@@ -145,7 +186,7 @@ export class BookingService {
         .andWhere(function () {
           this.whereIn("status", [
             "confirm",
-            "completed",
+            "complete",
             "pending for payment",
           ]);
         }),
@@ -188,7 +229,7 @@ export class BookingService {
           .andWhere(function () {
             this.whereIn("status", [
               "confirm",
-              "completed",
+              "complete",
               "pending for payment",
             ]);
           })
@@ -238,7 +279,7 @@ export class BookingService {
           whatsapp: bookingInfo.whatsapp,
           remarks: bookingInfo.remarks,
           status: "pending for payment",
-          is_complained: false,
+          is_complaint: false,
         })
         .into("booking")
         .returning("reference_no");
@@ -431,6 +472,41 @@ export class BookingService {
       return {
         success: true,
         message: "Whatsapp and remarks are updated successfully.",
+        data: [],
+      };
+    } catch (error) {
+      if (error instanceof RequestError) {
+        throw error;
+      } else {
+        throw new RequestError(
+          500,
+          error instanceof Error ? error.message : "An unknown error occurred"
+        );
+      }
+    }
+  }
+
+  async updateConfirmBooking(
+    bookingReference: string,
+    userId: number,
+    stripePaymentId: string
+  ) {
+    try {
+      const isValidBooking = await this.validateBooking(
+        bookingReference,
+        userId
+      );
+
+      if (isValidBooking.success) {
+        await this.knex("booking")
+          .update({ status: "confirm", stripe_payment_id: stripePaymentId })
+          .where("reference_no", bookingReference)
+          .andWhere("user_id", userId);
+      }
+
+      return {
+        success: true,
+        message: "The booking status has been updated",
         data: [],
       };
     } catch (error) {

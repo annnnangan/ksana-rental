@@ -11,6 +11,8 @@
   "dependencies": {
     "@date-fns/tz": "^1.2.0",
     "@radix-ui/themes": "^3.1.6",
+    "@stripe/react-stripe-js": "^3.0.0",
+    "@stripe/stripe-js": "^5.2.0",
     "date-fns": "^4.1.0",
     "date-fns-tz": "^3.2.0",
     "dotenv": "^16.4.5",
@@ -22,6 +24,7 @@
     "react-day-picker": "^9.3.0",
     "react-dom": "19.0.0-rc-66855b96-20241106",
     "react-toastify": "^10.0.6",
+    "stripe": "^17.4.0",
     "zod": "^3.23.8",
     "zustand": "^5.0.1"
   },

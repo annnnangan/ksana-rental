@@ -4,5 +4,5 @@ export type BookingStatus =
   | "confirm"
   | "cancel"
   | "pending for payment"
-  | "expired"
-  | "completed";
+  | "expire"
+  | "complete";
