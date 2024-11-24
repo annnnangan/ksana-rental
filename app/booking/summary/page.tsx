@@ -11,6 +11,7 @@ import PaymentMethod from "../_components/PaymentMethod";
 import Whatsapp from "../_components/Whatsapp";
 import Remarks from "../_components/Remarks";
 import HandleSubmission from "./HandleSubmission";
+import ToastMessage from "@/app/_components/ToastMessage";
 
 interface BookingQuery {
   booking: string;
@@ -33,12 +34,16 @@ const BookingSummaryPage = async (props: Props) => {
       userId
     );
     bookingInfo = bookingInfoResult.data;
-
-    if (!bookingInfoResult.success) {
-      redirect("/studio");
-    }
   } catch (error) {
-    redirect("/studio");
+    const errorMessage =
+      error instanceof Error ? error.message : "系統出現錯誤，請重試。";
+    return (
+      <ToastMessage
+        type={"error"}
+        errorMessage={errorMessage}
+        redirectPath={"/studio"}
+      />
+    );
   }
 
   //todo - could revise remarks & phone and update database when hit agree but cannot revise the date, time and price
