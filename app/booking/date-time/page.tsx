@@ -1,11 +1,12 @@
 import { bookingService } from "@/services/BookingService";
 import { PriceType } from "@/services/model";
 import { Flex } from "@radix-ui/themes";
-import { redirect } from "next/navigation";
 import "react-day-picker/style.css";
+import ToastMessage from "../../_components/ToastMessage";
 import BookingInfo from "./_components/BookingInfo";
 import Calendar from "./_components/Calendar";
 import GenerateTimeslot from "./_components/GenerateTimeslot";
+
 export interface timeslotInfo {
   start_time: string;
   price_type: PriceType;
@@ -27,31 +28,43 @@ const bookingSelectDateTimePage = async (props: Props) => {
 
   const studioSlug = searchParams.studio;
 
-  // const cookieStore = await cookies();
-
   //if studio is not exist in the query string, redirect the user to the studio page
   if (!studioSlug) {
-    redirect("/studio");
+    return (
+      <ToastMessage
+        type={"error"}
+        errorMessage={"必須選擇場地才可開始預約。"}
+        redirectPath={"/studio"}
+      />
+    );
   }
 
   const isStudioExist = await bookingService.isStudioExist(studioSlug);
   //if studio in the query string doesn't exist in the database, redirect user to the studio page
   if (!isStudioExist.success) {
-    redirect("/studio");
+    return (
+      <ToastMessage
+        type={"error"}
+        errorMessage={"場地不存在。"}
+        redirectPath={"/studio"}
+      />
+    );
   }
 
   return (
-    <div className="md:flex gap-5">
-      <div className="lg:w-1/3  w-full">
-        <Calendar />
+    <>
+      <div className="md:flex gap-5">
+        <div className="lg:w-1/3  w-full">
+          <Calendar />
+        </div>
+        <div className="lg:w-2/3  w-full">
+          <Flex direction="column" gap="9">
+            <GenerateTimeslot searchParams={searchParams} />
+            <BookingInfo searchParams={searchParams} />
+          </Flex>
+        </div>
       </div>
-      <div className="lg:w-2/3  w-full">
-        <Flex direction="column" gap="9">
-          <GenerateTimeslot searchParams={searchParams} />
-          <BookingInfo searchParams={searchParams} />
-        </Flex>
-      </div>
-    </div>
+    </>
   );
 };
 
