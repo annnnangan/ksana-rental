@@ -582,6 +582,7 @@ export class BookingService {
           const bookingData = (
             await this.knex
               .select(
+                "studio.slug",
                 "studio.name",
                 "studio.address",
                 "booking.date",

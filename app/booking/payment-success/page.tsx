@@ -8,6 +8,7 @@ import StepTitle from "../_components/StepTitle";
 import StudioNameAddress from "../_components/StudioNameAddress";
 import okIcon from "@/public/assets/ok.png";
 import Image from "next/image";
+import ActionButtons from "./ActionButtons";
 
 //ensure the booking status is confirm
 //get the booking id
@@ -90,6 +91,8 @@ const PaymentSuccessPage = async (props: Props) => {
             </Callout.Text>
           </Callout.Root>
         </Flex>
+
+        <ActionButtons studioSlug={bookingInfo.slug} />
       </Flex>
     </>
   );
