@@ -72,6 +72,43 @@ export class BookingService {
     }
   }
 
+  async validateIsBookingExist(bookingReference: string, userId: number) {
+    try {
+      if (!bookingReference) {
+        throw new NotFoundError("此預約");
+      }
+
+      if (!userId) {
+        throw new UnauthorizedError("請先登入。");
+      }
+      //check if this booking reference number belong to the user
+      const bookingReferenceResult = (
+        await this.knex
+          .select("status")
+          .from("booking")
+          .where("reference_no", bookingReference)
+          .andWhere("user_id", userId)
+      )[0];
+
+      //Throw error when the booking reference doesn't exist for the user
+      if (bookingReferenceResult === undefined) {
+        throw new NotFoundError("此預約");
+      }
+
+      return {
+        success: true,
+        message: "The booking reference number exists and belongs to the user",
+        data: [],
+      };
+    } catch (error) {
+      if (error instanceof RequestError) {
+        throw error;
+      } else {
+        throw new RequestError(500, "系統發生錯誤。");
+      }
+    }
+  }
+
   async isStudioExist(studioSlug: string) {
     const studioId = (
       await this.knex.select("id").from("studio").where("slug", studioSlug)
@@ -516,6 +553,59 @@ export class BookingService {
         throw new RequestError(
           500,
           error instanceof Error ? error.message : "An unknown error occurred"
+        );
+      }
+    }
+  }
+
+  async getConfirmBookingInfo(bookingReference: string, userId: number) {
+    try {
+      //todo - validate if the booking reference number belongs to user
+      const isValidBooking = await this.validateIsBookingExist(
+        bookingReference,
+        userId
+      );
+
+      if (isValidBooking.success) {
+        //todo - check booking status
+        const bookingStatus = await this.getBookingStatus(
+          bookingReference,
+          userId
+        );
+
+        //todo - No information will be pulled when the status is not confirm
+        if (bookingStatus.data !== "confirm") {
+          throw new Error("此預約未付款/已過期。");
+        }
+
+        if (bookingStatus.data === "confirm") {
+          const bookingData = (
+            await this.knex
+              .select(
+                "studio.name",
+                "studio.address",
+                "booking.date",
+                "booking.start_time",
+                "booking.end_time"
+              )
+              .from("booking")
+              .leftJoin("studio", "booking.studio_id", "studio.id")
+              .where("booking.reference_no", bookingReference)
+              .andWhere("booking.user_id", userId)
+          )[0];
+          return {
+            success: true,
+            data: bookingData,
+          };
+        }
+      }
+    } catch (error) {
+      if (error instanceof RequestError) {
+        throw error;
+      } else {
+        throw new RequestError(
+          500,
+          error instanceof Error ? error.message : "系統發生錯誤。"
         );
       }
     }

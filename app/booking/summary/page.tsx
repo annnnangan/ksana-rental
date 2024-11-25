@@ -54,11 +54,13 @@ const BookingSummaryPage = async (props: Props) => {
         <StudioNameAddress
           studioName={bookingInfo.name}
           studioAddress={bookingInfo.address}
+          alignValue={"start"}
         />
         <DateTimeInfo
           startTime={bookingInfo.start_time}
           bookingDate={bookingInfo.date}
           endTime={bookingInfo.end_time}
+          alignValue={"start"}
         />
         <PaymentMethod />
         <Price

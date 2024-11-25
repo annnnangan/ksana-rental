@@ -7,11 +7,17 @@ interface Props {
   bookingDate: Date;
   startTime: string;
   endTime: string;
+  alignValue: "start" | "end" | "center";
 }
 
-const DateTimeInfo = ({ bookingDate, startTime, endTime }: Props) => {
+const DateTimeInfo = ({
+  bookingDate,
+  startTime,
+  endTime,
+  alignValue = "start",
+}: Props) => {
   return (
-    <Flex direction="column" gap="2">
+    <Flex direction="column" gap="2" align={alignValue}>
       <SectionTitle>租用日期及時間</SectionTitle>
       <p>日期: {formatDate(bookingDate)}</p>
       <p>
