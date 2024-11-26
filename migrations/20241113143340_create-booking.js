@@ -19,18 +19,21 @@ exports.up = async function (knex) {
     table.date("date").notNullable();
     table.time("start_time").notNullable();
     table.time("end_time").notNullable();
+    table.integer("price").unsigned().notNullable();
     table.text("whatsapp").notNullable();
     table.text("remarks");
+    table.boolean("is_accept_tnc").defaultTo(false).notNullable();
     table
       .enu("status", [
         "confirm",
         "cancel",
         "pending for payment",
-        "expired",
-        "completed",
+        "expire",
+        "complete",
       ])
       .notNullable();
-    table.boolean("is_complained").notNullable().defaultTo(false);
+    table.boolean("is_complaint").notNullable().defaultTo(false);
+    table.text("stripe_payment_id");
     table.timestamps(false, true);
   });
   await knex.raw(`
