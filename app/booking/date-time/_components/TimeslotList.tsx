@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Timeslot from "./Timeslot";
 import { BookingQuery, timeslotInfo } from "../page";
 import useBookingStore from "@/stores/BookingStore";
-import { convertTimeToString } from "@/lib/utils";
+import { convertTimeToString } from "@/lib/date-time-utils";
 
 interface Props {
   availableTimeslots: timeslotInfo[];

@@ -1,7 +1,7 @@
 import { Flex } from "@radix-ui/themes";
 import React from "react";
 import SectionTitle from "./SectionTitle";
-import { convertTimeToString, formatDate } from "@/lib/utils";
+import { convertTimeToString, formatDate } from "@/lib/date-time-utils";
 
 interface Props {
   bookingDate: Date;

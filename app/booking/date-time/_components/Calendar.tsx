@@ -1,5 +1,5 @@
 "use client";
-import { formatDate, maxBookingDate } from "@/lib/utils";
+import { formatDate, maxBookingDate } from "@/lib/date-time-utils";
 import useBookingStore from "@/stores/BookingStore";
 import { compareAsc, format, getDay } from "date-fns";
 import { useRouter, useSearchParams } from "next/navigation";
