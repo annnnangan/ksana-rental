@@ -60,6 +60,18 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        brand: {
+          50: "#e5f5f9",
+          100: "#ccecf3",
+          200: "#b2e3ee",
+          300: "#99d9e8",
+          400: "#80d0e3",
+          500: "#02D0FE",
+          600: "#01a2c7",
+          700: "#0184A2",
+          800: "#01677E",
+          900: "#004A5A",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
