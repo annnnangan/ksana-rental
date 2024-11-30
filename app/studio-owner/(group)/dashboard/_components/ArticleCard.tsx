@@ -10,7 +10,7 @@ interface Props {
 
 const ArticleCard = ({ image, title, href }: Props) => {
   return (
-    <li className="p-3 lg:w-1/3">
+    <li className="p-3 lg:w-1/3 flex flex-col justify-between">
       <h4 className="font-semibold">{title}</h4>
 
       <LinkButton href={href} children={"Read"} />
