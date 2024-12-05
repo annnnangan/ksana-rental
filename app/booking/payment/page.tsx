@@ -1,6 +1,6 @@
-import ToastMessage from "@/app/_components/ToastMessage";
 import { bookingService } from "@/services/BookingService";
 import StripeWrapper from "./_components/StripeWrapper";
+import ToastMessageWithRedirect from "@/app/_components/ToastMessageWithRedirect";
 
 interface BookingQuery {
   booking: string;
@@ -28,7 +28,7 @@ const BookingPaymentPage = async (props: Props) => {
     const errorMessage =
       error instanceof Error ? error.message : "系統出現錯誤，請重試。";
     return (
-      <ToastMessage
+      <ToastMessageWithRedirect
         type={"error"}
         errorMessage={errorMessage}
         redirectPath={"/studio"}

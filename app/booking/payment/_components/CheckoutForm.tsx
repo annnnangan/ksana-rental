@@ -1,6 +1,6 @@
 "use client";
 
-import ToastMessage from "@/app/_components/ToastMessage";
+import ToastMessage from "@/app/_components/ToastMessageWithRedirect";
 import convertToSubcurrency from "@/lib/convertToSubcurrency";
 import { Box, Button, Flex, Spinner } from "@radix-ui/themes";
 import {

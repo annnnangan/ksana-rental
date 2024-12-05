@@ -1,7 +1,6 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@import "~react-toastify/dist/ReactToastify.min.css";
 
 body {
   font-family: Arial, Helvetica, sans-serif;
@@ -25,7 +24,7 @@ body {
     --accent-foreground: 222.2 47.4% 11.2%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
+    --border: 191 99% 39%;
     --input: 214.3 31.8% 91.4%;
     --ring: 191 99% 39%;
     --radius: 0.5rem;
