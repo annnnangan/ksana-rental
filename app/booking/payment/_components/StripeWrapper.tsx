@@ -1,5 +1,5 @@
 "use client";
-import convertToSubcurrency from "@/lib/convertToSubcurrency";
+import convertToSubcurrency from "@/lib/utils/convert-to-subcurrency-utils";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 

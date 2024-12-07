@@ -1,17 +1,25 @@
 "use client";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Image as ImageIcon, ImageUp as ImageUpIcon } from "lucide-react";
 import React, { useRef, useState } from "react";
 import { toast } from "react-toastify";
+import { Building2 } from "lucide-react";
+import UploadButton from "./UploadButton";
+import { uploadImage } from "@/lib/utils/s3-image-upload-utils";
 
 interface Props {
   coverPhotoUrl?: string;
+  logoUrl?: string;
+  studioId: number;
 }
 
-const BasicInfoForm = ({ coverPhotoUrl }: Props) => {
-  const hiddenFileInput = useRef<HTMLInputElement>(null);
-  const [file, setFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+const BasicInfoForm = ({ coverPhotoUrl, logoUrl, studioId }: Props) => {
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [coverPreviewUrl, setCoverPreviewUrl] = useState<string | null>(null);
+
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
 
   const computeSHA256 = async (file: File) => {
     const buffer = await file.arrayBuffer();
@@ -23,87 +31,55 @@ const BasicInfoForm = ({ coverPhotoUrl }: Props) => {
     return hashHex;
   };
 
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    if (hiddenFileInput.current) {
-      hiddenFileInput.current.click();
+  //Display uploaded image
+  const handleCoverSelect = (selectedFile: File | null) => {
+    setCoverFile(selectedFile);
+
+    if (coverPreviewUrl) {
+      URL.revokeObjectURL(coverPreviewUrl);
+    }
+
+    if (selectedFile) {
+      const url = URL.createObjectURL(selectedFile);
+      setCoverPreviewUrl(url);
+    } else {
+      setCoverPreviewUrl(null);
     }
   };
 
-  //Display uploaded image
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] ?? null;
-    setFile(file);
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
+  const handleLogoSelect = (selectedFile: File | null) => {
+    setLogoFile(selectedFile);
+
+    if (logoPreviewUrl) {
+      URL.revokeObjectURL(logoPreviewUrl);
     }
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setPreviewUrl(url);
+
+    if (selectedFile) {
+      const url = URL.createObjectURL(selectedFile);
+      setLogoPreviewUrl(url);
     } else {
-      setPreviewUrl(null);
+      setLogoPreviewUrl(null);
     }
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (file) {
-      const signedURLParams = {
-        originalFileName: file.name,
-        fileType: file.type,
-        fileSize: file.size,
-        checksum: await computeSHA256(file),
-      };
-
+    if (coverFile || logoFile) {
       try {
-        //Generate a signed url to authorize to upload the image
-        const signedURLFetchResponse = await fetch("/api/uploads/signed-url", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(signedURLParams),
-        });
-
-        if (!signedURLFetchResponse.ok) {
-          const errorResponse = await signedURLFetchResponse.json();
-          console.log(errorResponse);
-          throw new Error(
-            errorResponse.error.message || "系統出現錯誤，請重試。"
-          );
+        // Upload cover image
+        if (coverFile) {
+          await uploadImage(coverFile, "cover_photo", studioId);
         }
 
-        const signedURLData = await signedURLFetchResponse.json();
-
-        if (signedURLData.success) {
-          const signedURL = signedURLData.data;
-          //Fetch the signed url to upload the image to AWS S3 bucket
-          const imageUploadResponse = await fetch(signedURL, {
-            method: "PUT",
-            headers: {
-              "Content-Type": file.type,
-            },
-            body: file,
-          });
-
-          if (!imageUploadResponse.ok) {
-            throw new Error("系統出現錯誤，請重試。");
-          }
-
-          //save the image path to database
-          await fetch("/api/studio/" + 1 + "/images", {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              imageType: "cover_photo",
-              imageUrl: signedURL.split("?")[0],
-            }),
-          });
+        // Upload logo image
+        if (logoFile) {
+          await uploadImage(logoFile, "logo", studioId);
         }
       } catch (error) {
         const errorMessage =
-          error instanceof Error ? error.message : "系統出現錯誤，請重試。";
+          error instanceof Error
+            ? error.message
+            : "系統發生未預期錯誤，請重試。";
         toast(errorMessage, {
           position: "top-right",
           type: "error",
@@ -115,18 +91,20 @@ const BasicInfoForm = ({ coverPhotoUrl }: Props) => {
 
   return (
     <form onSubmit={handleSubmit}>
-      <div className="relative w-auto h-60 aspect-[3/1] bg-neutral-200">
-        {previewUrl && file ? (
+      {/* Input 1: Cover Image */}
+
+      <div className="relative max-w-full w-auto h-60 aspect-[3/1] bg-neutral-200 rounded-md">
+        {coverPreviewUrl && coverFile ? (
           <img
-            src={previewUrl}
-            alt="Selected file"
-            className="absolute inset-0 w-full h-full object-cover"
+            src={coverPreviewUrl}
+            alt="Cover preview"
+            className="absolute inset-0 w-full h-full object-cover rounded-md"
           />
         ) : coverPhotoUrl ? (
           <img
             src={coverPhotoUrl}
-            alt="Selected file"
-            className="absolute inset-0 w-full h-full object-cover"
+            alt="Cover photo"
+            className="absolute inset-0 w-full h-full object-cover rounded-md"
           />
         ) : (
           <div className="absolute right-1/2 top-1/2">
@@ -135,26 +113,37 @@ const BasicInfoForm = ({ coverPhotoUrl }: Props) => {
         )}
 
         <div className="absolute bottom-3 right-3">
-          <Button
-            className="rounded-full text-sm border-primary hover:bg-primary hover:text-white"
-            variant="outline"
-            onClick={handleClick}
-          >
-            <ImageUpIcon /> 上載封面圖片
-          </Button>
-
-          <input
-            className="bg-transparent flex-1 border-none outline-none hidden"
-            name="media"
-            type="file"
-            accept="image/jpeg,image/png,image/webp"
-            onChange={handleFileChange}
-            ref={hiddenFileInput}
+          <UploadButton
+            onFileSelect={handleCoverSelect}
+            buttonLabel="上載封面圖片"
           />
         </div>
       </div>
 
-      <Button type="submit"> Save</Button>
+      {/* Input 2: Logo */}
+      <div className="mt-5 flex items-center gap-4">
+        <Avatar className="h-24 w-24">
+          {logoPreviewUrl && logoFile ? (
+            <AvatarImage src={logoPreviewUrl} className="object-cover" />
+          ) : logoUrl ? (
+            <AvatarImage src={logoUrl} className="object-cover" />
+          ) : (
+            <AvatarFallback>
+              <Building2 />
+            </AvatarFallback>
+          )}
+        </Avatar>
+
+        <UploadButton onFileSelect={handleLogoSelect} buttonLabel="上載Logo" />
+      </div>
+
+      {/* Input 3: Studio Name */}
+
+      {/* Input 4: Studio slug */}
+
+      <Button type="submit" className="mt-5">
+        Save
+      </Button>
     </form>
   );
 };
