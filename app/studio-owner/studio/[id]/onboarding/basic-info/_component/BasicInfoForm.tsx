@@ -1,28 +1,29 @@
 "use client";
+import ErrorMessage from "@/app/_components/ErrorMessage";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { uploadImage } from "@/lib/utils/s3-image-upload-utils";
-import { Building2, Image as ImageIcon } from "lucide-react";
-import React, { useState } from "react";
-import { toast } from "react-toastify";
-import UploadButton from "./UploadButton";
-import { z } from "zod";
-import { studioBasicInfoSchema } from "@/lib/validations";
-import { useForm } from "react-hook-form";
 import { Label } from "@/components/ui/label";
-import ErrorMessage from "@/app/_components/ErrorMessage";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { uploadImage } from "@/lib/utils/s3-image-upload-utils";
+import { studioBasicInfoSchema } from "@/lib/validations";
+import { districts } from "@/services/model";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Building2, Image as ImageIcon } from "lucide-react";
+import { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { toast } from "react-toastify";
+import { z } from "zod";
+import UploadButton from "./UploadButton";
 
 interface Props {
   coverPhotoUrl?: string;
@@ -213,6 +214,47 @@ const BasicInfoForm = ({ coverPhotoUrl, logoUrl, studioId }: Props) => {
       <ErrorMessage> {errors.studioDescription?.message}</ErrorMessage>
 
       {/* Input 6: Address */}
+
+      <div className="grid w-full items-center gap-1 mt-8">
+        <Label htmlFor="district" className="text-base font-bold">
+          場地地址
+        </Label>
+        <Controller
+          name="district"
+          control={control}
+          render={({ field }) => (
+            <Select onValueChange={field.onChange} value={field.value}>
+              <SelectTrigger className="w-[150px]">
+                <SelectValue placeholder="選擇場地之地區" />
+              </SelectTrigger>
+              <SelectContent>
+                {districts.map((item) => (
+                  <SelectGroup key={item.area.value}>
+                    <SelectLabel>---- {item.area.label} ----</SelectLabel>
+                    {item.district.map((location) => (
+                      <SelectItem value={location.value} key={location.value}>
+                        {location.label}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        />
+        <ErrorMessage> {errors.district?.message}</ErrorMessage>
+
+        <Input
+          type="text"
+          id="address"
+          placeholder="請填寫場地地址。"
+          className="text-sm"
+          {...register("address")}
+        />
+      </div>
+
+      <ErrorMessage> {errors.address?.message}</ErrorMessage>
+
       <Button type="submit" className="mt-5">
         Save
       </Button>

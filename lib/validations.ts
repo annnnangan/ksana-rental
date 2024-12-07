@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { isValidPhoneNumber } from "libphonenumber-js";
 import { TZDate } from "@date-fns/tz";
+import { districts } from "@/services/model";
 
 //1. Booking Schema
 //date.parse("2020-01-01"); // pass
@@ -50,6 +51,9 @@ export type TbookingPhoneRemarks = z.infer<typeof bookingPhoneRemarksSchema>;
 export const allowedImageMineTypes = ["image/jpeg", "image/jpg", "image/png"];
 export const maxFileSize = 1048576 * 2; // 2 MB
 const allowedImageTypes = ["jpeg", "jpg", "png"];
+const districtValues = districts
+  .flatMap((item) => item.district)
+  .map((location) => location.value) as [string, ...string[]];
 
 export const studioSchema = z.object({
   coverImage: z
@@ -83,13 +87,19 @@ export const studioSchema = z.object({
     .string()
     .min(50, "請至少填寫50字的場地描述。")
     .max(65535),
+  district: z.enum(districtValues, {
+    errorMap: () => ({ message: "請選擇正確場地地區。" }),
+  }),
+  address: z.string().min(5, "請填寫正確場地地址。").max(100),
 });
 
 //2.1 - Studio Basic Info
-export const studioBasicInfoSchema = studioSchema.partial({
+export const studioBasicInfoSchema = studioSchema.required({
   // coverImage: true,
   // logo: true,
   studioName: true,
   studioSlug: true,
   studioDescription: true,
+  district: true,
+  address: true,
 });
