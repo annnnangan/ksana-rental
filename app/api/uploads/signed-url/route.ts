@@ -4,10 +4,7 @@ import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
-
-const allowedFileTypes = ["image/jpeg", "image/png"];
-
-const maxFileSize = 1048576 * 2; // 2 MB
+import { allowedImageMineTypes, maxFileSize } from "@/lib/validations";
 
 const generateFileName = (bytes = 32) =>
   crypto.randomBytes(bytes).toString("hex");
@@ -32,7 +29,7 @@ export async function POST(request: NextRequest) {
     const userId = 1;
     const studioId = 1;
 
-    if (!allowedFileTypes.includes(fileType)) {
+    if (!allowedImageMineTypes.includes(fileType)) {
       throw new Error("不支持此檔案格式。請上傳jpeg或png圖片檔案。");
     }
 

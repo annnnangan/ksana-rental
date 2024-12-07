@@ -1,12 +1,28 @@
 "use client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Image as ImageIcon, ImageUp as ImageUpIcon } from "lucide-react";
-import React, { useRef, useState } from "react";
-import { toast } from "react-toastify";
-import { Building2 } from "lucide-react";
-import UploadButton from "./UploadButton";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { uploadImage } from "@/lib/utils/s3-image-upload-utils";
+import { Building2, Image as ImageIcon } from "lucide-react";
+import React, { useState } from "react";
+import { toast } from "react-toastify";
+import UploadButton from "./UploadButton";
+import { z } from "zod";
+import { studioBasicInfoSchema } from "@/lib/validations";
+import { useForm } from "react-hook-form";
+import { Label } from "@/components/ui/label";
+import ErrorMessage from "@/app/_components/ErrorMessage";
+import { Textarea } from "@/components/ui/textarea";
 
 interface Props {
   coverPhotoUrl?: string;
@@ -14,22 +30,26 @@ interface Props {
   studioId: number;
 }
 
+type studioBasicInfoSchemaFormData = z.infer<typeof studioBasicInfoSchema>;
+
 const BasicInfoForm = ({ coverPhotoUrl, logoUrl, studioId }: Props) => {
+  const {
+    register,
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<studioBasicInfoSchemaFormData>({
+    resolver: zodResolver(studioBasicInfoSchema),
+  });
+
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreviewUrl, setCoverPreviewUrl] = useState<string | null>(null);
 
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
 
-  const computeSHA256 = async (file: File) => {
-    const buffer = await file.arrayBuffer();
-    const hashBuffer = await crypto.subtle.digest("SHA-256", buffer);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hashHex = hashArray
-      .map((b) => b.toString(16).padStart(2, "0"))
-      .join("");
-    return hashHex;
-  };
+  const [error, setError] = useState("");
+  const [isSubmitting, setSubmitting] = useState(false);
 
   //Display uploaded image
   const handleCoverSelect = (selectedFile: File | null) => {
@@ -62,8 +82,7 @@ const BasicInfoForm = ({ coverPhotoUrl, logoUrl, studioId }: Props) => {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const onSubmit = handleSubmit(async (data) => {
     if (coverFile || logoFile) {
       try {
         // Upload cover image
@@ -87,12 +106,11 @@ const BasicInfoForm = ({ coverPhotoUrl, logoUrl, studioId }: Props) => {
         });
       }
     }
-  };
+  });
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={onSubmit}>
       {/* Input 1: Cover Image */}
-
       <div className="relative max-w-full w-auto h-60 aspect-[3/1] bg-neutral-200 rounded-md">
         {coverPreviewUrl && coverFile ? (
           <img
@@ -121,7 +139,7 @@ const BasicInfoForm = ({ coverPhotoUrl, logoUrl, studioId }: Props) => {
       </div>
 
       {/* Input 2: Logo */}
-      <div className="mt-5 flex items-center gap-4">
+      <div className="mt-5 flex items-end gap-4">
         <Avatar className="h-24 w-24">
           {logoPreviewUrl && logoFile ? (
             <AvatarImage src={logoPreviewUrl} className="object-cover" />
@@ -138,9 +156,63 @@ const BasicInfoForm = ({ coverPhotoUrl, logoUrl, studioId }: Props) => {
       </div>
 
       {/* Input 3: Studio Name */}
+      <div className="grid w-full items-center gap-1 mt-8">
+        <Label htmlFor="studioName" className="text-base font-bold">
+          場地名稱
+        </Label>
+        <Input
+          type="text"
+          id="studioName"
+          placeholder="請輸入場地名稱"
+          className="text-sm"
+          {...register("studioName")}
+        />
+      </div>
+
+      <ErrorMessage> {errors.studioName?.message}</ErrorMessage>
 
       {/* Input 4: Studio slug */}
+      {/* todo: validate if the studioSlug could be used when onblur */}
+      <div className="grid w-full items-center gap-1 mt-8">
+        <Label htmlFor="studioName" className="text-base font-bold">
+          場地網站別名
+        </Label>
+        <p className="text-xs text-gray-500">
+          此處將用於在網站中顯示出的場地連結。只接受英文字、數字和連字號(hyphens)。
+        </p>
+        <div className="relative flex items-center">
+          <span className="absolute left-3 text-gray-500 text-sm">
+            ksana.io/studio/
+          </span>
+          <Input
+            type="text"
+            id="studioSlug"
+            placeholder="請填寫場地網站別名。"
+            className="pl-[120px] text-sm"
+            {...register("studioSlug")}
+          />
+        </div>
+      </div>
 
+      <ErrorMessage> {errors.studioSlug?.message}</ErrorMessage>
+
+      {/* Input 5: Studio Description */}
+      <div className="grid w-full items-center gap-1 mt-8">
+        <Label htmlFor="studioDescription" className="text-base font-bold">
+          場地介紹
+        </Label>
+
+        <Textarea
+          id="studioDescription"
+          placeholder="請填寫場地介紹。"
+          className="text-sm"
+          {...register("studioDescription")}
+        />
+      </div>
+
+      <ErrorMessage> {errors.studioDescription?.message}</ErrorMessage>
+
+      {/* Input 6: Address */}
       <Button type="submit" className="mt-5">
         Save
       </Button>
