@@ -3,6 +3,7 @@
 import React, { useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { ImageUp as ImageUpIcon } from "lucide-react";
+import { allowedImageMineTypes } from "@/lib/validations";
 
 interface UploadButtonProps {
   onFileSelect: (file: File | null) => void;
@@ -10,10 +11,12 @@ interface UploadButtonProps {
   accept?: string;
 }
 
+const acceptType = allowedImageMineTypes.toString();
+
 const UploadButton: React.FC<UploadButtonProps> = ({
   onFileSelect,
   buttonLabel = "Upload File",
-  accept = "image/jpeg,image/png",
+  accept = acceptType,
 }) => {
   const hiddenFileInput = useRef<HTMLInputElement>(null);
 

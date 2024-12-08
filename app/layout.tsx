@@ -4,7 +4,6 @@ import type { Metadata } from "next";
 import { Noto_Sans_TC } from "next/font/google";
 import "./globals.css";
 import "./theme-config.css";
-import "react-toastify/ReactToastify.min.css";
 import { ToastContainer } from "react-toastify";
 
 const notoSansTC = Noto_Sans_TC({

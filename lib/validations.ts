@@ -46,8 +46,6 @@ export type Tbooking = z.infer<typeof bookingSchema>;
 export type TbookingPhoneRemarks = z.infer<typeof bookingPhoneRemarksSchema>;
 
 //2. Studio Create Schema
-//cover image, logo, studio name, studio slug, studio description
-
 export const allowedImageMineTypes = ["image/jpeg", "image/jpg", "image/png"];
 export const maxFileSize = 1048576 * 2; // 2 MB
 const allowedImageTypes = ["jpeg", "jpg", "png"];
@@ -93,10 +91,8 @@ export const studioSchema = z.object({
   address: z.string().min(5, "請填寫正確場地地址。").max(100),
 });
 
-//2.1 - Studio Basic Info
-export const studioBasicInfoSchema = studioSchema.required({
-  // coverImage: true,
-  // logo: true,
+//2.1 Copy the studioSchema for step 1 - basic info
+export const studioBasicInfoSchema = studioSchema.pick({
   studioName: true,
   studioSlug: true,
   studioDescription: true,

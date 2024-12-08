@@ -1,6 +1,7 @@
 import ToastMessageWithRedirect from "@/app/_components/ToastMessageWithRedirect";
 import { studioService } from "@/services/StudioService";
 import BasicInfoForm from "./_component/BasicInfoForm";
+import TestForm from "./_component/TestForm";
 
 interface images {
   cover_photo: string;

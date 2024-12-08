@@ -72,10 +72,6 @@ export const uploadImage = async (
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "系統出現錯誤，請重試。";
-    toast(errorMessage, {
-      position: "top-right",
-      type: "error",
-      autoClose: 1000,
-    });
+    return errorMessage;
   }
 };

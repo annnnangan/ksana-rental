@@ -8,18 +8,24 @@ exports.seed = async function (knex) {
   await knex("studio").insert([
     {
       user_id: 1,
-      logo: "fR9ZWwHw0xQS/logo.png",
-      cover_photo: "fQaHPor9fZYB/cover_photo.png",
+      logo: "https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/15740c472df24fde1d3f9b4fefcbdced743bf57acd26ed8c820c56a887d663d2.png",
+      cover_photo:
+        "https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/2da6e2bc0b9c4bde8241c937e0672f22602607021868eab8b3a5f741c0354d82.png",
       name: "Soul Yogi Studio",
       slug: "soul-yogi-studio",
       status: "active",
       is_approved: true,
-      area: "Kowloon",
-      district: "Sham Shui Po",
+      area: "kowloon",
+      district: "sham-shui-po",
       address: "荔枝角金百盛大廈20樓20室",
       description: "xxxxxxxxx",
       is_reveal_door_password: true,
       door_password: "859304#",
+    },
+    {
+      user_id: 1,
+      status: "draft",
+      is_approved: false,
     },
   ]);
 };

@@ -18,12 +18,18 @@ import { uploadImage } from "@/lib/utils/s3-image-upload-utils";
 import { studioBasicInfoSchema } from "@/lib/validations";
 import { districts } from "@/services/model";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Building2, Image as ImageIcon } from "lucide-react";
+import {
+  Building2,
+  Image as ImageIcon,
+  Loader2,
+  MoveRight,
+} from "lucide-react";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { z } from "zod";
 import UploadButton from "./UploadButton";
+import FieldRemarks from "../../_component/FieldRemarks";
 
 interface Props {
   coverPhotoUrl?: string;
@@ -45,11 +51,12 @@ const BasicInfoForm = ({ coverPhotoUrl, logoUrl, studioId }: Props) => {
 
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreviewUrl, setCoverPreviewUrl] = useState<string | null>(null);
+  const [coverFileError, setCoverFileError] = useState<string | null>(null);
 
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
+  const [logoFileError, setLogoFileError] = useState<string | null>(null);
 
-  const [error, setError] = useState("");
   const [isSubmitting, setSubmitting] = useState(false);
 
   //Display uploaded image
@@ -84,35 +91,55 @@ const BasicInfoForm = ({ coverPhotoUrl, logoUrl, studioId }: Props) => {
   };
 
   const onSubmit = handleSubmit(async (data) => {
-    if (coverFile || logoFile) {
-      try {
+    setCoverFileError(null);
+    setLogoFileError(null);
+    setSubmitting(true);
+
+    try {
+      //only when user has uploaded new images, will trigger image upload process
+      if ((!coverFile && !coverPhotoUrl) || (!logoFile && !logoUrl)) {
+        if (!coverFile && !coverPhotoUrl) setCoverFileError("請上傳封面圖片");
+        if (!logoFile && !logoUrl) setLogoFileError("請上傳Logo");
+        setSubmitting(false);
+      }
+
+      if (coverFile || logoFile) {
         // Upload cover image
         if (coverFile) {
-          await uploadImage(coverFile, "cover_photo", studioId);
+          const errorResponse = await uploadImage(
+            coverFile,
+            "cover_photo",
+            studioId
+          );
+          if (errorResponse) {
+            setCoverFileError(errorResponse);
+          }
         }
-
         // Upload logo image
         if (logoFile) {
-          await uploadImage(logoFile, "logo", studioId);
+          const errorResponse = await uploadImage(logoFile, "logo", studioId);
+          if (errorResponse) {
+            setLogoFileError(errorResponse);
+          }
         }
-      } catch (error) {
-        const errorMessage =
-          error instanceof Error
-            ? error.message
-            : "系統發生未預期錯誤，請重試。";
-        toast(errorMessage, {
-          position: "top-right",
-          type: "error",
-          autoClose: 1000,
-        });
       }
+      //Save text information to database
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "系統發生未預期錯誤，請重試。";
+      toast(errorMessage, {
+        position: "top-right",
+        type: "error",
+        autoClose: 1000,
+      });
     }
+    setSubmitting(false);
   });
 
   return (
     <form onSubmit={onSubmit}>
       {/* Input 1: Cover Image */}
-      <div className="relative max-w-full w-auto h-60 aspect-[3/1] bg-neutral-200 rounded-md">
+      <div className="relative max-w-full w-auto h-60 aspect-[3/1] bg-neutral-200 rounded-md mb-1">
         {coverPreviewUrl && coverFile ? (
           <img
             src={coverPreviewUrl}
@@ -138,9 +165,11 @@ const BasicInfoForm = ({ coverPhotoUrl, logoUrl, studioId }: Props) => {
           />
         </div>
       </div>
+      <FieldRemarks>圖片容量需為2MB內。</FieldRemarks>
+      {coverFileError && <ErrorMessage> {coverFileError}</ErrorMessage>}
 
       {/* Input 2: Logo */}
-      <div className="mt-5 flex items-end gap-4">
+      <div className="mt-5 mb-1 flex items-end gap-4">
         <Avatar className="h-24 w-24">
           {logoPreviewUrl && logoFile ? (
             <AvatarImage src={logoPreviewUrl} className="object-cover" />
@@ -155,6 +184,10 @@ const BasicInfoForm = ({ coverPhotoUrl, logoUrl, studioId }: Props) => {
 
         <UploadButton onFileSelect={handleLogoSelect} buttonLabel="上載Logo" />
       </div>
+
+      <FieldRemarks>圖片容量需為2MB內。</FieldRemarks>
+
+      {logoFileError && <ErrorMessage> {logoFileError}</ErrorMessage>}
 
       {/* Input 3: Studio Name */}
       <div className="grid w-full items-center gap-1 mt-8">
@@ -178,9 +211,10 @@ const BasicInfoForm = ({ coverPhotoUrl, logoUrl, studioId }: Props) => {
         <Label htmlFor="studioName" className="text-base font-bold">
           場地網站別名
         </Label>
-        <p className="text-xs text-gray-500">
+        <FieldRemarks>
           此處將用於在網站中顯示出的場地連結。只接受英文字、數字和連字號(hyphens)。
-        </p>
+        </FieldRemarks>
+
         <div className="relative flex items-center">
           <span className="absolute left-3 text-gray-500 text-sm">
             ksana.io/studio/
@@ -255,8 +289,9 @@ const BasicInfoForm = ({ coverPhotoUrl, logoUrl, studioId }: Props) => {
 
       <ErrorMessage> {errors.address?.message}</ErrorMessage>
 
-      <Button type="submit" className="mt-5">
-        Save
+      <Button type="submit" className="mt-5 px-12" disabled={isSubmitting}>
+        {isSubmitting ? "資料儲存中..." : "往下一步"}
+        {isSubmitting ? <Loader2 className="animate-spin" /> : <MoveRight />}
       </Button>
     </form>
   );

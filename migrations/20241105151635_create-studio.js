@@ -13,32 +13,32 @@ exports.up = async function (knex) {
     table.text("cover_photo");
     table.text("name");
     table.text("slug");
-    table.enu("status", ["active", "suspend by admin"]).notNullable();
+    table.enu("status", ["active", "suspend by admin", "draft"]).notNullable();
     table.boolean("is_approved").notNullable();
-    table.enu("area", ["Kowloon", "Hong Kong", "New Territories"]);
+    table.enu("area", ["hong-kong", "kowloon", "new-territories"]);
     table.enu("district", [
-      "Central and Western",
-      "Wan Chai",
-      "Eastern",
-      "Southern",
-      "Yau Tsim Mong",
-      "Sham Shui Po",
-      "Kowloon City",
-      "Wong Tai Sin",
-      "Kwun Tong",
-      "Kwai Tsing",
-      "Tsuen Wan",
-      "Tuen Mun",
-      "Yuen Long",
-      "North",
-      "Tai Po",
-      "Sha Tin",
-      "Sai Kung",
-      "Islands",
+      "central-and-western",
+      "wan-chai",
+      "eastern",
+      "southern",
+      "yau-tsim-mong",
+      "sham-shui-po",
+      "kowloon-city",
+      "wong-tai-Sin",
+      "kwun-tong",
+      "kwai-tsing",
+      "tsuen-wan",
+      "tuen-mun",
+      "yuen-long",
+      "north",
+      "tai-po",
+      "sha-tin",
+      "sai-kung",
+      "islands",
     ]);
     table.text("address");
     table.text("description");
-    table.boolean("is_reveal_door_password").notNullable();
+    table.boolean("is_reveal_door_password");
     table.text("door_password");
     table.timestamps(false, true);
   });
