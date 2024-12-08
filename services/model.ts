@@ -45,11 +45,15 @@ export const districts = [
   },
 ];
 
+export const districtValues = districts
+  .flatMap((item) => item.district)
+  .map((location) => location.value) as [string, ...string[]];
+
 export interface BasicInfo {
-  cover_photo: string | null;
-  logo: string | null;
+  cover_photo?: string | null;
+  logo?: string | null;
   name: string | null;
-  slug: null | null;
+  slug: string | null;
   status: StudioStatus;
   district: string | null;
   address: string | null;

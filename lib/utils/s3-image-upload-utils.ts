@@ -58,7 +58,7 @@ export const uploadImage = async (
       }
 
       // Save the image path to the database
-      await fetch(`/api/studio/${studioId}/images`, {
+      await fetch(`/api/studio/${studioId}/basic-info/images`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

@@ -24,12 +24,13 @@ import {
   Loader2,
   MoveRight,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { z } from "zod";
 import UploadButton from "./UploadButton";
 import FieldRemarks from "../../_component/FieldRemarks";
+import { useRouter } from "next/navigation";
 
 interface Props {
   basicInfoData: BasicInfo;
@@ -47,13 +48,15 @@ const BasicInfoForm = ({ basicInfoData, studioId }: Props) => {
   } = useForm<studioBasicInfoSchemaFormData>({
     resolver: zodResolver(studioBasicInfoSchema),
     defaultValues: {
-      studioName: basicInfoData?.name || undefined,
-      studioSlug: basicInfoData?.slug || undefined,
-      studioDescription: basicInfoData?.description || undefined,
+      name: basicInfoData?.name || undefined,
+      slug: basicInfoData?.slug || undefined,
+      description: basicInfoData?.description || undefined,
       district: basicInfoData?.district || undefined,
       address: basicInfoData?.address || undefined,
     },
   });
+
+  const router = useRouter();
 
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreviewUrl, setCoverPreviewUrl] = useState<string | null>(null);
@@ -68,7 +71,6 @@ const BasicInfoForm = ({ basicInfoData, studioId }: Props) => {
   //Display uploaded image
   const handleCoverSelect = (selectedFile: File | null) => {
     setCoverFile(selectedFile);
-
     if (coverPreviewUrl) {
       URL.revokeObjectURL(coverPreviewUrl);
     }
@@ -133,6 +135,27 @@ const BasicInfoForm = ({ basicInfoData, studioId }: Props) => {
           }
         }
       }
+      const response = await fetch(`/api/studio/${studioId}/basic-info`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          data,
+        }),
+      });
+
+      if (!response.ok) {
+        // If the response status is not 2xx, throw an error with the response message
+        const errorData = await response.json();
+        throw new Error(errorData?.error.message || "系統發生未預期錯誤。");
+      }
+
+      router.push(
+        `/studio-owner/studio/${studioId}/onboarding/business-hour-and-price`
+      );
+      router.refresh();
+
       //Save text information to database
     } catch (error) {
       const errorMessage =
@@ -142,6 +165,7 @@ const BasicInfoForm = ({ basicInfoData, studioId }: Props) => {
         type: "error",
         autoClose: 1000,
       });
+      router.refresh();
     }
     setSubmitting(false);
   });
@@ -209,11 +233,11 @@ const BasicInfoForm = ({ basicInfoData, studioId }: Props) => {
           id="studioName"
           placeholder="請輸入場地名稱"
           className="text-sm"
-          {...register("studioName")}
+          {...register("name")}
         />
       </div>
 
-      <ErrorMessage> {errors.studioName?.message}</ErrorMessage>
+      <ErrorMessage> {errors.name?.message}</ErrorMessage>
 
       {/* Input 4: Studio slug */}
       {/* todo: validate if the studioSlug could be used when onblur */}
@@ -234,12 +258,12 @@ const BasicInfoForm = ({ basicInfoData, studioId }: Props) => {
             id="studioSlug"
             placeholder="請填寫場地網站別名。"
             className="pl-[120px] text-sm"
-            {...register("studioSlug")}
+            {...register("slug")}
           />
         </div>
       </div>
 
-      <ErrorMessage> {errors.studioSlug?.message}</ErrorMessage>
+      <ErrorMessage> {errors.slug?.message}</ErrorMessage>
 
       {/* Input 5: Studio Description */}
       <div className="grid w-full items-center gap-1 mt-8">
@@ -251,11 +275,11 @@ const BasicInfoForm = ({ basicInfoData, studioId }: Props) => {
           id="studioDescription"
           placeholder="請填寫場地介紹。"
           className="text-sm"
-          {...register("studioDescription")}
+          {...register("description")}
         />
       </div>
 
-      <ErrorMessage> {errors.studioDescription?.message}</ErrorMessage>
+      <ErrorMessage> {errors.description?.message}</ErrorMessage>
 
       {/* Input 6: Address */}
 

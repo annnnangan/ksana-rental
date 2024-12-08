@@ -24,7 +24,7 @@ exports.up = async function (knex) {
       "yau-tsim-mong",
       "sham-shui-po",
       "kowloon-city",
-      "wong-tai-Sin",
+      "wong-tai-sin",
       "kwun-tong",
       "kwai-tsing",
       "tsuen-wan",

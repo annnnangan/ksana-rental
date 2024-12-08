@@ -18,7 +18,9 @@ exports.seed = async function (knex) {
       area: "kowloon",
       district: "sham-shui-po",
       address: "荔枝角金百盛大廈20樓20室",
-      description: "xxxxxxxxx",
+      description: `🩰 空中舞蹈課程｜空中及地面瑜伽課程｜場地租用 
+🏞️ 4.3米高樓底｜山景落地大玻璃｜800呎課室連獨立內廁 
+🏛️ 優雅圓拱門設計｜場地設有多種燈光效果`,
       is_reveal_door_password: true,
       door_password: "859304#",
     },

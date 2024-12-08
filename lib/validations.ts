@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { isValidPhoneNumber } from "libphonenumber-js";
 import { TZDate } from "@date-fns/tz";
-import { districts } from "@/services/model";
+import { districts, districtValues } from "@/services/model";
 
 //1. Booking Schema
 //date.parse("2020-01-01"); // pass
@@ -49,42 +49,18 @@ export type TbookingPhoneRemarks = z.infer<typeof bookingPhoneRemarksSchema>;
 export const allowedImageMineTypes = ["image/jpeg", "image/jpg", "image/png"];
 export const maxFileSize = 1048576 * 2; // 2 MB
 const allowedImageTypes = ["jpeg", "jpg", "png"];
-const districtValues = districts
-  .flatMap((item) => item.district)
-  .map((location) => location.value) as [string, ...string[]];
 
 export const studioSchema = z.object({
-  coverImage: z
-    .any()
-    .refine((files) => {
-      return files?.[0]?.size <= maxFileSize;
-    }, "封面圖片容量超出2MB。")
-    .refine(
-      (files) => allowedImageTypes.includes(files?.[0]?.type),
-      "封面圖片不支持此檔案格式，請上傳jpeg、jpg或png圖片檔案。"
-    ),
-  logo: z
-    .any()
-    .refine((files) => {
-      return files?.[0]?.size <= maxFileSize;
-    }, "Logo圖片容量超出2MB。")
-    .refine(
-      (files) => allowedImageTypes.includes(files?.[0]?.type),
-      "Logo不支持此檔案格式，請上傳jpeg、jpg或png圖片檔案。"
-    ),
-  studioName: z
+  name: z
     .string()
     .min(1, "請填寫場地名稱。")
     .max(50, "場地名稱最多可接受50字。"),
-  studioSlug: z
+  slug: z
     .string()
     .regex(/^[a-zA-Z0-9-]*$/, "只接受英文字、數字和連字號(hyphens)。")
     .min(1, "請填寫場地網站別名。")
     .max(50, "場地網站別名最多可接受50字。"),
-  studioDescription: z
-    .string()
-    .min(50, "請至少填寫50字的場地描述。")
-    .max(65535),
+  description: z.string().min(50, "請至少填寫50字的場地描述。").max(65535),
   district: z.enum(districtValues, {
     errorMap: () => ({ message: "請選擇正確場地地區。" }),
   }),
@@ -93,9 +69,9 @@ export const studioSchema = z.object({
 
 //2.1 Copy the studioSchema for step 1 - basic info
 export const studioBasicInfoSchema = studioSchema.pick({
-  studioName: true,
-  studioSlug: true,
-  studioDescription: true,
+  name: true,
+  slug: true,
+  description: true,
   district: true,
   address: true,
 });
