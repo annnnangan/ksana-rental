@@ -1,12 +1,7 @@
 import ToastMessageWithRedirect from "@/app/_components/ToastMessageWithRedirect";
 import { studioService } from "@/services/StudioService";
 import BasicInfoForm from "./_component/BasicInfoForm";
-import TestForm from "./_component/TestForm";
-
-interface images {
-  cover_photo: string;
-  logo: string;
-}
+import { BasicInfo } from "@/services/model";
 
 //Component
 const StudioCreatePage = async ({
@@ -21,35 +16,36 @@ const StudioCreatePage = async ({
   const userId = 1;
 
   //Global variable for storing image URL from server
-  let imageUrls: images = {
-    cover_photo: "",
-    logo: "",
+  let basicInfoData: BasicInfo = {
+    cover_photo: null,
+    logo: null,
+    name: null,
+    slug: null,
+    status: "draft",
+    district: null,
+    address: null,
+    description: null,
   };
 
   try {
-    //Get cover image and logo from database
-    const imagesResponse = await studioService.getStudioCoverNLogoImages(
-      studioId,
-      userId
-    );
-    if (imagesResponse.success) {
-      imageUrls = imagesResponse.data;
+    //Get Basic Info from Database
+    const basicInfo = await studioService.getStudioBasicInfo(studioId, userId);
+    if (basicInfo?.success) {
+      basicInfoData = basicInfo.data;
     }
   } catch (error) {
-    <ToastMessageWithRedirect
-      type={"error"}
-      errorMessage={"系統出現錯誤，請重試。"}
-      redirectPath={"/studio-owner/dashboard"}
-    />;
+    const errorMessage =
+      error instanceof Error ? error.message : "系統出現錯誤，請重試。";
+    return (
+      <ToastMessageWithRedirect
+        type={"error"}
+        errorMessage={errorMessage}
+        redirectPath={"/studio-owner/dashboard"}
+      />
+    );
   }
 
-  return (
-    <BasicInfoForm
-      coverPhotoUrl={imageUrls["cover_photo"]}
-      logoUrl={imageUrls["logo"]}
-      studioId={studioId}
-    />
-  );
+  return <BasicInfoForm studioId={studioId} basicInfoData={basicInfoData} />;
 };
 
 export default StudioCreatePage;

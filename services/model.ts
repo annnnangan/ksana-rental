@@ -1,5 +1,7 @@
 export type PriceType = "peak" | "non-peak";
 
+export type StudioStatus = "draft" | "active" | "suspended by admin";
+
 export type BookingStatus =
   | "confirm"
   | "cancel"
@@ -21,7 +23,7 @@ export const districts = [
     area: { label: "九龍", value: "kowloon" },
     district: [
       { label: "油尖旺", value: "yau-tsim-mong" },
-      { label: "深水埗", value: "sham-shiu-po" },
+      { label: "深水埗", value: "sham-shui-po" },
       { label: "九龍城", value: "kowloon-city" },
       { label: "黃大仙", value: "wong-tai-sin" },
       { label: "觀塘", value: "kwun-tong" },
@@ -42,3 +44,14 @@ export const districts = [
     ],
   },
 ];
+
+export interface BasicInfo {
+  cover_photo: string | null;
+  logo: string | null;
+  name: string | null;
+  slug: null | null;
+  status: StudioStatus;
+  district: string | null;
+  address: string | null;
+  description: string | null;
+}

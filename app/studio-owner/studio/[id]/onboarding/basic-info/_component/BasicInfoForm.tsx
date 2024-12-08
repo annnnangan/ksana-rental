@@ -16,7 +16,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { uploadImage } from "@/lib/utils/s3-image-upload-utils";
 import { studioBasicInfoSchema } from "@/lib/validations";
-import { districts } from "@/services/model";
+import { BasicInfo, districts, StudioStatus } from "@/services/model";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Building2,
@@ -32,14 +32,13 @@ import UploadButton from "./UploadButton";
 import FieldRemarks from "../../_component/FieldRemarks";
 
 interface Props {
-  coverPhotoUrl?: string;
-  logoUrl?: string;
+  basicInfoData: BasicInfo;
   studioId: number;
 }
 
 type studioBasicInfoSchemaFormData = z.infer<typeof studioBasicInfoSchema>;
 
-const BasicInfoForm = ({ coverPhotoUrl, logoUrl, studioId }: Props) => {
+const BasicInfoForm = ({ basicInfoData, studioId }: Props) => {
   const {
     register,
     control,
@@ -47,6 +46,13 @@ const BasicInfoForm = ({ coverPhotoUrl, logoUrl, studioId }: Props) => {
     formState: { errors },
   } = useForm<studioBasicInfoSchemaFormData>({
     resolver: zodResolver(studioBasicInfoSchema),
+    defaultValues: {
+      studioName: basicInfoData?.name || undefined,
+      studioSlug: basicInfoData?.slug || undefined,
+      studioDescription: basicInfoData?.description || undefined,
+      district: basicInfoData?.district || undefined,
+      address: basicInfoData?.address || undefined,
+    },
   });
 
   const [coverFile, setCoverFile] = useState<File | null>(null);
@@ -146,9 +152,9 @@ const BasicInfoForm = ({ coverPhotoUrl, logoUrl, studioId }: Props) => {
             alt="Cover preview"
             className="absolute inset-0 w-full h-full object-cover rounded-md"
           />
-        ) : coverPhotoUrl ? (
+        ) : basicInfoData.cover_photo ? (
           <img
-            src={coverPhotoUrl}
+            src={basicInfoData.cover_photo}
             alt="Cover photo"
             className="absolute inset-0 w-full h-full object-cover rounded-md"
           />
@@ -173,8 +179,8 @@ const BasicInfoForm = ({ coverPhotoUrl, logoUrl, studioId }: Props) => {
         <Avatar className="h-24 w-24">
           {logoPreviewUrl && logoFile ? (
             <AvatarImage src={logoPreviewUrl} className="object-cover" />
-          ) : logoUrl ? (
-            <AvatarImage src={logoUrl} className="object-cover" />
+          ) : basicInfoData.logo ? (
+            <AvatarImage src={basicInfoData.logo} className="object-cover" />
           ) : (
             <AvatarFallback>
               <Building2 />
