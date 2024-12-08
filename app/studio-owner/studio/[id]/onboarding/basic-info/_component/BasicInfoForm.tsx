@@ -103,9 +103,13 @@ const BasicInfoForm = ({ basicInfoData, studioId }: Props) => {
 
     try {
       //only when user has uploaded new images, will trigger image upload process
-      if ((!coverFile && !coverPhotoUrl) || (!logoFile && !logoUrl)) {
-        if (!coverFile && !coverPhotoUrl) setCoverFileError("請上傳封面圖片");
-        if (!logoFile && !logoUrl) setLogoFileError("請上傳Logo");
+      if (
+        (!coverFile && !basicInfoData.cover_photo) ||
+        (!logoFile && !basicInfoData.logo)
+      ) {
+        if (!coverFile && !basicInfoData.cover_photo)
+          setCoverFileError("請上傳封面圖片");
+        if (!logoFile && !basicInfoData.logo) setLogoFileError("請上傳Logo");
         setSubmitting(false);
       }
 
