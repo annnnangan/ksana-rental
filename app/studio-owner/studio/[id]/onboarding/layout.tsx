@@ -24,10 +24,11 @@ import {
   House,
   KeyRound,
 } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { usePathname, useParams } from "next/navigation";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  const studioId = 1;
+  const params = useParams<{ id: string }>();
+  const studioId = params.id;
   const pathname = usePathname();
   const navItems = [
     {
@@ -69,7 +70,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   // Find the current nav item based on the URL
   const currentNavItem = navItems.find((item) => item.url === pathname);
-  const currentTitle = currentNavItem?.title || "Unknown Section";
+  const currentTitle = currentNavItem?.title || "";
   return (
     <SidebarProvider>
       <StudioOwnerSidebar navItems={navItems} />
@@ -82,7 +83,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="#">建立你的場地</BreadcrumbLink>
+                  <BreadcrumbLink href="/studio-owner/studios">
+                    你的所有場地
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator className="hidden md:block" />
+                <BreadcrumbItem className="hidden md:block">
+                  <BreadcrumbLink href="#">場地建立</BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator className="hidden md:block" />
                 <BreadcrumbItem>
