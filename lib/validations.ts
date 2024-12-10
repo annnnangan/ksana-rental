@@ -75,3 +75,7 @@ export const studioBasicInfoSchema = studioSchema.pick({
   district: true,
   address: true,
 });
+
+export const studioNameSchema = studioSchema.pick({
+  name: true,
+});

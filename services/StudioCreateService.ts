@@ -6,6 +6,35 @@ import { findAreaByDistrictValue } from "@/lib/utils/areas-districts-converter";
 export class StudioCreateService {
   constructor(private knex: Knex) {}
 
+  async createNewStudio(userId: number, studioName: string) {
+    try {
+      console.log(studioName);
+      const insertedData = await this.knex
+        .insert({
+          user_id: userId,
+          name: studioName,
+          status: "draft",
+          is_approved: "false",
+        })
+        .into("studio")
+        .returning("id");
+
+      return {
+        success: true,
+        data: insertedData[0].id,
+      };
+    } catch (error) {
+      if (error instanceof RequestError) {
+        throw error;
+      } else {
+        throw new RequestError(
+          500,
+          error instanceof Error ? error.message : "系統發生錯誤。"
+        );
+      }
+    }
+  }
+
   //Save image into Studio table
   //todo - params: studioId, userId, imageType (cover or logo). image S3 URL
   async saveImage(
