@@ -80,6 +80,37 @@ export class StudioService {
       }
     }
   }
+
+  async getAllStudios(userId: number) {
+    try {
+      const studios = await this.knex
+        .select(
+          "id",
+          "cover_photo",
+          "logo",
+          "name",
+          "status",
+          "area",
+          "district"
+        )
+        .from("studio")
+        .where("user_id", userId);
+
+      return {
+        success: true,
+        data: studios,
+      };
+    } catch (error) {
+      if (error instanceof RequestError) {
+        throw error;
+      } else {
+        throw new RequestError(
+          500,
+          error instanceof Error ? error.message : "系統發生錯誤。"
+        );
+      }
+    }
+  }
 }
 
 export const studioService = new StudioService(knex);

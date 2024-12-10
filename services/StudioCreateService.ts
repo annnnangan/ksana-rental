@@ -2,7 +2,7 @@ import { NotFoundError, RequestError } from "@/lib/http-errors";
 import { knex } from "@/services/knex";
 import { Knex } from "knex";
 import { BasicInfo, districts } from "./model";
-import { findAreaByDistrictValue } from "@/lib/utils/find-area-by-districts";
+import { findAreaByDistrictValue } from "@/lib/utils/areas-districts-converter";
 export class StudioCreateService {
   constructor(private knex: Knex) {}
 
@@ -60,7 +60,7 @@ export class StudioCreateService {
         .update({
           name,
           slug,
-          area: findAreaByDistrictValue(district),
+          area: findAreaByDistrictValue(district)?.value,
           district,
           address,
           description,

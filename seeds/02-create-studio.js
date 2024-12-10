@@ -26,6 +26,7 @@ exports.seed = async function (knex) {
     },
     {
       user_id: 1,
+      name: "Olivia Studio",
       status: "draft",
       is_approved: false,
     },
