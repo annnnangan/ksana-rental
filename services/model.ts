@@ -1,6 +1,11 @@
 export type PriceType = "peak" | "non-peak";
 
-export type StudioStatus = "draft" | "active" | "suspended by admin";
+export type StudioStatus =
+  | "draft"
+  | "active"
+  | "suspended"
+  | "reviewing"
+  | "closed";
 
 export type BookingStatus =
   | "confirm"
