@@ -1,20 +1,15 @@
 import { Theme, ThemePanel } from "@radix-ui/themes";
 import "@radix-ui/themes/styles.css";
 import type { Metadata } from "next";
-import localFont from "next/font/local";
+import { Noto_Sans_TC } from "next/font/google";
 import "./globals.css";
 import "./theme-config.css";
 import { ToastContainer } from "react-toastify";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
+const notoSansTC = Noto_Sans_TC({
+  subsets: ["latin"], // Include subsets as per your use case
+  weight: ["400", "700"], // Add weights you need
+  display: "swap", // Optional for performance
 });
 
 export const metadata: Metadata = {
@@ -29,9 +24,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-HK">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${notoSansTC.className} antialiased`}>
         <Theme accentColor="blue">
           <main className="container mx-auto px-5 py-10"> {children}</main>
         </Theme>

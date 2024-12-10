@@ -9,7 +9,11 @@ interface Props {
   redirectPath: string;
 }
 
-const ToastMessage = ({ type, errorMessage, redirectPath }: Props) => {
+const ToastMessageWithRedirect = ({
+  type,
+  errorMessage,
+  redirectPath,
+}: Props) => {
   const router = useRouter();
 
   useEffect(() => {
@@ -18,10 +22,11 @@ const ToastMessage = ({ type, errorMessage, redirectPath }: Props) => {
       type: type,
       autoClose: 1000,
     });
+
     router.push(redirectPath);
   }, [router]);
 
   return null;
 };
 
-export default ToastMessage;
+export default ToastMessageWithRedirect;

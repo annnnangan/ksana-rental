@@ -2,10 +2,10 @@ import { bookingService } from "@/services/BookingService";
 import { PriceType } from "@/services/model";
 import { Flex } from "@radix-ui/themes";
 import "react-day-picker/style.css";
-import ToastMessage from "../../_components/ToastMessage";
 import BookingInfo from "./_components/BookingInfo";
 import Calendar from "./_components/Calendar";
 import GenerateTimeslot from "./_components/GenerateTimeslot";
+import ToastMessageWithRedirect from "../../_components/ToastMessageWithRedirect";
 
 export interface timeslotInfo {
   start_time: string;
@@ -31,7 +31,7 @@ const bookingSelectDateTimePage = async (props: Props) => {
   //if studio is not exist in the query string, redirect the user to the studio page
   if (!studioSlug) {
     return (
-      <ToastMessage
+      <ToastMessageWithRedirect
         type={"error"}
         errorMessage={"必須選擇場地才可開始預約。"}
         redirectPath={"/studio"}
@@ -43,7 +43,7 @@ const bookingSelectDateTimePage = async (props: Props) => {
   //if studio in the query string doesn't exist in the database, redirect user to the studio page
   if (!isStudioExist.success) {
     return (
-      <ToastMessage
+      <ToastMessageWithRedirect
         type={"error"}
         errorMessage={"場地不存在。"}
         redirectPath={"/studio"}

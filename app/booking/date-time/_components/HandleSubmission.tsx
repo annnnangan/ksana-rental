@@ -5,7 +5,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { toast } from "react-toastify";
-import { formatDate } from "@/lib/utils";
+import { formatDate } from "@/lib/utils/date-time-utils";
 import SubmissionButtons from "../../_components/SubmissionButtons";
 
 const HandleSubmission = () => {

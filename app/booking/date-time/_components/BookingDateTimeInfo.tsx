@@ -6,7 +6,7 @@ import {
   calculateBookingEndTime,
   convertTimeToString,
   formatDate,
-} from "@/lib/utils";
+} from "@/lib/utils/date-time-utils";
 
 const BookingDateTimeInfo = () => {
   const {

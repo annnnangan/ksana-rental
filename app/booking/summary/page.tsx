@@ -11,7 +11,8 @@ import PaymentMethod from "../_components/PaymentMethod";
 import Whatsapp from "../_components/Whatsapp";
 import Remarks from "../_components/Remarks";
 import HandleSubmission from "./HandleSubmission";
-import ToastMessage from "@/app/_components/ToastMessage";
+import ToastMessage from "@/app/_components/ToastMessageWithRedirect";
+import ToastMessageWithRedirect from "@/app/_components/ToastMessageWithRedirect";
 
 interface BookingQuery {
   booking: string;
@@ -38,7 +39,7 @@ const BookingSummaryPage = async (props: Props) => {
     const errorMessage =
       error instanceof Error ? error.message : "系統出現錯誤，請重試。";
     return (
-      <ToastMessage
+      <ToastMessageWithRedirect
         type={"error"}
         errorMessage={errorMessage}
         redirectPath={"/studio"}
