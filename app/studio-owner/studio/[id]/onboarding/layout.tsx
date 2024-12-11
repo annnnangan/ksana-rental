@@ -17,6 +17,7 @@ import { Separator } from "@/components/ui/separator";
 
 import {
   CalendarCheck,
+  CircleChevronLeft,
   CircleGauge,
   Contact,
   Dumbbell,
@@ -25,6 +26,7 @@ import {
   KeyRound,
 } from "lucide-react";
 import { usePathname, useParams } from "next/navigation";
+import Link from "next/link";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const params = useParams<{ id: string }>();
@@ -77,7 +79,14 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
       <div className="w-full">
         <SidebarInset>
-          <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+          <Link
+            className="flex gap-x-2 items-center text-sm text-gray-500 ms-auto hover:-translate-x-3 transition-transform duration-200 ease-in-out"
+            href="/studio-owner/studios"
+          >
+            <CircleChevronLeft size={20} />
+            返回所有場地
+          </Link>
+          <header className="flex h-16 shrink-0 items-center gap-2">
             <SidebarTrigger className="-ml-1" />
             <Separator orientation="vertical" className="mr-2 h-4" />
             <Breadcrumb>

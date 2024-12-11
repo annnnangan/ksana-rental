@@ -1,6 +1,6 @@
 "use client";
 
-import { LucideIcon } from "lucide-react";
+import { LucideIcon, CircleChevronLeft } from "lucide-react";
 import * as React from "react";
 
 import {
@@ -11,6 +11,8 @@ import {
 } from "@/components/ui/sidebar";
 import { NavMain } from "./nav-main";
 import { NavUser } from "./nav-user";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 interface User {
   name: string;
@@ -37,6 +39,7 @@ export function StudioOwnerSidebar({ user, navItems, ...props }: Props) {
           <NavUser user={user} />
         </SidebarHeader>
       )}
+
       <SidebarContent className="mt-10">
         <NavMain items={navItems} />
       </SidebarContent>
