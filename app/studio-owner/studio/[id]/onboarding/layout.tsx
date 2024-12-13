@@ -39,7 +39,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       icon: CircleGauge,
     },
     {
-      title: "營業時間及價錢",
+      title: "營業時間及價格",
       url: `/studio-owner/studio/${studioId}/onboarding/business-hour-and-price`,
       icon: House,
     },
