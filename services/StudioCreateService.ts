@@ -3,6 +3,7 @@ import { knex } from "@/services/knex";
 import { Knex } from "knex";
 import { BasicInfo, districts } from "./model";
 import { findAreaByDistrictValue } from "@/lib/utils/areas-districts-converter";
+import { studioBusinessHourAndPriceFormData } from "@/lib/validations";
 export class StudioCreateService {
   constructor(private knex: Knex) {}
 
@@ -95,6 +96,142 @@ export class StudioCreateService {
           description,
         })
         .where({ id: studioId, user_id: userId });
+
+      return {
+        success: true,
+        data: "",
+      };
+    } catch (error) {
+      if (error instanceof RequestError) {
+        throw error;
+      } else {
+        throw new RequestError(
+          500,
+          error instanceof Error ? error.message : "系統發生錯誤。"
+        );
+      }
+    }
+  }
+
+  async saveBusinessHours(
+    studioId: number,
+    userId: number,
+    data: studioBusinessHourAndPriceFormData
+  ) {
+    try {
+      const { businessHours } = data;
+
+      if (!businessHours) {
+        throw new Error("資料有缺少，請填寫。");
+      }
+
+      for (const [day, businessHourDetail] of Object.entries(businessHours)) {
+        const { timeSlots } = businessHourDetail || {};
+
+        if (!timeSlots || timeSlots.length === 0) {
+          // If no time slots for the day, mark it as closed and delete existing data
+          await this.knex("studio_business_hour")
+            .where({
+              studio_id: studioId,
+              day_of_week: day,
+            })
+            .del(); // Delete existing rows for the day
+
+          await this.knex("studio_business_hour").insert({
+            studio_id: studioId,
+            day_of_week: day,
+            is_closed: true,
+          });
+
+          continue;
+        }
+
+        await this.knex.transaction(async (trx) => {
+          // Delete existing rows for this day to avoid duplicates
+          await trx("studio_business_hour")
+            .where({ studio_id: studioId, day_of_week: day })
+            .del();
+
+          for (const slot of timeSlots) {
+            const { open, close, priceType } = slot;
+
+            // Retrieve the price_type_id based on priceType
+            const priceTypeRow = await trx("studio_price")
+              .select("id")
+              .where({ price_type: priceType, studio_id: studioId })
+              .first();
+
+            if (!priceTypeRow) {
+              throw new Error(`Invalid priceType: ${priceType}`);
+            }
+
+            const priceTypeId = priceTypeRow.id;
+
+            // Insert the time slot
+            await trx("studio_business_hour").insert({
+              studio_id: studioId,
+              day_of_week: day,
+              open_time: open,
+              end_time: close,
+              is_closed: false,
+              price_type_id: priceTypeId,
+            });
+          }
+        });
+      }
+
+      return {
+        success: true,
+        data: "",
+      };
+    } catch (error) {
+      if (error instanceof RequestError) {
+        throw error;
+      } else {
+        throw new RequestError(
+          500,
+          error instanceof Error ? error.message : "系統發生錯誤。"
+        );
+      }
+    }
+  }
+
+  async savePrice(
+    studioId: number,
+    userId: number,
+    data: studioBusinessHourAndPriceFormData
+  ) {
+    try {
+      const { nonPeakHourPrice, peakHourPrice } = data;
+
+      if (!nonPeakHourPrice || !peakHourPrice) {
+        throw new Error("資料有缺少，請填寫。");
+      }
+
+      const priceList = {
+        "non-peak": Number(nonPeakHourPrice),
+        peak: Number(peakHourPrice),
+      };
+
+      //if studio id & price type doesn't exist, we create a new row
+      //if exist, we revise the existing data
+      for (const [price_type, price] of Object.entries(priceList)) {
+        await this.knex.transaction(async (trx) => {
+          // Attempt to update the row
+          const updatedRows = await trx("studio_price")
+            .update({ price })
+            .where({ studio_id: studioId, price_type });
+
+          // If no rows were updated, perform an insert
+          if (updatedRows === 0) {
+            await trx("studio_price").insert({
+              studio_id: studioId,
+              price_type,
+              price,
+            });
+          }
+        });
+      }
 
       return {
         success: true,

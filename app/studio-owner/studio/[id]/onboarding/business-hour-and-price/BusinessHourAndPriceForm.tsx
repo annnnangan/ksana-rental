@@ -21,7 +21,10 @@ import {
 import { daysOfWeekType } from "@/services/model";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, MoveRight } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
+import { toast } from "react-toastify";
+import { WheelEvent } from "react";
 
 //Create for generating the day of week field in the form
 const daysOfWeekMap: {
@@ -45,9 +48,10 @@ const timeOptions = Array.from(
 
 interface Props {
   defaultValue: studioBusinessHourAndPriceFormData;
+  studioId: number;
 }
 
-const BusinessHourAndPriceForm = ({ defaultValue }: Props) => {
+const BusinessHourAndPriceForm = ({ defaultValue, studioId }: Props) => {
   const {
     control,
     register,
@@ -63,6 +67,8 @@ const BusinessHourAndPriceForm = ({ defaultValue }: Props) => {
       nonPeakHourPrice: defaultValue.nonPeakHourPrice,
     },
   });
+
+  const router = useRouter();
 
   //Monitor change in businessHours data (e.g. new timeslot added, time change, priceType change) and trigger re-render using react hook form API
   //Get the latest businessHours data with businessHoursData
@@ -93,6 +99,7 @@ const BusinessHourAndPriceForm = ({ defaultValue }: Props) => {
 
   //Trigger when user clicks the "移除全部時段" button to reset the timeSlots of a particular day of week business hour to empty array
   const handleRemoveAllTimeslots = (dayOfWeek: daysOfWeekType) => {
+    setValue(`businessHours.${dayOfWeek}.enabled`, false);
     setValue(`businessHours.${dayOfWeek}.timeSlots`, []);
   };
 
@@ -131,8 +138,56 @@ const BusinessHourAndPriceForm = ({ defaultValue }: Props) => {
     return timeOptions;
   };
 
-  const onSubmit = (data: studioBusinessHourAndPriceFormData) => {
-    console.log(data);
+  //Remove the default on wheel change for number input
+  const numberInputOnWheelPreventChange = (e: WheelEvent<HTMLInputElement>) => {
+    const target = e.target as HTMLInputElement; // Type assertion
+    // Prevent the input value change
+    target.blur();
+
+    // Prevent the page/container scrolling
+    e.stopPropagation();
+
+    setTimeout(() => {
+      target.focus();
+    }, 0);
+  };
+
+  const onSubmit = async (data: studioBusinessHourAndPriceFormData) => {
+    try {
+      console.log(data);
+      const response = await fetch(
+        `/api/studio/${studioId}/business-hours-and-price`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            data,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        // If the response status is not 2xx, throw an error with the response message
+        const errorData = await response.json();
+        throw new Error(errorData?.error.message || "系統發生未預期錯誤。");
+      }
+
+      router.push(`/studio-owner/studio/${studioId}/onboarding/equipment`);
+      router.refresh();
+
+      //Save text information to database
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "系統發生未預期錯誤，請重試。";
+      toast(errorMessage, {
+        position: "top-right",
+        type: "error",
+        autoClose: 1000,
+      });
+      router.refresh();
+    }
   };
 
   return (
@@ -153,6 +208,7 @@ const BusinessHourAndPriceForm = ({ defaultValue }: Props) => {
               placeholder="請填寫繁忙時段價格。"
               className="text-sm"
               {...register("peakHourPrice")}
+              onWheel={numberInputOnWheelPreventChange}
             />
           </div>
           {errors.peakHourPrice && (
@@ -173,6 +229,7 @@ const BusinessHourAndPriceForm = ({ defaultValue }: Props) => {
               placeholder="請填寫非繁忙時段價格。"
               className="text-sm"
               {...register("nonPeakHourPrice")}
+              onWheel={numberInputOnWheelPreventChange}
             />
           </div>
           {errors.nonPeakHourPrice && (
@@ -196,9 +253,10 @@ const BusinessHourAndPriceForm = ({ defaultValue }: Props) => {
                 render={({ field }) => (
                   <Switch
                     checked={field.value}
-                    onCheckedChange={(value) =>
-                      setValue(`businessHours.${day.day}.enabled`, value)
-                    }
+                    onCheckedChange={(value) => {
+                      setValue(`businessHours.${day.day}.enabled`, value);
+                      setValue(`businessHours.${day.day}.timeSlots`, []);
+                    }}
                   />
                 )}
               />
@@ -332,6 +390,13 @@ const BusinessHourAndPriceForm = ({ defaultValue }: Props) => {
                 type="button"
                 className="mt-4"
                 onClick={() => handleAddTimeslot(day.day)}
+                disabled={
+                  getAvailableTimes(
+                    day.day,
+                    "open",
+                    businessHoursData[day.day]!.timeSlots!.length
+                  ).length === 0 // Disable if no more slots
+                }
               >
                 新增時段
               </Button>

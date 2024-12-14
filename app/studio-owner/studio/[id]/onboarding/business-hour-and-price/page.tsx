@@ -51,7 +51,10 @@ const BusinessHourAndPricePage = async ({
         </p>
       </div>
 
-      <BusinessHourAndPriceForm defaultValue={defaultValue} />
+      <BusinessHourAndPriceForm
+        defaultValue={defaultValue}
+        studioId={studioId}
+      />
     </>
   );
 };
