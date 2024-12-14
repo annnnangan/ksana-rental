@@ -1,11 +1,10 @@
 "use client";
 
-import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import ErrorMessage from "@/app/_components/ErrorMessage";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -14,16 +13,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Badge } from "@/components/ui/badge";
-import ErrorMessage from "@/app/_components/ErrorMessage";
-import { Loader2, MoveRight } from "lucide-react";
-import { daysOfWeekType } from "@/services/model";
 import {
   studioBusinessHourAndPriceFormData,
   studioBusinessHourAndPriceSchema,
   TimeSlotKeys,
-  TimeSlotSchema,
 } from "@/lib/validations";
+import { daysOfWeekType } from "@/services/model";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2, MoveRight } from "lucide-react";
+import { Controller, useForm } from "react-hook-form";
 
 //Create for generating the day of week field in the form
 const daysOfWeekMap: {
@@ -46,10 +44,10 @@ const timeOptions = Array.from(
 );
 
 interface Props {
-  existingData: studioBusinessHourAndPriceFormData;
+  defaultValue: studioBusinessHourAndPriceFormData;
 }
 
-const BusinessHourAndPriceForm = ({ existingData }: Props) => {
+const BusinessHourAndPriceForm = ({ defaultValue }: Props) => {
   const {
     control,
     register,
@@ -60,9 +58,9 @@ const BusinessHourAndPriceForm = ({ existingData }: Props) => {
   } = useForm<studioBusinessHourAndPriceFormData>({
     resolver: zodResolver(studioBusinessHourAndPriceSchema),
     defaultValues: {
-      businessHours: existingData.businessHours,
-      peakHourPrice: existingData.peakHourPrice,
-      nonPeakHourPrice: existingData.nonPeakHourPrice,
+      businessHours: defaultValue.businessHours,
+      peakHourPrice: defaultValue.peakHourPrice,
+      nonPeakHourPrice: defaultValue.nonPeakHourPrice,
     },
   });
 
@@ -154,7 +152,6 @@ const BusinessHourAndPriceForm = ({ existingData }: Props) => {
               id="peakHourPrice"
               placeholder="請填寫繁忙時段價格。"
               className="text-sm"
-              min="1"
               {...register("peakHourPrice")}
             />
           </div>
@@ -175,7 +172,6 @@ const BusinessHourAndPriceForm = ({ existingData }: Props) => {
               id="nonPeakHourPrice"
               placeholder="請填寫非繁忙時段價格。"
               className="text-sm"
-              min="1"
               {...register("nonPeakHourPrice")}
             />
           </div>

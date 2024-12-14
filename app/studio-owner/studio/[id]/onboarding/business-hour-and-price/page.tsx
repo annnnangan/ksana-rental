@@ -13,19 +13,33 @@ import {
   Price,
 } from "@/services/model";
 
-const BusinessHourAndPricePage = async () => {
-  const studioId = 1;
+const BusinessHourAndPricePage = async ({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) => {
+  //Get Studio ID from URL
+  const studioId = Number((await params).id);
+
+  //Get User ID
   const userId = 1;
 
-  const businessHoursList = (
-    await studioService.getStudioBusinessHours(studioId, userId)
-  ).data;
+  const businessHoursListResponse = await studioService.getStudioBusinessHours(
+    studioId,
+    userId
+  );
+  const priceListResponse = await studioService.getStudioPrice(
+    studioId,
+    userId
+  );
 
-  const priceList = (await studioService.getStudioPrice(studioId, userId)).data;
+  if (!businessHoursListResponse.success || !priceListResponse.success) {
+    return;
+  }
 
-  const existingData: studioBusinessHourAndPriceFormData = formatData(
-    businessHoursList,
-    priceList
+  const defaultValue: studioBusinessHourAndPriceFormData = formatData(
+    businessHoursListResponse.data,
+    priceListResponse.data
   );
 
   return (
@@ -37,7 +51,7 @@ const BusinessHourAndPricePage = async () => {
         </p>
       </div>
 
-      <BusinessHourAndPriceForm existingData={existingData} />
+      <BusinessHourAndPriceForm defaultValue={defaultValue} />
     </>
   );
 };
@@ -66,7 +80,8 @@ function formateBusinessHoursData(businessHourData: DayBusinessHour[]) {
       const entries = businessHourData.filter(
         (entry) => entry.day_of_week === day
       );
-      if (entries.some((entry) => entry.is_closed)) {
+
+      if (entries.some((entry) => entry.is_closed) || entries.length === 0) {
         acc[day] = { enabled: false, timeSlots: [] };
       } else {
         acc[day] = {
@@ -91,12 +106,9 @@ function formateBusinessHoursData(businessHourData: DayBusinessHour[]) {
 
 function formatePriceData(priceData: Price[]) {
   const nonPeakHourPrice =
-    priceData
-      .find((price) => price.price_type === "non-peak")
-      ?.price.toString() ?? "0";
+    priceData.find((price) => price.price_type === "non-peak")?.price ?? 0;
   const peakHourPrice =
-    priceData.find((price) => price.price_type === "peak")?.price.toString() ??
-    "0";
+    priceData.find((price) => price.price_type === "peak")?.price ?? 0;
 
   return {
     nonPeakHourPrice,
