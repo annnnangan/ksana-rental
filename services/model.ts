@@ -1,5 +1,14 @@
 export type PriceType = "peak" | "non-peak";
 
+export type daysOfWeekType =
+  | "Monday"
+  | "Tuesday"
+  | "Wednesday"
+  | "Thursday"
+  | "Friday"
+  | "Saturday"
+  | "Sunday";
+
 export type StudioStatus =
   | "draft"
   | "active"

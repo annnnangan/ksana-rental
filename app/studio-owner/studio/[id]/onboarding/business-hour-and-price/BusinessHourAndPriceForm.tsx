@@ -17,7 +17,13 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import ErrorMessage from "@/app/_components/ErrorMessage";
 import { Loader2, MoveRight } from "lucide-react";
+import { daysOfWeekType } from "@/services/model";
+import {
+  studioBusinessHourAndPriceSchema,
+  TimeSlotSchema,
+} from "@/lib/validations";
 
+//Create for generating the day of week field in the form
 const daysOfWeekMap: {
   day: daysOfWeekType;
   label: string;
@@ -31,75 +37,16 @@ const daysOfWeekMap: {
   { day: "Sunday", label: "星期日" },
 ];
 
-const daysOfWeekEnum = z.enum([
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-  "Sunday",
-]);
-
-type daysOfWeekType =
-  | "Monday"
-  | "Tuesday"
-  | "Wednesday"
-  | "Thursday"
-  | "Friday"
-  | "Saturday"
-  | "Sunday";
-
+//Generate a full set of timeslots
 const timeOptions = Array.from(
   { length: 25 },
   (_, i) => `${String(i).padStart(2, "0")}:00`
 );
 
-const getTimeOptionsAfter = (startTime: string) => {
-  const startIndex = timeOptions.findIndex((time) => time === startTime);
-  return timeOptions.slice(startIndex + 1);
-};
-
-// Define Zod schema
-const TimeSlotSchema = z.object({
-  open: z.string().min(1, "請填寫開始時間"),
-  close: z.string().min(1, "請填寫結束時間"),
-  priceType: z.enum(["peak", "non-peak"]),
-});
-
-const businessHourSchema = z.object({
-  enabled: z.boolean(),
-  timeSlots: z
-    .array(TimeSlotSchema)
-    .refine(
-      (timeSlots) =>
-        timeSlots.every(
-          (slot, i) =>
-            !timeSlots.some(
-              (other, j) =>
-                i !== j &&
-                ((slot.open >= other.open && slot.open < other.close) ||
-                  (slot.close > other.open && slot.close <= other.close))
-            )
-        ),
-      "時段不能重疊"
-    )
-    .optional(),
-});
-
-const FormSchema = z.object({
-  businessHours: z.record(daysOfWeekEnum, businessHourSchema),
-  peakHourPrice: z
-    .string()
-    .min(1, "請填寫繁忙時段價格")
-    .regex(/^\d+$/, "價格必須是數字"),
-  nonPeakHourPrice: z
-    .string()
-    .min(1, "請填寫非繁忙時段價格")
-    .regex(/^\d+$/, "價格必須是數字"),
-});
 type TimeSlotKeys = keyof z.infer<typeof TimeSlotSchema>;
-type FormValues = z.infer<typeof FormSchema>;
+type studioBusinessHourAndPriceFormData = z.infer<
+  typeof studioBusinessHourAndPriceSchema
+>;
 
 const BusinessHourAndPriceForm = () => {
   const {
@@ -109,8 +56,8 @@ const BusinessHourAndPriceForm = () => {
     watch,
     setValue,
     formState: { errors, isSubmitting },
-  } = useForm<FormValues>({
-    resolver: zodResolver(FormSchema),
+  } = useForm<studioBusinessHourAndPriceFormData>({
+    resolver: zodResolver(studioBusinessHourAndPriceSchema),
     defaultValues: {
       businessHours: daysOfWeekMap.reduce(
         (acc, day) => ({
@@ -194,7 +141,7 @@ const BusinessHourAndPriceForm = () => {
     return timeOptions;
   };
 
-  const onSubmit = (data: FormValues) => {
+  const onSubmit = (data: studioBusinessHourAndPriceFormData) => {
     console.log(data);
   };
 

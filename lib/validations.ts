@@ -50,6 +50,42 @@ export const allowedImageMineTypes = ["image/jpeg", "image/jpg", "image/png"];
 export const maxFileSize = 1048576 * 2; // 2 MB
 const allowedImageTypes = ["jpeg", "jpg", "png"];
 
+const daysOfWeekEnum = z.enum([
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+]);
+
+export const TimeSlotSchema = z.object({
+  open: z.string().min(1, "請填寫開始時間"),
+  close: z.string().min(1, "請填寫結束時間"),
+  priceType: z.enum(["peak", "non-peak"]),
+});
+
+const businessHourSchema = z.object({
+  enabled: z.boolean(),
+  timeSlots: z
+    .array(TimeSlotSchema)
+    .refine(
+      (timeSlots) =>
+        timeSlots.every(
+          (slot, i) =>
+            !timeSlots.some(
+              (other, j) =>
+                i !== j &&
+                ((slot.open >= other.open && slot.open < other.close) ||
+                  (slot.close > other.open && slot.close <= other.close))
+            )
+        ),
+      "時段不能重疊"
+    )
+    .optional(),
+});
+
 export const studioSchema = z.object({
   name: z
     .string()
@@ -65,9 +101,24 @@ export const studioSchema = z.object({
     errorMap: () => ({ message: "請選擇正確場地地區。" }),
   }),
   address: z.string().min(5, "請填寫正確場地地址。").max(100),
+  businessHours: z.record(daysOfWeekEnum, businessHourSchema),
+  peakHourPrice: z
+    .string()
+    .min(1, "請填寫繁忙時段價格")
+    .regex(/^\d+$/, "價格必須是數字"),
+  nonPeakHourPrice: z
+    .string()
+    .min(1, "請填寫非繁忙時段價格")
+    .regex(/^\d+$/, "價格必須是數字"),
 });
 
-//2.1 Copy the studioSchema for step 1 - basic info
+//Extract part of the studio schema for each onboarding step
+//Step 0: Enter studio name
+export const studioNameSchema = studioSchema.pick({
+  name: true,
+});
+
+//Step 1: Enter studio basic information
 export const studioBasicInfoSchema = studioSchema.pick({
   name: true,
   slug: true,
@@ -76,6 +127,9 @@ export const studioBasicInfoSchema = studioSchema.pick({
   address: true,
 });
 
-export const studioNameSchema = studioSchema.pick({
-  name: true,
+//Step 2: Enter studio business hours and price
+export const studioBusinessHourAndPriceSchema = studioSchema.pick({
+  businessHours: true,
+  peakHourPrice: true,
+  nonPeakHourPrice: true,
 });
