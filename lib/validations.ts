@@ -101,12 +101,14 @@ export const studioSchema = z.object({
   }),
   address: z.string().min(5, "請填寫正確場地地址。").max(100),
   businessHours: z.record(daysOfWeekEnum, businessHourSchema),
-  peakHourPrice: z.number().refine((peakHourPrice) => peakHourPrice > 0, {
-    message: "請填寫繁忙時段價格",
-  }),
-  nonPeakHourPrice: z.number().refine((peakHourPrice) => peakHourPrice > 0, {
-    message: "請填寫非繁忙時段價格",
-  }),
+  peakHourPrice: z
+    .string()
+    .min(1, "請填寫繁忙時段價格")
+    .regex(/^\d+$/, "價格必須是數字"),
+  nonPeakHourPrice: z
+    .string()
+    .min(1, "請填寫非繁忙時段價格")
+    .regex(/^\d+$/, "價格必須是數字"),
 });
 
 //Extract part of the studio schema for each onboarding step

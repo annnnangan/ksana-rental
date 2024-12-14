@@ -106,9 +106,12 @@ function formateBusinessHoursData(businessHourData: DayBusinessHour[]) {
 
 function formatePriceData(priceData: Price[]) {
   const nonPeakHourPrice =
-    priceData.find((price) => price.price_type === "non-peak")?.price ?? 0;
+    priceData
+      .find((price) => price.price_type === "non-peak")
+      ?.price.toString() ?? "";
   const peakHourPrice =
-    priceData.find((price) => price.price_type === "peak")?.price ?? 0;
+    priceData.find((price) => price.price_type === "peak")?.price.toString() ??
+    "";
 
   return {
     nonPeakHourPrice,
