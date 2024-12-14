@@ -111,6 +111,63 @@ export class StudioService {
       }
     }
   }
+
+  async getStudioBusinessHours(studioId: number, userId: number) {
+    try {
+      const studioBusinessHoursData = await this.knex
+        .select(
+          "studio_business_hour.day_of_week",
+          "studio_business_hour.is_closed",
+          "studio_business_hour.open_time",
+          "studio_business_hour.end_time",
+          "studio_price.price_type"
+        )
+        .from("studio_business_hour")
+        .leftJoin(
+          "studio_price",
+          "studio_business_hour.price_type_id",
+          "studio_price.id"
+        )
+        .where("studio_business_hour.studio_id", studioId);
+
+      return {
+        success: true,
+        data: studioBusinessHoursData,
+      };
+    } catch (error) {
+      if (error instanceof RequestError) {
+        throw error;
+      } else {
+        throw new RequestError(
+          500,
+          error instanceof Error ? error.message : "系統發生錯誤。"
+        );
+      }
+    }
+  }
+
+  async getStudioPrice(studioId: number, userId: number) {
+    try {
+      const studioPriceData = await this.knex
+        .select("price_type", "price")
+        .from("studio_price")
+        .where("studio_id", studioId);
+
+      return {
+        success: true,
+        data: studioPriceData,
+      };
+    } catch (error) {
+      if (error instanceof RequestError) {
+        throw error;
+      } else {
+        throw new RequestError(
+          500,
+          error instanceof Error ? error.message : "系統發生錯誤。"
+        );
+      }
+    }
+  }
 }
 
 export const studioService = new StudioService(knex);

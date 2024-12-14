@@ -19,7 +19,9 @@ import ErrorMessage from "@/app/_components/ErrorMessage";
 import { Loader2, MoveRight } from "lucide-react";
 import { daysOfWeekType } from "@/services/model";
 import {
+  studioBusinessHourAndPriceFormData,
   studioBusinessHourAndPriceSchema,
+  TimeSlotKeys,
   TimeSlotSchema,
 } from "@/lib/validations";
 
@@ -43,12 +45,11 @@ const timeOptions = Array.from(
   (_, i) => `${String(i).padStart(2, "0")}:00`
 );
 
-type TimeSlotKeys = keyof z.infer<typeof TimeSlotSchema>;
-type studioBusinessHourAndPriceFormData = z.infer<
-  typeof studioBusinessHourAndPriceSchema
->;
+interface Props {
+  existingData: studioBusinessHourAndPriceFormData;
+}
 
-const BusinessHourAndPriceForm = () => {
+const BusinessHourAndPriceForm = ({ existingData }: Props) => {
   const {
     control,
     register,
@@ -59,18 +60,9 @@ const BusinessHourAndPriceForm = () => {
   } = useForm<studioBusinessHourAndPriceFormData>({
     resolver: zodResolver(studioBusinessHourAndPriceSchema),
     defaultValues: {
-      businessHours: daysOfWeekMap.reduce(
-        (acc, day) => ({
-          ...acc,
-          [day.day]: {
-            enabled: true,
-            timeSlots: [{ open: "10:00", close: "24:00", priceType: "peak" }],
-          },
-        }),
-        {}
-      ),
-      peakHourPrice: "",
-      nonPeakHourPrice: "",
+      businessHours: existingData.businessHours,
+      peakHourPrice: existingData.peakHourPrice,
+      nonPeakHourPrice: existingData.nonPeakHourPrice,
     },
   });
 

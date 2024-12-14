@@ -9,6 +9,16 @@ export type daysOfWeekType =
   | "Saturday"
   | "Sunday";
 
+export const daysOfWeek: daysOfWeekType[] = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+];
+
 export type StudioStatus =
   | "draft"
   | "active"
@@ -72,4 +82,17 @@ export interface BasicInfo {
   district: string | null;
   address: string | null;
   description: string | null;
+}
+
+export interface DayBusinessHour {
+  day_of_week: daysOfWeekType;
+  is_closed: boolean;
+  open_time: string | null;
+  end_time: string | null;
+  price_type: PriceType;
+}
+
+export interface Price {
+  price_type: PriceType;
+  price: number;
 }

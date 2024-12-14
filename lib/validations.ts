@@ -49,7 +49,6 @@ export type TbookingPhoneRemarks = z.infer<typeof bookingPhoneRemarksSchema>;
 export const allowedImageMineTypes = ["image/jpeg", "image/jpg", "image/png"];
 export const maxFileSize = 1048576 * 2; // 2 MB
 const allowedImageTypes = ["jpeg", "jpg", "png"];
-
 const daysOfWeekEnum = z.enum([
   "Monday",
   "Tuesday",
@@ -128,8 +127,15 @@ export const studioBasicInfoSchema = studioSchema.pick({
 });
 
 //Step 2: Enter studio business hours and price
+
 export const studioBusinessHourAndPriceSchema = studioSchema.pick({
   businessHours: true,
   peakHourPrice: true,
   nonPeakHourPrice: true,
 });
+
+export type TimeSlotKeys = keyof z.infer<typeof TimeSlotSchema>;
+export type businessHourType = z.infer<typeof businessHourSchema>;
+export type studioBusinessHourAndPriceFormData = z.infer<
+  typeof studioBusinessHourAndPriceSchema
+>;

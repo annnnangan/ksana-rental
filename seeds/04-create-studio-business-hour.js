@@ -26,7 +26,7 @@ exports.seed = async function (knex) {
       day_of_week: "Monday",
       is_closed: false,
       open_time: convertStringToTime("18:00"),
-      end_time: convertStringToTime("23:59"),
+      end_time: convertStringToTime("24:00"),
       price_type_id: 2,
     },
     {
@@ -42,7 +42,7 @@ exports.seed = async function (knex) {
       day_of_week: "Tuesday",
       is_closed: false,
       open_time: convertStringToTime("22:00"),
-      end_time: convertStringToTime("23:59"),
+      end_time: convertStringToTime("24:00"),
       price_type_id: 2,
     },
     {
@@ -66,7 +66,7 @@ exports.seed = async function (knex) {
       day_of_week: "Thursday",
       is_closed: false,
       open_time: convertStringToTime("19:00"),
-      end_time: convertStringToTime("23:59"),
+      end_time: convertStringToTime("24:00"),
       price_type_id: 2,
     },
     {
@@ -96,7 +96,7 @@ exports.seed = async function (knex) {
       day_of_week: "Sunday",
       is_closed: false,
       open_time: convertStringToTime("16:00"),
-      end_time: convertStringToTime("23:59"),
+      end_time: convertStringToTime("24:00"),
       price_type_id: 2,
     },
   ]);
