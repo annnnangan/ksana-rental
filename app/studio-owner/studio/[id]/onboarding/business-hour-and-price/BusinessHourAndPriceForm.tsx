@@ -64,7 +64,7 @@ const getTimeOptionsAfter = (startTime: string) => {
 const TimeSlotSchema = z.object({
   open: z.string().min(1, "請填寫開始時間"),
   close: z.string().min(1, "請填寫結束時間"),
-  priceType: z.enum(["peak-hour", "non-peak-hour"]),
+  priceType: z.enum(["peak", "non-peak"]),
 });
 
 const businessHourSchema = z.object({
@@ -115,7 +115,10 @@ const BusinessHourAndPriceForm = () => {
       businessHours: daysOfWeekMap.reduce(
         (acc, day) => ({
           ...acc,
-          [day.day]: { enabled: false, timeSlots: [] },
+          [day.day]: {
+            enabled: true,
+            timeSlots: [{ open: "10:00", close: "24:00", priceType: "peak" }],
+          },
         }),
         {}
       ),
@@ -123,8 +126,6 @@ const BusinessHourAndPriceForm = () => {
       nonPeakHourPrice: "",
     },
   });
-
-  console.log(errors);
 
   //Monitor change in businessHours data (e.g. new timeslot added, time change, priceType change) and trigger re-render using react hook form API
   //Get the latest businessHours data with businessHoursData
@@ -136,7 +137,7 @@ const BusinessHourAndPriceForm = () => {
     //businessHours.Monday.timeslots is the data structure
     setValue(`businessHours.${dayOfWeek}.timeSlots`, [
       ...(businessHoursData[dayOfWeek]?.timeSlots || []),
-      { open: "", close: "", priceType: "peak-hour" },
+      { open: "", close: "", priceType: "peak" },
     ]);
   };
 
@@ -359,10 +360,8 @@ const BusinessHourAndPriceForm = () => {
                       <SelectValue placeholder="價格類型" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="peak-hour">Peak Hour</SelectItem>
-                      <SelectItem value="non-peak-hour">
-                        Non-Peak Hour
-                      </SelectItem>
+                      <SelectItem value="peak">Peak Hour</SelectItem>
+                      <SelectItem value="non-peak">Non-Peak Hour</SelectItem>
                     </SelectContent>
                   </Select>
 
