@@ -3,7 +3,10 @@ import { knex } from "@/services/knex";
 import { Knex } from "knex";
 import { BasicInfo, districts } from "./model";
 import { findAreaByDistrictValue } from "@/lib/utils/areas-districts-converter";
-import { studioBusinessHourAndPriceFormData } from "@/lib/validations";
+import {
+  studioBusinessHourAndPriceFormData,
+  studioEquipmentFormData,
+} from "@/lib/validations";
 export class StudioCreateService {
   constructor(private knex: Knex) {}
 
@@ -232,6 +235,65 @@ export class StudioCreateService {
           }
         });
       }
+
+      return {
+        success: true,
+        data: "",
+      };
+    } catch (error) {
+      if (error instanceof RequestError) {
+        throw error;
+      } else {
+        throw new RequestError(
+          500,
+          error instanceof Error ? error.message : "系統發生錯誤。"
+        );
+      }
+    }
+  }
+
+  async saveEquipment(
+    studioId: number,
+    userId: number,
+    data: studioEquipmentFormData
+  ) {
+    try {
+      if (!data || data.equipment.length == 0) {
+        throw new Error("資料有缺少，請填寫。");
+      }
+      //todo - map the id in equipment
+      //[1,4,6]
+      const equipmentIdList = await Promise.all(
+        data.equipment.map(async (item) => {
+          const result = await this.knex
+            .select("id")
+            .from("equipment")
+            .where("equipment", item)
+            .first(); // Use `.first()` to get a single row
+
+          if (!result) {
+            // Throw an error if the equipment is not found
+            throw new Error(`請選擇列表中之設備。`);
+          }
+
+          return result.id; // Return the ID
+        })
+      );
+
+      //todo - insert back to studio_equipment
+
+      await this.knex.transaction(async (trx) => {
+        // Delete existing rows  to avoid duplicates
+        await trx("studio_equipment").where({ studio_id: studioId }).del();
+
+        for (const itemId of equipmentIdList) {
+          // Insert the item
+          await trx("studio_equipment").insert({
+            studio_id: studioId,
+            equipment_id: itemId,
+          });
+        }
+      });
 
       return {
         success: true,

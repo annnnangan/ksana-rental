@@ -111,7 +111,11 @@ export const studioSchema = z.object({
     .regex(/^\d+$/, "價格必須是數字"),
   equipment: z
     .array(
-      z.enum(equipmentMap.map((item) => item.value) as [string, ...string[]])
+      z.enum(equipmentMap.map((item) => item.value) as [string, ...string[]], {
+        errorMap: (issue, ctx) => ({
+          message: "設備類型無效。請選擇有效的設備類型。",
+        }),
+      })
     )
     .min(1, "請選擇至少一項設備"),
 });
@@ -148,3 +152,5 @@ export type studioBusinessHourAndPriceFormData = z.infer<
 export const studioEquipmentSchema = studioSchema.pick({
   equipment: true,
 });
+
+export type studioEquipmentFormData = z.infer<typeof studioEquipmentSchema>;

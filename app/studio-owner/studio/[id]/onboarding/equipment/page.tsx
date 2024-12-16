@@ -29,7 +29,7 @@ const EquipmentPage = async ({
         <StepTitle>設定場地設備</StepTitle>
         <p className="text-sm md:text-base mb-6">選擇場地內有的設備。</p>
       </div>
-      <EquipmentForm defaultValue={defaultValue} />
+      <EquipmentForm defaultValue={defaultValue} studioId={studioId} />
     </>
   );
 };
