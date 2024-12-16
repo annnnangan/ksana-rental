@@ -11,7 +11,11 @@ import ErrorMessage from "@/app/_components/ErrorMessage";
 
 type studioEquipmentFormData = z.infer<typeof studioEquipmentSchema>;
 
-const EquipmentForm = () => {
+interface Props {
+  defaultValue: string[];
+}
+
+const EquipmentForm = ({ defaultValue }: Props) => {
   const {
     control,
     handleSubmit,
@@ -19,7 +23,7 @@ const EquipmentForm = () => {
   } = useForm<studioEquipmentFormData>({
     resolver: zodResolver(studioEquipmentSchema),
     defaultValues: {
-      equipment: [],
+      equipment: defaultValue,
     },
   });
 
@@ -38,6 +42,7 @@ const EquipmentForm = () => {
             control={control}
             render={({ field }) => (
               <Checkbox
+                checked={field.value?.includes(item.value)}
                 id={item.value}
                 onCheckedChange={(checked) => {
                   return checked

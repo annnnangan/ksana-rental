@@ -168,6 +168,30 @@ export class StudioService {
       }
     }
   }
+
+  async getStudioEquipment(studioId: number, userId: number) {
+    try {
+      const studioEquipmentData = await this.knex
+        .select("equipment.equipment")
+        .from("studio_equipment")
+        .leftJoin("equipment", "studio_equipment.equipment_id", "equipment.id")
+        .where("studio_equipment.studio_id", studioId);
+
+      return {
+        success: true,
+        data: studioEquipmentData,
+      };
+    } catch (error) {
+      if (error instanceof RequestError) {
+        throw error;
+      } else {
+        throw new RequestError(
+          500,
+          error instanceof Error ? error.message : "系統發生錯誤。"
+        );
+      }
+    }
+  }
 }
 
 export const studioService = new StudioService(knex);
