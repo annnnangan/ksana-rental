@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { isValidPhoneNumber } from "libphonenumber-js";
 import { TZDate } from "@date-fns/tz";
-import { districts, districtValues } from "@/services/model";
+import { districts, districtValues, equipmentMap } from "@/services/model";
 
 //1. Booking Schema
 //date.parse("2020-01-01"); // pass
@@ -109,6 +109,11 @@ export const studioSchema = z.object({
     .string()
     .min(1, "請填寫非繁忙時段價格")
     .regex(/^\d+$/, "價格必須是數字"),
+  equipment: z
+    .array(
+      z.enum(equipmentMap.map((item) => item.value) as [string, ...string[]])
+    )
+    .min(1, "請選擇至少一項設備"),
 });
 
 //Extract part of the studio schema for each onboarding step
@@ -127,7 +132,6 @@ export const studioBasicInfoSchema = studioSchema.pick({
 });
 
 //Step 2: Enter studio business hours and price
-
 export const studioBusinessHourAndPriceSchema = studioSchema.pick({
   businessHours: true,
   peakHourPrice: true,
@@ -139,3 +143,8 @@ export type businessHourType = z.infer<typeof businessHourSchema>;
 export type studioBusinessHourAndPriceFormData = z.infer<
   typeof studioBusinessHourAndPriceSchema
 >;
+
+//Step 3: Enter studio equipment
+export const studioEquipmentSchema = studioSchema.pick({
+  equipment: true,
+});
