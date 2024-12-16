@@ -1,7 +1,6 @@
 "use client";
 import ErrorMessage from "@/app/_components/ErrorMessage";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -16,21 +15,17 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { uploadImage } from "@/lib/utils/s3-image-upload-utils";
 import { studioBasicInfoSchema } from "@/lib/validations";
-import { BasicInfo, districts, StudioStatus } from "@/services/model";
+import { BasicInfo, districts } from "@/services/model";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Building2,
-  Image as ImageIcon,
-  Loader2,
-  MoveRight,
-} from "lucide-react";
-import { useEffect, useState } from "react";
+import { Building2, Image as ImageIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { z } from "zod";
-import UploadButton from "./UploadButton";
 import FieldRemarks from "../../_component/FieldRemarks";
-import { useRouter } from "next/navigation";
+import SubmitButton from "../../_component/SubmitButton";
+import UploadButton from "./UploadButton";
 
 interface Props {
   basicInfoData: BasicInfo;
@@ -109,9 +104,15 @@ const BasicInfoForm = ({ basicInfoData, studioId }: Props) => {
         (!coverFile && !basicInfoData.cover_photo) ||
         (!logoFile && !basicInfoData.logo)
       ) {
-        if (!coverFile && !basicInfoData.cover_photo)
+        if (!coverFile && !basicInfoData.cover_photo) {
           setCoverFileError("請上傳封面圖片");
-        if (!logoFile && !basicInfoData.logo) setLogoFileError("請上傳Logo");
+          throw new Error("請上傳封面圖片");
+        }
+
+        if (!logoFile && !basicInfoData.logo) {
+          setLogoFileError("請上傳Logo");
+          throw new Error("請上傳Logo");
+        }
         setSubmitting(false);
       }
 
@@ -125,6 +126,7 @@ const BasicInfoForm = ({ basicInfoData, studioId }: Props) => {
           );
           if (errorResponse) {
             setCoverFileError(errorResponse);
+            throw new Error(errorResponse);
           }
         }
         // Upload logo image
@@ -132,6 +134,7 @@ const BasicInfoForm = ({ basicInfoData, studioId }: Props) => {
           const errorResponse = await uploadImage(logoFile, "logo", studioId);
           if (errorResponse) {
             setLogoFileError(errorResponse);
+            throw new Error(errorResponse);
           }
         }
       }
@@ -323,10 +326,7 @@ const BasicInfoForm = ({ basicInfoData, studioId }: Props) => {
 
       <ErrorMessage> {errors.address?.message}</ErrorMessage>
 
-      <Button type="submit" className="mt-5 px-12" disabled={isSubmitting}>
-        {isSubmitting ? "資料儲存中..." : "往下一步"}
-        {isSubmitting ? <Loader2 className="animate-spin" /> : <MoveRight />}
-      </Button>
+      <SubmitButton isSubmitting={isSubmitting} />
     </form>
   );
 };

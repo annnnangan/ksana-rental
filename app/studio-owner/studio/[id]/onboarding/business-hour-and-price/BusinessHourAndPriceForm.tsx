@@ -20,11 +20,11 @@ import {
 } from "@/lib/validations";
 import { daysOfWeekType } from "@/services/model";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, MoveRight } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { WheelEvent } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import { WheelEvent } from "react";
+import SubmitButton from "../_component/SubmitButton";
 
 //Create for generating the day of week field in the form
 const daysOfWeekMap: {
@@ -415,10 +415,7 @@ const BusinessHourAndPriceForm = ({ defaultValue, studioId }: Props) => {
         </div>
       ))}
 
-      <Button type="submit" className="mt-5 px-12" disabled={isSubmitting}>
-        {isSubmitting ? "資料儲存中..." : "往下一步"}
-        {isSubmitting ? <Loader2 className="animate-spin" /> : <MoveRight />}
-      </Button>
+      <SubmitButton isSubmitting={isSubmitting} />
     </form>
   );
 };
