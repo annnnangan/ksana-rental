@@ -24,6 +24,7 @@ import {
   HandCoins,
   House,
   KeyRound,
+  ImageUp,
 } from "lucide-react";
 import { usePathname, useParams } from "next/navigation";
 import Link from "next/link";
@@ -47,6 +48,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       title: "設備",
       url: `/studio-owner/studio/${studioId}/onboarding/equipment`,
       icon: Dumbbell,
+    },
+    {
+      title: "場地照片",
+      url: `/studio-owner/studio/${studioId}/onboarding/gallery`,
+      icon: ImageUp,
     },
     {
       title: "大門密碼",
