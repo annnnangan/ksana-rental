@@ -8,7 +8,9 @@ const GalleryPage = () => {
     <>
       <div>
         <StepTitle>上傳場地照片</StepTitle>
-        <p className="text-sm md:text-base mb-6">請上傳最多15張場地照片。</p>
+        <p className="text-sm md:text-base mb-6">
+          請上傳最少3張，最多15張場地照片。
+        </p>
       </div>
       <GalleryForm />
     </>

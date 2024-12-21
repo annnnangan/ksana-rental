@@ -47,8 +47,10 @@ export type TbookingPhoneRemarks = z.infer<typeof bookingPhoneRemarksSchema>;
 
 //2. Studio Create Schema
 export const allowedImageMineTypes = ["image/jpeg", "image/jpg", "image/png"];
+const formattedMineTypes = allowedImageMineTypes.map((type) =>
+  type.replace("image/", "")
+);
 export const maxFileSize = 1048576 * 2; // 2 MB
-const allowedImageTypes = ["jpeg", "jpg", "png"];
 const daysOfWeekEnum = z.enum([
   "Monday",
   "Tuesday",
@@ -85,6 +87,17 @@ const businessHourSchema = z.object({
     .optional(),
 });
 
+// Define the schema for a single image for onboarding gallery step
+const singleImageSchema = z
+  .instanceof(File)
+  .refine((file) => allowedImageMineTypes.includes(file.type), {
+    message: `只接受以下圖片格式: ${formattedMineTypes.join(", ")}`,
+  })
+  .refine((file) => file.size <= 5 * 1048576, {
+    message: "只接受5MB以下之圖片。",
+  });
+
+//All onboarding step schema
 export const studioSchema = z.object({
   name: z
     .string()
@@ -118,6 +131,10 @@ export const studioSchema = z.object({
       })
     )
     .min(1, "請選擇至少一項設備"),
+  gallery: z
+    .array(singleImageSchema)
+    .min(3, { message: "請上傳至少3張圖片。" })
+    .max(15, { message: "最多只能上傳15張圖片。" }),
 });
 
 //Extract part of the studio schema for each onboarding step
@@ -154,3 +171,10 @@ export const studioEquipmentSchema = studioSchema.pick({
 });
 
 export type studioEquipmentFormData = z.infer<typeof studioEquipmentSchema>;
+
+//Step 4: Gallery - upload studio image
+export const studioGallerySchema = studioSchema.pick({
+  gallery: true,
+});
+
+export type studioGalleryFormData = z.infer<typeof studioGallerySchema>;
