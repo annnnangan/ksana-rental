@@ -1,5 +1,3 @@
-import { toast } from "react-toastify";
-
 const computeSHA256 = async (file: File) => {
   const buffer = await file.arrayBuffer();
   const hashBuffer = await crypto.subtle.digest("SHA-256", buffer);
@@ -16,15 +14,17 @@ export const uploadImage = async (
   studioId: number
 ) => {
   const signedURLParams = {
+    imageType,
     originalFileName: file.name,
     fileType: file.type,
     fileSize: file.size,
     checksum: await computeSHA256(file),
+    studioId,
   };
 
   try {
     // Generate a signed URL for the image
-    const signedURLFetchResponse = await fetch("/api/uploads/signed-url", {
+    const signedURLFetchResponse = await fetch("/api/s3", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -57,8 +57,10 @@ export const uploadImage = async (
         throw new Error("系統出現錯誤，請重試。");
       }
 
+      const apiPath = imageType !== "gallery" ? "basic-info/images" : "gallery";
+
       // Save the image path to the database
-      await fetch(`/api/studio/${studioId}/basic-info/images`, {
+      await fetch(`/api/studio/${studioId}/${apiPath}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

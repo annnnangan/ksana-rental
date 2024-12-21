@@ -12,7 +12,6 @@ export class StudioCreateService {
 
   async createNewStudio(userId: number, studioName: string) {
     try {
-      console.log(studioName);
       const insertedData = await this.knex
         .insert({
           user_id: userId,
@@ -295,6 +294,30 @@ export class StudioCreateService {
         }
       });
 
+      return {
+        success: true,
+        data: "",
+      };
+    } catch (error) {
+      if (error instanceof RequestError) {
+        throw error;
+      } else {
+        throw new RequestError(
+          500,
+          error instanceof Error ? error.message : "系統發生錯誤。"
+        );
+      }
+    }
+  }
+
+  async saveGallery(studioId: number, userId: number, imageUrl: string) {
+    try {
+      await this.knex
+        .insert({
+          studio_id: studioId,
+          photo: imageUrl,
+        })
+        .into("studio_photo");
       return {
         success: true,
         data: "",

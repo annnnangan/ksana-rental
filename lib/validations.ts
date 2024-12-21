@@ -47,10 +47,11 @@ export type TbookingPhoneRemarks = z.infer<typeof bookingPhoneRemarksSchema>;
 
 //2. Studio Create Schema
 export const allowedImageMineTypes = ["image/jpeg", "image/jpg", "image/png"];
-const formattedMineTypes = allowedImageMineTypes.map((type) =>
+export const formattedMineTypes = allowedImageMineTypes.map((type) =>
   type.replace("image/", "")
 );
-export const maxFileSize = 1048576 * 2; // 2 MB
+export const maxCoverAndLogoImageSize = 1048576 * 2; // 2 MB
+export const maxGalleryImageSize = 1048576 * 5; // 5 MB
 const daysOfWeekEnum = z.enum([
   "Monday",
   "Tuesday",
@@ -88,14 +89,20 @@ const businessHourSchema = z.object({
 });
 
 // Define the schema for a single image for onboarding gallery step
-const singleImageSchema = z
-  .instanceof(File)
-  .refine((file) => allowedImageMineTypes.includes(file.type), {
-    message: `只接受以下圖片格式: ${formattedMineTypes.join(", ")}`,
-  })
-  .refine((file) => file.size <= 5 * 1048576, {
-    message: "只接受5MB以下之圖片。",
-  });
+const singleImageSchema = z.union([
+  // For new image uploads
+  z
+    .instanceof(File)
+    .refine((file) => allowedImageMineTypes.includes(file.type), {
+      message: `不支持此檔案格式。請上傳${formattedMineTypes.join(
+        ", "
+      )}圖片檔案`,
+    })
+    .refine((file) => file.size <= maxGalleryImageSize, {
+      message: "檔案容量超出5MB。",
+    }),
+  z.string().url({ message: "圖片無法顯示。" }), // For existing AWS URLs
+]);
 
 //All onboarding step schema
 export const studioSchema = z.object({

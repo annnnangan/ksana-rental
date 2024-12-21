@@ -31,7 +31,6 @@ export class StudioService {
       }
     }
   }
-
   //Save image into Studio table
   //todo - params: studioId, userId, imageType (cover or logo). image S3 URL
   async getStudioBasicInfo(studioId: number, userId: number) {
@@ -180,6 +179,50 @@ export class StudioService {
       return {
         success: true,
         data: studioEquipmentData,
+      };
+    } catch (error) {
+      if (error instanceof RequestError) {
+        throw error;
+      } else {
+        throw new RequestError(
+          500,
+          error instanceof Error ? error.message : "系統發生錯誤。"
+        );
+      }
+    }
+  }
+  async getGallery(studioId: number, userId: number) {
+    try {
+      const studioGalleryData = await this.knex
+        .select("photo")
+        .from("studio_photo")
+        .where("studio_id", studioId);
+
+      return {
+        success: true,
+        data: studioGalleryData,
+      };
+    } catch (error) {
+      if (error instanceof RequestError) {
+        throw error;
+      } else {
+        throw new RequestError(
+          500,
+          error instanceof Error ? error.message : "系統發生錯誤。"
+        );
+      }
+    }
+  }
+
+  async removeGalleryImage(studioId: number, userId: number, imageURL: string) {
+    try {
+      await this.knex("studio_photo")
+        .where("studio_id", studioId)
+        .andWhere("photo", imageURL)
+        .del();
+      return {
+        success: true,
+        data: "",
       };
     } catch (error) {
       if (error instanceof RequestError) {
