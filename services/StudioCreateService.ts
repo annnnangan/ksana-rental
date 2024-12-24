@@ -5,6 +5,7 @@ import { BasicInfo, districts } from "./model";
 import { findAreaByDistrictValue } from "@/lib/utils/areas-districts-converter";
 import {
   studioBusinessHourAndPriceFormData,
+  studioContactFormData,
   studioEquipmentFormData,
 } from "@/lib/validations";
 export class StudioCreateService {
@@ -318,6 +319,49 @@ export class StudioCreateService {
           photo: imageUrl,
         })
         .into("studio_photo");
+      return {
+        success: true,
+        data: "",
+      };
+    } catch (error) {
+      if (error instanceof RequestError) {
+        throw error;
+      } else {
+        throw new RequestError(
+          500,
+          error instanceof Error ? error.message : "系統發生錯誤。"
+        );
+      }
+    }
+  }
+
+  async saveContact(
+    studioId: number,
+    userId: number,
+    data: studioContactFormData
+  ) {
+    try {
+      if (!data) {
+        throw new Error("資料有缺少，請填寫。");
+      }
+      //todo - insert data to studio_contact
+      await this.knex
+        .insert({
+          studio_id: studioId,
+          type: "phone",
+          contact: data.phone,
+        })
+        .into("studio_contact");
+
+      for (const [type, value] of Object.entries(data.social)) {
+        await this.knex
+          .insert({
+            studio_id: studioId,
+            type: type,
+            contact: value,
+          })
+          .into("studio_contact");
+      }
       return {
         success: true,
         data: "",

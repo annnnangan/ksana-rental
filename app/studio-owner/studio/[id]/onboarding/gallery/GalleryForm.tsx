@@ -11,6 +11,8 @@ import SubmitButton from "../_component/SubmitButton";
 import { uploadImage } from "@/lib/utils/s3-image-upload-utils";
 import { s3Client } from "@/services/s3";
 import { DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 interface Props {
   defaultValues: string[];
@@ -18,6 +20,7 @@ interface Props {
 }
 
 const GalleryForm = ({ defaultValues, studioId }: Props) => {
+  const router = useRouter();
   const [awsImagesToDelete, setAWSImagesToDelete] = useState<string[]>([]); // To track to be deleted AWS images
   const {
     handleSubmit,
@@ -72,33 +75,51 @@ const GalleryForm = ({ defaultValues, studioId }: Props) => {
   const gallery = watch("gallery");
 
   const onSubmit = async (data: studioGalleryFormData) => {
-    //Delete image in database and AWS when user click delete button on the existing image
-    if (awsImagesToDelete) {
-      awsImagesToDelete.forEach(async (image) => {
-        const awsResponse = await fetch("/api/s3", {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(image),
-        });
-
-        if (awsResponse.ok) {
-          await fetch(`/api/studio/${studioId}/gallery`, {
+    try {
+      //Delete image in database and AWS when user click delete button on the existing image
+      if (awsImagesToDelete) {
+        awsImagesToDelete.forEach(async (image) => {
+          const awsResponse = await fetch("/api/s3", {
             method: "DELETE",
             headers: {
               "Content-Type": "application/json",
             },
             body: JSON.stringify(image),
           });
-        }
+
+          if (awsResponse.ok) {
+            await fetch(`/api/studio/${studioId}/gallery`, {
+              method: "DELETE",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(image),
+            });
+          }
+        });
+      }
+      const errorResponse = await Promise.all(
+        data.gallery
+          .filter((image: any) => image instanceof File) // Only upload File objects (new images)
+          .map(async (image) => await uploadImage(image, "gallery", studioId))
+      );
+
+      if (errorResponse.length > 0) {
+        throw new Error("系統發生未預期錯誤，請重試。");
+      }
+
+      router.push(`/studio-owner/studio/${studioId}/onboarding/contact`);
+      router.refresh();
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "系統發生未預期錯誤，請重試。";
+      toast(errorMessage, {
+        position: "top-right",
+        type: "error",
+        autoClose: 1000,
       });
+      router.refresh();
     }
-    await Promise.all(
-      data.gallery
-        .filter((image: any) => image instanceof File) // Only upload File objects (new images)
-        .map(async (image) => await uploadImage(image, "gallery", studioId))
-    );
   };
 
   return (

@@ -154,7 +154,6 @@ const BusinessHourAndPriceForm = ({ defaultValue, studioId }: Props) => {
 
   const onSubmit = async (data: studioBusinessHourAndPriceFormData) => {
     try {
-      console.log(data);
       const response = await fetch(
         `/api/studio/${studioId}/business-hours-and-price`,
         {

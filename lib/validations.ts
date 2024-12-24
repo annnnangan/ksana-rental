@@ -142,6 +142,18 @@ export const studioSchema = z.object({
     .array(singleImageSchema)
     .min(3, { message: "請上傳至少3張圖片。" })
     .max(15, { message: "最多只能上傳15張圖片。" }),
+  phone: z
+    .string()
+    .refine(
+      isValidPhoneNumber,
+      "Please specify a valid phone number (include the international prefix)."
+    ),
+  social: z.object({
+    website: z.string().url({ message: "請輸入有效網站。" }),
+    instagram: z.string().url({ message: "請輸入有效Instagram網站。" }),
+    facebook: z.string().url({ message: "請輸入有效Facebook網站。" }),
+    youtube: z.string().url({ message: "請輸入有效Youtube網站。" }),
+  }),
 });
 
 //Extract part of the studio schema for each onboarding step
@@ -185,3 +197,12 @@ export const studioGallerySchema = studioSchema.pick({
 });
 
 export type studioGalleryFormData = z.infer<typeof studioGallerySchema>;
+
+//Step 4: Contact
+export const studioContactSchema = studioSchema.pick({
+  phone: true,
+  social: true,
+});
+
+export type studioContactFormData = z.infer<typeof studioContactSchema>;
+export type socialChannelKeys = keyof z.infer<typeof studioContactSchema>;

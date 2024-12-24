@@ -152,3 +152,6 @@ export const equipmentMap: { label: string; value: string }[] = [
     value: "tripod",
   },
 ] as const;
+
+//Social Platform
+export type SocialPlatform = "website" | "instagram" | "facebook" | "youtube";
