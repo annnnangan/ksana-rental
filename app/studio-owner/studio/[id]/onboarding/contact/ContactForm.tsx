@@ -2,7 +2,7 @@
 import { studioContactFormData, studioContactSchema } from "@/lib/validations";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import SubmitButton from "../_component/SubmitButton";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
@@ -13,6 +13,8 @@ import { SocialPlatform } from "@/services/model";
 
 interface Props {
   studioId: number;
+  phoneDefaultValue: string;
+  socialDefaultValue: {};
 }
 
 const socialChannels: SocialPlatform[] = [
@@ -22,7 +24,11 @@ const socialChannels: SocialPlatform[] = [
   "youtube",
 ];
 
-const ContactForm = ({ studioId }: Props) => {
+const ContactForm = ({
+  studioId,
+  phoneDefaultValue,
+  socialDefaultValue,
+}: Props) => {
   const router = useRouter();
   const {
     control,
@@ -33,7 +39,7 @@ const ContactForm = ({ studioId }: Props) => {
     formState: { errors, isSubmitting },
   } = useForm<studioContactFormData>({
     resolver: zodResolver(studioContactSchema),
-    defaultValues: {},
+    defaultValues: { phone: phoneDefaultValue, social: socialDefaultValue },
   });
 
   const onSubmit = async (data: studioContactFormData) => {
@@ -69,14 +75,22 @@ const ContactForm = ({ studioId }: Props) => {
 
         <div className="flex items-center">
           <p className="me-2">+852</p>
-          <Input
-            type="tel"
-            id="phone"
-            placeholder="請填寫場地聯絡電話。"
-            className="text-sm"
-            onChange={(e) => {
-              setValue("phone", `+852${e.target.value}`);
-            }}
+
+          <Controller
+            name="phone"
+            control={control}
+            render={({ field }) => (
+              <Input
+                type="tel"
+                id="phone"
+                defaultValue={field.value}
+                placeholder="請填寫場地聯絡電話。"
+                className="text-sm"
+                onChange={(e) => {
+                  setValue("phone", `+852${e.target.value}`);
+                }}
+              />
+            )}
           />
         </div>
 

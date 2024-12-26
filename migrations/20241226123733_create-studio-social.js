@@ -3,13 +3,13 @@
  * @returns { Promise<void> }
  */
 
-const tableName = "studio_contact";
+const tableName = "studio_social";
 exports.up = async function (knex) {
   await knex.schema.createTable(tableName, (table) => {
     table.increments();
     table.integer("studio_id").unsigned();
     table.foreign("studio_id").references("studio.id");
-    table.enu("type", ["phone", "website", "instagram", "facebook", "youtube"]);
+    table.enu("type", ["website", "instagram", "facebook", "youtube"]);
     table.text("contact");
     table.timestamps(false, true);
   });

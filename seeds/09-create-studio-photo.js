@@ -9,17 +9,17 @@ exports.seed = async function (knex) {
     {
       studio_id: 1,
       photo:
-        "https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/f2c5a9c4a3a2b6c6529e320969b087d8484573f92eabdc57f93f562aa8e6beeb.png",
+        "https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/02d86cb049e1e7f20c834d3081ccb8fa478214c92ee78cc237ea7a59e0c98dcc.png",
     },
     {
       studio_id: 1,
       photo:
-        "https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/15740c472df24fde1d3f9b4fefcbdced743bf57acd26ed8c820c56a887d663d2.png",
+        "https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/1564db0a0dfd1108746fc916223626cc13b01cf2fc024619f4139670e64cd13f.jpg",
     },
     {
       studio_id: 1,
       photo:
-        "https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/4985652dd4a61121fad51d0774464874bf02edaeb17b84f6e477be831b7bd8ac.png",
+        "https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/1a8860a22d58d884f9d469a42aee291b6ce59e3ff3ecb33c6fd64f36007de9c5.png",
     },
   ]);
 };

@@ -142,17 +142,24 @@ export const studioSchema = z.object({
     .array(singleImageSchema)
     .min(3, { message: "請上傳至少3張圖片。" })
     .max(15, { message: "最多只能上傳15張圖片。" }),
-  phone: z
-    .string()
-    .refine(
-      isValidPhoneNumber,
-      "Please specify a valid phone number (include the international prefix)."
-    ),
+  phone: z.string().refine(isValidPhoneNumber, "請輸入正確的電話號碼。"),
   social: z.object({
-    website: z.string().url({ message: "請輸入有效網站。" }),
+    website: z
+      .string()
+      .url({ message: "請輸入有效網站。" })
+      .optional()
+      .or(z.literal("")),
     instagram: z.string().url({ message: "請輸入有效Instagram網站。" }),
-    facebook: z.string().url({ message: "請輸入有效Facebook網站。" }),
-    youtube: z.string().url({ message: "請輸入有效Youtube網站。" }),
+    facebook: z
+      .string()
+      .url({ message: "請輸入有效Facebook網站。" })
+      .optional()
+      .or(z.literal("")),
+    youtube: z
+      .string()
+      .url({ message: "請輸入有效Youtube網站。" })
+      .optional()
+      .or(z.literal("")),
   }),
 });
 

@@ -4,13 +4,8 @@
  */
 exports.seed = async function (knex) {
   // Deletes ALL existing entries
-  await knex("studio_contact").del();
-  await knex("studio_contact").insert([
-    {
-      studio_id: 1,
-      type: "phone",
-      contact: "+85298761234",
-    },
+  await knex("studio_social").del();
+  await knex("studio_social").insert([
     {
       studio_id: 1,
       type: "website",
