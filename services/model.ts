@@ -155,3 +155,4 @@ export const equipmentMap: { label: string; value: string }[] = [
 
 //Social Platform
 export type SocialPlatform = "website" | "instagram" | "facebook" | "youtube";
+export type SocialLinks = Partial<Record<SocialPlatform, string>>;

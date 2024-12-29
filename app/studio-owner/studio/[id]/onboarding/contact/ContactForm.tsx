@@ -1,20 +1,20 @@
 "use client";
-import { studioContactFormData, studioContactSchema } from "@/lib/validations";
-import { zodResolver } from "@hookform/resolvers/zod";
-import React from "react";
-import { Controller, useForm } from "react-hook-form";
-import SubmitButton from "../_component/SubmitButton";
-import { useRouter } from "next/navigation";
-import { toast } from "react-toastify";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import ErrorMessage from "@/app/_components/ErrorMessage";
-import { SocialPlatform } from "@/services/model";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { removeCountryCode } from "@/lib/utils/remove-country-code";
+import { studioContactFormData, studioContactSchema } from "@/lib/validations";
+import { SocialLinks, SocialPlatform } from "@/services/model";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
+import { Controller, useForm } from "react-hook-form";
+import { toast } from "react-toastify";
+import SubmitButton from "../_component/SubmitButton";
 
 interface Props {
   studioId: number;
   phoneDefaultValue: string;
-  socialDefaultValue: {};
+  socialDefaultValue: SocialLinks;
 }
 
 const socialChannels: SocialPlatform[] = [
@@ -34,7 +34,6 @@ const ContactForm = ({
     control,
     register,
     handleSubmit,
-    watch,
     setValue,
     formState: { errors, isSubmitting },
   } = useForm<studioContactFormData>({
@@ -44,15 +43,60 @@ const ContactForm = ({
 
   const onSubmit = async (data: studioContactFormData) => {
     try {
-      const response = await fetch(`/api/studio/${studioId}/contact`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          data,
-        }),
-      });
+      
+      //save in database only when change happens
+      if (phoneDefaultValue !== data.phone) {
+        const response = await fetch(`/api/studio/${studioId}/contact/phone`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            data,
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(
+            errorData?.error.message || "系統發生未預期錯誤，請重試。"
+          );
+        }
+      }
+
+      //Check which social link needs to be updated
+      const socialUpdates: Partial<SocialLinks> = {};
+      for (const [key, value] of Object.entries(data.social) as [SocialPlatform, string][]) {
+        if (value !== socialDefaultValue[key]) {
+          socialUpdates[key] = value;
+        }
+      }
+
+     //Only when there is social link needs to be updated, we called the API
+     if (Object.keys(socialUpdates).length > 0) {
+      const socialResponse = await fetch(
+        `/api/studio/${studioId}/contact/social`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+         body: JSON.stringify({
+            data,
+          }),
+        }
+      );
+
+      if (!socialResponse.ok) {
+        const errorData = await socialResponse.json();
+        throw new Error(
+          errorData?.error.message || "系統發生未預期錯誤，請重試。"
+        );
+      }
+    }
+
+
+
       //   router.push(`/studio-owner/studio/${studioId}/onboarding/equipment`);
       //   router.refresh();
     } catch (error) {
@@ -83,7 +127,7 @@ const ContactForm = ({
               <Input
                 type="tel"
                 id="phone"
-                defaultValue={field.value}
+                defaultValue={removeCountryCode(field.value)}
                 placeholder="請填寫場地聯絡電話。"
                 className="text-sm"
                 onChange={(e) => {
@@ -107,7 +151,7 @@ const ContactForm = ({
           </Label>
 
           <Input
-            type="tel"
+            type="text"
             id={item}
             placeholder={`請填寫${item} - https://www.${item}.com/ksana`}
             className="text-sm"

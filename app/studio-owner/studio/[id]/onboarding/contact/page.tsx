@@ -1,8 +1,7 @@
-import React from "react";
-import ContactForm from "./ContactForm";
-import StepTitle from "../_component/StepTitle";
 import { studioService } from "@/services/StudioService";
-import { removeCountryCode } from "@/lib/utils/remove-country-code";
+import StepTitle from "../_component/StepTitle";
+import ContactForm from "./ContactForm";
+import { SocialPlatform } from "@/services/model";
 
 const ContactPage = async ({ params }: { params: Promise<{ id: string }> }) => {
   //Get Studio ID from URL
@@ -12,19 +11,15 @@ const ContactPage = async ({ params }: { params: Promise<{ id: string }> }) => {
 
   const phoneResult = await studioService.getPhone(studioId, userId);
   const phoneDefaultValue =
-    phoneResult.success && phoneResult.data !== null
-      ? removeCountryCode(phoneResult.data)
-      : "";
+    phoneResult.success && phoneResult.data !== null ? phoneResult.data : "";
   const socialResult = await studioService.getSocial(studioId, userId);
 
   const socialDefaultValue =
     socialResult.success && socialResult.data.length > 0
       ? formatSocialData(
-          socialResult.data as { type: string; contact: string }[]
+          socialResult.data as { type: SocialPlatform; contact: string }[]
         )
       : {};
-
-  console.log(socialResult);
   return (
     <>
       <div>
@@ -45,20 +40,18 @@ const ContactPage = async ({ params }: { params: Promise<{ id: string }> }) => {
 
 export default ContactPage;
 
-function formatSocialData(data: { type: string; contact: string }[]) {
-  const result = data.reduce((acc: { [key: string]: string }, item) => {
+function formatSocialData(
+  data: { type: SocialPlatform; contact: string }[]
+): Record<SocialPlatform, string | undefined> {
+  const defaultSocialLinks: Record<SocialPlatform, string | undefined> = {
+    website: "",
+    instagram: "",
+    facebook: "",
+    youtube: "",
+  };
+
+  return data.reduce((acc, item) => {
     acc[item.type] = item.contact;
     return acc;
-  }, {});
-
-  return result;
+  }, defaultSocialLinks);
 }
-
-// [
-//   { type: "website", contact: "https://www.soul-yogi.com" },
-//   { type: "instagram", contact: "https://www.instagram.com/soul-yogi" },
-// ];
-
-//{website: xxxxxxxxx,
-// instagram: XXXXX
-//}

@@ -335,7 +335,7 @@ export class StudioCreateService {
     }
   }
 
-  async saveContact(
+  async savePhone(
     studioId: number,
     userId: number,
     data: studioContactFormData
@@ -345,23 +345,50 @@ export class StudioCreateService {
         throw new Error("資料有缺少，請填寫。");
       }
       //todo - insert data to studio_contact
-      await this.knex
-        .insert({
-          studio_id: studioId,
-          type: "phone",
-          contact: data.phone,
+      await this.knex("studio")
+        .update({
+          phone: data.phone,
         })
-        .into("studio_contact");
+        .where({ id: studioId, user_id: userId });
+      return {
+        success: true,
+        data: "",
+      };
+    } catch (error) {
+      if (error instanceof RequestError) {
+        throw error;
+      } else {
+        throw new RequestError(
+          500,
+          error instanceof Error ? error.message : "系統發生錯誤。"
+        );
+      }
+    }
+  }
 
-      for (const [type, value] of Object.entries(data.social)) {
-        await this.knex
-          .insert({
+  async saveSocial(
+    studioId: number,
+    userId: number,
+    data: studioContactFormData
+  ) {
+    try {
+      if (!data) {
+        throw new Error("資料有缺少，請填寫。");
+      }
+
+      await this.knex.transaction(async (trx) => {
+        // Delete existing rows for this day to avoid duplicates
+        await trx("studio_social").where({ studio_id: studioId }).del();
+
+        for (const [type, value] of Object.entries(data.social)) {
+          await trx("studio_social").insert({
             studio_id: studioId,
             type: type,
-            contact: value,
-          })
-          .into("studio_contact");
-      }
+            contact: value === "" ? null : value,
+          });
+        }
+      });
+
       return {
         success: true,
         data: "",
