@@ -51,7 +51,7 @@ function formatSocialData(
   };
 
   return data.reduce((acc, item) => {
-    acc[item.type] = item.contact;
+    acc[item.type] = item.contact === null ? "" : item.contact;
     return acc;
   }, defaultSocialLinks);
 }

@@ -43,7 +43,6 @@ const ContactForm = ({
 
   const onSubmit = async (data: studioContactFormData) => {
     try {
-      
       //save in database only when change happens
       if (phoneDefaultValue !== data.phone) {
         const response = await fetch(`/api/studio/${studioId}/contact/phone`, {
@@ -66,39 +65,39 @@ const ContactForm = ({
 
       //Check which social link needs to be updated
       const socialUpdates: Partial<SocialLinks> = {};
-      for (const [key, value] of Object.entries(data.social) as [SocialPlatform, string][]) {
+      for (const [key, value] of Object.entries(data.social) as [
+        SocialPlatform,
+        string
+      ][]) {
         if (value !== socialDefaultValue[key]) {
           socialUpdates[key] = value;
         }
       }
 
-     //Only when there is social link needs to be updated, we called the API
-     if (Object.keys(socialUpdates).length > 0) {
-      const socialResponse = await fetch(
-        `/api/studio/${studioId}/contact/social`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-         body: JSON.stringify({
-            data,
-          }),
-        }
-      );
-
-      if (!socialResponse.ok) {
-        const errorData = await socialResponse.json();
-        throw new Error(
-          errorData?.error.message || "系統發生未預期錯誤，請重試。"
+      //Only when there is social link needs to be updated, we called the API
+      if (Object.keys(socialUpdates).length > 0) {
+        const socialResponse = await fetch(
+          `/api/studio/${studioId}/contact/social`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              data,
+            }),
+          }
         );
+
+        if (!socialResponse.ok) {
+          const errorData = await socialResponse.json();
+          throw new Error(
+            errorData?.error.message || "系統發生未預期錯誤，請重試。"
+          );
+        }
       }
-    }
-
-
-
-      //   router.push(`/studio-owner/studio/${studioId}/onboarding/equipment`);
-      //   router.refresh();
+      router.push(`/studio-owner/studio/${studioId}/onboarding/payout-info`);
+      router.refresh();
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "系統發生未預期錯誤，請重試。";

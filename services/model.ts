@@ -156,3 +156,19 @@ export const equipmentMap: { label: string; value: string }[] = [
 //Social Platform
 export type SocialPlatform = "website" | "instagram" | "facebook" | "youtube";
 export type SocialLinks = Partial<Record<SocialPlatform, string>>;
+
+//Payout Method
+export const payoutMethod: { label: string; value: string }[] = [
+  {
+    label: "FPS",
+    value: "fps",
+  },
+  {
+    label: "Payme",
+    value: "payme",
+  },
+  {
+    label: "銀行過數",
+    value: "bank-transfer",
+  },
+] as const;

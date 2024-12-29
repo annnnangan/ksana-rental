@@ -1,5 +1,4 @@
 import { NotFoundError, RequestError } from "@/lib/http-errors";
-import { studioContactFormData } from "@/lib/validations";
 import { knex } from "@/services/knex";
 import { Knex } from "knex";
 export class StudioService {
@@ -261,7 +260,6 @@ export class StudioService {
     }
   }
 
-
   //Get Social
   async getSocial(studioId: number, userId: number) {
     try {
@@ -273,6 +271,41 @@ export class StudioService {
         success: true,
         data: result.length > 0 ? result : "",
       };
+    } catch (error) {
+      if (error instanceof RequestError) {
+        throw error;
+      } else {
+        throw new RequestError(
+          500,
+          error instanceof Error ? error.message : "系統發生錯誤。"
+        );
+      }
+    }
+  }
+
+  //Get Studio Payout Detail
+  async getPayoutDetail(studioId: number, userId: number) {
+    try {
+      const isStudioExist = await this.validateStudioIdtoUserId(
+        studioId,
+        userId
+      );
+
+      if (isStudioExist.success) {
+        const result = (
+          await this.knex
+            .select("method", "account_name", "account_number")
+            .from("studio_payout_detail")
+            .where("id", studioId)
+        )[0];
+
+        return {
+          success: true,
+          data: result,
+        };
+      } else {
+        throw new Error();
+      }
     } catch (error) {
       if (error instanceof RequestError) {
         throw error;

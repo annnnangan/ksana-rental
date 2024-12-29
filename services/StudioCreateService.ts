@@ -7,6 +7,7 @@ import {
   studioBusinessHourAndPriceFormData,
   studioContactFormData,
   studioEquipmentFormData,
+  StudioPayoutFormData,
 } from "@/lib/validations";
 export class StudioCreateService {
   constructor(private knex: Knex) {}
@@ -385,6 +386,54 @@ export class StudioCreateService {
             studio_id: studioId,
             type: type,
             contact: value === "" ? null : value,
+          });
+        }
+      });
+
+      return {
+        success: true,
+        data: "",
+      };
+    } catch (error) {
+      if (error instanceof RequestError) {
+        throw error;
+      } else {
+        throw new RequestError(
+          500,
+          error instanceof Error ? error.message : "系統發生錯誤。"
+        );
+      }
+    }
+  }
+
+  async savePayoutDetail(
+    studioId: number,
+    userId: number,
+    data: StudioPayoutFormData
+  ) {
+    try {
+      const { payoutMethod, payoutAccountName, payoutAccountNumber } = data;
+
+      if (!payoutMethod || !payoutAccountName || !payoutAccountNumber) {
+        throw new Error("資料有缺少，請填寫。");
+      }
+
+      await this.knex.transaction(async (trx) => {
+        // Attempt to update the row
+        const updatedRows = await trx("studio_payout_detail")
+          .update({
+            method: payoutMethod,
+            account_name: payoutAccountName,
+            account_number: payoutAccountNumber,
+          })
+          .where({ studio_id: studioId });
+        // If no rows were updated, perform an insert
+        if (updatedRows === 0) {
+          await trx("studio_payout_detail").insert({
+            studio_id: studioId,
+            method: payoutMethod,
+            account_name: payoutAccountName,
+            account_number: payoutAccountNumber,
           });
         }
       });

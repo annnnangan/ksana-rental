@@ -1,7 +1,6 @@
-import { z } from "zod";
+import { districtValues, equipmentMap, payoutMethod } from "@/services/model";
 import { isValidPhoneNumber } from "libphonenumber-js";
-import { TZDate } from "@date-fns/tz";
-import { districts, districtValues, equipmentMap } from "@/services/model";
+import { z } from "zod";
 
 //1. Booking Schema
 //date.parse("2020-01-01"); // pass
@@ -132,7 +131,7 @@ export const studioSchema = z.object({
   equipment: z
     .array(
       z.enum(equipmentMap.map((item) => item.value) as [string, ...string[]], {
-        errorMap: (issue, ctx) => ({
+        errorMap: () => ({
           message: "設備類型無效。請選擇有效的設備類型。",
         }),
       })
@@ -161,6 +160,20 @@ export const studioSchema = z.object({
       .optional()
       .or(z.literal("")),
   }),
+  payoutMethod: z.enum(payoutMethod.map((item) => item.value) as [string], {
+    errorMap: () => ({
+      message: "收帳方法無效。請選擇有效的收帳方法。",
+    }),
+  }),
+  payoutAccountName: z
+    .string()
+    .min(5, "請填寫正確帳戶名稱。")
+    .max(50, "請填寫正確帳戶名稱。"),
+  payoutAccountNumber: z
+    .string()
+    .regex(/^\d+$/, "請填寫正確帳戶號碼。")
+    .min(5, "請填寫正確帳戶號碼。")
+    .max(50, "請填寫正確帳戶號碼。"),
 });
 
 //Extract part of the studio schema for each onboarding step
@@ -213,3 +226,11 @@ export const studioContactSchema = studioSchema.pick({
 
 export type studioContactFormData = z.infer<typeof studioContactSchema>;
 export type socialChannelKeys = keyof z.infer<typeof studioContactSchema>;
+
+//Step 5: Payout Details
+export const StudioPayoutSchema = studioSchema.pick({
+  payoutMethod: true,
+  payoutAccountName: true,
+  payoutAccountNumber: true,
+});
+export type StudioPayoutFormData = z.infer<typeof StudioPayoutSchema>;
