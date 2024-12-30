@@ -6,6 +6,7 @@ import { findAreaByDistrictValue } from "@/lib/utils/areas-districts-converter";
 import {
   studioBusinessHourAndPriceFormData,
   studioContactFormData,
+  StudioDoorPasswordFormData,
   studioEquipmentFormData,
   StudioPayoutFormData,
 } from "@/lib/validations";
@@ -437,6 +438,55 @@ export class StudioCreateService {
           });
         }
       });
+
+      return {
+        success: true,
+        data: "",
+      };
+    } catch (error) {
+      if (error instanceof RequestError) {
+        throw error;
+      } else {
+        throw new RequestError(
+          500,
+          error instanceof Error ? error.message : "系統發生錯誤。"
+        );
+      }
+    }
+  }
+
+  async saveDoorPassword(
+    studioId: number,
+    userId: number,
+    data: StudioDoorPasswordFormData
+  ) {
+    try {
+      const { isRevealDoorPassword, doorPassword } = data;
+
+      if (!isRevealDoorPassword) {
+        throw new Error("資料有缺少，請填寫。");
+      }
+
+      if (
+        isRevealDoorPassword === "true" &&
+        doorPassword?.length === undefined
+      ) {
+        throw new Error("請填寫大門密碼。");
+      }
+
+      if (isRevealDoorPassword === "true" && doorPassword?.length) {
+        await knex("studio").where({ id: studioId, user_id: userId }).update({
+          is_reveal_door_password: true,
+          door_password: doorPassword,
+        });
+      }
+
+      if (isRevealDoorPassword === "false") {
+        await knex("studio").where({ id: studioId, user_id: userId }).update({
+          is_reveal_door_password: false,
+          door_password: null,
+        });
+      }
 
       return {
         success: true,

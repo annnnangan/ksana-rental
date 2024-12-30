@@ -1,8 +1,8 @@
 import { studioService } from "@/services/StudioService";
 import StepTitle from "../_component/StepTitle";
-import PayoutForm from "./PayoutForm";
+import DoorPasswordForm from "./DoorPasswordForm";
 
-const PayoutDetailPage = async ({
+const DoorPasswordPage = async ({
   params,
 }: {
   params: Promise<{ id: string }>;
@@ -11,25 +11,27 @@ const PayoutDetailPage = async ({
   const studioId = Number((await params).id);
   const userId = 1;
 
-  const defaultValueResult = await studioService.getPayoutDetail(
+  const defaultValueResult = await studioService.getDoorPassword(
     studioId,
     userId
   );
 
   const defaultValue = defaultValueResult.success && defaultValueResult.data;
 
+  console.log(defaultValue);
+
   return (
     <>
       <div>
-        <StepTitle>大門密碼</StepTitle>
+        <StepTitle>設定大門密碼</StepTitle>
         <p className="text-sm md:text-base mb-6">
-          我們會利用以下所填寫資料將每星期款項存入你的帳戶，請確保資料正確，否則會無法收取款項。
+          Ksana會於預約2小時前於平台上自動發送場地大門密碼給場地租用用戶。請選擇是否同意Ksana發送場地大門密碼給場地租用用戶。
         </p>
       </div>
 
-      <PayoutForm studioId={studioId} defaultValue={defaultValue} />
+      <DoorPasswordForm studioId={studioId} defaultValue={defaultValue} />
     </>
   );
 };
 
-export default PayoutDetailPage;
+export default DoorPasswordPage;

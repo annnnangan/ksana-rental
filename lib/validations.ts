@@ -174,6 +174,12 @@ export const studioSchema = z.object({
     .regex(/^\d+$/, "請填寫正確帳戶號碼。")
     .min(5, "請填寫正確帳戶號碼。")
     .max(50, "請填寫正確帳戶號碼。"),
+  isRevealDoorPassword: z.enum(["true", "false"], {
+    errorMap: () => ({
+      message: "請選擇是否同意由Ksana向租用場地者發送大門密碼。",
+    }),
+  }),
+  doorPassword: z.string().optional(),
 });
 
 //Extract part of the studio schema for each onboarding step
@@ -234,3 +240,24 @@ export const StudioPayoutSchema = studioSchema.pick({
   payoutAccountNumber: true,
 });
 export type StudioPayoutFormData = z.infer<typeof StudioPayoutSchema>;
+
+//Step 6: Door Password
+const StudioDoorPasswordBaseSchema = studioSchema.pick({
+  isRevealDoorPassword: true,
+  doorPassword: true,
+});
+
+// Add the conditional validation logic
+export const StudioDoorPasswordSchema = StudioDoorPasswordBaseSchema.refine(
+  (data) =>
+    data.isRevealDoorPassword === "false" ||
+    (data.isRevealDoorPassword === "true" && data.doorPassword?.length),
+  {
+    message: "請填寫大門密碼。",
+    path: ["doorPassword"], // Attach the error to the doorPassword field
+  }
+);
+
+export type StudioDoorPasswordFormData = z.infer<
+  typeof StudioDoorPasswordSchema
+>;

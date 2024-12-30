@@ -317,6 +317,41 @@ export class StudioService {
       }
     }
   }
+
+  //Get Studio Door Password
+  async getDoorPassword(studioId: number, userId: number) {
+    try {
+      const isStudioExist = await this.validateStudioIdtoUserId(
+        studioId,
+        userId
+      );
+
+      if (isStudioExist.success) {
+        const result = (
+          await this.knex
+            .select("is_reveal_door_password", "door_password")
+            .from("studio")
+            .where("id", studioId)
+        )[0];
+
+        return {
+          success: true,
+          data: result,
+        };
+      } else {
+        throw new Error();
+      }
+    } catch (error) {
+      if (error instanceof RequestError) {
+        throw error;
+      } else {
+        throw new RequestError(
+          500,
+          error instanceof Error ? error.message : "系統發生錯誤。"
+        );
+      }
+    }
+  }
 }
 
 export const studioService = new StudioService(knex);
