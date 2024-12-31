@@ -108,7 +108,7 @@ const GalleryForm = ({ defaultValues, studioId }: Props) => {
         throw new Error("系統發生未預期錯誤，請重試。");
       }
 
-      router.push(`/studio-owner/studio/${studioId}/onboarding/contact`);
+      router.push(`/studio-owner/studio/${studioId}/onboarding/door-password`);
       router.refresh();
     } catch (error) {
       const errorMessage =

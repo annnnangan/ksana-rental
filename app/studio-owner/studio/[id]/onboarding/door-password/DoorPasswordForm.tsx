@@ -81,7 +81,7 @@ const DoorPasswordForm = ({ studioId, defaultValue }: Props) => {
         }
       }
 
-      router.push(`/studio-owner/studio/${studioId}/onboarding/equipment`);
+      router.push(`/studio-owner/studio/${studioId}/onboarding/contact`);
       router.refresh();
     } catch (error) {
       const errorMessage =
