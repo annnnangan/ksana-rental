@@ -1,4 +1,8 @@
 "use client";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { usePathname } from "next/navigation";
+
 import ErrorMessage from "@/app/_components/ErrorMessage";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
@@ -18,14 +22,13 @@ import { studioBasicInfoSchema } from "@/lib/validations";
 import { BasicInfo, districts } from "@/services/model";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Building2, Image as ImageIcon } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { z } from "zod";
 import FieldRemarks from "../../_component/FieldRemarks";
 import SubmitButton from "../../_component/SubmitButton";
 import UploadButton from "./UploadButton";
+import { getOnboardingStep } from "@/lib/utils/get-onboarding-step-utils";
 
 interface Props {
   basicInfoData: BasicInfo;
@@ -35,6 +38,9 @@ interface Props {
 type studioBasicInfoSchemaFormData = z.infer<typeof studioBasicInfoSchema>;
 
 const BasicInfoForm = ({ basicInfoData, studioId }: Props) => {
+  const pathname = usePathname();
+  const router = useRouter();
+
   const {
     register,
     control,
@@ -50,8 +56,6 @@ const BasicInfoForm = ({ basicInfoData, studioId }: Props) => {
       address: basicInfoData?.address || undefined,
     },
   });
-
-  const router = useRouter();
 
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreviewUrl, setCoverPreviewUrl] = useState<string | null>(null);
@@ -138,19 +142,47 @@ const BasicInfoForm = ({ basicInfoData, studioId }: Props) => {
           }
         }
       }
-      const response = await fetch(`/api/studio/${studioId}/basic-info`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          data,
-        }),
-      });
 
-      if (!response.ok) {
+      const onboardingStep = getOnboardingStep(pathname);
+
+      //Save Basic Info to Database
+      const saveBasicInfoResponse = await fetch(
+        `/api/studio/${studioId}/basic-info`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            data,
+            onboardingStep,
+          }),
+        }
+      );
+
+      if (!saveBasicInfoResponse.ok) {
         // If the response status is not 2xx, throw an error with the response message
-        const errorData = await response.json();
+        const errorData = await saveBasicInfoResponse.json();
+        throw new Error(errorData?.error.message || "系統發生未預期錯誤。");
+      }
+
+      //Save Onboarding Step Track
+      const completeOnboardingStepResponse = await fetch(
+        `/api/studio/${studioId}/onboarding-step`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            onboardingStep,
+          }),
+        }
+      );
+
+      if (!completeOnboardingStepResponse.ok) {
+        // If the response status is not 2xx, throw an error with the response message
+        const errorData = await completeOnboardingStepResponse.json();
         throw new Error(errorData?.error.message || "系統發生未預期錯誤。");
       }
 

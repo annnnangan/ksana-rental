@@ -1,18 +1,17 @@
 "use client";
 import ErrorMessage from "@/app/_components/ErrorMessage";
 import { Button } from "@/components/ui/button";
+import { uploadImage } from "@/lib/utils/s3-image-upload-utils";
 import { studioGalleryFormData, studioGallerySchema } from "@/lib/validations";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ImageUpIcon } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
 import React, { useRef, useState } from "react";
 import { FieldError, useForm } from "react-hook-form";
-import ImagePreview from "./ImagePreview";
-import SubmitButton from "../_component/SubmitButton";
-import { uploadImage } from "@/lib/utils/s3-image-upload-utils";
-import { s3Client } from "@/services/s3";
-import { DeleteObjectCommand } from "@aws-sdk/client-s3";
-import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
+import SubmitButton from "../_component/SubmitButton";
+import ImagePreview from "./ImagePreview";
+import { getOnboardingStep } from "@/lib/utils/get-onboarding-step-utils";
 
 interface Props {
   defaultValues: string[];
@@ -21,6 +20,8 @@ interface Props {
 
 const GalleryForm = ({ defaultValues, studioId }: Props) => {
   const router = useRouter();
+  const pathname = usePathname();
+
   const [awsImagesToDelete, setAWSImagesToDelete] = useState<string[]>([]); // To track to be deleted AWS images
   const {
     handleSubmit,
@@ -100,12 +101,37 @@ const GalleryForm = ({ defaultValues, studioId }: Props) => {
       }
       const errorResponse = await Promise.all(
         data.gallery
-          .filter((image: any) => image instanceof File) // Only upload File objects (new images)
+          .filter((image) => image instanceof File) // Only upload File objects (new images)
           .map(async (image) => await uploadImage(image, "gallery", studioId))
       );
 
-      if (errorResponse.length > 0) {
+      const error = errorResponse.filter(
+        (errorMessage) => errorMessage !== undefined
+      );
+
+      if (error.length > 0) {
         throw new Error("系統發生未預期錯誤，請重試。");
+      }
+
+      //Save Onboarding Step Track
+      const onboardingStep = getOnboardingStep(pathname);
+      const completeOnboardingStepResponse = await fetch(
+        `/api/studio/${studioId}/onboarding-step`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            onboardingStep,
+          }),
+        }
+      );
+
+      if (!completeOnboardingStepResponse.ok) {
+        // If the response status is not 2xx, throw an error with the response message
+        const errorData = await completeOnboardingStepResponse.json();
+        throw new Error(errorData?.error.message || "系統發生未預期錯誤。");
       }
 
       router.push(`/studio-owner/studio/${studioId}/onboarding/door-password`);

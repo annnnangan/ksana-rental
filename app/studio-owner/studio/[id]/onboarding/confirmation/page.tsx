@@ -1,6 +1,7 @@
 import { studioService } from "@/services/StudioService";
 import StepTitle from "../_component/StepTitle";
 import ConfirmationForm from "./ConfirmationForm";
+import { onBoardingRequiredSteps } from "@/services/model";
 
 const ContactPage = async ({ params }: { params: Promise<{ id: string }> }) => {
   //Get Studio ID from URL
@@ -13,7 +14,7 @@ const ContactPage = async ({ params }: { params: Promise<{ id: string }> }) => {
 
   const isFilledAllSteps =
     onboardingStepsResult.success &&
-    areAllStepsCompleted(onboardingStepsResult.data, requiredSteps);
+    areAllStepsCompleted(onboardingStepsResult.data, onBoardingRequiredSteps);
 
   return (
     <>
@@ -31,16 +32,6 @@ const ContactPage = async ({ params }: { params: Promise<{ id: string }> }) => {
     </>
   );
 };
-
-const requiredSteps = [
-  "basic-info",
-  "business-hour-and-price",
-  "equipment",
-  "gallery",
-  "door-password",
-  "contact",
-  "payout-info",
-];
 
 function areAllStepsCompleted(
   completedSteps: { step: string }[],

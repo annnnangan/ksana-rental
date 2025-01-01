@@ -1,7 +1,7 @@
 import { NotFoundError, RequestError } from "@/lib/http-errors";
 import { knex } from "@/services/knex";
 import { Knex } from "knex";
-import { BasicInfo, districts } from "./model";
+import { BasicInfo, districts, onBoardingRequiredSteps } from "./model";
 import { findAreaByDistrictValue } from "@/lib/utils/areas-districts-converter";
 import {
   studioBusinessHourAndPriceFormData,
@@ -28,6 +28,42 @@ export class StudioCreateService {
       return {
         success: true,
         data: insertedData[0].id,
+      };
+    } catch (error) {
+      if (error instanceof RequestError) {
+        throw error;
+      } else {
+        throw new RequestError(
+          500,
+          error instanceof Error ? error.message : "系統發生錯誤。"
+        );
+      }
+    }
+  }
+
+  async insertOnboardingSteps(studioId: number, userId: number) {
+    try {
+      onBoardingRequiredSteps.forEach(async (step) => {
+        await this.knex
+          .insert({
+            studio_id: studioId,
+            step: step,
+            is_complete: false,
+          })
+          .into("studio_onboarding_step");
+      });
+
+      await this.knex
+        .insert({
+          studio_id: studioId,
+          step: "confirmation",
+          is_complete: false,
+        })
+        .into("studio_onboarding_step");
+
+      return {
+        success: true,
+        data: "",
       };
     } catch (error) {
       if (error instanceof RequestError) {

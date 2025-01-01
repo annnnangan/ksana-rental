@@ -415,6 +415,41 @@ export class StudioService {
       }
     }
   }
+
+  async completeOnboardingStep(
+    studioId: number,
+    userId: number,
+    completedStep: string
+  ) {
+    try {
+      const isStudioExist = await this.validateStudioIdtoUserId(
+        studioId,
+        userId
+      );
+
+      if (isStudioExist.success) {
+        await knex("studio_onboarding_step")
+          .where({ studio_id: studioId, step: completedStep })
+          .update({ is_complete: true });
+
+        return {
+          success: true,
+          data: "",
+        };
+      } else {
+        throw new Error();
+      }
+    } catch (error) {
+      if (error instanceof RequestError) {
+        throw error;
+      } else {
+        throw new RequestError(
+          500,
+          error instanceof Error ? error.message : "系統發生錯誤。"
+        );
+      }
+    }
+  }
 }
 
 export const studioService = new StudioService(knex);

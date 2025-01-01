@@ -20,11 +20,12 @@ import {
 } from "@/lib/validations";
 import { daysOfWeekType } from "@/services/model";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { WheelEvent } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import SubmitButton from "../_component/SubmitButton";
+import { getOnboardingStep } from "@/lib/utils/get-onboarding-step-utils";
 
 //Create for generating the day of week field in the form
 const daysOfWeekMap: {
@@ -52,6 +53,9 @@ interface Props {
 }
 
 const BusinessHourAndPriceForm = ({ defaultValue, studioId }: Props) => {
+  const router = useRouter();
+  const pathname = usePathname();
+
   const {
     control,
     register,
@@ -67,8 +71,6 @@ const BusinessHourAndPriceForm = ({ defaultValue, studioId }: Props) => {
       nonPeakHourPrice: defaultValue.nonPeakHourPrice,
     },
   });
-
-  const router = useRouter();
 
   //Monitor change in businessHours data (e.g. new timeslot added, time change, priceType change) and trigger re-render using react hook form API
   //Get the latest businessHours data with businessHoursData
@@ -154,7 +156,7 @@ const BusinessHourAndPriceForm = ({ defaultValue, studioId }: Props) => {
 
   const onSubmit = async (data: studioBusinessHourAndPriceFormData) => {
     try {
-      const response = await fetch(
+      const saveBusinessHoursPriceResponse = await fetch(
         `/api/studio/${studioId}/business-hours-and-price`,
         {
           method: "PUT",
@@ -167,16 +169,35 @@ const BusinessHourAndPriceForm = ({ defaultValue, studioId }: Props) => {
         }
       );
 
-      if (!response.ok) {
+      if (!saveBusinessHoursPriceResponse.ok) {
         // If the response status is not 2xx, throw an error with the response message
-        const errorData = await response.json();
+        const errorData = await saveBusinessHoursPriceResponse.json();
+        throw new Error(errorData?.error.message || "系統發生未預期錯誤。");
+      }
+
+      //Save Onboarding Step Track
+      const onboardingStep = getOnboardingStep(pathname);
+      const completeOnboardingStepResponse = await fetch(
+        `/api/studio/${studioId}/onboarding-step`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            onboardingStep,
+          }),
+        }
+      );
+
+      if (!completeOnboardingStepResponse.ok) {
+        // If the response status is not 2xx, throw an error with the response message
+        const errorData = await completeOnboardingStepResponse.json();
         throw new Error(errorData?.error.message || "系統發生未預期錯誤。");
       }
 
       router.push(`/studio-owner/studio/${studioId}/onboarding/equipment`);
       router.refresh();
-
-      //Save text information to database
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "系統發生未預期錯誤，請重試。";

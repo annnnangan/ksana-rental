@@ -33,6 +33,16 @@ export type BookingStatus =
   | "expire"
   | "complete";
 
+export const onBoardingRequiredSteps = [
+  "basic-info",
+  "business-hour-and-price",
+  "equipment",
+  "gallery",
+  "door-password",
+  "contact",
+  "payout-info",
+];
+
 export const districts = [
   {
     area: { label: "香港", value: "hong-kong" },

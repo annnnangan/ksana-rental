@@ -14,10 +14,11 @@ import {
   StudioDoorPasswordSchema,
 } from "@/lib/validations";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import SubmitButton from "../_component/SubmitButton";
+import { getOnboardingStep } from "@/lib/utils/get-onboarding-step-utils";
 
 interface defaultValue {
   is_reveal_door_password: boolean;
@@ -31,6 +32,8 @@ interface Props {
 
 const DoorPasswordForm = ({ studioId, defaultValue }: Props) => {
   const router = useRouter();
+  const pathname = usePathname();
+
   const {
     control,
     register,
@@ -63,19 +66,43 @@ const DoorPasswordForm = ({ studioId, defaultValue }: Props) => {
             data.isRevealDoorPassword) ||
         defaultValue.door_password !== data.doorPassword
       ) {
-        const response = await fetch(`/api/studio/${studioId}/door-password`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            data,
-          }),
-        });
+        const saveDoorPasswordResponse = await fetch(
+          `/api/studio/${studioId}/door-password`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              data,
+            }),
+          }
+        );
 
-        if (!response.ok) {
+        if (!saveDoorPasswordResponse.ok) {
           // If the response status is not 2xx, throw an error with the response message
-          const errorData = await response.json();
+          const errorData = await saveDoorPasswordResponse.json();
+          throw new Error(errorData?.error.message || "系統發生未預期錯誤。");
+        }
+
+        //Save Onboarding Step Track
+        const onboardingStep = getOnboardingStep(pathname);
+        const completeOnboardingStepResponse = await fetch(
+          `/api/studio/${studioId}/onboarding-step`,
+          {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              onboardingStep,
+            }),
+          }
+        );
+
+        if (!completeOnboardingStepResponse.ok) {
+          // If the response status is not 2xx, throw an error with the response message
+          const errorData = await completeOnboardingStepResponse.json();
           throw new Error(errorData?.error.message || "系統發生未預期錯誤。");
         }
       }

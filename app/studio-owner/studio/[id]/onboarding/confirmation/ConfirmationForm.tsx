@@ -6,12 +6,12 @@ import {
   StudioOnBoardingTermsSchema,
 } from "@/lib/validations";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import ConfirmationButton from "./ConfirmationButton";
 import TermsAndConditions from "./TermsAndConditions";
-import ToastMessageWithRedirect from "@/app/_components/ToastMessageWithRedirect";
+import { getOnboardingStep } from "@/lib/utils/get-onboarding-step-utils";
 
 interface Props {
   studioId: number;
@@ -20,6 +20,7 @@ interface Props {
 
 const ConfirmationForm = ({ studioId, isFilledAllSteps }: Props) => {
   const router = useRouter();
+  const pathname = usePathname();
   const {
     control,
     watch,
@@ -47,6 +48,27 @@ const ConfirmationForm = ({ studioId, isFilledAllSteps }: Props) => {
       if (!response.ok) {
         // If the response status is not 2xx, throw an error with the response message
         const errorData = await response.json();
+        throw new Error(errorData?.error.message || "系統發生未預期錯誤。");
+      }
+
+      //Save Onboarding Step Track
+      const onboardingStep = getOnboardingStep(pathname);
+      const completeOnboardingStepResponse = await fetch(
+        `/api/studio/${studioId}/onboarding-step`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            onboardingStep,
+          }),
+        }
+      );
+
+      if (!completeOnboardingStepResponse.ok) {
+        // If the response status is not 2xx, throw an error with the response message
+        const errorData = await completeOnboardingStepResponse.json();
         throw new Error(errorData?.error.message || "系統發生未預期錯誤。");
       }
 

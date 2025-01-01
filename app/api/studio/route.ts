@@ -16,16 +16,22 @@ export async function POST(request: NextRequest) {
       );
     }
     const userId = 1;
-    const response = await studioCreateService.createNewStudio(
+    const createNewStudioResponse = await studioCreateService.createNewStudio(
       userId,
       body.name
     );
 
-    if (response.success) {
-      return NextResponse.json(
-        { success: true, data: response.data },
-        { status: 201 }
-      );
+    if (createNewStudioResponse.success) {
+      const studioId = createNewStudioResponse.data;
+      const insertOnboardingStepsResponse =
+        await studioCreateService.insertOnboardingSteps(studioId, userId);
+
+      if (insertOnboardingStepsResponse.success) {
+        return NextResponse.json(
+          { success: true, data: createNewStudioResponse.data },
+          { status: 201 }
+        );
+      }
     }
   } catch (error) {
     return handleError(error, "api") as APIErrorResponse;

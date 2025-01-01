@@ -12,11 +12,12 @@ import {
 import { StudioPayoutFormData, StudioPayoutSchema } from "@/lib/validations";
 import { payoutMethod } from "@/services/model";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import SubmitButton from "../_component/SubmitButton";
 import FieldRemarks from "../_component/FieldRemarks";
+import { getOnboardingStep } from "@/lib/utils/get-onboarding-step-utils";
 
 interface defaultValue {
   method: string;
@@ -31,6 +32,7 @@ interface Props {
 
 const PayoutForm = ({ studioId, defaultValue }: Props) => {
   const router = useRouter();
+  const pathname = usePathname();
   const {
     control,
     register,
@@ -47,19 +49,42 @@ const PayoutForm = ({ studioId, defaultValue }: Props) => {
 
   const onSubmit = async (data: StudioPayoutFormData) => {
     try {
-      const response = await fetch(`/api/studio/${studioId}/payout-detail`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          data,
-        }),
-      });
+      const savePayoutDetailResponse = await fetch(
+        `/api/studio/${studioId}/payout-detail`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            data,
+          }),
+        }
+      );
 
-      if (!response.ok) {
+      if (!savePayoutDetailResponse.ok) {
+        const errorData = await savePayoutDetailResponse.json();
+        throw new Error(errorData?.error.message || "系統發生未預期錯誤。");
+      }
+
+      //Save Onboarding Step Track
+      const onboardingStep = getOnboardingStep(pathname);
+      const completeOnboardingStepResponse = await fetch(
+        `/api/studio/${studioId}/onboarding-step`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            onboardingStep,
+          }),
+        }
+      );
+
+      if (!completeOnboardingStepResponse.ok) {
         // If the response status is not 2xx, throw an error with the response message
-        const errorData = await response.json();
+        const errorData = await completeOnboardingStepResponse.json();
         throw new Error(errorData?.error.message || "系統發生未預期錯誤。");
       }
 
