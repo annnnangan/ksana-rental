@@ -18,8 +18,6 @@ const DoorPasswordPage = async ({
 
   const defaultValue = defaultValueResult.success && defaultValueResult.data;
 
-  console.log(defaultValue);
-
   return (
     <>
       <div>

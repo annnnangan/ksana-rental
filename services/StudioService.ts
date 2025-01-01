@@ -352,6 +352,69 @@ export class StudioService {
       }
     }
   }
+
+  async getOnboardingSteps(studioId: number, userId: number) {
+    try {
+      const isStudioExist = await this.validateStudioIdtoUserId(
+        studioId,
+        userId
+      );
+
+      if (isStudioExist.success) {
+        const result = await this.knex
+          .select("step")
+          .from("studio_onboarding_step")
+          .where({ studio_id: studioId, is_complete: true });
+
+        return {
+          success: true,
+          data: result,
+        };
+      } else {
+        throw new Error();
+      }
+    } catch (error) {
+      if (error instanceof RequestError) {
+        throw error;
+      } else {
+        throw new RequestError(
+          500,
+          error instanceof Error ? error.message : "系統發生錯誤。"
+        );
+      }
+    }
+  }
+
+  async updateStudioStatus(studioId: number, userId: number, status: string) {
+    try {
+      const isStudioExist = await this.validateStudioIdtoUserId(
+        studioId,
+        userId
+      );
+
+      if (isStudioExist.success) {
+        await knex("studio")
+          .where({ id: studioId, user_id: userId })
+          .update({ status: status });
+
+        return {
+          success: true,
+          data: "",
+        };
+      } else {
+        throw new Error();
+      }
+    } catch (error) {
+      if (error instanceof RequestError) {
+        throw error;
+      } else {
+        throw new RequestError(
+          500,
+          error instanceof Error ? error.message : "系統發生錯誤。"
+        );
+      }
+    }
+  }
 }
 
 export const studioService = new StudioService(knex);

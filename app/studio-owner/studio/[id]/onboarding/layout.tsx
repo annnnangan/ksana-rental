@@ -71,7 +71,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     },
     {
       title: "確認申請",
-      url: `/studio-owner/studio/${studioId}/onboarding/summary`,
+      url: `/studio-owner/studio/${studioId}/onboarding/confirmation`,
       icon: CalendarCheck,
     },
   ];

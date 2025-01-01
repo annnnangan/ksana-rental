@@ -1,8 +1,7 @@
-import ToastMessage from "@/app/_components/ToastMessageWithRedirect";
+import ToastMessageWithRedirect from "@/app/_components/ToastMessageWithRedirect";
 import { bookingService } from "@/services/BookingService";
 import { Box, Flex, Heading, ScrollArea, Text } from "@radix-ui/themes";
 import HandleSubmission from "./_components/HandleSubmission";
-import ToastMessageWithRedirect from "@/app/_components/ToastMessageWithRedirect";
 
 interface BookingQuery {
   booking: string;
@@ -29,7 +28,7 @@ const BookingTermsNConditionsPage = async (props: Props) => {
         return (
           <ToastMessageWithRedirect
             type={"error"}
-            errorMessage={"此預約已完成/已取消，請重新預約。"}
+            message={"此預約已完成/已取消，請重新預約。"}
             redirectPath={"/studio"}
           />
         );
@@ -41,7 +40,7 @@ const BookingTermsNConditionsPage = async (props: Props) => {
     return (
       <ToastMessageWithRedirect
         type={"error"}
-        errorMessage={errorMessage}
+        message={errorMessage}
         redirectPath={"/studio"}
       />
     );

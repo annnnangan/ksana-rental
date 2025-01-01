@@ -30,7 +30,7 @@ const BookingPaymentPage = async (props: Props) => {
     return (
       <ToastMessageWithRedirect
         type={"error"}
-        errorMessage={errorMessage}
+        message={errorMessage}
         redirectPath={"/studio"}
       />
     );

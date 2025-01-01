@@ -63,7 +63,7 @@ const PayoutForm = ({ studioId, defaultValue }: Props) => {
         throw new Error(errorData?.error.message || "系統發生未預期錯誤。");
       }
 
-      router.push(`/studio-owner/studio/${studioId}/onboarding/door-password`);
+      router.push(`/studio-owner/studio/${studioId}/onboarding/confirmation`);
       router.refresh();
     } catch (error) {
       const errorMessage =

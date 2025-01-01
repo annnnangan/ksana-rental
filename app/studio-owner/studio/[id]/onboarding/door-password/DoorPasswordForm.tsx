@@ -57,11 +57,10 @@ const DoorPasswordForm = ({ studioId, defaultValue }: Props) => {
 
   const onSubmit = async (data: StudioDoorPasswordFormData) => {
     try {
-      console.log(data.isRevealDoorPassword);
-      console.log(Boolean(data.isRevealDoorPassword));
       if (
-        defaultValue.is_reveal_door_password.toString() !==
-          data.isRevealDoorPassword ||
+        (defaultValue.is_reveal_door_password !== null &&
+          defaultValue.is_reveal_door_password.toString() !==
+            data.isRevealDoorPassword) ||
         defaultValue.door_password !== data.doorPassword
       ) {
         const response = await fetch(`/api/studio/${studioId}/door-password`, {

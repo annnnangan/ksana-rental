@@ -39,7 +39,7 @@ const StudioCreatePage = async ({
     return (
       <ToastMessageWithRedirect
         type={"error"}
-        errorMessage={errorMessage}
+        message={errorMessage}
         redirectPath={"/studio-owner/dashboard"}
       />
     );

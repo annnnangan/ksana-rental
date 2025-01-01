@@ -1,18 +1,14 @@
-import React from "react";
-import StepTitle from "../_components/StepTitle";
-import { bookingService } from "@/services/BookingService";
-import { redirect } from "next/navigation";
-import SectionTitle from "../_components/SectionTitle";
-import { Avatar, Flex, Text } from "@radix-ui/themes";
-import DateTimeInfo from "../_components/DateTimeInfo";
-import StudioNameAddress from "../_components/StudioNameAddress";
-import Price from "../_components/Price";
-import PaymentMethod from "../_components/PaymentMethod";
-import Whatsapp from "../_components/Whatsapp";
-import Remarks from "../_components/Remarks";
-import HandleSubmission from "./HandleSubmission";
-import ToastMessage from "@/app/_components/ToastMessageWithRedirect";
 import ToastMessageWithRedirect from "@/app/_components/ToastMessageWithRedirect";
+import { bookingService } from "@/services/BookingService";
+import { Flex } from "@radix-ui/themes";
+import DateTimeInfo from "../_components/DateTimeInfo";
+import PaymentMethod from "../_components/PaymentMethod";
+import Price from "../_components/Price";
+import Remarks from "../_components/Remarks";
+import StepTitle from "../_components/StepTitle";
+import StudioNameAddress from "../_components/StudioNameAddress";
+import Whatsapp from "../_components/Whatsapp";
+import HandleSubmission from "./HandleSubmission";
 
 interface BookingQuery {
   booking: string;
@@ -41,7 +37,7 @@ const BookingSummaryPage = async (props: Props) => {
     return (
       <ToastMessageWithRedirect
         type={"error"}
-        errorMessage={errorMessage}
+        message={errorMessage}
         redirectPath={"/studio"}
       />
     );

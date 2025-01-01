@@ -180,6 +180,12 @@ export const studioSchema = z.object({
     }),
   }),
   doorPassword: z.string().optional(),
+  onboardingTerms: z
+    .boolean()
+    .default(false)
+    .refine((value) => value === true, {
+      message: "必須同意條款與細則",
+    }),
 });
 
 //Extract part of the studio schema for each onboarding step
@@ -260,4 +266,13 @@ export const StudioDoorPasswordSchema = StudioDoorPasswordBaseSchema.refine(
 
 export type StudioDoorPasswordFormData = z.infer<
   typeof StudioDoorPasswordSchema
+>;
+
+//Step 7: Confirmation
+export const StudioOnBoardingTermsSchema = studioSchema.pick({
+  onboardingTerms: true,
+});
+
+export type StudioOnBoardingTermsFormData = z.infer<
+  typeof StudioOnBoardingTermsSchema
 >;

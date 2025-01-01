@@ -33,7 +33,7 @@ const bookingSelectDateTimePage = async (props: Props) => {
     return (
       <ToastMessageWithRedirect
         type={"error"}
-        errorMessage={"必須選擇場地才可開始預約。"}
+        message={"必須選擇場地才可開始預約。"}
         redirectPath={"/studio"}
       />
     );
@@ -45,7 +45,7 @@ const bookingSelectDateTimePage = async (props: Props) => {
     return (
       <ToastMessageWithRedirect
         type={"error"}
-        errorMessage={"場地不存在。"}
+        message={"場地不存在。"}
         redirectPath={"/studio"}
       />
     );
