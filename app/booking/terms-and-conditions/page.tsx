@@ -1,4 +1,4 @@
-import ToastMessage from "@/app/_components/ToastMessage";
+import ToastMessageWithRedirect from "@/app/_components/ToastMessageWithRedirect";
 import { bookingService } from "@/services/BookingService";
 import { Box, Flex, Heading, ScrollArea, Text } from "@radix-ui/themes";
 import HandleSubmission from "./_components/HandleSubmission";
@@ -26,9 +26,9 @@ const BookingTermsNConditionsPage = async (props: Props) => {
     if (bookingStatus.success) {
       if (bookingStatus.data !== "pending for payment") {
         return (
-          <ToastMessage
+          <ToastMessageWithRedirect
             type={"error"}
-            errorMessage={"此預約已完成/已取消，請重新預約。"}
+            message={"此預約已完成/已取消，請重新預約。"}
             redirectPath={"/studio"}
           />
         );
@@ -38,9 +38,9 @@ const BookingTermsNConditionsPage = async (props: Props) => {
     const errorMessage =
       error instanceof Error ? error.message : "An unexpected error occurred";
     return (
-      <ToastMessage
+      <ToastMessageWithRedirect
         type={"error"}
-        errorMessage={errorMessage}
+        message={errorMessage}
         redirectPath={"/studio"}
       />
     );

@@ -1,27 +1,28 @@
 "use client";
 import { useRouter } from "next/navigation";
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { toast } from "react-toastify";
 
 interface Props {
   type: "error" | "success";
-  errorMessage: string;
+  message: string;
   redirectPath: string;
 }
 
-const ToastMessage = ({ type, errorMessage, redirectPath }: Props) => {
+const ToastMessageWithRedirect = ({ type, message, redirectPath }: Props) => {
   const router = useRouter();
 
   useEffect(() => {
-    toast(errorMessage, {
+    toast(message, {
       position: "top-right",
       type: type,
       autoClose: 1000,
     });
+
     router.push(redirectPath);
-  }, [router]);
+  }, [message, type, router, redirectPath]);
 
   return null;
 };
 
-export default ToastMessage;
+export default ToastMessageWithRedirect;

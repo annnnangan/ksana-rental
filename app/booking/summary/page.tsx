@@ -1,17 +1,14 @@
-import React from "react";
-import StepTitle from "../_components/StepTitle";
+import ToastMessageWithRedirect from "@/app/_components/ToastMessageWithRedirect";
 import { bookingService } from "@/services/BookingService";
-import { redirect } from "next/navigation";
-import SectionTitle from "../_components/SectionTitle";
-import { Avatar, Flex, Text } from "@radix-ui/themes";
+import { Flex } from "@radix-ui/themes";
 import DateTimeInfo from "../_components/DateTimeInfo";
-import StudioNameAddress from "../_components/StudioNameAddress";
-import Price from "../_components/Price";
 import PaymentMethod from "../_components/PaymentMethod";
-import Whatsapp from "../_components/Whatsapp";
+import Price from "../_components/Price";
 import Remarks from "../_components/Remarks";
+import StepTitle from "../_components/StepTitle";
+import StudioNameAddress from "../_components/StudioNameAddress";
+import Whatsapp from "../_components/Whatsapp";
 import HandleSubmission from "./HandleSubmission";
-import ToastMessage from "@/app/_components/ToastMessage";
 
 interface BookingQuery {
   booking: string;
@@ -38,9 +35,9 @@ const BookingSummaryPage = async (props: Props) => {
     const errorMessage =
       error instanceof Error ? error.message : "系統出現錯誤，請重試。";
     return (
-      <ToastMessage
+      <ToastMessageWithRedirect
         type={"error"}
-        errorMessage={errorMessage}
+        message={errorMessage}
         redirectPath={"/studio"}
       />
     );

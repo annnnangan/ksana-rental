@@ -1,4 +1,3 @@
-import ToastMessage from "@/app/_components/ToastMessage";
 import { bookingService } from "@/services/BookingService";
 import { InfoCircledIcon } from "@radix-ui/react-icons";
 import { Callout, Flex, Text } from "@radix-ui/themes";
@@ -9,6 +8,7 @@ import StudioNameAddress from "../_components/StudioNameAddress";
 import okIcon from "@/public/assets/ok.png";
 import Image from "next/image";
 import ActionButtons from "./ActionButtons";
+import ToastMessageWithRedirect from "@/app/_components/ToastMessageWithRedirect";
 
 //ensure the booking status is confirm
 //get the booking id
@@ -42,9 +42,9 @@ const PaymentSuccessPage = async (props: Props) => {
     const errorMessage =
       error instanceof Error ? error.message : "系統出現錯誤。";
     return (
-      <ToastMessage
+      <ToastMessageWithRedirect
         type={"error"}
-        errorMessage={errorMessage}
+        message={errorMessage}
         redirectPath={"/studio"}
       />
     );
