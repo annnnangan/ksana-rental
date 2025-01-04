@@ -20,10 +20,12 @@ export class AllStudiosService {
           ),
           this.knex.raw(
             `CAST(COUNT(DISTINCT review.id) AS INTEGER) AS number_of_review`
-          )
+          ),
+          this.knex.raw(`CAST(MIN(studio_price.price) AS INTEGER) AS min_price`)
         )
         .leftJoin("booking", "studio.id", "booking.studio_id")
         .leftJoin("review", "booking.id", "review.booking_id")
+        .leftJoin("studio_price", "studio.id", "studio_price.studio_id")
         .from("studio")
         .groupBy("studio.id")
         .where({ "studio.status": "active" });
