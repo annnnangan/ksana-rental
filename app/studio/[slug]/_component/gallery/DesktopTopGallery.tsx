@@ -4,16 +4,28 @@ import GalleryImage from "./GalleryImage";
 import { Button } from "@/components/ui/button";
 import { Image as ImageIcon } from "lucide-react";
 import GalleryListModal from "./GalleryListModal";
+import GallerySlideshowModal from "./GallerySlideshowModal";
 
 const DesktopTopGallery = () => {
   const [isOpenListModal, setOpenListModal] = useState(false);
+  const [isOpenSlideshowModal, setOpenSlideshowModal] = useState(false);
 
   const openListModal = () => {
+    setOpenSlideshowModal(false);
     setOpenListModal(true);
   };
 
   const closeListModal = () => {
     setOpenListModal(false);
+  };
+
+  const openSlideshowModal = () => {
+    setOpenListModal(false);
+    setOpenSlideshowModal(true);
+  };
+
+  const closeSlideshowModal = () => {
+    setOpenSlideshowModal(false);
   };
 
   return (
@@ -40,9 +52,17 @@ const DesktopTopGallery = () => {
           <ImageIcon /> 查看所有圖片
         </Button>
       </section>
+
       <GalleryListModal
-        isOpen={isOpenListModal}
-        onCloseModal={closeListModal}
+        isOpenListModal={isOpenListModal}
+        onCloseListModal={closeListModal}
+        openSlideshowModal={openSlideshowModal}
+      />
+
+      <GallerySlideshowModal
+        isOpen={isOpenSlideshowModal}
+        onCloseModal={closeSlideshowModal}
+        openListModal={openListModal}
       />
     </>
   );

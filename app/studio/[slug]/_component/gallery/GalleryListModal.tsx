@@ -6,38 +6,46 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { CircleX } from "lucide-react";
+import { CircleX, GalleryThumbnails } from "lucide-react";
 import GalleryImage from "./GalleryImage";
-import { useState } from "react";
-import GallerySlideshowModal from "./GallerySlideshowModal";
 
 interface Props {
-  isOpen: boolean;
-  onCloseModal: () => void;
+  isOpenListModal: boolean;
+  onCloseListModal: () => void;
+  openSlideshowModal: () => void;
 }
 
-const GalleryListModal = ({ isOpen, onCloseModal }: Props) => {
-  const [isOpenSlideshowModal, setOpenSlideshowModal] = useState(false);
-
-  const openSlideshowModal = () => {
-    setOpenSlideshowModal(true);
-  };
-
-  const closeSlideshowModal = () => {
-    setOpenSlideshowModal(false);
-  };
-
+const GalleryListModal = ({
+  isOpenListModal,
+  onCloseListModal,
+  openSlideshowModal,
+}: Props) => {
   return (
     <>
-      <Dialog open={isOpen}>
+      <Dialog open={isOpenListModal}>
         <DialogContent className="w-full max-w-6xl h-auto max-h-[90vh] overflow-hidden rounded-lg p-0">
           <DialogHeader className="sticky top-0 bg-white z-10 border-b p-4">
             <div className="flex justify-between items-center">
-              <DialogTitle>所有圖片</DialogTitle>
+              <div className="flex items-center gap-x-2">
+                <DialogTitle>所有圖片</DialogTitle>
+                <Button
+                  variant="outline"
+                  className="rounded-full"
+                  onClick={openSlideshowModal}
+                >
+                  <GalleryThumbnails />
+                  <span className="hidden md:inline">Slideshow</span>
+                </Button>
+              </div>
 
               <div className="flex items-center gap-x-2">
                 <Button type="button">立即預約</Button>
-                <Button type="button" variant="ghost" onClick={onCloseModal}>
+
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={onCloseListModal}
+                >
                   <CircleX />
                 </Button>
               </div>
@@ -51,10 +59,6 @@ const GalleryListModal = ({ isOpen, onCloseModal }: Props) => {
           </div>
         </DialogContent>
       </Dialog>
-      <GallerySlideshowModal
-        isOpen={isOpenSlideshowModal}
-        onCloseModal={closeSlideshowModal}
-      />
     </>
   );
 };
