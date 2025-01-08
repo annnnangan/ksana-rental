@@ -1,5 +1,4 @@
-import DesktopTopGallery from "./_component/gallery/DesktopTopGallery";
-import GallerySlideshowModal from "./_component/gallery/GallerySlideshowModal";
+import TopGallery from "./_component/gallery/TopGallery";
 
 const StudioPage = async ({
   params,
@@ -10,8 +9,7 @@ const StudioPage = async ({
   console.log(slug);
   return (
     <>
-      <DesktopTopGallery />
-      <GallerySlideshowModal />
+      <TopGallery />
     </>
   );
 };
