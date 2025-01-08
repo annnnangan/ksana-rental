@@ -21,7 +21,11 @@ const GlobalStyle = createGlobalStyle`
 import { FreeMode, Navigation, Thumbs } from "swiper/modules";
 import GalleryImage from "./GalleryImage";
 
-const GallerySlideshow = () => {
+interface Props {
+  images: string[];
+}
+
+const GallerySlideshow = ({ images }: Props) => {
   const [thumbsSwiper, setThumbsSwiper] = useState(null);
 
   return (
@@ -35,21 +39,15 @@ const GallerySlideshow = () => {
         modules={[FreeMode, Navigation, Thumbs]}
         className="h-[80%] w-full mx-auto bg-black"
       >
-        <SwiperSlide>
-          <GalleryImage objectFit="object-contain" hoverEffect={false} />
-        </SwiperSlide>
-        <SwiperSlide>
-          <GalleryImage objectFit="object-contain" hoverEffect={false} />
-        </SwiperSlide>
-        <SwiperSlide>
-          <GalleryImage objectFit="object-contain" hoverEffect={false} />
-        </SwiperSlide>
-        <SwiperSlide>
-          <GalleryImage objectFit="object-contain" hoverEffect={false} />
-        </SwiperSlide>
-        <SwiperSlide>
-          <GalleryImage objectFit="object-contain" hoverEffect={false} />
-        </SwiperSlide>
+        {images.map((image) => (
+          <SwiperSlide key={image}>
+            <GalleryImage
+              objectFit="object-contain"
+              hoverEffect={false}
+              imageUrl={image}
+            />
+          </SwiperSlide>
+        ))}
       </Swiper>
 
       <Swiper
@@ -62,21 +60,11 @@ const GallerySlideshow = () => {
         modules={[FreeMode, Navigation, Thumbs]}
         className="thumbnailSwiper h-[20%] w-full mx-auto"
       >
-        <SwiperSlide className="opacity-[0.4]">
-          <GalleryImage hoverEffect={false} />
-        </SwiperSlide>
-        <SwiperSlide className="opacity-[0.4]">
-          <GalleryImage hoverEffect={false} />
-        </SwiperSlide>
-        <SwiperSlide className="opacity-[0.4]">
-          <GalleryImage hoverEffect={false} />
-        </SwiperSlide>
-        <SwiperSlide className="opacity-[0.4]">
-          <GalleryImage hoverEffect={false} />
-        </SwiperSlide>
-        <SwiperSlide className="opacity-[0.4]">
-          <GalleryImage hoverEffect={false} />
-        </SwiperSlide>
+        {images.map((image) => (
+          <SwiperSlide key={image} className="opacity-[0.4]">
+            <GalleryImage hoverEffect={false} imageUrl={image} />
+          </SwiperSlide>
+        ))}
       </Swiper>
     </>
   );

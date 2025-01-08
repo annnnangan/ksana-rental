@@ -13,12 +13,14 @@ interface Props {
   isOpenListModal: boolean;
   onCloseListModal: () => void;
   openSlideshowModal: () => void;
+  images: string[];
 }
 
 const GalleryListModal = ({
   isOpenListModal,
   onCloseListModal,
   openSlideshowModal,
+  images,
 }: Props) => {
   return (
     <>
@@ -52,10 +54,13 @@ const GalleryListModal = ({
             </div>
           </DialogHeader>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3 overflow-y-auto p-4">
-            <GalleryImage onClick={openSlideshowModal} />
-            <GalleryImage onClick={openSlideshowModal} />
-            <GalleryImage onClick={openSlideshowModal} />
-            <GalleryImage onClick={openSlideshowModal} />
+            {images.map((image) => (
+              <GalleryImage
+                onClick={openSlideshowModal}
+                imageUrl={image}
+                key={image}
+              />
+            ))}
           </div>
         </DialogContent>
       </Dialog>

@@ -6,20 +6,68 @@ exports.seed = async function (knex) {
   // Deletes ALL existing entries
   await knex("studio_photo").del();
   await knex("studio_photo").insert([
-    {
+    // Soul Yogi
+    ...Array.from({ length: 8 }, (_, i) => ({
       studio_id: 1,
-      photo:
-        "https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/02d86cb049e1e7f20c834d3081ccb8fa478214c92ee78cc237ea7a59e0c98dcc.png",
-    },
-    {
-      studio_id: 1,
-      photo:
-        "https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/1564db0a0dfd1108746fc916223626cc13b01cf2fc024619f4139670e64cd13f.jpg",
-    },
-    {
-      studio_id: 1,
-      photo:
-        "https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/1a8860a22d58d884f9d469a42aee291b6ce59e3ff3ecb33c6fd64f36007de9c5.png",
-    },
+      photo: `https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/seed-photo/soul-yogi/soul-yogi-gallery-${
+        i + 1
+      }.jpg`,
+    })),
+
+    // Olivia Studio
+    ...Array.from({ length: 6 }, (_, i) => ({
+      studio_id: 2,
+      photo: `https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/seed-photo/olivia/olivia-gallery-${
+        i + 1
+      }.jpg`,
+    })),
+
+    // Zen Oasis
+    ...Array.from({ length: 8 }, (_, i) => ({
+      studio_id: 3,
+      photo: `https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/seed-photo/zen-oasis/zen-oasis-gallery-${
+        i + 1
+      }.jpg`,
+    })),
+
+    // Larana Yoga
+    ...Array.from({ length: 8 }, (_, i) => ({
+      studio_id: 4,
+      photo: `https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/seed-photo/larana/larana-gallery-${
+        i + 1
+      }.jpg`,
+    })),
+
+    // Acro Yoga
+    ...Array.from({ length: 8 }, (_, i) => ({
+      studio_id: 5,
+      photo: `https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/seed-photo/acro/acro-yoga-gallery-${
+        i + 1
+      }.jpg`,
+    })),
+
+    // Nala Studio
+    ...Array.from({ length: 5 }, (_, i) => ({
+      studio_id: 6,
+      photo: `https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/seed-photo/nala/nala-gallery-${
+        i + 1
+      }.jpg`,
+    })),
+
+    // Venus Moon
+    ...Array.from({ length: 5 }, (_, i) => ({
+      studio_id: 7,
+      photo: `https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/seed-photo/venus-moon/venus-moon-gallery-${
+        i + 1
+      }.jpg`,
+    })),
+
+    // Yoga Delight
+    ...Array.from({ length: 5 }, (_, i) => ({
+      studio_id: 8,
+      photo: `https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/seed-photo/yoga-delight/yoga-delight-gallery-${
+        i + 1
+      }.jpg`,
+    })),
   ]);
 };

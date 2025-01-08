@@ -17,9 +17,10 @@ import { Button } from "@/components/ui/button";
 
 interface Props {
   openListModal: () => void;
+  images: string[];
 }
 
-const MobileTopGallery = ({ openListModal }: Props) => {
+const MobileTopGallery = ({ openListModal, images }: Props) => {
   const swiperRef = useRef<SwiperType | null>(null);
   return (
     <>
@@ -31,21 +32,15 @@ const MobileTopGallery = ({ openListModal }: Props) => {
         modules={[FreeMode, Pagination]}
         className="h-[80%] w-full"
       >
-        <SwiperSlide>
-          <GalleryImage hoverEffect={false} onClick={openListModal} />
-        </SwiperSlide>
-        <SwiperSlide>
-          <GalleryImage hoverEffect={false} onClick={openListModal} />
-        </SwiperSlide>
-        <SwiperSlide>
-          <GalleryImage hoverEffect={false} onClick={openListModal} />
-        </SwiperSlide>
-        <SwiperSlide>
-          <GalleryImage hoverEffect={false} onClick={openListModal} />
-        </SwiperSlide>
-        <SwiperSlide>
-          <GalleryImage hoverEffect={false} onClick={openListModal} />
-        </SwiperSlide>
+        {images.map((image) => (
+          <SwiperSlide key={image}>
+            <GalleryImage
+              hoverEffect={false}
+              imageUrl={image}
+              onClick={openListModal}
+            />
+          </SwiperSlide>
+        ))}
       </Swiper>
       {/* Swiper Buttons */}
       <div className="flex space-x-3 mb-4 mx-5 my-3">

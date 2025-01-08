@@ -9,7 +9,11 @@ import GallerySlideshow from "./GallerySlideshow";
 import MobileTopGallery from "./MobileTopGallery";
 import DesktopTopGallery from "./DesktopTopGallery";
 
-const TopGallery = () => {
+interface Props {
+  images: string[];
+}
+
+const TopGallery = ({ images }: Props) => {
   const [isOpenListModal, setOpenListModal] = useState(false);
   const [isOpenSlideshowModal, setOpenSlideshowModal] = useState(false);
 
@@ -34,10 +38,10 @@ const TopGallery = () => {
   return (
     <>
       <section className="relative -mx-5 sm:mx-5">
-        <DesktopTopGallery openListModal={openListModal} />
+        <DesktopTopGallery openListModal={openListModal} images={images} />
 
         <div className="sm:hidden">
-          <MobileTopGallery openListModal={openListModal} />
+          <MobileTopGallery openListModal={openListModal} images={images} />
         </div>
 
         <Button
@@ -50,12 +54,14 @@ const TopGallery = () => {
       </section>
 
       <GalleryListModal
+        images={images}
         isOpenListModal={isOpenListModal}
         onCloseListModal={closeListModal}
         openSlideshowModal={openSlideshowModal}
       />
 
       <GallerySlideshowModal
+        images={images}
         isOpen={isOpenSlideshowModal}
         onCloseModal={closeSlideshowModal}
         openListModal={openListModal}

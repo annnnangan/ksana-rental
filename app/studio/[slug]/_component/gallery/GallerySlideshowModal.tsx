@@ -14,12 +14,14 @@ interface Props {
   isOpen: boolean;
   onCloseModal: () => void;
   openListModal: () => void;
+  images: string[];
 }
 
 const GallerySlideshowModal = ({
   isOpen,
   onCloseModal,
   openListModal,
+  images,
 }: Props) => {
   return (
     <Dialog open={isOpen}>
@@ -46,7 +48,7 @@ const GallerySlideshowModal = ({
           </div>
         </DialogHeader>
 
-        <GallerySlideshow />
+        <GallerySlideshow images={images} />
       </DialogContent>
     </Dialog>
   );

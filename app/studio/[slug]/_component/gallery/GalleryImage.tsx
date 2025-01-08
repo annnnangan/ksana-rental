@@ -5,18 +5,20 @@ interface Props {
   onClick?: () => void;
   objectFit?: string;
   hoverEffect?: boolean;
+  imageUrl: string;
 }
 
 const GalleryImage = ({
   onClick,
   objectFit = "object-cover",
   hoverEffect = true,
+  imageUrl,
 }: Props) => {
   return (
     <div className="relative aspect-video group w-full h-full">
       <button type="button">
         <Image
-          src="https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/seed-photo/soul-yogi/soul-yogi-cover.jpg"
+          src={imageUrl}
           alt="images"
           fill
           className={`${objectFit} object-center ${
