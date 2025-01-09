@@ -31,8 +31,33 @@ export class StudioService {
       }
     }
   }
-  //Save image into Studio table
-  //todo - params: studioId, userId, imageType (cover or logo). image S3 URL
+
+  async getStudioIdBySlug(slug: string) {
+    try {
+      const result = (
+        await this.knex.select("id").from("studio").where({ slug })
+      )[0]?.id;
+
+      if (!result) {
+        throw new NotFoundError("此場地");
+      }
+
+      return {
+        success: true,
+        data: result,
+      };
+    } catch (error) {
+      if (error instanceof RequestError) {
+        throw error;
+      } else {
+        throw new RequestError(
+          500,
+          error instanceof Error ? error.message : "系統發生錯誤。"
+        );
+      }
+    }
+  }
+
   async getStudioBasicInfo(studioId: number, userId: number) {
     try {
       const isStudioExist = await this.validateStudioIdtoUserId(

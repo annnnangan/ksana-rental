@@ -17,7 +17,6 @@ const ExploreStudiosPage = async () => {
     const studioList = await allStudiosService.getStudios();
     if (studioList.success) {
       studioListData = studioList.data;
-      console.log(studioListData);
     }
   } catch (error) {
     const errorMessage =

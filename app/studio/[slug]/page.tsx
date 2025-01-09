@@ -1,3 +1,4 @@
+import ToastMessageWithRedirect from "@/app/_components/ToastMessageWithRedirect";
 import { studioService } from "@/services/StudioService";
 import TopGallery from "./_component/gallery/TopGallery";
 
@@ -7,23 +8,33 @@ const StudioPage = async ({
   params: Promise<{ slug: string }>;
 }) => {
   const slug = (await params).slug;
-  //todo - get studio id by slug
+  let studioImages;
 
-  const studioId = 8;
-  //Get User ID
-  const userId = 1;
+  //Get studio images
+  try {
+    const userId = 1;
+    const res = await studioService.getStudioIdBySlug(slug);
+    const studioId = res.data;
 
-  //Get existing value as default value
-  const studioGalleryResponse = await studioService.getGallery(
-    studioId,
-    userId
-  );
+    const studioGalleryResponse = await studioService.getGallery(
+      studioId,
+      userId
+    );
 
-  if (!studioGalleryResponse.success) return;
-
-  const studioImages = studioGalleryResponse.data
-    ? studioGalleryResponse.data.map((image) => image.photo)
-    : [];
+    studioImages = studioGalleryResponse.data
+      ? studioGalleryResponse.data.map((image) => image.photo)
+      : [];
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "系統出現錯誤。";
+    return (
+      <ToastMessageWithRedirect
+        type={"error"}
+        message={errorMessage}
+        redirectPath={"/explore-studios"}
+      />
+    );
+  }
 
   return (
     <>
