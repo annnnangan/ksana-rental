@@ -1,6 +1,7 @@
 import ToastMessageWithRedirect from "@/app/_components/ToastMessageWithRedirect";
 import { studioService } from "@/services/StudioService";
 import TopGallery from "./_component/gallery/TopGallery";
+import BasicInfo from "./_component/BasicInfo";
 
 const StudioPage = async ({
   params,
@@ -36,9 +37,20 @@ const StudioPage = async ({
     );
   }
 
+  const basicInfo = {
+    name: "Soul Yogi Studio",
+    logo: "https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/seed-photo/soul-yogi/soul-yogi-logo.png",
+    district: "sham-shui-po",
+    rating: 4.5,
+    number_of_completed_booking: 3,
+    number_of_review: 2,
+    contact: "+8529876543",
+  };
+
   return (
     <>
       <TopGallery images={studioImages} />
+      <BasicInfo basicInfo={basicInfo} />
     </>
   );
 };

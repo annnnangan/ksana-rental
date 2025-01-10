@@ -1,13 +1,11 @@
 "use client";
-import React, { useState } from "react";
-import GalleryImage from "./GalleryImage";
 import { Button } from "@/components/ui/button";
 import { Image as ImageIcon } from "lucide-react";
+import { useState } from "react";
+import DesktopTopGallery from "./DesktopTopGallery";
 import GalleryListModal from "./GalleryListModal";
 import GallerySlideshowModal from "./GallerySlideshowModal";
-import GallerySlideshow from "./GallerySlideshow";
 import MobileTopGallery from "./MobileTopGallery";
-import DesktopTopGallery from "./DesktopTopGallery";
 
 interface Props {
   images: string[];
@@ -37,7 +35,7 @@ const TopGallery = ({ images }: Props) => {
 
   return (
     <>
-      <section className="relative -mx-5 sm:mx-5">
+      <section className="relative -mx-5 sm:mx-0">
         <DesktopTopGallery openListModal={openListModal} images={images} />
 
         <div className="sm:hidden">

@@ -1,9 +1,7 @@
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import {
-  findAreaByDistrictValue,
-  getDistrictLabelByDistrictValue,
-} from "@/lib/utils/areas-districts-converter";
-import { Bookmark, MapPin, Star } from "lucide-react";
+import StudioLocation from "@/app/_components/studio/StudioLocation";
+import StudioLogo from "@/app/_components/studio/StudioLogo";
+import StudioRating from "@/app/_components/studio/StudioRating";
+import { Bookmark } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { studioCardInfo } from "./StudioList";
@@ -42,9 +40,7 @@ const StudioCard = ({ studio }: Props) => {
           <div className="flex gap-x-2">
             <div>
               <div className="-mt-6 ml-3 mb-1 flex items-end gap-4">
-                <Avatar className="h-16 w-16">
-                  <AvatarImage src={studio.logo} className="object-cover" />
-                </Avatar>
+                <StudioLogo logo={studio.logo} />
               </div>
             </div>
 
@@ -54,38 +50,13 @@ const StudioCard = ({ studio }: Props) => {
           <div className="px-5 py-3">
             <div className="mb-2">
               {/* Location */}
-              <div className="flex items-center">
-                <MapPin
-                  size={14}
-                  className="me-1"
-                  fill="#01a2c7"
-                  strokeWidth={0}
-                />
-                <p className="text-sm">
-                  {getDistrictLabelByDistrictValue(studio.district) +
-                    ", " +
-                    findAreaByDistrictValue(studio.district)?.label}
-                </p>
-              </div>
+              <StudioLocation district={studio.district} />
               {/* Rate */}
-              <div className="flex items-center">
-                <Star
-                  size={14}
-                  className="me-1"
-                  fill="#01a2c7"
-                  strokeWidth={0}
-                />
-                <p className="text-sm me-2">
-                  {studio.rating !== null
-                    ? (Math.round(studio.rating * 10) / 10).toFixed(1)
-                    : "--"}
-                  ({studio.number_of_review})
-                </p>
-                <p className="h-1 w-1 rounded-full bg-gray-400"></p>
-                <p className="text-sm ms-2">
-                  {studio.number_of_completed_booking}個已完成預約
-                </p>
-              </div>
+              <StudioRating
+                rating={studio.rating}
+                numberOfReview={studio.number_of_review}
+                numberOfCompletedBooking={studio.number_of_completed_booking}
+              />
             </div>
 
             <p>HK${studio.min_price} 起</p>
