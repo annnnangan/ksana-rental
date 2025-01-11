@@ -1,7 +1,23 @@
 import ToastMessageWithRedirect from "@/app/_components/ToastMessageWithRedirect";
 import { studioService } from "@/services/StudioService";
-import TopGallery from "./_component/gallery/TopGallery";
 import BasicInfo from "./_component/BasicInfo";
+import TopGallery from "./_component/gallery/TopGallery";
+import PriceSection from "./_component/section/PriceSection";
+import LocationSection from "./_component/section/LocationSection";
+import DescriptionSection from "./_component/section/DescriptionSection";
+import EquipmentSection from "./_component/section/EquipmentSection";
+
+export interface StudioInfo {
+  name: string;
+  logo: string;
+  district: string;
+  contact: string;
+  rating: number;
+  number_of_review: number;
+  number_of_completed_booking: number;
+  description: string;
+  address: string;
+}
 
 const StudioPage = async ({
   params,
@@ -45,12 +61,28 @@ const StudioPage = async ({
     number_of_completed_booking: 3,
     number_of_review: 2,
     contact: "+8529876543",
+    description:
+      "帶來內心平靜與身心和諧的空間，讓你放鬆自我，重拾能量🌱\n🧘‍♂️ 空中舞蹈課程｜地面瑜伽課程｜場地租用\n🏔️ 4.3米高樓底｜山景落地大玻璃｜800呎課室連獨立內廁\n🌟 優雅圓拱門設計｜場地設有多種燈光效果｜高級音響設備",
+    equipments: ["yoga-mat", "yoga-block", "yoga-wheel", "hammock"],
+    priceList: { peakHour: 120, nonPeakHour: 100 },
+    address: "香港長沙灣大南西街609號2樓10室",
   };
 
   return (
     <>
       <TopGallery images={studioImages} />
-      <BasicInfo basicInfo={basicInfo} />
+      <div className="flex flex-row gap-5">
+        <div className="basis-3/4">
+          <BasicInfo basicInfo={basicInfo} />
+          <DescriptionSection description={basicInfo.description} />
+          <EquipmentSection equipments={basicInfo.equipments} />
+          <PriceSection priceList={basicInfo.priceList} />
+          <LocationSection address={basicInfo.address} />
+        </div>
+        <div className="basis-1/4">
+          <div className="px-5 border border-primary">Hello</div>
+        </div>
+      </div>
     </>
   );
 };

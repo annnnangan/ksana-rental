@@ -18,7 +18,7 @@ exports.seed = async function (knex) {
       phone: "+85298765432",
       area: "kowloon",
       district: "sham-shui-po",
-      address: "荔枝角金百盛大廈20樓20室",
+      address: "香港長沙灣大南西街609號2樓10室",
       description: `帶來內心平靜與身心和諧的空間，讓你放鬆自我，重拾能量🌱
 🧘‍♂️ 空中舞蹈課程｜地面瑜伽課程｜場地租用
 🏔️ 4.3米高樓底｜山景落地大玻璃｜800呎課室連獨立內廁
@@ -38,7 +38,7 @@ exports.seed = async function (knex) {
       phone: "+85298765432",
       area: "kowloon",
       district: "sham-shui-po",
-      address: "荔枝角金百盛大廈30樓5室",
+      address: "香港荔枝角永康街63號Global Gateway Tower 2701室",
       description: `💪 瑜伽與普拉提結合課程｜身心靈調理｜個別指導
 🪴 可調式瑜伽墊｜大面積綠意戶外空間
 🔊 簡約大堂設計｜帶有溫暖氣氛的照明設備｜影像投影系統`,

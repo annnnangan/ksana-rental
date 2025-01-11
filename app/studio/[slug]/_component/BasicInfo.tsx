@@ -1,26 +1,22 @@
 import StudioLocation from "@/app/_components/studio/StudioLocation";
 import StudioLogo from "@/app/_components/studio/StudioLogo";
 import StudioRating from "@/app/_components/studio/StudioRating";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import {
-  getDistrictLabelByDistrictValue,
-  findAreaByDistrictValue,
-} from "@/lib/utils/areas-districts-converter";
-import { MapPin, Star } from "lucide-react";
-import React from "react";
+import { StudioInfo } from "../page";
+import { Phone } from "lucide-react";
 
-interface BasicInfo {
-  name: string;
-  logo: string;
-  district: string;
-  contact: string;
-  rating: number;
-  number_of_review: number;
-  number_of_completed_booking: number;
-}
+type BasicStudioInfo = Pick<
+  StudioInfo,
+  | "name"
+  | "logo"
+  | "district"
+  | "contact"
+  | "rating"
+  | "number_of_review"
+  | "number_of_completed_booking"
+>;
 
 interface Props {
-  basicInfo: BasicInfo;
+  basicInfo: BasicStudioInfo;
 }
 
 const BasicInfo = ({
@@ -35,9 +31,9 @@ const BasicInfo = ({
   },
 }: Props) => {
   return (
-    <section className="flex gap-x-2">
+    <section className="flex gap-x-2 mt-5">
       <div className="flex justify-center items-center gap-4">
-        <StudioLogo logo={logo} />
+        <StudioLogo logo={logo} size="md" />
         <div>
           <h2 className="text-lg font-bold">{name}</h2>
 
@@ -50,6 +46,16 @@ const BasicInfo = ({
               numberOfReview={number_of_review}
               numberOfCompletedBooking={number_of_completed_booking}
             />
+            {/* Contact */}
+            <div className="flex items-center">
+              <Phone
+                size={14}
+                className="me-1"
+                fill="#01a2c7"
+                strokeWidth={0}
+              />
+              <p className="text-sm me-2">{contact}</p>
+            </div>
           </div>
         </div>
       </div>
