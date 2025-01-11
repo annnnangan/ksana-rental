@@ -6,6 +6,7 @@ import PriceSection from "./_component/section/PriceSection";
 import LocationSection from "./_component/section/LocationSection";
 import DescriptionSection from "./_component/section/DescriptionSection";
 import EquipmentSection from "./_component/section/EquipmentSection";
+import SocialMediaSection from "./_component/section/SocialMediaSection";
 
 export interface StudioInfo {
   name: string;
@@ -66,6 +67,12 @@ const StudioPage = async ({
     equipments: ["yoga-mat", "yoga-block", "yoga-wheel", "hammock"],
     priceList: { peakHour: 120, nonPeakHour: 100 },
     address: "香港長沙灣大南西街609號2樓10室",
+    socialMedia: [
+      { type: "instagram", contact: "https://www.instagram.com/soul-yogi" },
+      { type: "website", contact: "https://www.soul-yogi.com" },
+      { type: "facebook", contact: "https://www.instagram.com/soul-yogi" },
+      { type: "youtube", contact: "https://www.soul-yogi.com" },
+    ],
   };
 
   return (
@@ -77,7 +84,8 @@ const StudioPage = async ({
           <DescriptionSection description={basicInfo.description} />
           <EquipmentSection equipments={basicInfo.equipments} />
           <PriceSection priceList={basicInfo.priceList} />
-          <LocationSection address={basicInfo.address} />
+          {/* <LocationSection address={basicInfo.address} /> */}
+          <SocialMediaSection socialMediaList={basicInfo.socialMedia} />
         </div>
         <div className="basis-1/4">
           <div className="px-5 border border-primary">Hello</div>
