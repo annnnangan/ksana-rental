@@ -19,7 +19,7 @@ const GlobalStyle = createGlobalStyle`
 
 // import required modules
 import { FreeMode, Navigation, Thumbs } from "swiper/modules";
-import GalleryImage from "./GalleryImage";
+import StudioImage from "../../../../_components/studio/StudioImage";
 
 interface Props {
   images: string[];
@@ -41,7 +41,7 @@ const GallerySlideshow = ({ images }: Props) => {
       >
         {images.map((image) => (
           <SwiperSlide key={image}>
-            <GalleryImage
+            <StudioImage
               objectFit="object-contain"
               hoverEffect={false}
               imageUrl={image}
@@ -62,7 +62,7 @@ const GallerySlideshow = ({ images }: Props) => {
       >
         {images.map((image) => (
           <SwiperSlide key={image} className="opacity-[0.4]">
-            <GalleryImage hoverEffect={false} imageUrl={image} />
+            <StudioImage hoverEffect={false} imageUrl={image} />
           </SwiperSlide>
         ))}
       </Swiper>

@@ -7,7 +7,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { CircleX, GalleryThumbnails } from "lucide-react";
-import GalleryImage from "./GalleryImage";
+import StudioImage from "../../../../_components/studio/StudioImage";
 
 interface Props {
   isOpenListModal: boolean;
@@ -55,7 +55,7 @@ const GalleryListModal = ({
           </DialogHeader>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3 overflow-y-auto p-4">
             {images.map((image) => (
-              <GalleryImage
+              <StudioImage
                 onClick={openSlideshowModal}
                 imageUrl={image}
                 key={image}

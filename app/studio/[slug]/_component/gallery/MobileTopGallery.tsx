@@ -12,7 +12,7 @@ import "swiper/css/pagination";
 
 // import required modules
 import { FreeMode, Navigation, Pagination } from "swiper/modules";
-import GalleryImage from "./GalleryImage";
+import StudioImage from "../../../../_components/studio/StudioImage";
 import { Button } from "@/components/ui/button";
 
 interface Props {
@@ -34,7 +34,7 @@ const MobileTopGallery = ({ openListModal, images }: Props) => {
       >
         {images.map((image) => (
           <SwiperSlide key={image}>
-            <GalleryImage
+            <StudioImage
               hoverEffect={false}
               imageUrl={image}
               onClick={openListModal}

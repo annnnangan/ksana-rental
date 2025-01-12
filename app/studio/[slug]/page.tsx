@@ -7,6 +7,7 @@ import LocationSection from "./_component/section/LocationSection";
 import DescriptionSection from "./_component/section/DescriptionSection";
 import EquipmentSection from "./_component/section/EquipmentSection";
 import SocialMediaSection from "./_component/section/SocialMediaSection";
+import ReviewSection from "./_component/section/review/ReviewSection";
 
 export interface StudioInfo {
   name: string;
@@ -86,6 +87,7 @@ const StudioPage = async ({
           <PriceSection priceList={basicInfo.priceList} />
           {/* <LocationSection address={basicInfo.address} /> */}
           <SocialMediaSection socialMediaList={basicInfo.socialMedia} />
+          <ReviewSection />
         </div>
         <div className="basis-1/4">
           <div className="px-5 border border-primary">Hello</div>
