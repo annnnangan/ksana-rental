@@ -20,10 +20,6 @@ export interface Review {
   review_details: ReviewDetails;
 }
 
-interface Props {
-  review_list: Review[];
-}
-
 const ReviewSection = () => {
   const reviews = {
     review_overview: {

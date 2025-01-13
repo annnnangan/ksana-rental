@@ -1,7 +1,6 @@
 "use client";
 import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
-
-import { Coordinates } from "./section/LocationSection";
+import { Coordinates } from "./LocationSection";
 
 interface Props {
   coordinates: Coordinates;

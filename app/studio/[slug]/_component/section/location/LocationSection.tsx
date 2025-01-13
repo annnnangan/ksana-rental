@@ -1,5 +1,5 @@
-import GoogleMapView from "../GoogleMapView";
-import Section from "../Section";
+import Section from "../../Section";
+import GoogleMapView from "./GoogleMapView";
 
 interface Props {
   address: string;

@@ -35,10 +35,10 @@ const TopGallery = ({ images }: Props) => {
 
   return (
     <>
-      <section className="relative -mx-5 sm:mx-0">
+      <section className="relative">
         <DesktopTopGallery openListModal={openListModal} images={images} />
 
-        <div className="sm:hidden">
+        <div className="sm:hidden -mx-2">
           <MobileTopGallery openListModal={openListModal} images={images} />
         </div>
 

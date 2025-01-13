@@ -3,11 +3,17 @@ import { studioService } from "@/services/StudioService";
 import BasicInfo from "./_component/BasicInfo";
 import TopGallery from "./_component/gallery/TopGallery";
 import PriceSection from "./_component/section/PriceSection";
-import LocationSection from "./_component/section/LocationSection";
+
 import DescriptionSection from "./_component/section/DescriptionSection";
 import EquipmentSection from "./_component/section/EquipmentSection";
-import SocialMediaSection from "./_component/section/SocialMediaSection";
+
 import ReviewSection from "./_component/section/review/ReviewSection";
+
+import DesktopSectionMenu from "./_component/section-menu/DesktopSectionMenu";
+import MobileSectionMenu from "./_component/section-menu/MobileSectionMenu";
+import LocationSection from "./_component/section/location/LocationSection";
+import SocialMediaSection from "./_component/section/social-media/SocialMediaSection";
+import SideSection from "./_component/SideSection";
 
 export interface StudioInfo {
   name: string;
@@ -67,6 +73,7 @@ const StudioPage = async ({
       "帶來內心平靜與身心和諧的空間，讓你放鬆自我，重拾能量🌱\n🧘‍♂️ 空中舞蹈課程｜地面瑜伽課程｜場地租用\n🏔️ 4.3米高樓底｜山景落地大玻璃｜800呎課室連獨立內廁\n🌟 優雅圓拱門設計｜場地設有多種燈光效果｜高級音響設備",
     equipments: ["yoga-mat", "yoga-block", "yoga-wheel", "hammock"],
     priceList: { peakHour: 120, nonPeakHour: 100 },
+    min_price: 100,
     address: "香港長沙灣大南西街609號2樓10室",
     socialMedia: [
       { type: "instagram", contact: "https://www.instagram.com/soul-yogi" },
@@ -79,18 +86,23 @@ const StudioPage = async ({
   return (
     <>
       <TopGallery images={studioImages} />
+      <BasicInfo basicInfo={basicInfo} />
+      <DesktopSectionMenu />
+      <MobileSectionMenu />
       <div className="flex flex-row gap-5">
-        <div className="basis-3/4">
-          <BasicInfo basicInfo={basicInfo} />
+        <div className="md:basis-4/6 lg:basis-3/4">
           <DescriptionSection description={basicInfo.description} />
           <EquipmentSection equipments={basicInfo.equipments} />
           <PriceSection priceList={basicInfo.priceList} />
-          {/* <LocationSection address={basicInfo.address} /> */}
+          <LocationSection address={basicInfo.address} />
           <SocialMediaSection socialMediaList={basicInfo.socialMedia} />
           <ReviewSection />
         </div>
-        <div className="basis-1/4">
-          <div className="px-5 border border-primary">Hello</div>
+        <div className="mt-5 hidden md:block md:basis-2/6 lg:basis-1/4">
+          <SideSection
+            peakHourPrice={basicInfo.priceList.peakHour}
+            nonPeakHourPrice={basicInfo.priceList.nonPeakHour}
+          />
         </div>
       </div>
     </>

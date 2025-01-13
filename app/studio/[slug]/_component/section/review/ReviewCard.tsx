@@ -29,9 +29,9 @@ const ReviewCard = ({ review: { user_profile, review_details } }: Props) => {
 
       <CardContent className="flex flex-col gap-3">
         <ReviewRating rating={review_details.rating} />
-        <p className="text-sm line-clamp-3">{review_details.review_content}</p>
+        <p className="text-sm">{review_details.review_content}</p>
         {review_details.review_image_list?.length && (
-          <div className="grid gap-2 grid-cols-10">
+          <div className="grid gap-2 grid-cols-3 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-10">
             <ReviewImages
               imageList={review_details.review_image_list}
               userProfile={user_profile}

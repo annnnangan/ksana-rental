@@ -1,8 +1,8 @@
 import StudioLocation from "@/app/_components/studio/StudioLocation";
 import StudioLogo from "@/app/_components/studio/StudioLogo";
 import StudioRating from "@/app/_components/studio/StudioRating";
+import { Bookmark, Phone } from "lucide-react";
 import { StudioInfo } from "../page";
-import { Phone } from "lucide-react";
 
 type BasicStudioInfo = Pick<
   StudioInfo,
@@ -31,8 +31,8 @@ const BasicInfo = ({
   },
 }: Props) => {
   return (
-    <section className="flex gap-x-2 mt-5">
-      <div className="flex justify-center items-center gap-4">
+    <section className="flex justify-between gap-x-2 mt-5">
+      <div className="flex justify-center items-center gap-4 flex-wrap">
         <StudioLogo logo={logo} size="md" />
         <div>
           <h2 className="text-lg font-bold">{name}</h2>
@@ -58,6 +58,11 @@ const BasicInfo = ({
             </div>
           </div>
         </div>
+      </div>
+      <div>
+        <button className="p-2 bg-white rounded-full shadow-lg">
+          <Bookmark className="text-gray-700" size={16} />
+        </button>
       </div>
     </section>
   );

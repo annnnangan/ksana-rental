@@ -1,8 +1,8 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
 // Import Swiper React components
-import { Swiper, SwiperSlide } from "swiper/react";
+import { ArrowBigLeft, ArrowBigRight } from "lucide-react";
 import { Swiper as SwiperType } from "swiper";
-import { ArrowBigRight, ArrowBigLeft } from "lucide-react";
+import { Swiper, SwiperSlide } from "swiper/react";
 
 // Import Swiper styles
 import "swiper/css";
@@ -11,9 +11,9 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 
 // import required modules
-import { FreeMode, Navigation, Pagination } from "swiper/modules";
-import StudioImage from "../../../../_components/studio/StudioImage";
 import { Button } from "@/components/ui/button";
+import { FreeMode, Pagination } from "swiper/modules";
+import StudioImage from "../../../../_components/studio/StudioImage";
 
 interface Props {
   openListModal: () => void;
@@ -30,7 +30,7 @@ const MobileTopGallery = ({ openListModal, images }: Props) => {
         slidesPerView={1}
         pagination={true}
         modules={[FreeMode, Pagination]}
-        className="h-[80%] w-full"
+        className=""
       >
         {images.map((image) => (
           <SwiperSlide key={image}>
