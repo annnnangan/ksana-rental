@@ -33,6 +33,8 @@ export type BookingStatus =
   | "expire"
   | "complete";
 
+export type PayoutStatus = "pending" | "complete";
+
 export const onBoardingRequiredSteps = [
   "basic-info",
   "business-hour-and-price",
@@ -168,7 +170,8 @@ export type SocialPlatform = "website" | "instagram" | "facebook" | "youtube";
 export type SocialLinks = Partial<Record<SocialPlatform, string>>;
 
 //Payout Method
-export const payoutMethod: { label: string; value: string }[] = [
+export type PayoutMethod = "fps" | "payme" | "bank-transfer";
+export const payoutMethod: { label: string; value: PayoutMethod }[] = [
   {
     label: "FPS",
     value: "fps",
