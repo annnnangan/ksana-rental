@@ -1,9 +1,7 @@
-import React from "react";
-import StudioCard from "./StudioCard";
-import { BasicInfo } from "@/services/model";
-import { studioService } from "@/services/StudioService";
 import ToastMessageWithRedirect from "@/app/_components/ToastMessageWithRedirect";
+import { studioService } from "@/services/StudioService";
 import AddNewStudio from "./AddNewStudio";
+import StudioCard from "./StudioCard";
 
 //Get cover image, logo, name, status, id
 

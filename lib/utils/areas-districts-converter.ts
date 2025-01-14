@@ -1,5 +1,6 @@
 import { districts } from "@/services/model";
 
+//{ label: '新界', value: 'new-territories' }
 export const findAreaByDistrictValue = (districtValue: string | null) => {
   if (districtValue === null) return;
   for (const areas of districts) {
