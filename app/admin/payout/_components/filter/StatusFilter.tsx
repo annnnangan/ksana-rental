@@ -16,7 +16,7 @@ export const statuses: {
   {
     label: "Pending",
     value: "pending",
-    color: "text-primary",
+    color: "text-red-500",
   },
   {
     label: "Complete",

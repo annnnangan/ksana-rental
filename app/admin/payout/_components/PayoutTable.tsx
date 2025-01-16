@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -7,12 +8,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { payoutMethod, PayoutStatus } from "@/services/model";
-import { ArrowUpIcon, ArrowRight, CircleCheck, CircleX } from "lucide-react";
+import { ArrowRight, ArrowUpIcon } from "lucide-react";
 import Link from "next/link";
-import { StudioPayoutList } from "../page";
-import { Button } from "@/components/ui/button";
-import { statuses } from "./filter/StatusFilter";
-import { cn } from "@/lib/utils/tailwind-utils";
+import PayoutStatusBadge from "./PayoutStatusBadge";
+import { StudiosPayoutList } from "../page";
 
 export interface PayoutQuery {
   dateRange: string;
@@ -25,9 +24,10 @@ export interface PayoutQuery {
 
 interface Props {
   searchParams: PayoutQuery;
-  payoutList: StudioPayoutList[];
+  payoutList: StudiosPayoutList[];
 }
 
+//Table columns
 const columns: {
   label: string;
   value: string;
@@ -66,25 +66,9 @@ const PayoutTable = ({ searchParams, payoutList }: Props) => {
           <TableRow key={studio.studio_id}>
             <TableCell>{studio.studio_id}</TableCell>
             <TableCell>{studio.studio_name}</TableCell>
-            <TableCell
-              className={cn(
-                "font-bold",
-                statuses.find((status) => status.value === studio.payout_status)
-                  ?.color
-              )}
-            >
-              <div className="flex gap-1 items-center">
-                {studio.payout_status === "complete" ? (
-                  <CircleCheck size={18} />
-                ) : (
-                  <CircleX size={18} />
-                )}
-                {
-                  statuses.find(
-                    (status) => status.value === studio.payout_status
-                  )?.label
-                }
-              </div>
+
+            <TableCell>
+              <PayoutStatusBadge payoutStatus={studio.payout_status} />
             </TableCell>
             <TableCell>
               {
@@ -97,7 +81,7 @@ const PayoutTable = ({ searchParams, payoutList }: Props) => {
             <TableCell>
               <Button variant="link" className="pl-0">
                 <Link
-                  href="/admin/payout/studio/soul-yogi-studio"
+                  href={`/admin/payout/studio/${studio.studio_slug}?startDate=2024-10-24&endDate=2024-10-30`}
                   className="flex gap-2 items-center"
                 >
                   Payout Details <ArrowRight />

@@ -2,7 +2,7 @@ import { PayoutMethod, PayoutStatus } from "@/services/model";
 import PayoutFilters from "./_components/PayoutFilters";
 import PayoutTable, { PayoutQuery } from "./_components/PayoutTable";
 
-export interface StudioPayoutList {
+export interface StudiosPayoutList {
   studio_id: number;
   studio_name: string;
   studio_slug: string;
@@ -11,9 +11,9 @@ export interface StudioPayoutList {
   payout_method: PayoutMethod;
 }
 
-interface StudioPayoutOverviewData {
+interface StudiosPayoutOverviewData {
   total_payout_amount: number;
-  payout_list: StudioPayoutList[];
+  studios_payout_list: StudiosPayoutList[];
 }
 
 interface Props {
@@ -23,9 +23,9 @@ interface Props {
 const PayoutPage = async (props: Props) => {
   const searchParams = await props.searchParams;
 
-  const studioPayoutOverviewData: StudioPayoutOverviewData = {
+  const studiosPayoutOverviewData: StudiosPayoutOverviewData = {
     total_payout_amount: 2600,
-    payout_list: [
+    studios_payout_list: [
       {
         studio_id: 1,
         studio_name: "Soul Yogi Studio",
@@ -36,19 +36,11 @@ const PayoutPage = async (props: Props) => {
       },
       {
         studio_id: 2,
-        studio_name: "Olivia Studio",
-        studio_slug: "olivia-studio",
+        studio_name: "Zo",
+        studio_slug: "zod",
         payout_status: "pending",
-        payout_amount: 200,
+        payout_amount: 480,
         payout_method: "bank-transfer",
-      },
-      {
-        studio_id: 3,
-        studio_name: "Zen Oasis",
-        studio_slug: "zen-oasis",
-        payout_status: "pending",
-        payout_amount: 500,
-        payout_method: "fps",
       },
     ],
   };
@@ -58,7 +50,7 @@ const PayoutPage = async (props: Props) => {
       <PayoutFilters />
       <PayoutTable
         searchParams={searchParams}
-        payoutList={studioPayoutOverviewData.payout_list}
+        payoutList={studiosPayoutOverviewData.studios_payout_list}
       />
     </div>
   );
