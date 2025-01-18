@@ -41,7 +41,11 @@ const ProofUploadAndPreview = () => {
 
         <div className="mt-5 mb-20">
           <p className="font-bold">Payout Proof Preview</p>
-          <ImagePreview images={images} onImageRemove={handleImageRemove} />
+          <ImagePreview
+            images={images}
+            onImageRemove={handleImageRemove}
+            isExistingImage={false}
+          />
         </div>
 
         <Button>Submit</Button>

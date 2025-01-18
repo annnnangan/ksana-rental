@@ -1,10 +1,9 @@
 "use client";
 import { payoutMethod } from "@/services/model";
-import PayoutStatusBadge from "../../../_components/PayoutStatusBadge";
-
-import ProofUploadAndPreview from "./ProofUploadAndPreview";
+import { StudioPayoutOverview } from "../../page";
+import PayoutStatusBadge from "@/app/admin/payout/_components/PayoutStatusBadge";
 import ImagePreview from "./ImagePreview";
-import { StudioPayoutOverview } from "../page";
+import ProofUploadAndPreview from "./ProofUploadAndPreview";
 
 interface Props {
   payoutOverview: StudioPayoutOverview;
