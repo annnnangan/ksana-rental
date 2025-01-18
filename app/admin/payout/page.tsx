@@ -48,6 +48,7 @@ const PayoutPage = async (props: Props) => {
   return (
     <div className="flex flex-col gap-10">
       <PayoutFilters />
+
       <PayoutTable
         searchParams={searchParams}
         payoutList={studiosPayoutOverviewData.studios_payout_list}

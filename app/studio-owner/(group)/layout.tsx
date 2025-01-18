@@ -4,8 +4,8 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { StudioOwnerSidebar } from "../_components/StudioOwnerSidebar";
 import { CircleGauge, House, Settings2 } from "lucide-react";
+import { NavBar } from "../../../components/side-bar/NavBar";
 
 const userData = {
   name: "shadcn",
@@ -34,7 +34,7 @@ const navItems = [
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider>
-      <StudioOwnerSidebar user={userData} navItems={navItems} />
+      <NavBar user={userData} navItems={navItems} />
       <SidebarInset>
         <SidebarTrigger className="-ml-1" />
         {children}

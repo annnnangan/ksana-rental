@@ -8,10 +8,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { payoutMethod, PayoutStatus } from "@/services/model";
-import { ArrowRight, ArrowUpIcon } from "lucide-react";
+import { ArrowUpIcon, HandCoins } from "lucide-react";
 import Link from "next/link";
-import PayoutStatusBadge from "./PayoutStatusBadge";
 import { StudiosPayoutList } from "../page";
+import PayoutStatusBadge from "./PayoutStatusBadge";
 
 export interface PayoutQuery {
   dateRange: string;
@@ -82,9 +82,10 @@ const PayoutTable = ({ searchParams, payoutList }: Props) => {
               <Button variant="link" className="pl-0">
                 <Link
                   href={`/admin/payout/studio/${studio.studio_slug}?startDate=2024-10-24&endDate=2024-10-30`}
-                  className="flex gap-2 items-center"
+                  className="flex items-center gap-2"
                 >
-                  Payout Details <ArrowRight />
+                  <span className="hidden md:block">Payment Details</span>{" "}
+                  <HandCoins />
                 </Link>
               </Button>
             </TableCell>

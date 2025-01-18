@@ -1,5 +1,5 @@
 "use client";
-import { StudioOwnerSidebar } from "@/app/studio-owner/_components/StudioOwnerSidebar";
+import { StudioOwnerSidebar } from "@/components/side-bar/NavBar";
 import {
   Breadcrumb,
   BreadcrumbList,

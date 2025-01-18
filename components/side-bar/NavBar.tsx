@@ -1,6 +1,6 @@
 "use client";
 
-import { LucideIcon, CircleChevronLeft } from "lucide-react";
+import { LucideIcon } from "lucide-react";
 import * as React from "react";
 
 import {
@@ -9,10 +9,8 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { NavMain } from "./nav-main";
-import { NavUser } from "./nav-user";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import { NavMain } from "./NavMain";
+import { NavUserMenu } from "./NavUser";
 
 interface User {
   name: string;
@@ -20,28 +18,38 @@ interface User {
   avatar: string;
 }
 
-interface NavItems {
+interface NavItem {
   title: string;
   url: string;
   icon: LucideIcon;
 }
 
-interface Props extends React.ComponentProps<typeof Sidebar> {
-  user?: User;
-  navItems: NavItems[];
+interface NavItems {
+  sectionName: NavItem[];
 }
 
-export function StudioOwnerSidebar({ user, navItems, ...props }: Props) {
+interface Props extends React.ComponentProps<typeof Sidebar> {
+  user?: User;
+  navItems: Record<string, NavItem[]>;
+}
+
+export function NavBar({ user, navItems, ...props }: Props) {
   return (
     <Sidebar collapsible="icon" {...props}>
       {user && (
         <SidebarHeader>
-          <NavUser user={user} />
+          <NavUserMenu user={user} />
         </SidebarHeader>
       )}
 
       <SidebarContent className="mt-10">
-        <NavMain items={navItems} />
+        {(Object.keys(navItems) as string[]).map((section: string) => (
+          <NavMain
+            key={section}
+            items={navItems[section] as NavItem[]}
+            groupLabel={section}
+          />
+        ))}
       </SidebarContent>
       <SidebarRail />
     </Sidebar>

@@ -1,6 +1,6 @@
 import React from "react";
-import { StudioInfo } from "../../page";
 import AvatarWithFallback from "@/app/_components/AvatarWithFallback";
+import { StudioInfo } from "./page";
 
 interface Props {
   studioInfo: StudioInfo;
