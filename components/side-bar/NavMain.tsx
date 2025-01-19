@@ -32,7 +32,6 @@ export function NavMain({
   groupLabel: string;
 }) {
   const currentPath = usePathname();
-  console.log(items);
   return (
     <SidebarGroup>
       <SidebarGroupLabel>{groupLabel}</SidebarGroupLabel>

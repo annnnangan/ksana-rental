@@ -1,6 +1,8 @@
 import { PayoutMethod, PayoutStatus } from "@/services/model";
 import PayoutFilters from "./_components/PayoutFilters";
 import PayoutTable, { PayoutQuery } from "./_components/PayoutTable";
+import { subDays } from "date-fns";
+import { TZDate } from "@date-fns/tz";
 
 export interface StudiosPayoutList {
   studio_id: number;
@@ -44,6 +46,18 @@ const PayoutPage = async (props: Props) => {
       },
     ],
   };
+
+  const defaultStartDate = subDays(
+    new TZDate(new Date(), "Asia/Hong_Kong"),
+    12
+  ).toString();
+
+  const defaultEndDate = subDays(
+    new TZDate(new Date(), "Asia/Hong_Kong"),
+    6
+  ).toString();
+
+  console.log(defaultStartDate, defaultEndDate);
 
   return (
     <div className="flex flex-col gap-10">

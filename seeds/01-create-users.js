@@ -48,5 +48,25 @@ exports.seed = async function (knex) {
       role: "studio owner",
       login_method: "credential",
     },
+    {
+      first_name: "Hebe",
+      last_name: "Tam",
+      email: "hebe_tam@gmail.com",
+      password: "123456",
+      image: "",
+      status: "active",
+      role: "rental user",
+      login_method: "credential",
+    },
+    {
+      first_name: "Fa",
+      last_name: "Lam",
+      email: "fa_lam@gmail.com",
+      password: "123456",
+      image: "",
+      status: "active",
+      role: "rental user",
+      login_method: "credential",
+    },
   ]);
 };
