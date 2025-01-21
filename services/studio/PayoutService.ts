@@ -103,9 +103,12 @@ export class PayoutService {
       WHERE start_date = ? and end_date = ?
     )
 
-    SELECT studio.id AS studio_id ,
+    SELECT studio.id AS studio_id,
         studio.name AS studio_name, 
         studio.slug AS studio_slug,
+        studio.logo AS studio_logo,
+        studio.phone AS studio_contact,
+        users.email AS studio_email,
         COALESCE(specific_payout.status, 'pending') AS payout_status,
         studio_payout_detail.method AS payout_method,
         studio_payout_detail.account_number AS payout_account_number,
@@ -125,6 +128,8 @@ export class PayoutService {
     LEFT JOIN specific_payout
         ON completed_booking.studio_id = specific_payout.studio_id
         OR dispute_transaction.studio_id = specific_payout.studio_id
+    LEFT JOIN users
+        ON studio.user_id = users.id
   `;
 
     // Parameters for SQL query

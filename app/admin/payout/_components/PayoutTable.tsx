@@ -1,3 +1,4 @@
+import ToastMessageWithRedirect from "@/app/_components/ToastMessageWithRedirect";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -7,15 +8,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { formatDate, getLastMonday } from "@/lib/utils/date-time-utils";
+import { fetchWithBaseUrl } from "@/lib/utils/fetch-with-base-url";
 import { payoutMethod, PayoutStatus } from "@/services/model";
+import { subDays } from "date-fns";
 import { ArrowUpIcon, HandCoins } from "lucide-react";
 import Link from "next/link";
-import { StudiosPayoutList } from "../page";
 import PayoutStatusBadge from "./PayoutStatusBadge";
-import { fetchWithBaseUrl } from "@/lib/utils/fetch-with-base-url";
-import { formatDate, getLastMonday } from "@/lib/utils/date-time-utils";
-import { subDays } from "date-fns";
-import ToastMessageWithRedirect from "@/app/_components/ToastMessageWithRedirect";
 
 export interface PayoutQuery {
   startDate: string;
