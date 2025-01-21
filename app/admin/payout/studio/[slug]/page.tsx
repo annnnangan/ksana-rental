@@ -1,6 +1,7 @@
 import { PayoutMethod, PayoutStatus } from "@/services/model";
 import PayoutDetailsTab from "./PayoutDetailsTab";
 import StudioBasicInfo from "./StudioBasicInfo";
+import { studioService } from "@/services/studio/StudioService";
 
 export interface StudioInfo {
   studio_id: number;

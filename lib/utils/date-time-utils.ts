@@ -1,5 +1,6 @@
 import {
   format,
+  getDay,
   isAfter,
   isBefore,
   isWithinInterval,
@@ -8,9 +9,10 @@ import {
   setHours,
   setMinutes,
   setSeconds,
+  subDays,
 } from "date-fns";
 
-import { toZonedTime } from "date-fns-tz";
+import { formatInTimeZone } from "date-fns-tz";
 
 //Time format for backend - Get "00:00:00" from "00:00" or "0"
 export function convertStringToTime(time: string | number) {
@@ -103,13 +105,22 @@ export function isTimeInRange(bookingTime: string, timeRanges: any[]) {
 export function formatDate(date: Date) {
   const timeZone = "Asia/Hong_Kong";
   // Convert the input date to the HKT timezone
-  const dateInHKT = toZonedTime(date, timeZone);
+  const dateInHKT = formatInTimeZone(date, timeZone, "yyyy-MM-dd");
   // Format the date in HKT
-  return format(dateInHKT, "yyyy-MM-dd");
+  return dateInHKT;
 }
 
 //Return the maximum date that user could book
 //2 months from the current month
 export function maxBookingDate() {
   return new Date(new Date().getFullYear(), new Date().getMonth() + 3, 0);
+}
+
+export function getLastMonday(date: Date): Date {
+  const dayOfWeek = getDay(date); // 0 for Sunday, 1 for Monday, ..., 6 for Saturday
+  const daysToSubtract = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Days since last Monday
+
+  const mondayDate = subDays(date, daysToSubtract);
+
+  return mondayDate;
 }

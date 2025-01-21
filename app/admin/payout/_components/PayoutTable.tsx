@@ -12,9 +12,14 @@ import { ArrowUpIcon, HandCoins } from "lucide-react";
 import Link from "next/link";
 import { StudiosPayoutList } from "../page";
 import PayoutStatusBadge from "./PayoutStatusBadge";
+import { fetchWithBaseUrl } from "@/lib/utils/fetch-with-base-url";
+import { formatDate, getLastMonday } from "@/lib/utils/date-time-utils";
+import { subDays } from "date-fns";
+import ToastMessageWithRedirect from "@/app/_components/ToastMessageWithRedirect";
 
 export interface PayoutQuery {
-  dateRange: string;
+  startDate: string;
+  endDate: string;
   payoutMethod: string;
   studio: string;
   status: PayoutStatus;
@@ -24,7 +29,6 @@ export interface PayoutQuery {
 
 interface Props {
   searchParams: PayoutQuery;
-  payoutList: StudiosPayoutList[];
 }
 
 //Table columns
@@ -40,7 +44,28 @@ const columns: {
   { label: "Payout Action", value: "payoutAction" },
 ];
 
-const PayoutTable = ({ searchParams, payoutList }: Props) => {
+const PayoutTable = async ({ searchParams }: Props) => {
+  const defaultStartDate = formatDate(subDays(getLastMonday(new Date()), 14));
+  const defaultEndDate = formatDate(subDays(getLastMonday(new Date()), 8));
+  const payoutStartDate = searchParams.startDate || defaultStartDate;
+  const payoutEndDate = searchParams.endDate || defaultEndDate;
+  const payoutOverviewDataResponse = await fetchWithBaseUrl(
+    `/api/admin/payout?startDate=${payoutStartDate}&endDate=${payoutEndDate}`
+  );
+
+  if (!payoutOverviewDataResponse.success) {
+    return (
+      <ToastMessageWithRedirect
+        type={"error"}
+        message={payoutOverviewDataResponse.error.message}
+        redirectPath={"/admin/payout"}
+      />
+    );
+  }
+
+  const { total_payout_amount, studios_payout_list: payoutList } =
+    payoutOverviewDataResponse.data;
+
   return (
     <Table>
       <TableHeader>
@@ -62,35 +87,44 @@ const PayoutTable = ({ searchParams, payoutList }: Props) => {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {payoutList.map((studio) => (
-          <TableRow key={studio.studio_id}>
-            <TableCell>{studio.studio_id}</TableCell>
-            <TableCell>{studio.studio_name}</TableCell>
+        {payoutList.map(
+          (studio: {
+            studio_id: number;
+            studio_name: string;
+            studio_slug: string;
+            payout_status: PayoutStatus;
+            payout_method: string;
+            total_payout_amount: number;
+          }) => (
+            <TableRow key={studio.studio_id}>
+              <TableCell>{studio.studio_id}</TableCell>
+              <TableCell>{studio.studio_name}</TableCell>
 
-            <TableCell>
-              <PayoutStatusBadge payoutStatus={studio.payout_status} />
-            </TableCell>
-            <TableCell>
-              {
-                payoutMethod.find(
-                  (method) => method.value === studio.payout_method
-                )?.label
-              }
-            </TableCell>
-            <TableCell>${studio.payout_amount}</TableCell>
-            <TableCell>
-              <Button variant="link" className="pl-0">
-                <Link
-                  href={`/admin/payout/studio/${studio.studio_slug}?startDate=2024-10-24&endDate=2024-10-30`}
-                  className="flex items-center gap-2"
-                >
-                  <span className="hidden md:block">Payment Details</span>{" "}
-                  <HandCoins />
-                </Link>
-              </Button>
-            </TableCell>
-          </TableRow>
-        ))}
+              <TableCell>
+                <PayoutStatusBadge payoutStatus={studio.payout_status} />
+              </TableCell>
+              <TableCell>
+                {
+                  payoutMethod.find(
+                    (method) => method.value === studio.payout_method
+                  )?.label
+                }
+              </TableCell>
+              <TableCell>HKD$ {studio.total_payout_amount}</TableCell>
+              <TableCell>
+                <Button variant="link">
+                  <Link
+                    href={`/admin/payout/studio/${studio.studio_slug}?startDate=${payoutStartDate}&endDate=${payoutEndDate}`}
+                    className="flex items-center gap-2"
+                  >
+                    <span className="hidden md:block">Payment Details</span>
+                    <HandCoins />
+                  </Link>
+                </Button>
+              </TableCell>
+            </TableRow>
+          )
+        )}
       </TableBody>
     </Table>
   );

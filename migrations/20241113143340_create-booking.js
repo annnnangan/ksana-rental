@@ -25,11 +25,10 @@ exports.up = async function (knex) {
     table.boolean("is_accept_tnc").defaultTo(false).notNullable();
     table
       .enu("status", [
-        "confirm",
-        "cancel",
+        "confirmed",
+        "canceled",
         "pending for payment",
-        "expire",
-        "complete",
+        "expired",
       ])
       .notNullable();
     table.boolean("is_complaint").notNullable().defaultTo(false);

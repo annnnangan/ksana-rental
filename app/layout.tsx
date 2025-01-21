@@ -25,11 +25,9 @@ export default function RootLayout({
   return (
     <html lang="zh-HK" className="scroll-smooth">
       <body className={`${notoSansTC.className} antialiased`}>
-        <Theme accentColor="blue">
-          <main className="container mx-auto px-2 md:px-3 lg:px-5 py-10">
-            {children}
-          </main>
-        </Theme>
+        <main className="container mx-auto px-2 md:px-3 lg:px-5 py-10">
+          {children}
+        </main>
 
         <ToastContainer />
       </body>

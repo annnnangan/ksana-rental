@@ -83,7 +83,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider>
       <NavBar user={userData} navItems={navItems} />
-      <SidebarInset className="md:-mx-10">
+      <SidebarInset className="md:-mx-5">
         <SidebarTrigger className="-ml-1" />
         {children}
       </SidebarInset>

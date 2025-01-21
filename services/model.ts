@@ -27,11 +27,10 @@ export type StudioStatus =
   | "closed";
 
 export type BookingStatus =
-  | "confirm"
-  | "cancel"
+  | "confirmed"
+  | "canceled"
   | "pending for payment"
-  | "expire"
-  | "complete";
+  | "expired";
 
 export type PayoutStatus = "pending" | "complete";
 
