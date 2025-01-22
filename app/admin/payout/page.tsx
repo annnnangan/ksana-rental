@@ -1,7 +1,7 @@
 import { PayoutMethod, PayoutStatus } from "@/services/model";
 import PayoutFilters from "./_components/PayoutFilters";
 import PayoutTable, { PayoutQuery } from "./_components/PayoutTable";
-import { subDays } from "date-fns";
+import { startOfWeek, subDays } from "date-fns";
 import { TZDate } from "@date-fns/tz";
 import { redirect } from "next/navigation";
 import ToastMessageWithRedirect from "@/app/_components/ToastMessageWithRedirect";
@@ -29,11 +29,28 @@ interface Props {
 const PayoutPage = async (props: Props) => {
   const searchParams = await props.searchParams;
 
+  const defaultStartDate = subDays(
+    startOfWeek(new Date(), { weekStartsOn: 1 }),
+    14
+  );
+
+  const defaultEndDate = subDays(
+    startOfWeek(new Date(), { weekStartsOn: 1 }),
+    8
+  );
+
   return (
     <div className="flex flex-col gap-10">
-      <PayoutFilters />
+      <PayoutFilters
+        defaultStartDate={defaultStartDate}
+        defaultEndDate={defaultEndDate}
+      />
 
-      <PayoutTable searchParams={searchParams} />
+      <PayoutTable
+        searchParams={searchParams}
+        defaultStartDate={defaultStartDate}
+        defaultEndDate={defaultEndDate}
+      />
     </div>
   );
 };

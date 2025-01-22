@@ -4,10 +4,18 @@ import StatusFilter from "./filter/StatusFilter";
 import StudioFilter from "./filter/StudioFilter";
 import PaymentMethodFilter from "./filter/PaymentMethodFilter";
 
-const PayoutFilters = () => {
+interface Props {
+  defaultStartDate: Date;
+  defaultEndDate: Date;
+}
+
+const PayoutFilters = ({ defaultStartDate, defaultEndDate }: Props) => {
   return (
     <div className="flex flex-wrap gap-x-8 gap-y-2">
-      <DateFilter />
+      <DateFilter
+        defaultStartDate={defaultStartDate}
+        defaultEndDate={defaultEndDate}
+      />
       <StudioFilter />
       <StatusFilter />
       <PaymentMethodFilter />

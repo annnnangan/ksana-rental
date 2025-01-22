@@ -13,6 +13,7 @@ export class ValidateStudioService {
       return {
         success: false,
         error: { message: "場地不存在。" },
+        errorCode: 404,
       };
     }
 

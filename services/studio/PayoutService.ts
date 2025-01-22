@@ -69,6 +69,7 @@ export class PayoutService {
         return {
           success: false,
           error: validationResponse.error,
+          errorCode: validationResponse.errorCode,
         };
       }
     }

@@ -11,7 +11,7 @@ import {
 import { formatDate, getLastMonday } from "@/lib/utils/date-time-utils";
 import { fetchWithBaseUrl } from "@/lib/utils/fetch-with-base-url";
 import { payoutMethod, PayoutStatus } from "@/services/model";
-import { subDays } from "date-fns";
+import { startOfWeek, subDays } from "date-fns";
 import { ArrowUpIcon, HandCoins } from "lucide-react";
 import Link from "next/link";
 import PayoutStatusBadge from "./PayoutStatusBadge";
@@ -28,6 +28,8 @@ export interface PayoutQuery {
 
 interface Props {
   searchParams: PayoutQuery;
+  defaultStartDate: Date;
+  defaultEndDate: Date;
 }
 
 //Table columns
@@ -43,11 +45,14 @@ const columns: {
   { label: "Payout Action", value: "payoutAction" },
 ];
 
-const PayoutTable = async ({ searchParams }: Props) => {
-  const defaultStartDate = formatDate(subDays(getLastMonday(new Date()), 14));
-  const defaultEndDate = formatDate(subDays(getLastMonday(new Date()), 8));
-  const payoutStartDate = searchParams.startDate || defaultStartDate;
-  const payoutEndDate = searchParams.endDate || defaultEndDate;
+const PayoutTable = async ({
+  searchParams,
+  defaultStartDate,
+  defaultEndDate,
+}: Props) => {
+  const payoutStartDate =
+    searchParams.startDate || formatDate(defaultStartDate);
+  const payoutEndDate = searchParams.endDate || formatDate(defaultEndDate);
   const payoutOverviewDataResponse = await fetchWithBaseUrl(
     `/api/admin/payout?startDate=${payoutStartDate}&endDate=${payoutEndDate}`
   );

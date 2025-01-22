@@ -57,6 +57,16 @@ export async function GET(
         slug
       );
 
+    if (!allStudiosPayoutOverviewDataResponse.success) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: allStudiosPayoutOverviewDataResponse.error,
+        },
+        { status: allStudiosPayoutOverviewDataResponse.errorCode }
+      );
+    }
+
     if (allStudiosPayoutOverviewDataResponse.success) {
       return NextResponse.json(
         {
