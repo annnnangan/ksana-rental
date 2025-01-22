@@ -26,15 +26,15 @@ const StatusFilter = () => {
 
   function handleChange(status: string): void {
     const currentParams = new URLSearchParams(searchParams?.toString() || "");
-    currentParams.set("status", status);
-    if (status === "All") currentParams.delete("status");
+    currentParams.set("payoutStatus", status);
+    if (status === "All") currentParams.delete("payoutStatus");
     router.push(`?${currentParams.toString()}`);
   }
 
   return (
     <Select
       onValueChange={handleChange}
-      value={searchParams.get("status") || ""}
+      value={searchParams.get("payoutStatus") || ""}
     >
       <SelectTrigger className="w-[180px]">
         <SelectValue placeholder="Filter by status" />

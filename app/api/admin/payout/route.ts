@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const payoutStartDate = searchParams.get("startDate");
     const payoutEndDate = searchParams.get("endDate");
-    const status = searchParams.get("status") as PayoutStatus;
+    const payoutStatus = searchParams.get("payoutStatus") as PayoutStatus;
     const payoutMethod = searchParams.get("payoutMethod") as PayoutMethod;
 
     //Validate if all date parameter is presented
@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
         payoutEndDate,
         undefined, // No slug for all studios
         payoutMethod || undefined, // Pass payoutMethod if provided
-        status || undefined // Pass payoutStatus if provided
+        payoutStatus || undefined // Pass payoutStatus if provided
       );
 
     if (
