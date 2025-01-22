@@ -42,6 +42,18 @@ export class StudioService {
       data: studios,
     };
   }
+
+  async getAllStudiosName() {
+    const studios = await this.knex
+      .select("name", "slug")
+      .from("studio")
+      .orderBy("name");
+
+    return {
+      success: true,
+      data: studios,
+    };
+  }
 }
 
 export const studioService = new StudioService(knex);

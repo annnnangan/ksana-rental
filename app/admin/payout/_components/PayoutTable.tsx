@@ -70,6 +70,11 @@ const PayoutTable = async ({
     queryParams.append("payoutStatus", searchParams.payoutStatus);
   }
 
+  // Add studio if it exists
+  if (searchParams.studio) {
+    queryParams.append("studio", searchParams.studio);
+  }
+
   // Fetch data
   const payoutOverviewDataResponse = await fetchWithBaseUrl(
     `/api/admin/payout?${queryParams.toString()}`

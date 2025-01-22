@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { Check, ChevronsUpDown } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -19,25 +20,14 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils/tailwind-utils";
 import { useState } from "react";
-
-const studioList = [
-  {
-    studio_name: "Soul Yogi Studio",
-    studio_slug: "soul-yogi-studio",
-  },
-  {
-    studio_name: "Olivia Studio",
-    studio_slug: "olivia-studio",
-  },
-  {
-    studio_name: "Zen Oasis",
-    studio_slug: "zen-oasis",
-  },
-];
+import { useRouter, useSearchParams } from "next/navigation";
 
 const StudioFilterDropdown = () => {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
+  const { data: studios, error, isLoading } = useStudios();
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -49,32 +39,38 @@ const StudioFilterDropdown = () => {
           className="w-[200px] justify-between"
         >
           {value
-            ? studioList.find((studio) => studio.studio_slug === value)
-                ?.studio_name
+            ? studios?.find((studio) => studio.slug === value)?.name
             : "Studio Name"}
           <ChevronsUpDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0">
         <Command>
-          <CommandInput placeholder="Search framework..." className="h-9" />
+          <CommandInput placeholder="Search studios..." className="h-9" />
           <CommandList>
-            <CommandEmpty>No framework found.</CommandEmpty>
+            <CommandEmpty>No Studios Found.</CommandEmpty>
             <CommandGroup>
-              {studioList.map((studio) => (
+              {studios?.map((studio) => (
                 <CommandItem
-                  key={studio.studio_slug}
-                  value={studio.studio_slug}
+                  key={studio.slug}
+                  value={studio.slug}
                   onSelect={(currentValue: React.SetStateAction<string>) => {
                     setValue(currentValue === value ? "" : currentValue);
                     setOpen(false);
+                    const currentParams = new URLSearchParams(
+                      searchParams?.toString() || ""
+                    );
+
+                    currentParams.set("studio", currentValue as string);
+                    if (currentValue === value) currentParams.delete("studio");
+                    router.push(`?${currentParams.toString()}`);
                   }}
                 >
-                  {studio.studio_name}
+                  {studio.name}
                   <Check
                     className={cn(
                       "ml-auto",
-                      value === studio.studio_slug ? "opacity-100" : "opacity-0"
+                      value === studio.slug ? "opacity-100" : "opacity-0"
                     )}
                   />
                 </CommandItem>
@@ -90,3 +86,13 @@ const StudioFilterDropdown = () => {
 export default StudioFilterDropdown;
 
 //use react query to fetch data
+const useStudios = () =>
+  useQuery({
+    queryKey: ["studios"],
+    queryFn: async () => {
+      const res = await fetch(`/api/studio`);
+      const result = await res.json();
+      return result.data as { name: string; slug: string }[];
+    },
+    staleTime: 86400,
+  });
