@@ -2,6 +2,7 @@ import handleError from "@/lib/handlers/error";
 import { payoutService } from "@/services/studio/PayoutService";
 import { NextRequest, NextResponse } from "next/server";
 import { differenceInDays, getDay, isValid, parseISO } from "date-fns";
+import { PayoutMethod, PayoutStatus } from "@/services/model";
 
 function isValidDate(dateString: string) {
   const parsedDate = parseISO(dateString);
@@ -14,6 +15,8 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const payoutStartDate = searchParams.get("startDate");
     const payoutEndDate = searchParams.get("endDate");
+    const status = searchParams.get("status") as PayoutStatus;
+    const payoutMethod = searchParams.get("payoutMethod") as PayoutMethod;
 
     //Validate if all date parameter is presented
     if (!payoutStartDate || !payoutEndDate)
@@ -54,7 +57,10 @@ export async function GET(request: NextRequest) {
     const allStudiosPayoutOverviewDataResponse =
       await payoutService.getStudioPayoutOverview(
         payoutStartDate,
-        payoutEndDate
+        payoutEndDate,
+        undefined, // No slug for all studios
+        payoutMethod || undefined, // Pass payoutMethod if provided
+        status || undefined // Pass payoutStatus if provided
       );
 
     if (

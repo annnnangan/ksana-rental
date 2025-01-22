@@ -1,8 +1,7 @@
-import React from "react";
 import DateFilter from "./filter/DateFilter";
+import PayoutMethodFilter from "./filter/PayoutMethodFilter";
 import StatusFilter from "./filter/StatusFilter";
 import StudioFilter from "./filter/StudioFilter";
-import PaymentMethodFilter from "./filter/PaymentMethodFilter";
 
 interface Props {
   defaultStartDate: Date;
@@ -18,7 +17,7 @@ const PayoutFilters = ({ defaultStartDate, defaultEndDate }: Props) => {
       />
       <StudioFilter />
       <StatusFilter />
-      <PaymentMethodFilter />
+      <PayoutMethodFilter />
     </div>
   );
 };

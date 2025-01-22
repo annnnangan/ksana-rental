@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
+  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -10,7 +11,7 @@ import {
 } from "@/components/ui/table";
 import { formatDate, getLastMonday } from "@/lib/utils/date-time-utils";
 import { fetchWithBaseUrl } from "@/lib/utils/fetch-with-base-url";
-import { payoutMethod, PayoutStatus } from "@/services/model";
+import { PayoutMethod, payoutMethod, PayoutStatus } from "@/services/model";
 import { startOfWeek, subDays } from "date-fns";
 import { ArrowUpIcon, HandCoins } from "lucide-react";
 import Link from "next/link";
@@ -19,9 +20,9 @@ import PayoutStatusBadge from "./PayoutStatusBadge";
 export interface PayoutQuery {
   startDate: string;
   endDate: string;
-  payoutMethod: string;
+  payoutMethod: PayoutMethod;
   studio: string;
-  status: PayoutStatus;
+  payoutStatus: PayoutStatus;
   orderBy: string;
   page: string;
 }
@@ -53,8 +54,25 @@ const PayoutTable = async ({
   const payoutStartDate =
     searchParams.startDate || formatDate(defaultStartDate);
   const payoutEndDate = searchParams.endDate || formatDate(defaultEndDate);
+
+  const queryParams = new URLSearchParams({
+    startDate: payoutStartDate,
+    endDate: payoutEndDate,
+  });
+
+  // Add payoutMethod if it exists
+  if (searchParams.payoutMethod) {
+    queryParams.append("payoutMethod", searchParams.payoutMethod);
+  }
+
+  // Add payoutStatus if it exists
+  if (searchParams.payoutStatus) {
+    queryParams.append("payoutStatus", searchParams.payoutStatus);
+  }
+
+  // Fetch data
   const payoutOverviewDataResponse = await fetchWithBaseUrl(
-    `/api/admin/payout?startDate=${payoutStartDate}&endDate=${payoutEndDate}`
+    `/api/admin/payout?${queryParams.toString()}`
   );
 
   if (!payoutOverviewDataResponse.success) {
@@ -72,6 +90,10 @@ const PayoutTable = async ({
 
   return (
     <Table>
+      {payoutList.length === 0 && (
+        <TableCaption>No Payout Information</TableCaption>
+      )}
+
       <TableHeader>
         <TableRow>
           {columns.map((column) => (
@@ -90,46 +112,49 @@ const PayoutTable = async ({
           ))}
         </TableRow>
       </TableHeader>
-      <TableBody>
-        {payoutList.map(
-          (studio: {
-            studio_id: number;
-            studio_name: string;
-            studio_slug: string;
-            payout_status: PayoutStatus;
-            payout_method: string;
-            total_payout_amount: number;
-          }) => (
-            <TableRow key={studio.studio_id}>
-              <TableCell>{studio.studio_id}</TableCell>
-              <TableCell>{studio.studio_name}</TableCell>
 
-              <TableCell>
-                <PayoutStatusBadge payoutStatus={studio.payout_status} />
-              </TableCell>
-              <TableCell>
-                {
-                  payoutMethod.find(
-                    (method) => method.value === studio.payout_method
-                  )?.label
-                }
-              </TableCell>
-              <TableCell>HKD$ {studio.total_payout_amount}</TableCell>
-              <TableCell>
-                <Button variant="link">
-                  <Link
-                    href={`/admin/payout/studio/${studio.studio_slug}?startDate=${payoutStartDate}&endDate=${payoutEndDate}`}
-                    className="flex items-center gap-2"
-                  >
-                    <span className="hidden md:block">Payment Details</span>
-                    <HandCoins />
-                  </Link>
-                </Button>
-              </TableCell>
-            </TableRow>
-          )
-        )}
-      </TableBody>
+      {payoutList.length > 0 && (
+        <TableBody>
+          {payoutList.map(
+            (studio: {
+              studio_id: number;
+              studio_name: string;
+              studio_slug: string;
+              payout_status: PayoutStatus;
+              payout_method: string;
+              total_payout_amount: number;
+            }) => (
+              <TableRow key={studio.studio_id}>
+                <TableCell>{studio.studio_id}</TableCell>
+                <TableCell>{studio.studio_name}</TableCell>
+
+                <TableCell>
+                  <PayoutStatusBadge payoutStatus={studio.payout_status} />
+                </TableCell>
+                <TableCell>
+                  {
+                    payoutMethod.find(
+                      (method) => method.value === studio.payout_method
+                    )?.label
+                  }
+                </TableCell>
+                <TableCell>HKD$ {studio.total_payout_amount}</TableCell>
+                <TableCell>
+                  <Button variant="link">
+                    <Link
+                      href={`/admin/payout/studio/${studio.studio_slug}?startDate=${payoutStartDate}&endDate=${payoutEndDate}`}
+                      className="flex items-center gap-2"
+                    >
+                      <span className="hidden md:block">Payment Details</span>
+                      <HandCoins />
+                    </Link>
+                  </Button>
+                </TableCell>
+              </TableRow>
+            )
+          )}
+        </TableBody>
+      )}
     </Table>
   );
 };

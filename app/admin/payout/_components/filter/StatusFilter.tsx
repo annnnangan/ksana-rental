@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Select,
   SelectContent,
@@ -6,28 +8,34 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { PayoutStatus } from "@/services/model";
+import { useRouter, useSearchParams } from "next/navigation";
 
-export const statuses: {
+const statuses: {
   label: string;
   value?: PayoutStatus;
   color?: string;
 }[] = [
   { label: "All" },
-  {
-    label: "Pending",
-    value: "pending",
-    color: "text-red-500",
-  },
-  {
-    label: "Complete",
-    value: "complete",
-    color: "text-green-500",
-  },
+  { label: "Pending", value: "pending" },
+  { label: "Complete", value: "complete" },
 ];
 
 const StatusFilter = () => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  function handleChange(status: string): void {
+    const currentParams = new URLSearchParams(searchParams?.toString() || "");
+    currentParams.set("status", status);
+    if (status === "All") currentParams.delete("status");
+    router.push(`?${currentParams.toString()}`);
+  }
+
   return (
-    <Select>
+    <Select
+      onValueChange={handleChange}
+      value={searchParams.get("status") || ""}
+    >
       <SelectTrigger className="w-[180px]">
         <SelectValue placeholder="Filter by status" />
       </SelectTrigger>

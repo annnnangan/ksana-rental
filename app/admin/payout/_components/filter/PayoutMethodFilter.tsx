@@ -7,15 +7,29 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { payoutMethod, PayoutMethod } from "@/services/model";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const paymentMethod: { label: string; value?: PayoutMethod }[] = [
   { label: "All" },
   ...payoutMethod,
 ];
 
-const PaymentMethodFilter = () => {
+const PayoutMethodFilter = () => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  function handleChange(method: string): void {
+    const currentParams = new URLSearchParams(searchParams?.toString());
+    currentParams.set("payoutMethod", method);
+    if (method === "All") currentParams.delete("payoutMethod");
+    router.push(`?${currentParams.toString()}`);
+  }
+
   return (
-    <Select>
+    <Select
+      onValueChange={handleChange}
+      value={searchParams.get("payoutMethod") || ""}
+    >
       <SelectTrigger className="w-[180px]">
         <SelectValue placeholder="Payment Method" />
       </SelectTrigger>
@@ -30,4 +44,4 @@ const PaymentMethodFilter = () => {
   );
 };
 
-export default PaymentMethodFilter;
+export default PayoutMethodFilter;

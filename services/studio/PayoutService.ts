@@ -1,6 +1,7 @@
 import { knex } from "@/services/knex";
 import { Knex } from "knex";
 import { validateStudioService } from "./ValidateStudio";
+import { PayoutMethod, PayoutStatus } from "../model";
 
 export class PayoutService {
   constructor(private knex: Knex) {}
@@ -57,7 +58,9 @@ export class PayoutService {
   async getStudioPayoutOverview(
     payoutStartDate: string,
     payoutEndDate: string,
-    slug?: string
+    slug?: string | undefined,
+    payoutMethod?: PayoutMethod | undefined,
+    status?: PayoutStatus | undefined
   ) {
     if (slug) {
       // Validate if the studio exists by slug
@@ -145,8 +148,22 @@ export class PayoutService {
 
     // Add WHERE condition for slug if it's provided
     if (slug) {
-      mainQuery += ` WHERE studio.slug = ?`; // Add WHERE condition for slug
-      params.push(slug); // Push slug to params
+      mainQuery += ` WHERE studio.slug = ?`;
+      params.push(slug);
+    }
+
+    // Add condition for payoutMethod if provided
+    if (payoutMethod) {
+      mainQuery += slug ? ` AND` : ` WHERE`;
+      mainQuery += ` studio_payout_detail.method = ?`;
+      params.push(payoutMethod);
+    }
+
+    // Add condition for payoutStatus if provided
+    if (status) {
+      mainQuery += slug || payoutMethod ? ` AND` : ` WHERE`;
+      mainQuery += ` COALESCE(specific_payout.status, 'pending') = ?`;
+      params.push(status);
     }
 
     // Execute the query

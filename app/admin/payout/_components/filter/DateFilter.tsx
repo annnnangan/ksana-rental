@@ -26,8 +26,12 @@ const DateFilter = ({ defaultStartDate, defaultEndDate }: Props) => {
   const searchParams = useSearchParams();
 
   const [selectedWeek, setSelectedWeek] = useState<DateRange>({
-    from: defaultStartDate,
-    to: defaultEndDate,
+    from: searchParams.get("startDate")
+      ? new Date(searchParams.get("startDate") as string)
+      : defaultStartDate,
+    to: searchParams.get("endDate")
+      ? new Date(searchParams.get("endDate") as string)
+      : defaultEndDate,
   });
 
   return (
@@ -70,16 +74,18 @@ const DateFilter = ({ defaultStartDate, defaultEndDate }: Props) => {
                 from: startOfWeek(day, { weekStartsOn: 1 }),
                 to: endOfWeek(day, { weekStartsOn: 1 }),
               });
-              const searchParams = new URLSearchParams();
-              searchParams.set(
+              const currentParams = new URLSearchParams(
+                searchParams?.toString()
+              );
+              currentParams.set(
                 "startDate",
                 formatDate(startOfWeek(day, { weekStartsOn: 1 }))
               );
-              searchParams.set(
+              currentParams.set(
                 "endDate",
                 formatDate(endOfWeek(day, { weekStartsOn: 1 }))
               );
-              router.push(`?${searchParams.toString()}`);
+              router.push(`?${currentParams.toString()}`);
             }}
           />
         </PopoverContent>
