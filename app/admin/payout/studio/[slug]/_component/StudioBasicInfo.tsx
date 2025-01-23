@@ -1,5 +1,5 @@
 import AvatarWithFallback from "@/app/_components/AvatarWithFallback";
-import { StudioPayoutOverviewData } from "./page";
+import { StudioPayoutOverviewData } from "../page";
 
 interface Props {
   studioInfo: StudioPayoutOverviewData;

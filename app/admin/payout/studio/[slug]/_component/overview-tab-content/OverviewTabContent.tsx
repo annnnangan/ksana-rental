@@ -9,7 +9,7 @@ interface Props {
   payoutOverview: StudioPayoutOverviewData;
 }
 
-const PayoutOverviewTabContent = ({
+const OverviewTabContent = ({
   payoutOverview: {
     payout_status,
     total_payout_amount,
@@ -60,4 +60,4 @@ const PayoutOverviewTabContent = ({
   );
 };
 
-export default PayoutOverviewTabContent;
+export default OverviewTabContent;

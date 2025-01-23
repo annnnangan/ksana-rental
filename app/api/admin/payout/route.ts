@@ -1,5 +1,5 @@
 import handleError from "@/lib/handlers/error";
-import { payoutService } from "@/services/studio/PayoutService";
+import { payoutService } from "@/services/PayoutService";
 import { NextRequest, NextResponse } from "next/server";
 import { differenceInDays, getDay, isValid, parseISO } from "date-fns";
 import { PayoutMethod, PayoutStatus } from "@/services/model";

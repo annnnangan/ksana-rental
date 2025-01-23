@@ -1,12 +1,9 @@
 import { PayoutMethod, PayoutStatus } from "@/services/model";
-import PayoutFilters from "./_components/PayoutFilters";
-import PayoutTable, { PayoutQuery } from "./_components/PayoutTable";
 import { startOfWeek, subDays } from "date-fns";
-import { TZDate } from "@date-fns/tz";
-import { redirect } from "next/navigation";
-import ToastMessageWithRedirect from "@/app/_components/ToastMessageWithRedirect";
-import { fetchWithBaseUrl } from "@/lib/utils/fetch-with-base-url";
-import { formatDate, getLastMonday } from "@/lib/utils/date-time-utils";
+import PayoutFilters from "./_components/PayoutFilters";
+import PayoutOverviewTable, {
+  PayoutQuery,
+} from "./_components/PayoutOverviewTable";
 
 export interface StudiosPayoutList {
   studio_id: number;
@@ -46,7 +43,7 @@ const PayoutPage = async (props: Props) => {
         defaultEndDate={defaultEndDate}
       />
 
-      <PayoutTable
+      <PayoutOverviewTable
         searchParams={searchParams}
         defaultStartDate={defaultStartDate}
         defaultEndDate={defaultEndDate}

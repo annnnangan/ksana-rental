@@ -1,7 +1,7 @@
 import { knex } from "@/services/knex";
 import { Knex } from "knex";
-import { validateStudioService } from "./ValidateStudio";
-import { PayoutMethod, PayoutStatus } from "../model";
+import { validateStudioService } from "./studio/ValidateStudio";
+import { PayoutMethod, PayoutStatus } from "./model";
 
 export class PayoutService {
   constructor(private knex: Knex) {}
@@ -53,8 +53,6 @@ export class PayoutService {
     };
   }
 
-  //If slug is provided, it will return data from specific studio
-  //else, it will return data from all studios
   async getStudioPayoutOverview(
     payoutStartDate: string,
     payoutEndDate: string,
@@ -71,8 +69,7 @@ export class PayoutService {
         // Return error immediately if the studio doesn't exist
         return {
           success: false,
-          error: validationResponse.error,
-          errorCode: validationResponse.errorCode,
+          error: { message: validationResponse?.error?.message },
         };
       }
     }
@@ -196,6 +193,69 @@ export class PayoutService {
     return {
       success: true,
       data: payoutData,
+    };
+  }
+
+  async getStudioCompletedBookingList(
+    payoutStartDate: string,
+    payoutEndDate: string,
+    slug: string
+  ) {
+    const completed_booking_list = await this.knex
+      .select(
+        "booking.reference_no AS booking_reference_no",
+        knex.raw("TO_CHAR(booking.date, 'YYYY-MM-DD') AS booking_date"),
+        "booking.price AS booking_price",
+        "booking.status AS booking_status",
+        "booking.is_complaint"
+      )
+      .from("booking")
+      .leftJoin("studio", "booking.studio_id", "studio.id")
+      .whereBetween("booking.date", [payoutStartDate, payoutEndDate])
+      .andWhere({
+        "booking.status": "confirmed",
+        "booking.is_complaint": false,
+        "studio.slug": slug,
+      })
+      .orderBy("booking.date");
+    return {
+      success: true,
+      data: completed_booking_list,
+    };
+  }
+
+  async getStudioDisputeTransactionList(
+    payoutStartDate: string,
+    payoutEndDate: string,
+    slug: string
+  ) {
+    const dispute_booking_list = await this.knex
+      .select(
+        "booking.reference_no AS booking_reference_no",
+        knex.raw("TO_CHAR(booking.date, 'YYYY-MM-DD') AS booking_date"),
+        "booking.price AS booking_price",
+        "booking.is_complaint",
+        "booking_complaint.status AS complaint_status",
+        "booking_complaint.resolved_at AS complaint_resolved_at",
+        "booking_complaint.is_refund",
+        "booking_complaint.refund_method",
+        "booking_complaint.refund_amount"
+      )
+      .from("booking_complaint")
+      .leftJoin("booking", "booking_complaint.booking_id", "booking.id")
+      .leftJoin("studio", "booking.studio_id", "studio.id")
+      .whereBetween("booking_complaint.resolved_at", [
+        payoutStartDate,
+        payoutEndDate,
+      ])
+      .andWhere({
+        "studio.slug": slug,
+        "booking_complaint.status": "resolved",
+      })
+      .orderBy("booking.date");
+    return {
+      success: true,
+      data: dispute_booking_list,
     };
   }
 }

@@ -1,5 +1,5 @@
 import handleError from "@/lib/handlers/error";
-import { getS3ImageKeyFromS3URL } from "@/lib/utils/get-s3-image-key-from-s3-url";
+import { getS3ImageKeyFromS3URL } from "@/lib/utils/s3-upload/get-s3-image-key-from-s3-url";
 import {
   allowedImageMineTypes,
   formattedMineTypes,

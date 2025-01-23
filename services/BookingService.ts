@@ -6,7 +6,7 @@ import {
   isPastDate,
   isPastDateTime,
   isTimeInRange,
-} from "@/lib/utils/date-time-utils";
+} from "@/lib/utils/date-time/date-time-utils";
 
 import { compareAsc, getDate, getDay } from "date-fns";
 import { Knex } from "knex";

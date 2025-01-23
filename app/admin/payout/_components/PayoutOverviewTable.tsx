@@ -9,7 +9,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { formatDate, getLastMonday } from "@/lib/utils/date-time-utils";
+import {
+  formatDate,
+  getLastMonday,
+} from "@/lib/utils/date-time/date-time-utils";
 import { fetchWithBaseUrl } from "@/lib/utils/fetch-with-base-url";
 import { PayoutMethod, payoutMethod, PayoutStatus } from "@/services/model";
 import { startOfWeek, subDays } from "date-fns";
@@ -46,7 +49,7 @@ const columns: {
   { label: "Payout Action", value: "payoutAction" },
 ];
 
-const PayoutTable = async ({
+const PayoutOverviewTable = async ({
   searchParams,
   defaultStartDate,
   defaultEndDate,
@@ -164,4 +167,4 @@ const PayoutTable = async ({
   );
 };
 
-export default PayoutTable;
+export default PayoutOverviewTable;

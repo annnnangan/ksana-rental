@@ -2,7 +2,7 @@ import {
   convertStringToTime,
   formatDate,
   getHourFromTime,
-} from "@/lib/utils/date-time-utils";
+} from "@/lib/utils/date-time/date-time-utils";
 import { bookingService } from "@/services/BookingService";
 import { compareAsc, format, getDay, parse } from "date-fns";
 import "react-day-picker/style.css";

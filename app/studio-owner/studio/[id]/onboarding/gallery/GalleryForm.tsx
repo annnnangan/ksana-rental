@@ -1,7 +1,7 @@
 "use client";
 import ErrorMessage from "@/app/_components/ErrorMessage";
 import { Button } from "@/components/ui/button";
-import { uploadImage } from "@/lib/utils/s3-image-upload-utils";
+import { uploadImage } from "@/lib/utils/s3-upload/s3-image-upload-utils";
 import { studioGalleryFormData, studioGallerySchema } from "@/lib/validations";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ImageUpIcon } from "lucide-react";

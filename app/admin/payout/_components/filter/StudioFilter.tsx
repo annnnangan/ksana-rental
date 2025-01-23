@@ -94,5 +94,5 @@ const useStudios = () =>
       const result = await res.json();
       return result.data as { name: string; slug: string }[];
     },
-    staleTime: 86400,
+    staleTime: 3 * 24 * 60 * 60 * 1000,
   });

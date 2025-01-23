@@ -1,8 +1,9 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-import PayoutDetailsTabContent from "./_component/details-tab-content/PayoutDetailsTabContent";
-import PayoutOverviewTabContent from "./_component/overview-tab-content/PayoutOverviewTabContent";
-import { StudioPayoutOverviewData } from "./page";
+import PayoutOverviewTabContent from "./overview-tab-content/OverviewTabContent";
+import PayoutDetailsTabContent from "./details-tab-content/DetailsTabContent";
+import { StudioPayoutOverviewData } from "../page";
+import DetailsTabContent from "./details-tab-content/DetailsTabContent";
+import OverviewTabContent from "./overview-tab-content/OverviewTabContent";
 
 interface Props {
   payoutOverview: StudioPayoutOverviewData;
@@ -16,10 +17,10 @@ const PayoutDetailsTab = ({ payoutOverview }: Props) => {
         <TabsTrigger value="details">Details</TabsTrigger>
       </TabsList>
       <TabsContent value="overview">
-        <PayoutOverviewTabContent payoutOverview={payoutOverview} />
+        <OverviewTabContent payoutOverview={payoutOverview} />
       </TabsContent>
       <TabsContent value="details">
-        <PayoutDetailsTabContent />
+        <DetailsTabContent payoutOverview={payoutOverview} />
       </TabsContent>
     </Tabs>
   );

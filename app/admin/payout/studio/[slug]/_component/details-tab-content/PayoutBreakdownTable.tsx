@@ -12,7 +12,7 @@ interface Props<ColumnKeys extends string> {
   values: Array<Record<ColumnKeys, string | boolean | number>>;
 }
 
-const PayoutDetailsTable = <ColumnKeys extends string>({
+const PayoutBreakdownTable = <ColumnKeys extends string>({
   columns,
   values,
 }: Props<ColumnKeys>) => {
@@ -44,4 +44,4 @@ const PayoutDetailsTable = <ColumnKeys extends string>({
   );
 };
 
-export default PayoutDetailsTable;
+export default PayoutBreakdownTable;

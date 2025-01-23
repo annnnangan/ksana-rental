@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { uploadImage } from "@/lib/utils/s3-image-upload-utils";
+import { uploadImage } from "@/lib/utils/s3-upload/s3-image-upload-utils";
 import { studioBasicInfoSchema } from "@/lib/validations";
 import { BasicInfo, districts } from "@/services/model";
 import { zodResolver } from "@hookform/resolvers/zod";
