@@ -3,7 +3,7 @@ import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
-} from "@/components/ui/sidebar";
+} from "@/components/shadcn/sidebar";
 import { CircleGauge, House, Settings2 } from "lucide-react";
 import { NavBar } from "../../../components/side-bar/NavBar";
 

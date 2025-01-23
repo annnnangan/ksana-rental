@@ -1,10 +1,10 @@
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/shadcn/card";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
+} from "@/components/shadcn/accordion";
 
 interface Props {
   finalPayoutAmount: number;

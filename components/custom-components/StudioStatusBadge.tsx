@@ -1,4 +1,4 @@
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/components/shadcn/badge";
 import { StudioStatus } from "@/services/model";
 
 import React from "react";

@@ -3,7 +3,7 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
+} from "@/components/shadcn/accordion";
 import {
   Params,
   StudioPayoutOverviewData,
@@ -12,7 +12,7 @@ import {
 import PayoutBreakdownTable from "./PayoutBreakdownTable";
 import TotalPayoutAmountCard from "./TotalPayoutAmountCard";
 import { getStudioPayoutBreakdownData } from "@/app/_actions/payout/actions";
-import ToastMessageWithRedirect from "@/app/_components/ToastMessageWithRedirect";
+import ToastMessageWithRedirect from "@/components/custom-components/ToastMessageWithRedirect";
 
 // Convert `keyof` to string explicitly
 type DisputeTableKeys = Exclude<keyof typeof DISPUTE_TABLE_COLUMNS, "index"> &

@@ -1,4 +1,4 @@
-import ToastMessageWithRedirect from "@/app/_components/ToastMessageWithRedirect";
+import ToastMessageWithRedirect from "@/components/custom-components/ToastMessageWithRedirect";
 import StepTitle from "../_component/StepTitle";
 import GalleryForm from "./GalleryForm";
 import { studioService } from "@/services/StudioService";

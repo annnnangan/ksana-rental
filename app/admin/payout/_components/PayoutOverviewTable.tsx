@@ -1,5 +1,5 @@
-import ToastMessageWithRedirect from "@/app/_components/ToastMessageWithRedirect";
-import { Button } from "@/components/ui/button";
+import ToastMessageWithRedirect from "@/components/custom-components/ToastMessageWithRedirect";
+import { Button } from "@/components/shadcn/button";
 import {
   Table,
   TableBody,
@@ -8,7 +8,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/components/shadcn/table";
 import {
   formatDate,
   getLastMonday,

@@ -1,6 +1,6 @@
 "use client";
-import ErrorMessage from "@/app/_components/ErrorMessage";
-import { Checkbox } from "@/components/ui/checkbox";
+import ErrorMessage from "@/components/custom-components/ErrorMessage";
+import { Checkbox } from "@/components/shadcn/checkbox";
 import {
   StudioOnBoardingTermsFormData,
   StudioOnBoardingTermsSchema,

@@ -1,5 +1,5 @@
 "use client";
-import { Label } from "@/components/ui/label";
+import { Label } from "@/components/shadcn/label";
 import {
   Select,
   SelectContent,
@@ -8,7 +8,7 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/components/shadcn/select";
 import { districts } from "@/services/model";
 import { MapPin } from "lucide-react";
 import { useSearchParams } from "next/navigation";

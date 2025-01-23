@@ -9,10 +9,9 @@ exports.up = async function (knex) {
     table.increments();
     table.integer("studio_id").unsigned();
     table.foreign("studio_id").references("studio.id");
-    table.integer("studio_payout_detail_id").unsigned();
-    table
-      .foreign("studio_payout_detail_id")
-      .references("studio_payout_detail.id");
+    table.enu("method", ["fps", "payme", "bank-transfer"]).notNullable();
+    table.text("account_name").notNullable();
+    table.text("account_number").notNullable();
     table.enu("status", ["complete"]).notNullable();
     table.date("start_date").notNullable();
     table.date("end_date").notNullable();

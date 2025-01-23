@@ -9,7 +9,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar";
+} from "@/components/shadcn/sidebar";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { string } from "zod";

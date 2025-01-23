@@ -7,13 +7,13 @@ import {
   BreadcrumbLink,
   BreadcrumbSeparator,
   BreadcrumbPage,
-} from "@/components/ui/breadcrumb";
+} from "@/components/shadcn/breadcrumb";
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
-} from "@/components/ui/sidebar";
-import { Separator } from "@/components/ui/separator";
+} from "@/components/shadcn/sidebar";
+import { Separator } from "@/components/shadcn/separator";
 
 import {
   CalendarCheck,

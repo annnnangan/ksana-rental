@@ -1,16 +1,16 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/shadcn/button";
 import { FormEvent, useState } from "react";
 import ImagePreview from "./ImagePreview";
 
 const ProofUploadAndPreview = () => {
-  const [images, setImages] = useState<string[]>([]);
+  const [images, setImages] = useState<File[]>([]);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       //convert FileList to array
-      const files = Array.from(e.target.files);
-      const newImageURLs = files.map((file) => URL.createObjectURL(file));
-      setImages([...images, ...newImageURLs]);
+      const newFiles = Array.from(e.target.files);
+      // const newImageURLs = files.map((file) => URL.createObjectURL(file));
+      setImages([...images, ...newFiles]);
       //reset input after upload
       e.target.value = "";
     }

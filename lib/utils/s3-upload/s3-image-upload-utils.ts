@@ -11,7 +11,9 @@ const computeSHA256 = async (file: File) => {
 export const uploadImage = async (
   file: File,
   imageType: string,
-  studioId: number
+  studioId: number,
+  apiPath: string,
+  httpMethod: string
 ) => {
   const signedURLParams = {
     imageType,
@@ -57,11 +59,11 @@ export const uploadImage = async (
         throw new Error("系統出現錯誤，請重試。");
       }
 
-      const apiPath = imageType !== "gallery" ? "basic-info/images" : "gallery";
+      // const apiPath = imageType !== "gallery" ? "basic-info/images" : "gallery";
 
       // Save the image path to the database
-      await fetch(`/api/studio/${studioId}/${apiPath}`, {
-        method: "PUT",
+      await fetch(`${apiPath}`, {
+        method: `${httpMethod}`,
         headers: {
           "Content-Type": "application/json",
         },

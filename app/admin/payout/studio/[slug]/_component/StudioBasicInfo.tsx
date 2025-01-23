@@ -1,4 +1,4 @@
-import AvatarWithFallback from "@/app/_components/AvatarWithFallback";
+import AvatarWithFallback from "@/components/custom-components/AvatarWithFallback";
 import { StudioPayoutOverviewData } from "../page";
 
 interface Props {

@@ -1,4 +1,9 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/shadcn/tabs";
 import { Params, StudioPayoutOverviewData, StudioPayoutQuery } from "../page";
 import DetailsTabContent from "./details-tab-content/DetailsTabContent";
 import OverviewTabContent from "./overview-tab-content/OverviewTabContent";

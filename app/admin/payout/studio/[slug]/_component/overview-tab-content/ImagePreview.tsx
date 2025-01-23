@@ -3,7 +3,7 @@ import Image from "next/image"; // Ensure you are importing the Image component 
 import { Trash2 } from "lucide-react";
 
 interface Props {
-  images: string[];
+  images: File[] | string[];
   onImageRemove?: (imageToDelete: string) => void;
   isExistingImage: boolean;
 }

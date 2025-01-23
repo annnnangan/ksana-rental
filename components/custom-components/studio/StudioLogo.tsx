@@ -1,4 +1,4 @@
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarImage } from "@/components/shadcn/avatar";
 import React from "react";
 import clsx from "clsx"; // Utility for conditionally combining class names
 

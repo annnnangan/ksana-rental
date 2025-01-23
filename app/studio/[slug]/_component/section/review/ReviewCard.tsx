@@ -1,5 +1,5 @@
-import AvatarWithFallback from "@/app/_components/AvatarWithFallback";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import AvatarWithFallback from "@/components/custom-components/AvatarWithFallback";
+import { Card, CardContent, CardHeader } from "@/components/shadcn/card";
 import ReviewImages from "./ReviewImages";
 import ReviewRating from "./ReviewRating";
 import { Review } from "./ReviewSection";

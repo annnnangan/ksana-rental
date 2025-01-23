@@ -1,6 +1,6 @@
 import { getStudioPayoutOverviewData } from "@/app/_actions/payout/actions";
-import ToastMessageWithRedirect from "@/app/_components/ToastMessageWithRedirect";
-import { Button } from "@/components/ui/button";
+import ToastMessageWithRedirect from "@/components/custom-components/ToastMessageWithRedirect";
+import { Button } from "@/components/shadcn/button";
 import { PayoutMethod, PayoutStatus } from "@/services/model";
 import { CircleChevronLeft } from "lucide-react";
 import Link from "next/link";

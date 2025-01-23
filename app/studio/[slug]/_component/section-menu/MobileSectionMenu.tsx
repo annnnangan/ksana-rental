@@ -1,12 +1,12 @@
 "use client";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/shadcn/button";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/components/shadcn/select";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 

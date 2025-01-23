@@ -1,4 +1,4 @@
-import ErrorMessage from "@/app/_components/ErrorMessage";
+import ErrorMessage from "@/components/custom-components/ErrorMessage";
 import { Trash2 } from "lucide-react";
 import Image from "next/image";
 import { FieldError } from "react-hook-form";
@@ -7,12 +7,20 @@ interface Props {
   images: (string | File)[];
   removeImage: (identifier: string | number) => void;
   error?: FieldError[];
+  gridCol?: number;
+  imageRatio?: string;
 }
 
-const ImagePreview = ({ images, removeImage, error }: Props) => {
+const ImagesGridPreview = ({
+  images,
+  removeImage,
+  error,
+  gridCol = 12,
+  imageRatio = "aspect-video",
+}: Props) => {
   return (
     <div>
-      <div className="grid grid-cols-12 gap-2 my-2">
+      <div className={`grid grid-cols-${gridCol} gap-2 my-2`}>
         {images.map((image, index) => {
           // Determine `src` based on the type of `image`
           const src =
@@ -59,4 +67,4 @@ const ImagePreview = ({ images, removeImage, error }: Props) => {
   );
 };
 
-export default ImagePreview;
+export default ImagesGridPreview;

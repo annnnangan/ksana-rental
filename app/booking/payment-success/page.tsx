@@ -8,7 +8,7 @@ import StudioNameAddress from "../_components/StudioNameAddress";
 import okIcon from "@/public/assets/ok.png";
 import Image from "next/image";
 import ActionButtons from "./ActionButtons";
-import ToastMessageWithRedirect from "@/app/_components/ToastMessageWithRedirect";
+import ToastMessageWithRedirect from "@/components/custom-components/ToastMessageWithRedirect";
 
 //ensure the booking status is confirm
 //get the booking id

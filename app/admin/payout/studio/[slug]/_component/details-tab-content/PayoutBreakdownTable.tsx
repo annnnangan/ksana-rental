@@ -6,7 +6,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/components/shadcn/table";
 
 interface Props<ColumnKeys extends string> {
   columns: Record<ColumnKeys, string | boolean | number>;

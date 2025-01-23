@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import StudioImage from "../../../../../_components/studio/StudioImage";
+import StudioImage from "../../../../../../components/_components/studio/StudioImage";
 import ReviewImageModal from "./ReviewImageModal";
 import { ReviewUserProfile } from "./ReviewSection";
 

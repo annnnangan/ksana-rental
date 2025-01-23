@@ -4,13 +4,13 @@ import { endOfWeek, format, startOfWeek, subDays } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { DateRange } from "react-day-picker";
 
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
+import { Button } from "@/components/shadcn/button";
+import { Calendar } from "@/components/shadcn/calendar";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
+} from "@/components/shadcn/popover";
 import {
   formatDate,
   getLastMonday,

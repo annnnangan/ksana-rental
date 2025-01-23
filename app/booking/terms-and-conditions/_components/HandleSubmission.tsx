@@ -3,7 +3,7 @@ import { Box, Button, Checkbox, Flex, Spinner, Text } from "@radix-ui/themes";
 import React, { useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import SubmissionButtons from "../../_components/SubmissionButtons";
-import ErrorMessage from "@/app/_components/ErrorMessage";
+import ErrorMessage from "@/components/custom-components/ErrorMessage";
 
 const HandleSubmission = () => {
   const [isLoading, setLoading] = useState(false);

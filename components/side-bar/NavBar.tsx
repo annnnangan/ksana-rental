@@ -8,7 +8,7 @@ import {
   SidebarContent,
   SidebarHeader,
   SidebarRail,
-} from "@/components/ui/sidebar";
+} from "@/components/shadcn/sidebar";
 import { NavMain } from "./NavMain";
 import { NavUserMenu } from "./NavUser";
 

@@ -1,5 +1,5 @@
 import React from "react";
-import StudioImage from "../../../../_components/studio/StudioImage";
+import StudioImage from "../../../../../components/_components/studio/StudioImage";
 
 interface Props {
   openListModal: () => void;

@@ -6,7 +6,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/components/shadcn/select";
 import { PayoutStatus } from "@/services/model";
 import { useRouter, useSearchParams } from "next/navigation";
 

@@ -9,15 +9,15 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
+} from "@/components/shadcn/dialog";
+import { Button } from "@/components/shadcn/button";
+import { Label } from "@/components/shadcn/label";
+import { Input } from "@/components/shadcn/input";
 import { studioNameSchema } from "@/lib/validations";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import ErrorMessage from "@/app/_components/ErrorMessage";
+import ErrorMessage from "@/components/custom-components/ErrorMessage";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 type StudioNameFormData = z.infer<typeof studioNameSchema>;
