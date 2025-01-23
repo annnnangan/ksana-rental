@@ -24,21 +24,21 @@ export interface StudioPayoutOverviewData {
   total_payout_amount: number;
 }
 
-interface StudioPayoutQuery {
+export interface StudioPayoutQuery {
   startDate: string;
   endDate: string;
 }
 
-type Params = Promise<{ slug: string }>;
+export type Params = Promise<{ slug: string }>;
 
 interface Props {
   searchParams: Promise<StudioPayoutQuery>;
   params: Params;
 }
 
-const page = async (props: Props) => {
-  const { startDate, endDate } = await props.searchParams;
-  const { slug } = await props.params;
+const page = async ({ searchParams, params }: Props) => {
+  const { startDate, endDate } = await searchParams;
+  const { slug } = await params;
 
   const overviewDataResponse = await getStudioPayoutOverviewData(
     startDate,
@@ -76,7 +76,11 @@ const page = async (props: Props) => {
         <span className="font-bold">Payout Period:</span> {startDate} to{" "}
         {endDate}
       </p>
-      <PayoutDetailsTab payoutOverview={overviewData} />
+      <PayoutDetailsTab
+        payoutOverview={overviewData}
+        searchParams={searchParams}
+        params={params}
+      />
     </div>
   );
 };

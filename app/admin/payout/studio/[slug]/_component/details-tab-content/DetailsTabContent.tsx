@@ -4,65 +4,72 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { StudioPayoutOverviewData } from "../../page";
+import {
+  Params,
+  StudioPayoutOverviewData,
+  StudioPayoutQuery,
+} from "../../page";
 import PayoutBreakdownTable from "./PayoutBreakdownTable";
 import TotalPayoutAmountCard from "./TotalPayoutAmountCard";
+import { getStudioPayoutBreakdownData } from "@/app/_actions/payout/actions";
+import ToastMessageWithRedirect from "@/app/_components/ToastMessageWithRedirect";
+
+// Convert `keyof` to string explicitly
+type DisputeTableKeys = Exclude<keyof typeof DISPUTE_TABLE_COLUMNS, "index"> &
+  string;
+type BookingTableKeys = Exclude<keyof typeof BOOKING_TABLE_COLUMNS, "index"> &
+  string;
+
+// Example: Props using the extracted keys
+export interface PayoutBreakdownData {
+  dispute_transaction_list: Array<
+    Record<DisputeTableKeys, string | boolean | number>
+  >;
+  completed_booking_list: Array<
+    Record<BookingTableKeys, string | boolean | number>
+  >;
+}
 
 interface Props {
   payoutOverview: StudioPayoutOverviewData;
+  searchParams: Promise<StudioPayoutQuery>;
+  params: Params;
 }
 
-const DetailsTabContent = ({
+const DetailsTabContent = async ({
   payoutOverview: {
     total_completed_booking_amount,
     total_dispute_amount,
     total_refund_amount,
     total_payout_amount,
   },
+  searchParams,
+  params,
 }: Props) => {
-  const finalPayoutAmount = 480;
+  const response = await getStudioPayoutBreakdownData(
+    (
+      await searchParams
+    ).startDate,
+    (
+      await searchParams
+    ).endDate,
+    (
+      await params
+    ).slug
+  );
 
-  const disputeTransactions = {
-    dispute_transactions_amount: 365,
-    dispute_transactions_refund_amount: 150,
-    dispute_transactions_list: [
-      {
-        booking_reference_no: "tMZHMAnwBlsvmotRHqiUW",
-        booking_date: "2024-10-02",
-        booking_price: 100,
-        is_complaint: true,
-        complaint_status: "resolved",
-        complaint_resolved_at: "2024-10-25 20:00",
-        is_refund: true,
-        refund_method: "credit",
-        refund_amount: 100,
-      },
-      {
-        booking_reference_no: "tMZHMAnwBlsvmotR",
-        booking_date: "2024-10-02",
-        booking_price: 100,
-        is_complaint: true,
-        complaint_status: "resolved",
-        complaint_resolved_at: "2024-10-25 20:00",
-        is_refund: true,
-        refund_method: "credit",
-        refund_amount: 100,
-      },
-    ],
-  };
+  if (!response.success) {
+    return (
+      <ToastMessageWithRedirect
+        type={"error"}
+        message={response.error.message}
+        redirectPath={"/admin/payout"}
+      />
+    );
+  }
 
-  const completedBooking = {
-    completed_booking_amount: 265,
-    completed_booking_list: [
-      {
-        booking_reference_no: "ISml7JTJvACAkL2SI3hQ3",
-        booking_date: "2024-10-24",
-        booking_price: 165,
-        booking_status: "completed",
-        is_complaint: false,
-      },
-    ],
-  };
+  const breakdownDataList: PayoutBreakdownData =
+    response.success && (response.data as PayoutBreakdownData);
 
   return (
     <div className="flex flex-wrap xl:flex-nowrap gap-5">
@@ -89,7 +96,7 @@ const DetailsTabContent = ({
               <AccordionContent>
                 <PayoutBreakdownTable
                   columns={BOOKING_TABLE_COLUMNS}
-                  values={[]}
+                  values={breakdownDataList.completed_booking_list}
                 />
               </AccordionContent>
             </AccordionItem>
@@ -101,7 +108,7 @@ const DetailsTabContent = ({
               <AccordionContent>
                 <PayoutBreakdownTable
                   columns={DISPUTE_TABLE_COLUMNS}
-                  values={[]}
+                  values={breakdownDataList.dispute_transaction_list}
                 />
               </AccordionContent>
             </AccordionItem>
@@ -135,19 +142,3 @@ const BOOKING_TABLE_COLUMNS = {
   booking_status: "預約狀態",
   is_complaint: "是否投訴",
 } as const;
-
-// // Convert `keyof` to string explicitly
-// type DisputeTableKeys = Exclude<keyof typeof DISPUTE_TABLE_COLUMNS, "index"> &
-//   string;
-// type BookingTableKeys = Exclude<keyof typeof BOOKING_TABLE_COLUMNS, "index"> &
-//   string;
-
-// // Example: Props using the extracted keys
-// interface Props {
-//   disputeTransactionsList: Array<
-//     Record<DisputeTableKeys, string | boolean | number>
-//   >;
-//   completedBookingList: Array<
-//     Record<BookingTableKeys, string | boolean | number>
-//   >;
-// }

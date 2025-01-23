@@ -1,5 +1,6 @@
 "use server";
 
+import { PayoutBreakdownData } from "@/app/admin/payout/studio/[slug]/_component/details-tab-content/DetailsTabContent";
 import { StudioPayoutOverviewData } from "@/app/admin/payout/studio/[slug]/page";
 import { validatePayoutDates } from "@/lib/utils/date-time/payout-date-validation";
 import { payoutService } from "@/services/PayoutService";
@@ -48,5 +49,41 @@ export const getStudioPayoutOverviewData = async (
   return {
     success: true,
     data: allStudiosPayoutOverviewDataResponse.data[0],
+  };
+};
+
+export const getStudioPayoutBreakdownData = async (
+  payoutStartDate: string,
+  payoutEndDate: string,
+  slug: string
+): Promise<ActionDataResponse<PayoutBreakdownData>> => {
+  // Validate payout dates
+  const validateDate = validatePayoutDates(payoutStartDate, payoutEndDate);
+
+  if (!validateDate.success) {
+    return validateDate; // Return validation error
+  }
+
+  // Fetch data from the service
+  const completedBookingResponse =
+    await payoutService.getStudioCompletedBookingList(
+      payoutStartDate,
+      payoutEndDate,
+      slug
+    );
+
+  const disputeTransactionResponse =
+    await payoutService.getStudioDisputeTransactionList(
+      payoutStartDate,
+      payoutEndDate,
+      slug
+    );
+
+  return {
+    success: true,
+    data: {
+      completed_booking_list: completedBookingResponse.data,
+      dispute_transaction_list: disputeTransactionResponse.data,
+    },
   };
 };

@@ -1,15 +1,15 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import PayoutOverviewTabContent from "./overview-tab-content/OverviewTabContent";
-import PayoutDetailsTabContent from "./details-tab-content/DetailsTabContent";
-import { StudioPayoutOverviewData } from "../page";
+import { Params, StudioPayoutOverviewData, StudioPayoutQuery } from "../page";
 import DetailsTabContent from "./details-tab-content/DetailsTabContent";
 import OverviewTabContent from "./overview-tab-content/OverviewTabContent";
 
 interface Props {
   payoutOverview: StudioPayoutOverviewData;
+  searchParams: Promise<StudioPayoutQuery>;
+  params: Params;
 }
 
-const PayoutDetailsTab = ({ payoutOverview }: Props) => {
+const PayoutDetailsTab = ({ payoutOverview, searchParams, params }: Props) => {
   return (
     <Tabs defaultValue="overview" className="w-full">
       <TabsList className="mb-4">
@@ -20,7 +20,11 @@ const PayoutDetailsTab = ({ payoutOverview }: Props) => {
         <OverviewTabContent payoutOverview={payoutOverview} />
       </TabsContent>
       <TabsContent value="details">
-        <DetailsTabContent payoutOverview={payoutOverview} />
+        <DetailsTabContent
+          payoutOverview={payoutOverview}
+          searchParams={searchParams}
+          params={params}
+        />
       </TabsContent>
     </Tabs>
   );

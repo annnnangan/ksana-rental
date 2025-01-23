@@ -236,7 +236,9 @@ export class PayoutService {
         "booking.price AS booking_price",
         "booking.is_complaint",
         "booking_complaint.status AS complaint_status",
-        "booking_complaint.resolved_at AS complaint_resolved_at",
+        knex.raw(
+          "TO_CHAR(booking_complaint.resolved_at, 'YYYY-MM-DD') AS complaint_resolved_at"
+        ),
         "booking_complaint.is_refund",
         "booking_complaint.refund_method",
         "booking_complaint.refund_amount"

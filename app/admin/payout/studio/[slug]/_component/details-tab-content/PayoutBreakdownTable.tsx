@@ -1,6 +1,7 @@
 import {
   Table,
   TableBody,
+  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -20,6 +21,7 @@ const PayoutBreakdownTable = <ColumnKeys extends string>({
     <>
       <p className="mb-2 text-neutral-400">Total Records: {values.length}</p>
       <Table>
+        {values.length === 0 && <TableCaption>- No Records -</TableCaption>}
         <TableHeader>
           <TableRow>
             {(Object.keys(columns) as ColumnKeys[]).map((column) => (
