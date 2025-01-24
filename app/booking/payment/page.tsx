@@ -1,6 +1,6 @@
 import { bookingService } from "@/services/BookingService";
 import StripeWrapper from "./_components/StripeWrapper";
-import ToastMessageWithRedirect from "@/app/_components/ToastMessageWithRedirect";
+import ToastMessageWithRedirect from "@/components/custom-components/ToastMessageWithRedirect";
 
 interface BookingQuery {
   booking: string;

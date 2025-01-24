@@ -1,12 +1,12 @@
 "use client";
-import { Label } from "@/components/ui/label";
+import { Label } from "@/components/shadcn/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/components/shadcn/select";
 import { Clock5 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";

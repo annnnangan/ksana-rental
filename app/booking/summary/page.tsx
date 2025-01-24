@@ -1,4 +1,4 @@
-import ToastMessageWithRedirect from "@/app/_components/ToastMessageWithRedirect";
+import ToastMessageWithRedirect from "@/components/custom-components/ToastMessageWithRedirect";
 import { bookingService } from "@/services/BookingService";
 import { Flex } from "@radix-ui/themes";
 import DateTimeInfo from "../_components/DateTimeInfo";

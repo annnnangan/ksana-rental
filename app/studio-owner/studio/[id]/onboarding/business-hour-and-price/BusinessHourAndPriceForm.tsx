@@ -1,18 +1,18 @@
 "use client";
 
-import ErrorMessage from "@/app/_components/ErrorMessage";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import ErrorMessage from "@/components/custom-components/ErrorMessage";
+import { Badge } from "@/components/shadcn/badge";
+import { Button } from "@/components/shadcn/button";
+import { Input } from "@/components/shadcn/input";
+import { Label } from "@/components/shadcn/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
+} from "@/components/shadcn/select";
+import { Switch } from "@/components/shadcn/switch";
 import {
   studioBusinessHourAndPriceFormData,
   studioBusinessHourAndPriceSchema,

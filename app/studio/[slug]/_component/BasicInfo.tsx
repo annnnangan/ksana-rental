@@ -1,6 +1,6 @@
-import StudioLocation from "@/app/_components/studio/StudioLocation";
-import StudioLogo from "@/app/_components/studio/StudioLogo";
-import StudioRating from "@/app/_components/studio/StudioRating";
+import StudioLocation from "@/components/custom-components/studio/StudioLocation";
+import StudioLogo from "@/components/custom-components/studio/StudioLogo";
+import StudioRating from "@/components/custom-components/studio/StudioRating";
 import { Bookmark, Phone } from "lucide-react";
 import { StudioInfo } from "../page";
 

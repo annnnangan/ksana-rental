@@ -3,10 +3,14 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 
-import ErrorMessage from "@/app/_components/ErrorMessage";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import ErrorMessage from "@/components/custom-components/ErrorMessage";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/shadcn/avatar";
+import { Input } from "@/components/shadcn/input";
+import { Label } from "@/components/shadcn/label";
 import {
   Select,
   SelectContent,
@@ -15,9 +19,9 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { uploadImage } from "@/lib/utils/s3-image-upload-utils";
+} from "@/components/shadcn/select";
+import { Textarea } from "@/components/shadcn/textarea";
+import { uploadImage } from "@/lib/utils/s3-upload/s3-image-upload-utils";
 import { studioBasicInfoSchema } from "@/lib/validations";
 import { BasicInfo, districts } from "@/services/model";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -126,7 +130,9 @@ const BasicInfoForm = ({ basicInfoData, studioId }: Props) => {
           const errorResponse = await uploadImage(
             coverFile,
             "cover_photo",
-            studioId
+            studioId,
+            `/api/studio/${studioId}/basic-info/images`,
+            "PUT"
           );
           if (errorResponse) {
             setCoverFileError(errorResponse);
@@ -135,7 +141,13 @@ const BasicInfoForm = ({ basicInfoData, studioId }: Props) => {
         }
         // Upload logo image
         if (logoFile) {
-          const errorResponse = await uploadImage(logoFile, "logo", studioId);
+          const errorResponse = await uploadImage(
+            logoFile,
+            "logo",
+            studioId,
+            `/api/studio/${studioId}/basic-info/images`,
+            "PUT"
+          );
           if (errorResponse) {
             setLogoFileError(errorResponse);
             throw new Error(errorResponse);

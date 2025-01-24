@@ -1,9 +1,13 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/shadcn/avatar";
 import { Building2, ImageIcon } from "lucide-react";
 import React from "react";
 import Image from "next/image";
 import LinkButton from "@/components/animata/button/link-button";
-import StudioStatusBadge from "@/app/_components/StudioStatusBadge";
+import StudioStatusBadge from "@/components/custom-components/StudioStatusBadge";
 import { MapPin } from "lucide-react";
 import { StudioStatus } from "@/services/model";
 import {

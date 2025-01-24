@@ -1,7 +1,7 @@
 "use client";
-import ErrorMessage from "@/app/_components/ErrorMessage";
-import { Button } from "@/components/ui/button";
-import { uploadImage } from "@/lib/utils/s3-image-upload-utils";
+import ErrorMessage from "@/components/custom-components/ErrorMessage";
+import { Button } from "@/components/shadcn/button";
+import { uploadImage } from "@/lib/utils/s3-upload/s3-image-upload-utils";
 import { studioGalleryFormData, studioGallerySchema } from "@/lib/validations";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ImageUpIcon } from "lucide-react";
@@ -10,8 +10,9 @@ import React, { useRef, useState } from "react";
 import { FieldError, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import SubmitButton from "../_component/SubmitButton";
-import ImagePreview from "./ImagePreview";
+
 import { getOnboardingStep } from "@/lib/utils/get-onboarding-step-utils";
+import ImagesGridPreview from "@/components/custom-components/ImagesGridPreview";
 
 interface Props {
   defaultValues: string[];
@@ -102,7 +103,17 @@ const GalleryForm = ({ defaultValues, studioId }: Props) => {
       const errorResponse = await Promise.all(
         data.gallery
           .filter((image) => image instanceof File) // Only upload File objects (new images)
-          .map(async (image) => await uploadImage(image, "gallery", studioId))
+          .map(
+            async (image) =>
+              await uploadImage(
+                image,
+                "gallery",
+                studioId,
+                `/api/studio/${studioId}/gallery`,
+                "PUT",
+                "studios"
+              )
+          )
       );
 
       const error = errorResponse.filter(
@@ -174,10 +185,12 @@ const GalleryForm = ({ defaultValues, studioId }: Props) => {
       <div className="mb-2">
         <ErrorMessage>{errors.gallery?.message}</ErrorMessage>
       </div>
-      <ImagePreview
+      <ImagesGridPreview
         images={gallery}
         removeImage={removeImage}
         error={errors.gallery as FieldError[] | undefined}
+        imageAlt={"studio image"}
+        allowDeleteImage={true}
       />
       <SubmitButton isSubmitting={isSubmitting} />
     </form>

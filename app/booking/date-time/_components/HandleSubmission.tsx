@@ -1,11 +1,9 @@
 "use client";
+import { formatDate } from "@/lib/utils/date-time/date-time-utils";
 import useBookingStore from "@/stores/BookingStore";
-import { Button, Flex, Spinner } from "@radix-ui/themes";
-import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { revalidatePath } from "next/cache";
+import { useState } from "react";
 import { toast } from "react-toastify";
-import { formatDate } from "@/lib/utils/date-time-utils";
 import SubmissionButtons from "../../_components/SubmissionButtons";
 
 const HandleSubmission = () => {

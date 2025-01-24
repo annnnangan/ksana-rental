@@ -5,7 +5,7 @@ import "react-day-picker/style.css";
 import BookingInfo from "./_components/BookingInfo";
 import Calendar from "./_components/Calendar";
 import GenerateTimeslot from "./_components/GenerateTimeslot";
-import ToastMessageWithRedirect from "../../_components/ToastMessageWithRedirect";
+import ToastMessageWithRedirect from "../../../components/_components/ToastMessageWithRedirect";
 
 export interface timeslotInfo {
   start_time: string;

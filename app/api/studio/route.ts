@@ -1,8 +1,28 @@
 import handleError from "@/lib/handlers/error";
 import { ValidationError } from "@/lib/http-errors";
 import { studioNameSchema } from "@/lib/validations";
+import { studioService } from "@/services/studio/StudioService";
 import { studioCreateService } from "@/services/StudioCreateService";
 import { NextRequest, NextResponse } from "next/server";
+
+export async function GET(request: NextRequest) {
+  try {
+    const allStudiosName = await studioService.getAllStudiosName();
+
+    return NextResponse.json(
+      {
+        success: true,
+        data: allStudiosName.data,
+      },
+      { status: 201 }
+    );
+  } catch (error) {
+    return NextResponse.json(
+      { success: false, error: { message: "系統出現錯誤。" } },
+      { status: 500 }
+    );
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {

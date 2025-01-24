@@ -19,7 +19,7 @@ const GlobalStyle = createGlobalStyle`
 
 // import required modules
 import { FreeMode, Navigation, Thumbs } from "swiper/modules";
-import StudioImage from "../../../../_components/studio/StudioImage";
+import StudioImage from "../../../../../components/_components/studio/StudioImage";
 
 interface Props {
   images: string[];

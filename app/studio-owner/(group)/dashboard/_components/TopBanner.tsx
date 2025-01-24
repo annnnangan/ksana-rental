@@ -1,4 +1,4 @@
-import ProgressBar from "@/app/_components/ProgressBar";
+import ProgressBar from "@/components/custom-components/ProgressBar";
 import SlideArrowButton from "@/components/animata/button/slide-arrow-button";
 import bannerBackground from "@/public/yoga/yoga-horizontal-7.jpg";
 import Image from "next/image";

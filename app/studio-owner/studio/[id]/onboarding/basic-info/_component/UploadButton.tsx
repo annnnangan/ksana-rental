@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/shadcn/button";
 import { ImageUp as ImageUpIcon } from "lucide-react";
 import { allowedImageMineTypes } from "@/lib/validations";
 

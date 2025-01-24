@@ -27,11 +27,12 @@ export type StudioStatus =
   | "closed";
 
 export type BookingStatus =
-  | "confirm"
-  | "cancel"
+  | "confirmed"
+  | "canceled"
   | "pending for payment"
-  | "expire"
-  | "complete";
+  | "expired";
+
+export type PayoutStatus = "pending" | "complete";
 
 export const onBoardingRequiredSteps = [
   "basic-info",
@@ -168,7 +169,8 @@ export type SocialPlatform = "website" | "instagram" | "facebook" | "youtube";
 export type SocialLinks = Partial<Record<SocialPlatform, string>>;
 
 //Payout Method
-export const payoutMethod: { label: string; value: string }[] = [
+export type PayoutMethod = "fps" | "payme" | "bank-transfer";
+export const payoutMethod: { label: string; value: PayoutMethod }[] = [
   {
     label: "FPS",
     value: "fps",

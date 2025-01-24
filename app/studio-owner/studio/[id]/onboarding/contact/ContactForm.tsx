@@ -1,7 +1,7 @@
 "use client";
-import ErrorMessage from "@/app/_components/ErrorMessage";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import ErrorMessage from "@/components/custom-components/ErrorMessage";
+import { Input } from "@/components/shadcn/input";
+import { Label } from "@/components/shadcn/label";
 import { removeCountryCode } from "@/lib/utils/remove-country-code";
 import { studioContactFormData, studioContactSchema } from "@/lib/validations";
 import { SocialLinks, SocialPlatform } from "@/services/model";

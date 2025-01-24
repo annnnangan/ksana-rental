@@ -1,4 +1,4 @@
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea } from "@/components/shadcn/scroll-area";
 import React from "react";
 
 const TermsAndConditions = () => {

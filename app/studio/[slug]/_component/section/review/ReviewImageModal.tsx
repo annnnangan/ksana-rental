@@ -1,15 +1,15 @@
 "use client";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/shadcn/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/components/shadcn/dialog";
 import { CircleX, Grid2x2 } from "lucide-react";
 import GallerySlideshow from "../../gallery/GallerySlideshow";
 import { ReviewUserProfile } from "./ReviewSection";
-import AvatarWithFallback from "@/app/_components/AvatarWithFallback";
+import AvatarWithFallback from "@/components/custom-components/AvatarWithFallback";
 
 interface Props {
   isOpen: boolean;

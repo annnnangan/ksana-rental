@@ -5,6 +5,7 @@ import { Noto_Sans_TC } from "next/font/google";
 import "./globals.css";
 import "./theme-config.css";
 import { ToastContainer } from "react-toastify";
+import QueryClientProvider from "./QueryClientProvider";
 
 const notoSansTC = Noto_Sans_TC({
   subsets: ["latin"], // Include subsets as per your use case
@@ -25,13 +26,13 @@ export default function RootLayout({
   return (
     <html lang="zh-HK" className="scroll-smooth">
       <body className={`${notoSansTC.className} antialiased`}>
-        <Theme accentColor="blue">
+        <QueryClientProvider>
           <main className="container mx-auto px-2 md:px-3 lg:px-5 py-10">
             {children}
           </main>
-        </Theme>
 
-        <ToastContainer />
+          <ToastContainer />
+        </QueryClientProvider>
       </body>
     </html>
   );

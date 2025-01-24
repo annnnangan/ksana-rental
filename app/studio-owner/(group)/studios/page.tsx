@@ -1,4 +1,4 @@
-import ToastMessageWithRedirect from "@/app/_components/ToastMessageWithRedirect";
+import ToastMessageWithRedirect from "@/components/custom-components/ToastMessageWithRedirect";
 import { studioService } from "@/services/StudioService";
 import AddNewStudio from "./AddNewStudio";
 import StudioCard from "./StudioCard";
