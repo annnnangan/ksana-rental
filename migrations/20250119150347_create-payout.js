@@ -15,10 +15,10 @@ exports.up = async function (knex) {
     table.enu("status", ["complete"]).notNullable();
     table.date("start_date").notNullable();
     table.date("end_date").notNullable();
-    table.integer("total_payout_amount").checkPositive();
-    table.integer("completed_booking_amount").checkPositive();
-    table.integer("dispute_amount").checkPositive();
-    table.integer("refund_amount").checkPositive();
+    table.integer("total_payout_amount").notNullable().defaultTo(0);
+    table.integer("completed_booking_amount").notNullable().defaultTo(0);
+    table.integer("dispute_amount").notNullable().defaultTo(0);
+    table.integer("refund_amount").notNullable().defaultTo(0);
     table.text("remarks");
     table.timestamp("payout_at").defaultTo(knex.fn.now());
     table.timestamps(false, true);

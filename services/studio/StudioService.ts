@@ -43,6 +43,25 @@ export class StudioService {
     };
   }
 
+  async getStudioIdBySlug(slug: string) {
+    const studio_id = (
+      await this.knex.select("id").from("studio").where({ slug })
+    )[0]?.id;
+
+    if (!studio_id) {
+      return {
+        success: false,
+        error: { message: "場地不存在" },
+        errorStatus: 404,
+      };
+    }
+
+    return {
+      success: true,
+      data: studio_id,
+    };
+  }
+
   async getAllStudiosName() {
     const studios = await this.knex
       .select("name", "slug")

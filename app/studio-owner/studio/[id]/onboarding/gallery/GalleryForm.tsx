@@ -110,7 +110,8 @@ const GalleryForm = ({ defaultValues, studioId }: Props) => {
                 "gallery",
                 studioId,
                 `/api/studio/${studioId}/gallery`,
-                "PUT"
+                "PUT",
+                "studios"
               )
           )
       );
@@ -188,6 +189,8 @@ const GalleryForm = ({ defaultValues, studioId }: Props) => {
         images={gallery}
         removeImage={removeImage}
         error={errors.gallery as FieldError[] | undefined}
+        imageAlt={"studio image"}
+        allowDeleteImage={true}
       />
       <SubmitButton isSubmitting={isSubmitting} />
     </form>

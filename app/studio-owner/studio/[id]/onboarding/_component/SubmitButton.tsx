@@ -4,12 +4,18 @@ import React from "react";
 
 interface Props {
   isSubmitting: boolean;
+  submittingText?: string;
+  nonSubmittingText?: string;
 }
 
-const SubmitButton = ({ isSubmitting }: Props) => {
+const SubmitButton = ({
+  isSubmitting,
+  submittingText = "資料儲存中...",
+  nonSubmittingText = "往下一步",
+}: Props) => {
   return (
     <Button type="submit" className="mt-5 px-12" disabled={isSubmitting}>
-      {isSubmitting ? "資料儲存中..." : "往下一步"}
+      {isSubmitting ? submittingText : nonSubmittingText}
       {isSubmitting ? <Loader2 className="animate-spin" /> : <MoveRight />}
     </Button>
   );

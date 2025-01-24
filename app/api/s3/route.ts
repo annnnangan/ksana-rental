@@ -22,6 +22,8 @@ type GetSignedURLParams = {
   fileSize: number;
   checksum: string;
   studioId: number;
+  payoutId: string;
+  folderName: string;
 };
 
 //Create AWS signed url
@@ -34,6 +36,7 @@ export async function POST(request: NextRequest) {
       fileSize,
       checksum,
       studioId,
+      folderName,
     }: GetSignedURLParams = await request.json();
 
     const maxImageSize =
@@ -54,7 +57,7 @@ export async function POST(request: NextRequest) {
 
     const putObjectCommand = new PutObjectCommand({
       Bucket: process.env.AWS_BUCKET_NAME!,
-      Key: fileName,
+      Key: `${folderName}/${fileName}`,
       ContentType: fileType,
       ContentLength: fileSize,
       ChecksumSHA256: checksum,
@@ -89,6 +92,7 @@ export async function DELETE(request: NextRequest) {
     // Send the delete command
     await s3Client.send(command);
     return NextResponse.json({ success: true, data: "" }, { status: 201 });
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (err) {
     throw new Error("Failed to delete the file from S3");
   }

@@ -13,13 +13,16 @@ export const uploadImage = async (
   imageType: string,
   studioId: number,
   apiPath: string,
-  httpMethod: string
+  httpMethod: string,
+  folderName: string,
+  payoutId: number | string | undefined = undefined
 ) => {
   const signedURLParams = {
     imageType,
     originalFileName: file.name,
     fileType: file.type,
     fileSize: file.size,
+    folderName,
     checksum: await computeSHA256(file),
     studioId,
   };
@@ -70,6 +73,8 @@ export const uploadImage = async (
         body: JSON.stringify({
           imageType,
           imageUrl: signedURL.split("?")[0],
+          studioId,
+          payoutId,
         }),
       });
     }

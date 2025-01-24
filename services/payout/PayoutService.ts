@@ -1,7 +1,8 @@
 import { knex } from "@/services/knex";
 import { Knex } from "knex";
-import { validateStudioService } from "./studio/ValidateStudio";
-import { PayoutMethod, PayoutStatus } from "./model";
+import { validateStudioService } from "../studio/ValidateStudio";
+import { PayoutMethod, PayoutStatus } from "../model";
+import { studioService } from "../studio/StudioService";
 
 export class PayoutService {
   constructor(private knex: Knex) {}
@@ -98,6 +99,7 @@ export class PayoutService {
 
     specific_payout AS (
       SELECT 
+          id,
           studio_id, 
           status
       FROM payout
@@ -196,6 +198,47 @@ export class PayoutService {
     };
   }
 
+  async getStudioPayoutProof(
+    payoutStartDate: string,
+    payoutEndDate: string,
+    slug: string
+  ) {
+    if (slug) {
+      // Validate if the studio exists by slug
+      const validationResponse =
+        await validateStudioService.validateIsStudioExistBySlug(slug);
+
+      if (!validationResponse.success) {
+        // Return error immediately if the studio doesn't exist
+        return {
+          success: false,
+          error: { message: validationResponse?.error?.message },
+        };
+      }
+    }
+
+    const proof_image_urls = (
+      await this.knex
+        .select("studio.id", "studio.slug")
+        .select(
+          this.knex.raw(
+            "array_agg(payout_proof.proof_image_url) as proof_image_urls"
+          )
+        )
+        .from("payout_proof")
+        .leftJoin("payout", "payout_proof.payout_id", "payout.id")
+        .leftJoin("studio", "payout.studio_id", "studio.id")
+        .where({
+          "payout.start_date": payoutStartDate,
+          "payout.end_date": payoutEndDate,
+          "studio.slug": slug,
+        })
+        .groupBy("studio.id", "studio.slug")
+    )[0];
+
+    return { success: true, data: proof_image_urls };
+  }
+
   async getStudioCompletedBookingList(
     payoutStartDate: string,
     payoutEndDate: string,
@@ -258,6 +301,78 @@ export class PayoutService {
     return {
       success: true,
       data: dispute_booking_list,
+    };
+  }
+
+  async createPayoutRecord(data: PayoutCompleteRecordType) {
+    const {
+      slug,
+      method,
+      account_name,
+      account_number,
+      payoutStartDate,
+      payoutEndDate,
+      total_payout_amount,
+      completed_booking_amount,
+      dispute_amount,
+      refund_amount,
+      remarks,
+    } = data;
+    //return studio id by studio slug
+
+    const studioIdResponse = await studioService.getStudioIdBySlug(slug);
+
+    if (!studioIdResponse.success) {
+      return studioIdResponse;
+    }
+
+    const studio_id = studioIdResponse.data;
+
+    const insertedData = await this.knex
+      .insert({
+        studio_id,
+        method,
+        account_name,
+        account_number,
+        status: "complete",
+        start_date: payoutStartDate,
+        end_date: payoutEndDate,
+        total_payout_amount,
+        completed_booking_amount,
+        dispute_amount,
+        refund_amount,
+        remarks,
+      })
+      .into("payout")
+      .returning("id");
+
+    console.log("hello2");
+
+    console.log(insertedData);
+    const payout_id = insertedData[0].id;
+
+    return {
+      success: true,
+      data: { payout_id, studio_id },
+    };
+  }
+
+  async createPayoutProofRecord(data: PayoutProofRecordType) {
+    const { payout_id, proof_image_url } = data;
+
+    const insertedData = await this.knex
+      .insert({
+        payout_id,
+        proof_image_url,
+      })
+      .into("payout_proof")
+      .returning("id");
+
+    const payout_proof_id = insertedData;
+
+    return {
+      success: true,
+      data: { payout_proof_id },
     };
   }
 }
