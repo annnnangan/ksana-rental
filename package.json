@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "data": "yarn knex migrate:rollback && yarn knex migrate:latest && yarn knex seed:run"
+    "data": "yarn knex migrate:rollback && yarn knex migrate:latest && yarn knex seed:run",
+    "migration": "yarn knex migrate:rollback && yarn knex migrate:latest"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.703.0",
@@ -60,11 +61,13 @@
     "react-hook-form": "^7.54.0",
     "react-icons": "^5.4.0",
     "react-toastify": "^10.0.6",
+    "resend": "^4.1.1",
     "stripe": "^17.4.0",
     "styled-components": "^6.1.14",
     "swiper": "^11.2.0",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
+    "uuid": "^11.0.5",
     "zod": "^3.23.8",
     "zustand": "^5.0.1"
   },
@@ -73,6 +76,7 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "@types/react-image-gallery": "^1.2.4",
+    "@types/uuid": "^10.0.0",
     "eslint": "^8",
     "eslint-config-next": "15.0.3",
     "postcss": "^8",
