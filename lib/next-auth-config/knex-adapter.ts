@@ -14,8 +14,13 @@ export { Adapter, Knex };
 export function KnexAdapter(knex: Knex): Adapter {
   return {
     async createUser(user) {
+      const { emailVerified, ...updatedUserObject } = user;
+
       // Insert user data into `User` table
-      await knex("users").insert(user);
+      await knex("users").insert({
+        ...updatedUserObject,
+        email_verified: user.emailVerified,
+      });
 
       // Get the full row that was just inserted
       const dbUsers = await knex("users")
@@ -89,7 +94,12 @@ export function KnexAdapter(knex: Knex): Adapter {
     },
     async linkAccount(account) {
       // Insert account data into `Account` table
-      await knex("account").insert(account);
+      const { providerAccountId, userId, ...updatedAccountObject } = account;
+      await knex("account").insert({
+        ...updatedAccountObject,
+        provider_account_id: providerAccountId,
+        user_id: userId,
+      });
 
       // Get the row that was just inserted
       const dbAccounts = await knex("account")

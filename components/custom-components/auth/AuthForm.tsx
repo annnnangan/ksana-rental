@@ -25,7 +25,7 @@ import { AUTH_FIELD_NAMES, AUTH_FIELD_TYPES } from "@/lib/constants/auth";
 import Link from "next/link";
 import { useState, useTransition } from "react";
 import AuthResponse from "./AuthResponse";
-import SocialLogin from "./SocialLogin";
+import { SocialLogin } from "./SocialLogin";
 
 interface Props<T extends FieldValues> {
   schema: ZodType<T>;

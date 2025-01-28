@@ -10,7 +10,7 @@ exports.up = async function (knex) {
     table.text("name").notNullable();
     table.text("email").notNullable().unique();
     table.timestamp("email_verified");
-    table.text("password").notNullable();
+    table.text("password");
     table.text("image");
     table
       .enu("status", ["pending", "active", "suspend"])

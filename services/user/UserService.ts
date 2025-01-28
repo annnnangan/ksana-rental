@@ -19,6 +19,21 @@ export class UserService {
     }
   }
 
+  async getUserById(userId: string) {
+    try {
+      const user = (
+        await this.knex.select("*").from("users").where({ id: userId })
+      )[0];
+
+      return {
+        success: true,
+        data: user,
+      };
+    } catch {
+      return null;
+    }
+  }
+
   async createNewUser(data: {
     name: string;
     email: string;
@@ -38,6 +53,13 @@ export class UserService {
       success: true,
       data: insertedData[0].id,
     };
+  }
+
+  async updateEmailVerifiedTimestamp(userId: string) {
+    console.log("hello");
+    await this.knex("users")
+      .where({ id: userId })
+      .update({ email_verified: new Date() });
   }
 }
 
