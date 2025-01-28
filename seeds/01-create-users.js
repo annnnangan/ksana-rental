@@ -15,7 +15,7 @@ exports.seed = async function (knex) {
       password: "123456",
       image: "",
       status: "active",
-      role: "studio owner",
+      role: "user",
       login_method: "credential",
     },
     {
@@ -25,7 +25,7 @@ exports.seed = async function (knex) {
       password: "123456",
       image: "",
       status: "active",
-      role: "rental user",
+      role: "user",
       login_method: "credential",
     },
     {

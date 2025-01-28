@@ -11,9 +11,7 @@ import {
 } from "react-hook-form";
 import { ZodType } from "zod";
 
-import Link from "next/link";
-import { AUTH_FIELD_NAMES, AUTH_FIELD_TYPES } from "@/lib/constants/auth";
-import { useRouter } from "next/navigation";
+import { Button } from "@/components/shadcn/button";
 import {
   Form,
   FormControl,
@@ -23,13 +21,20 @@ import {
   FormMessage,
 } from "@/components/shadcn/form";
 import { Input } from "@/components/shadcn/input";
-import { Button } from "@/components/shadcn/button";
+import { AUTH_FIELD_NAMES, AUTH_FIELD_TYPES } from "@/lib/constants/auth";
+import Link from "next/link";
+import { useState, useTransition } from "react";
+import AuthResponse from "./AuthResponse";
 import SocialLogin from "./SocialLogin";
 
 interface Props<T extends FieldValues> {
   schema: ZodType<T>;
   defaultValues: T;
-  onSubmit: (data: T) => Promise<{ success: boolean; error?: string }>;
+  onSubmit: (data: T) => Promise<{
+    success: boolean;
+    data?: { message: string };
+    error?: { message: string };
+  }>;
   type: "LOGIN" | "REGISTER";
 }
 
@@ -39,7 +44,10 @@ const AuthForm = <T extends FieldValues>({
   defaultValues,
   onSubmit,
 }: Props<T>) => {
-  const router = useRouter();
+  // const router = useRouter();
+  const [error, setError] = useState<string | undefined>("");
+  const [success, setSuccess] = useState<string | undefined>("");
+  const [isPending, startTransition] = useTransition();
 
   const isLogin = type === "LOGIN";
 
@@ -48,25 +56,15 @@ const AuthForm = <T extends FieldValues>({
     defaultValues: defaultValues as DefaultValues<T>,
   });
 
-  const handleSubmit: SubmitHandler<T> = async (data) => {
-    const result = await onSubmit(data);
-
-    if (result.success) {
-      //   toast({
-      //     title: "Success",
-      //     description: isSignIn
-      //       ? "You have successfully signed in."
-      //       : "You have successfully signed up.",
-      // });
-
-      router.push("/");
-    } else {
-      //   toast({
-      //     title: `Error ${isSignIn ? "signing in" : "signing up"}`,
-      //     description: result.error ?? "An error occurred.",
-      //     variant: "destructive",
-      //   });
-    }
+  const handleSubmit: SubmitHandler<T> = async (values) => {
+    setError("");
+    setSuccess("");
+    startTransition(() => {
+      onSubmit(values).then((data) => {
+        setError(data?.error?.message);
+        setSuccess(data?.data?.message);
+      });
+    });
   };
 
   return (
@@ -120,14 +118,13 @@ const AuthForm = <T extends FieldValues>({
                   </FormLabel>
                   <FormControl>
                     <Input
-                      required
+                      disabled={isPending}
                       type={
                         AUTH_FIELD_TYPES[
                           field.name as keyof typeof AUTH_FIELD_TYPES
                         ]
                       }
                       {...field}
-                      className="form-input"
                     />
                   </FormControl>
                   <FormMessage />
@@ -136,7 +133,11 @@ const AuthForm = <T extends FieldValues>({
             />
           ))}
 
-          <Button type="submit" className="w-full">
+          <AuthResponse type="error" message={error} />
+
+          <AuthResponse type="success" message={success} />
+
+          <Button type="submit" className="w-full" disabled={isPending}>
             {isLogin ? "登入" : "創建帳號"}
           </Button>
         </form>

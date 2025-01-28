@@ -25,7 +25,7 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
       redirectTo: DEFAULT_LOGIN_REDIRECT,
     });
 
-    return { success: true };
+    return { success: true, data: { message: "Login success" } };
   } catch (error) {
     if (error instanceof AuthError) {
       switch (error.type) {
@@ -52,7 +52,7 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  const existingUser = await userService.getUserByEmail(email);
+  const existingUser = (await userService.getUserByEmail(email))?.data;
 
   if (existingUser) {
     return { success: false, error: { message: "Email already in use" } };
@@ -66,5 +66,5 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
 
   //TODO: Send verification token email
 
-  return { success: true };
+  return { success: true, data: { message: "Register success" } };
 };

@@ -14,20 +14,14 @@ export default {
         if (validateFields.success) {
           const { email, password } = validateFields.data;
           // Check if there is such user in database by the email
-          console.log(email, password);
-          const user = await userService.getUserByEmail(email);
-
-          console.log(user);
+          const user = (await userService.getUserByEmail(email))?.data;
           // If user use google/github to register, then they don't have password.
           // In this case, we don't allow them to use the credential login
-          if (!user || !user.data.password) return null;
+          if (!user || !user.password) return null;
           // Check if the password match for that user
-          const passwordsMatch = await bcrypt.compare(
-            password,
-            user.data.password
-          );
+          const passwordsMatch = await bcrypt.compare(password, user.password);
 
-          if (passwordsMatch) return user.data;
+          if (passwordsMatch) return user;
         }
 
         return null;

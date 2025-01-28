@@ -9,10 +9,10 @@ const RegisterPage = () => (
     type="REGISTER"
     schema={RegisterSchema}
     defaultValues={{
+      name: "",
       email: "",
       password: "",
       confirmPassword: "",
-      name: "",
     }}
     onSubmit={register}
   />
