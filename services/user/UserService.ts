@@ -56,7 +56,6 @@ export class UserService {
   }
 
   async updateEmailVerifiedTimestamp(userId: string) {
-    console.log("hello");
     await this.knex("users")
       .where({ id: userId })
       .update({ email_verified: new Date() });

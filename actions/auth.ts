@@ -10,6 +10,7 @@ import { signIn } from "@/lib/next-auth-config/auth";
 import { LoginSchema, RegisterSchema } from "@/lib/zod-schema/auth";
 import { generateVerificationToken } from "@/lib/utils/generate-verification-token";
 import { sendVerificationEmail } from "@/lib/mail";
+import { verificationService } from "@/services/user/VerificationService";
 
 export const login = async (values: z.infer<typeof LoginSchema>) => {
   const validateFields = LoginSchema.safeParse(values);
@@ -28,8 +29,6 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
     const verificationToken = await generateVerificationToken(
       existingUser.email
     );
-
-    console.log(verificationToken);
 
     await sendVerificationEmail(
       verificationToken.email,
@@ -108,5 +107,56 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
   return {
     success: true,
     data: { message: "電郵驗證已傳送，驗證電郵後才可登入。" },
+  };
+};
+
+export const newVerification = async (token: string) => {
+  const existingToken = (
+    await verificationService.getVerificationTokenByToken(token)
+  )?.data;
+
+  if (!existingToken) {
+    return { success: false, error: { message: "驗證碼錯誤，無法驗證。" } };
+  }
+  //Check if the verification token is expired
+  const hasExpired = new Date(existingToken.expires) < new Date();
+  if (hasExpired) {
+    return { success: false, error: { message: "驗證碼已過期，無法驗證。" } };
+  }
+
+  const existingUser = (await userService.getUserByEmail(existingToken.email))
+    ?.data;
+
+  if (!existingUser) {
+    return { success: false, error: { message: "驗證碼錯誤，無法驗證。" } };
+  }
+
+  //Update the verification time on user table
+  await userService.updateEmailVerifiedTimestamp(existingUser.id);
+
+  //delete the verification token in the database after it is success
+  await verificationService.deleteVerificationToken(token);
+
+  return { success: true, data: { message: "驗證成功。" } };
+};
+
+export const resendVerification = async (token: string) => {
+  //Check if the verification code exist
+  const isExistingToken = (
+    await verificationService.getVerificationTokenByToken(token)
+  )?.data;
+
+  if (!isExistingToken)
+    return { success: false, error: { message: "驗證碼錯誤，無法重新發送。" } };
+  //Generate the verification token
+  const verificationToken = await generateVerificationToken(
+    isExistingToken.email
+  );
+  //Send verification token email with the above token
+  await sendVerificationEmail(verificationToken.email, verificationToken.token);
+
+  return {
+    success: true,
+    data: { message: "電郵驗證已傳送，驗證碼有效1小時。" },
   };
 };
