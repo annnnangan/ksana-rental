@@ -1,5 +1,3 @@
-import { Theme, ThemePanel } from "@radix-ui/themes";
-import "@radix-ui/themes/styles.css";
 import type { Metadata } from "next";
 import { Noto_Sans_TC } from "next/font/google";
 import "./globals.css";
@@ -27,9 +25,7 @@ export default function RootLayout({
     <html lang="zh-HK" className="scroll-smooth">
       <body className={`${notoSansTC.className} antialiased`}>
         <QueryClientProvider>
-          <main className="container mx-auto px-2 md:px-3 lg:px-5 py-10">
-            {children}
-          </main>
+          <main className="mx-auto">{children}</main>
 
           <ToastContainer />
         </QueryClientProvider>
@@ -37,3 +33,5 @@ export default function RootLayout({
     </html>
   );
 }
+// px-2 md:px-3 lg:px-5 py-10
+// container;

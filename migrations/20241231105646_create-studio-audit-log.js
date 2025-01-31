@@ -9,7 +9,7 @@ exports.up = async function (knex) {
     table.increments();
     table.integer("studio_id").unsigned();
     table.foreign("studio_id").references("studio.id");
-    table.integer("user_id").unsigned();
+    table.uuid("user_id").unsigned();
     table.foreign("user_id").references("users.id");
     table.enu("operation", ["create", "delete", "update"]).notNullable();
     table.enu("type", ["status", "timeblock", "studio_details"]).notNullable();

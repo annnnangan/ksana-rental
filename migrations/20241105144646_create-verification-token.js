@@ -2,21 +2,14 @@
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
-const tableName = "users";
+const tableName = "verification_token";
 exports.up = async function (knex) {
   await knex.schema.createTable(tableName, (table) => {
     table.uuid("id").defaultTo(knex.fn.uuid());
-    table.primary("id");
-    table.text("name").notNullable();
-    table.text("email").notNullable().unique();
-    table.timestamp("email_verified");
-    table.text("password");
-    table.text("image");
-    table
-      .enu("status", ["pending", "active", "suspend"])
-      .notNullable()
-      .defaultTo("pending");
-    table.enu("role", ["admin", "user"]).notNullable().defaultTo("user");
+    table.text("email").notNullable();
+    table.string("token").notNullable();
+    table.timestamp("expires");
+    table.unique(["token", "email"]);
     table.timestamps(false, true);
   });
   await knex.raw(`

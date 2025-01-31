@@ -7,7 +7,7 @@ const tableName = "studio";
 exports.up = async function (knex) {
   await knex.schema.createTable(tableName, (table) => {
     table.increments();
-    table.integer("user_id").unsigned();
+    table.uuid("user_id").unsigned();
     table.foreign("user_id").references("users.id");
     table.text("logo");
     table.text("cover_photo");

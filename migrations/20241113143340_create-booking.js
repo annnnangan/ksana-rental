@@ -12,7 +12,7 @@ exports.up = async function (knex) {
       .notNullable()
       .unique()
       .defaultTo(knex.raw("nanoid('')"));
-    table.integer("user_id").unsigned();
+    table.uuid("user_id").unsigned();
     table.foreign("user_id").references("users.id");
     table.integer("studio_id").unsigned();
     table.foreign("studio_id").references("studio.id");
