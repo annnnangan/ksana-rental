@@ -4,6 +4,8 @@ import "./globals.css";
 import "./theme-config.css";
 import { ToastContainer } from "react-toastify";
 import QueryClientProvider from "./QueryClientProvider";
+import { SessionProvider } from "next-auth/react";
+import NavBar from "@/components/custom-components/layout-nav-bar/NavBar";
 
 const notoSansTC = Noto_Sans_TC({
   subsets: ["latin"], // Include subsets as per your use case
@@ -25,9 +27,12 @@ export default function RootLayout({
     <html lang="zh-HK" className="scroll-smooth">
       <body className={`${notoSansTC.className} antialiased`}>
         <QueryClientProvider>
-          <main className="mx-auto">{children}</main>
+          <SessionProvider>
+            <NavBar />
+            <main className="mx-auto">{children}</main>
 
-          <ToastContainer />
+            <ToastContainer />
+          </SessionProvider>
         </QueryClientProvider>
       </body>
     </html>

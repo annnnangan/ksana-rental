@@ -34,6 +34,22 @@ export class UserService {
     }
   }
 
+  async countStudioByUserId(userId: string) {
+    try {
+      const studio = await this.knex
+        .select("*")
+        .from("studio")
+        .where({ user_id: userId });
+
+      return {
+        success: true,
+        data: { studio_count: studio.length },
+      };
+    } catch {
+      return null;
+    }
+  }
+
   async createNewUser(data: {
     name: string;
     email: string;
