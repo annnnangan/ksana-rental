@@ -3,18 +3,24 @@
  * @returns { Promise<void> }
  */
 
-function convertStringToTime(time) {
-  let date = new Date(`01/01/2022 ${time}`);
-  let formattedTime = date.toLocaleTimeString("en-US", { hour12: false });
-  return formattedTime;
-}
-
 exports.seed = async function (knex) {
   // Deletes ALL existing entries
   await knex("booking").del();
+
+  // Fetch all user IDs from the users table
+  const users = await knex("users").select("id");
+
+  if (users.length === 0) {
+    console.error("No users found! Ensure you have users in the database.");
+    return;
+  }
+
+  // Map users to make assignments easier
+  const userIdList = users.map((user) => user.id);
+
   await knex("booking").insert([
     {
-      user_id: 2,
+      user_id: userIdList[1],
       studio_id: 1,
       date: new Date("2025-01-06"),
       start_time: "10:00",
@@ -27,7 +33,7 @@ exports.seed = async function (knex) {
       stripe_payment_id: "pi_3QOf4WE9TWOIiP7J007pRGwF",
     },
     {
-      user_id: 5,
+      user_id: userIdList[4],
       studio_id: 1,
       date: new Date("2025-01-06"),
       start_time: "14:00",
@@ -40,7 +46,7 @@ exports.seed = async function (knex) {
       stripe_payment_id: "pi_3QOf4WE9TWOIiP7J007pRGwF",
     },
     {
-      user_id: 6,
+      user_id: userIdList[5],
       studio_id: 1,
       date: new Date("2025-01-07"),
       start_time: "10:00",
@@ -53,7 +59,7 @@ exports.seed = async function (knex) {
       stripe_payment_id: "pi_3QOf4WE9TWOIiP7J007pRGwF",
     },
     {
-      user_id: 2,
+      user_id: userIdList[1],
       studio_id: 1,
       date: new Date("2025-01-07"),
       start_time: "15:00",
@@ -66,7 +72,7 @@ exports.seed = async function (knex) {
       stripe_payment_id: "pi_3QOf4WE9TWOIiP7J007pRGwF",
     },
     {
-      user_id: 5,
+      user_id: userIdList[4],
       studio_id: 1,
       date: new Date("2025-01-08"),
       start_time: "09:00",
@@ -79,7 +85,7 @@ exports.seed = async function (knex) {
       stripe_payment_id: "pi_3QOf4WE9TWOIiP7J007pRGwF",
     },
     {
-      user_id: 6,
+      user_id: userIdList[5],
       studio_id: 1,
       date: new Date("2025-01-10"),
       start_time: "13:00",
@@ -92,7 +98,7 @@ exports.seed = async function (knex) {
       stripe_payment_id: "pi_3QOf4WE9TWOIiP7J007pRGwF",
     },
     {
-      user_id: 2,
+      user_id: userIdList[1],
       studio_id: 1,
       date: new Date("2025-01-13"),
       start_time: "16:00",
@@ -105,7 +111,7 @@ exports.seed = async function (knex) {
       stripe_payment_id: "pi_3QOf4WE9TWOIiP7J007pRGwF",
     },
     {
-      user_id: 5,
+      user_id: userIdList[4],
       studio_id: 2,
       date: new Date("2025-01-10"),
       start_time: "12:00",
@@ -118,7 +124,7 @@ exports.seed = async function (knex) {
       stripe_payment_id: "pi_3QOf4WE9TWOIiP7J007pRGwF",
     },
     {
-      user_id: 6,
+      user_id: userIdList[5],
       studio_id: 2,
       date: new Date("2025-01-09"),
       start_time: "11:00",
@@ -131,7 +137,7 @@ exports.seed = async function (knex) {
       stripe_payment_id: "pi_3QOf4WE9TWOIiP7J007pRGwF",
     },
     {
-      user_id: 2,
+      user_id: userIdList[1],
       studio_id: 2,
       date: new Date("2025-01-08"),
       start_time: "10:00",
@@ -144,7 +150,7 @@ exports.seed = async function (knex) {
       stripe_payment_id: "pi_3QOf4WE9TWOIiP7J007pRGwF",
     },
     {
-      user_id: 5,
+      user_id: userIdList[4],
       studio_id: 2,
       date: new Date("2025-01-15"),
       start_time: "14:00",
@@ -157,7 +163,7 @@ exports.seed = async function (knex) {
       stripe_payment_id: "pi_3QOf4WE9TWOIiP7J007pRGwF",
     },
     {
-      user_id: 6,
+      user_id: userIdList[5],
       studio_id: 3,
       date: new Date("2025-01-08"),
       start_time: "09:00",
@@ -170,7 +176,7 @@ exports.seed = async function (knex) {
       stripe_payment_id: "pi_3QOf4WE9TWOIiP7J007pRGwF",
     },
     {
-      user_id: 2,
+      user_id: userIdList[1],
       studio_id: 3,
       date: new Date("2025-01-06"),
       start_time: "11:00",
@@ -183,7 +189,7 @@ exports.seed = async function (knex) {
       stripe_payment_id: "pi_3QOf4WE9TWOIiP7J007pRGwF",
     },
     {
-      user_id: 5,
+      user_id: userIdList[4],
       studio_id: 3,
       date: new Date("2025-01-10"),
       start_time: "15:00",
@@ -196,7 +202,7 @@ exports.seed = async function (knex) {
       stripe_payment_id: "pi_3QOf4WE9TWOIiP7J007pRGwF",
     },
     {
-      user_id: 6,
+      user_id: userIdList[5],
       studio_id: 4,
       date: new Date("2025-01-03"),
       start_time: "13:00",
@@ -209,7 +215,7 @@ exports.seed = async function (knex) {
       stripe_payment_id: "pi_3QOf4WE9TWOIiP7J007pRGwF",
     },
     {
-      user_id: 2,
+      user_id: userIdList[1],
       studio_id: 4,
       date: new Date("2025-01-09"),
       start_time: "09:00",

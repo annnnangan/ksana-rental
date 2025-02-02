@@ -6,11 +6,18 @@ interface Props {
   href: string;
   children: React.ReactNode;
   className?: string;
+  variant?:
+    | "link"
+    | "default"
+    | "destructive"
+    | "outline"
+    | "secondary"
+    | "ghost";
 }
 
-const ButtonLink = ({ href, children, className }: Props) => {
+const ButtonLink = ({ href, children, className, variant = "link" }: Props) => {
   return (
-    <Button variant="link" type="button" className={className}>
+    <Button variant={variant} type="button" className={className}>
       <Link href={href}>{children}</Link>
     </Button>
   );

@@ -5,9 +5,27 @@
 exports.seed = async function (knex) {
   // Deletes ALL existing entries
   await knex("studio").del();
+
+  // Fetch all user IDs from the users table
+  const users = await knex("users").select("id");
+
+  if (users.length === 0) {
+    console.error("No users found! Ensure you have users in the database.");
+    return;
+  }
+
+  // Map users to make assignments easier
+  const userIdList = users.map((user) => user.id);
+  //1st user = 2
+  //2nd user = 0
+  //3rd user = 3
+  //4th user = 0
+  //5th user = 3
+  //6th user = 0
+
   await knex("studio").insert([
     {
-      user_id: 1,
+      user_id: userIdList[0],
       logo: "https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/seed-photo/soul-yogi/soul-yogi-logo.png",
       cover_photo:
         "https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/seed-photo/soul-yogi/soul-yogi-cover.jpg",
@@ -27,7 +45,7 @@ exports.seed = async function (knex) {
       door_password: "859304#",
     },
     {
-      user_id: 1,
+      user_id: userIdList[0],
       logo: "https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/seed-photo/olivia/olivia-logo.png",
       cover_photo:
         "https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/seed-photo/olivia/olivia-cover.jpg",
@@ -46,7 +64,7 @@ exports.seed = async function (knex) {
       door_password: "859304#",
     },
     {
-      user_id: 3,
+      user_id: userIdList[2],
       logo: "https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/seed-photo/zen-oasis/zen-oasis-logo.png",
       cover_photo:
         "https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/seed-photo/zen-oasis/zen-oasis-cover.jpg",
@@ -65,7 +83,7 @@ exports.seed = async function (knex) {
       door_password: "859304#",
     },
     {
-      user_id: 3,
+      user_id: userIdList[2],
       logo: "https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/seed-photo/larana/larana-logo.png",
       cover_photo:
         "https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/seed-photo/larana/larana-cover.jpg",
@@ -84,7 +102,7 @@ exports.seed = async function (knex) {
       door_password: "859304#",
     },
     {
-      user_id: 1,
+      user_id: userIdList[2],
       logo: "https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/seed-photo/acro/acro-yoga-logo.png",
       cover_photo:
         "https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/seed-photo/acro/acro-yoga-cover.jpg",
@@ -102,7 +120,7 @@ exports.seed = async function (knex) {
       door_password: "627493#",
     },
     {
-      user_id: 4,
+      user_id: userIdList[4],
       logo: "https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/seed-photo/nala/nala-logo.png",
       cover_photo:
         "https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/seed-photo/nala/nala-cover.jpg",
@@ -120,7 +138,7 @@ exports.seed = async function (knex) {
       door_password: "384926#",
     },
     {
-      user_id: 4,
+      user_id: userIdList[4],
       logo: "https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/seed-photo/venus-moon/venus-moon-logo.png",
       cover_photo:
         "https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/seed-photo/venus-moon/venus-moon-cover.jpg",
@@ -138,7 +156,7 @@ exports.seed = async function (knex) {
       door_password: "920384#",
     },
     {
-      user_id: 4,
+      user_id: userIdList[4],
       logo: "https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/seed-photo/yoga-delight/yoga-delight-logo.png",
       cover_photo:
         "https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/seed-photo/yoga-delight/yoga-delight-cover.jpg",

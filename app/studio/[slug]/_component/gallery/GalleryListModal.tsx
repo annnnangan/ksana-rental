@@ -1,4 +1,5 @@
 "use client";
+import StudioImage from "@/components/custom-components/studio/StudioImage";
 import { Button } from "@/components/shadcn/button";
 import {
   Dialog,
@@ -7,7 +8,6 @@ import {
   DialogTitle,
 } from "@/components/shadcn/dialog";
 import { CircleX, GalleryThumbnails } from "lucide-react";
-import StudioImage from "../../../../../components/_components/studio/StudioImage";
 
 interface Props {
   isOpenListModal: boolean;

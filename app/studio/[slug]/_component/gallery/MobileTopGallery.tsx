@@ -13,7 +13,7 @@ import "swiper/css/pagination";
 // import required modules
 import { Button } from "@/components/shadcn/button";
 import { FreeMode, Pagination } from "swiper/modules";
-import StudioImage from "../../../../../components/_components/studio/StudioImage";
+import StudioImage from "@/components/custom-components/studio/StudioImage";
 
 interface Props {
   openListModal: () => void;

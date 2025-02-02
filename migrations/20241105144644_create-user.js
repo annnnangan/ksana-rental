@@ -13,9 +13,9 @@ exports.up = async function (knex) {
     table.text("password");
     table.text("image");
     table
-      .enu("status", ["pending", "active", "suspend"])
+      .enu("status", ["active", "suspend"])
       .notNullable()
-      .defaultTo("pending");
+      .defaultTo("active");
     table.enu("role", ["admin", "user"]).notNullable().defaultTo("user");
     table.timestamps(false, true);
   });
