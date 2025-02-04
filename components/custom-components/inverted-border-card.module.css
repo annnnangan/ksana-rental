@@ -1,0 +1,34 @@
+.iconBtn {
+  position: absolute;
+  bottom: -1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4rem;
+  height: 4rem;
+  background: #e5f5f9;
+  border-radius: 50% 50% 0% 0%;
+}
+
+.iconBtn::before {
+  position: absolute;
+  content: "";
+  bottom: 1rem;
+  left: -1rem;
+  background: transparent;
+  width: 1rem;
+  height: 1rem;
+  border-bottom-right-radius: 1.25rem;
+  box-shadow: 0.2rem 0.2rem 0 0.2rem #e5f5f9;
+}
+
+.iconBtn::after {
+  position: absolute;
+  content: "";
+  bottom: 1rem; /* Same vertical position */
+  right: -1rem; /* Move to the right instead of left */
+  background: transparent;
+  width: 1rem;
+  height: 1rem;
+  border-bottom-left-radius: 1.25rem; /* Flip the border radius */
+  box-shadow: -0.2rem 0.2rem 0 0.2rem #e5f5f9; /* Flip the shadow horizontally */
+}

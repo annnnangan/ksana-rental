@@ -1,8 +1,9 @@
 import Link from "next/link";
-import ButtonLink from "../ButtonLink";
 import AuthStatus from "./AuthStatus";
 import BecomeStudioOwner from "./BecomeStudioOwner";
 import Image from "next/image";
+import ButtonLink from "../../ButtonLink";
+
 const NavBar = () => {
   return (
     <div className="flex justify-between px-5 py-3 shadow-sm">
@@ -10,11 +11,17 @@ const NavBar = () => {
         <Image src="/logo.png" alt="logo" width="90" height="50" />
       </Link>
 
+      {/* Desktop */}
       <div className="flex items-center gap-3">
-        <ButtonLink href="/explore-studios">探索所有場地</ButtonLink>
-        <BecomeStudioOwner />
+        <div className="hidden md:flex">
+          <ButtonLink href="/explore-studios">探索所有場地</ButtonLink>
+          <BecomeStudioOwner />
+        </div>
+
         <AuthStatus />
       </div>
+
+      {/* Mobile */}
     </div>
   );
 };

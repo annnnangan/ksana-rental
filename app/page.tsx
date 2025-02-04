@@ -6,6 +6,9 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { Be_Vietnam_Pro } from "next/font/google";
+import BookingInstructionSection from "@/components/custom-components/homepage/BookingInstructionSection";
+import JoinUsBannerSection from "@/components/custom-components/homepage/JoinUsBannerSection";
+import StudiosSection from "@/components/custom-components/homepage/StudiosSection";
 
 const VietnamProFont = Be_Vietnam_Pro({
   subsets: ["latin"],
@@ -64,7 +67,7 @@ export default function Home() {
         </div>
 
         {/* CTA button on banner */}
-        <div className="absolute bottom-0 left-0 ms-10 mb-8">
+        <div className="absolute bottom-0 left-0 ms-5 lg:ms-10 mb-8">
           <Link href="/explore-studios">
             <SlideArrowButton
               primaryColor="hsl(var(--primary))"
@@ -75,9 +78,9 @@ export default function Home() {
           </Link>
         </div>
         {/* booking reminder card */}
-        <div className="absolute top-0 mt-2 me-3 md:bottom-0 right-0 md:mb-8 md:me-10">
+        <div className="absolute top-0 right-0 mt-2 me-3">
           <Link href="/bookings" className="">
-            <Card className="w-[150px] lg:w-[200px] relative rounded-md border-0 shadow-2xl hover:animate-tiltShake transition">
+            <Card className="w-[150px] relative rounded-md border-0 shadow-2xl hover:animate-tiltShake transition">
               <CardHeader className="p-1">
                 <div className="relative aspect-video rounded-md overflow-hidden">
                   <Image
@@ -90,25 +93,29 @@ export default function Home() {
                 </div>
               </CardHeader>
               <CardContent className="px-3 pt-2 pb-4">
-                <p className="font-bold text-sm lg:text-lg">Soul Yogi Studio</p>
-                <div className="flex gap-1 lg:gap-3 flex-wrap mt-1">
-                  <p className="text-[10px] lg:text-sm text-gray-500 flex gap-1 items-center">
+                <p className="font-bold text-sm">Soul Yogi Studio</p>
+                <div className="flex gap-1 flex-wrap mt-1">
+                  <p className="text-[10px] text-gray-500 flex gap-1 items-center">
                     <Calendar size={14} />
                     2025-01-20
                   </p>
-                  <p className="text-[10px] lg:text-sm text-gray-500 flex gap-1 items-center">
+                  <p className="text-[10px] text-gray-500 flex gap-1 items-center">
                     <Clock5 size={14} />
                     11:00 - 12:00
                   </p>
                 </div>
               </CardContent>
-              <div className="rounded-2xl absolute top-0 left-0 ms-2 mt-3 lg:mt-4 bg-white text-[8px] lg:text-xs px-2 lg:px-4 py-1">
+              <div className="rounded-2xl absolute top-0 left-0 ms-2 mt-3 bg-white text-[8px] px-2 py-1">
                 Next Booking
               </div>
             </Card>
           </Link>
         </div>
       </div>
+
+      <StudiosSection />
+      <BookingInstructionSection />
+      <JoinUsBannerSection />
     </div>
   );
 }

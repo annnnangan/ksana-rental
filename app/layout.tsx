@@ -5,7 +5,8 @@ import "./theme-config.css";
 import { ToastContainer } from "react-toastify";
 import QueryClientProvider from "./QueryClientProvider";
 import { SessionProvider } from "next-auth/react";
-import NavBar from "@/components/custom-components/layout-nav-bar/NavBar";
+import NavBar from "@/components/custom-components/layout/main-nav-bar/NavBar";
+import Footer from "@/components/custom-components/layout/MainFooter";
 
 const notoSansTC = Noto_Sans_TC({
   subsets: ["latin"], // Include subsets as per your use case
@@ -30,6 +31,7 @@ export default function RootLayout({
           <SessionProvider>
             <NavBar />
             <main className="mx-auto">{children}</main>
+            <Footer />
 
             <ToastContainer />
           </SessionProvider>

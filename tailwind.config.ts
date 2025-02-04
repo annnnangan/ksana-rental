@@ -107,6 +107,9 @@ export default {
         "accordion-up": "accordion-up 0.2s ease-out",
         tiltShake: "tiltShake 1s ease-out",
       },
+      backgroundImage: {
+        "join-us": "url('/join-us-background.png')",
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],

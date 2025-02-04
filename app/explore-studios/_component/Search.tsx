@@ -5,7 +5,11 @@ import LocationPicker from "./LocationPicker";
 import TimePicker from "./TimePicker";
 import { StudioQuery } from "../page";
 
-const Search = () => {
+interface Props {
+  isHideEndTime?: boolean;
+}
+
+const Search = ({ isHideEndTime = false }: Props) => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -58,7 +62,10 @@ const Search = () => {
     <div className="mb-9 flex flex-wrap gap-5 items-center justify-center">
       <LocationPicker updateQueryString={updateQueryString} />
       <DatePicker updateQueryString={updateQueryString} />
-      <TimePicker updateQueryString={updateQueryString} />
+      <TimePicker
+        updateQueryString={updateQueryString}
+        isHideEndTime={isHideEndTime}
+      />
     </div>
   );
 };

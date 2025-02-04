@@ -11,10 +11,11 @@ import {
 
 import Link from "next/link";
 import React from "react";
-import AvatarWithFallback from "../AvatarWithFallback";
+
 import { LogOut } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 import { Skeleton } from "@/components/shadcn/skeleton";
+import AvatarWithFallback from "@/components/custom-components/AvatarWithFallback";
 
 const AuthStatus = () => {
   const { status, data: session } = useSession();
@@ -44,7 +45,7 @@ const AuthStatus = () => {
 
   return (
     <div className="flex items-center gap-3">
-      <Button variant="link" type="button">
+      <Button variant="link" type="button" className="hidden md:flex">
         <Link href="/bookings">我的預約</Link>
       </Button>
       <Menubar>

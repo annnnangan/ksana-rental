@@ -13,9 +13,10 @@ import { useState } from "react";
 
 interface Props {
   updateQueryString: (type: string, value: string) => void;
+  isHideEndTime?: boolean;
 }
 
-const TimePicker = ({ updateQueryString }: Props) => {
+const TimePicker = ({ updateQueryString, isHideEndTime = false }: Props) => {
   const searchParams = useSearchParams();
 
   // Generate the time options
@@ -114,31 +115,33 @@ const TimePicker = ({ updateQueryString }: Props) => {
         </Select>
       </div>
 
-      <div className="flex flex-col">
-        <Label htmlFor="endTime" className="text-[11px] text-gray-400">
-          選擇完結時間
-        </Label>
-        {/* End Time Picker */}
-        <Select
-          defaultValue={validateTimeParams("endTime")}
-          onValueChange={(value) => handleTimeChange("endTime", value)}
-          disabled={!startTime}
-        >
-          <SelectTrigger className="w-full">
-            <div className="flex items-center gap-2">
-              <Clock5 size={16} className="text-gray-500" />
-              <SelectValue placeholder="選擇完結時間" />
-            </div>
-          </SelectTrigger>
-          <SelectContent>
-            {filteredEndOptions.map((time) => (
-              <SelectItem key={time} value={time}>
-                {time}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      {!isHideEndTime && (
+        <div className="flex flex-col">
+          <Label htmlFor="endTime" className="text-[11px] text-gray-400">
+            選擇完結時間
+          </Label>
+          {/* End Time Picker */}
+          <Select
+            defaultValue={validateTimeParams("endTime")}
+            onValueChange={(value) => handleTimeChange("endTime", value)}
+            disabled={!startTime}
+          >
+            <SelectTrigger className="w-full">
+              <div className="flex items-center gap-2">
+                <Clock5 size={16} className="text-gray-500" />
+                <SelectValue placeholder="選擇完結時間" />
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              {filteredEndOptions.map((time) => (
+                <SelectItem key={time} value={time}>
+                  {time}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
     </div>
   );
 };

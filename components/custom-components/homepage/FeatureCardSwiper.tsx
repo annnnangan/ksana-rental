@@ -45,7 +45,7 @@ const FeatureCardSwiper = ({ slideItems }: Props) => {
             <ArrowBigLeft />
           </Button>
           <Button
-            onClick={() => swiperRef.current?.slidePrev()}
+            onClick={() => swiperRef.current?.slideNext()}
             className="rounded-full p-0 h-5 w-5 "
           >
             <ArrowBigRight />

@@ -1,6 +1,6 @@
 import { auth } from "@/lib/next-auth-config/auth";
 import { userService } from "@/services/user/UserService";
-import ButtonLink from "../ButtonLink";
+import ButtonLink from "@/components/custom-components/ButtonLink";
 
 const BecomeStudioOwner = async () => {
   const session = await auth();
