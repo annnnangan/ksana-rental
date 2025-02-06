@@ -73,7 +73,7 @@ const AuthStatus = () => {
             </MenubarItem>
             <MenubarSeparator />
             <MenubarItem>
-              <Link href="/bookings">我的預約</Link>
+              <Link href="/manage-bookings">我的預約</Link>
             </MenubarItem>
             <MenubarItem>
               <Link href="/bookmarks">我的收藏</Link>

@@ -611,6 +611,65 @@ export class BookingService {
       }
     }
   }
+
+  //change status
+
+  //add back the
+
+  async cancelBooking(bookingReferenceNo: string, userId: string) {
+    try {
+      // Find the booking first to make sure it exists
+      const booking = await knex("booking")
+        .where({ reference_no: bookingReferenceNo, user_id: userId })
+        .first(); // Get the first matching record
+
+      // If no booking found, throw an error
+      if (!booking) {
+        throw new NotFoundError("預約");
+      }
+
+      // Check if the booking is already canceled
+      if (booking.status === "canceled") {
+        throw new ForbiddenError("預約已取消。");
+      }
+
+      // Update the booking status to 'canceled'
+      await knex("booking")
+        .where({ reference_no: bookingReferenceNo })
+        .update({ status: "canceled" });
+
+      return {
+        success: true,
+      };
+    } catch (error) {
+      // Handle the error and provide a meaningful message
+      console.error(error);
+      return handleError(error, "server") as ActionResponse;
+    }
+  }
+
+  async getBookingInfoByReferenceNo(bookingReferenceNo: string) {
+    try {
+      // Find the booking first to make sure it exists
+      const booking = await knex("booking")
+        .where({ reference_no: bookingReferenceNo })
+        .first(); // Get the first matching record
+
+      // If no booking found, throw an error
+      if (!booking) {
+        throw new NotFoundError("預約");
+      }
+
+      return {
+        success: true,
+        data: booking,
+      };
+    } catch (error) {
+      // Handle the error and provide a meaningful message
+      console.error(error);
+      return handleError(error, "server") as ActionResponse;
+    }
+  }
 }
 
 export const bookingService = new BookingService(knex);

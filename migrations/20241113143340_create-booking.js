@@ -20,6 +20,9 @@ exports.up = async function (knex) {
     table.time("start_time").notNullable();
     table.time("end_time").notNullable();
     table.integer("price").unsigned().notNullable();
+    table.integer("actual_payment").unsigned().notNullable(); //pay by credit card
+    table.integer("credit_redeem_payment").unsigned().notNullable(); //pay by credit
+    table.text("stripe_payment_id");
     table.text("whatsapp").notNullable();
     table.text("remarks");
     table.boolean("is_accept_tnc").defaultTo(false).notNullable();
@@ -32,7 +35,6 @@ exports.up = async function (knex) {
       ])
       .notNullable();
     table.boolean("is_complaint").notNullable().defaultTo(false);
-    table.text("stripe_payment_id");
     table.timestamps(false, true);
   });
   await knex.raw(`

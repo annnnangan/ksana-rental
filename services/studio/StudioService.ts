@@ -73,6 +73,48 @@ export class StudioService {
       data: studios,
     };
   }
+
+  //Get Studio Door Password
+  async getDoorPassword(studioId: string) {
+    try {
+      //check if studio exist
+      const isStudioExist =
+        await validateStudioService.validateIsStudioExistById(studioId);
+
+      if (!isStudioExist.success) {
+        return isStudioExist;
+      }
+
+      if (isStudioExist.success && isStudioExist.data.id) {
+        const result = await this.knex
+          .select("door_password")
+          .from("studio")
+          .where("id", studioId)
+          .first();
+
+        if (!result.door_password) {
+          return {
+            success: false,
+            error: { message: "無法取得大門密碼，請聯絡場地以取得密碼。" },
+            errorStatus: 404,
+          };
+        }
+
+        return {
+          success: true,
+          data: result,
+        };
+      }
+    } catch (error) {
+      console.error("Error fetching door password:", error);
+
+      return {
+        success: false,
+        error: { message: "無法取得大門密碼，請聯絡場地以取得密碼。" },
+        errorStatus: 500,
+      };
+    }
+  }
 }
 
 export const studioService = new StudioService(knex);
