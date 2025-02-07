@@ -38,10 +38,14 @@ export const cancelBooking = async (bookingReferenceNo: string) => {
       throw new ForbiddenError("此預約已超過24小時，無法取消。");
     }
 
-    const result = await bookingService.cancelBooking(
+    const result = await bookingService.cancelBookingAndRefundCredit(
       bookingReferenceNo,
       session?.user.id
     );
+
+    if (!result.success) {
+      return result;
+    }
 
     return { success: true };
   } catch (error) {

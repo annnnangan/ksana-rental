@@ -612,14 +612,13 @@ export class BookingService {
     }
   }
 
-  //change status
-
-  //add back the
-
-  async cancelBooking(bookingReferenceNo: string, userId: string) {
+  async cancelBookingAndRefundCredit(
+    bookingReferenceNo: string,
+    userId: string
+  ) {
+    const txn = await this.knex.transaction(); // Start transaction
     try {
-      // Find the booking first to make sure it exists
-      const booking = await knex("booking")
+      const booking = await this.knex("booking")
         .where({ reference_no: bookingReferenceNo, user_id: userId })
         .first(); // Get the first matching record
 
@@ -633,17 +632,43 @@ export class BookingService {
         throw new ForbiddenError("預約已取消。");
       }
 
-      // Update the booking status to 'canceled'
-      await knex("booking")
-        .where({ reference_no: bookingReferenceNo })
+      // Get existing booking price
+      const refundCreditAmount = parseInt(booking.price);
+
+      // Get existing user credit
+      const existingCreditAmount = (
+        await this.knex
+          .select("credit_amount")
+          .from("users")
+          .where({ id: userId })
+      )[0]?.credit_amount;
+
+      // Transaction 1: Update the booking status
+      await txn("booking")
+        .where({ reference_no: bookingReferenceNo, user_id: userId })
         .update({ status: "canceled" });
 
-      return {
-        success: true,
-      };
+      // Transaction 2: Update user's total credit
+      const updatedCredit = parseInt(existingCreditAmount) + refundCreditAmount;
+
+      await txn("users")
+        .where({ id: userId })
+        .update({ credit_amount: updatedCredit });
+
+      // Transaction 3: Log credit change
+      await txn("credit_audit_log").insert({
+        user_id: userId,
+        description: "預約取消，退回積分",
+        booking_reference_no: bookingReferenceNo,
+        action: "add",
+        credit_amount: updatedCredit,
+      });
+
+      // Step 7: Commit the transaction
+      await txn.commit();
+      return { success: true };
     } catch (error) {
-      // Handle the error and provide a meaningful message
-      console.error(error);
+      await txn.rollback(); // Rollback in case of an error
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -651,7 +676,7 @@ export class BookingService {
   async getBookingInfoByReferenceNo(bookingReferenceNo: string) {
     try {
       // Find the booking first to make sure it exists
-      const booking = await knex("booking")
+      const booking = await this.knex("booking")
         .where({ reference_no: bookingReferenceNo })
         .first(); // Get the first matching record
 

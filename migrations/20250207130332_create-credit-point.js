@@ -2,21 +2,17 @@
  * @param { import("knex").Knex } knex
  * @returns { Promise<void> }
  */
-const tableName = "users";
+
+const tableName = "credit_audit_log";
 exports.up = async function (knex) {
   await knex.schema.createTable(tableName, (table) => {
-    table.uuid("id").defaultTo(knex.fn.uuid());
-    table.primary("id");
-    table.text("name").notNullable();
-    table.text("email").notNullable().unique();
-    table.timestamp("email_verified");
-    table.text("password");
-    table.text("image");
-    table
-      .enu("status", ["active", "suspend"])
-      .notNullable()
-      .defaultTo("active");
-    table.enu("role", ["admin", "user"]).notNullable().defaultTo("user");
+    table.increments();
+    table.uuid("user_id").unsigned();
+    table.foreign("user_id").references("users.id");
+    table.text("description").notNullable();
+    table.text("booking_reference_no").unsigned();
+    table.foreign("booking_reference_no").references("booking.reference_no");
+    table.enu("action", ["add", "deduct"]).notNullable().defaultTo("add");
     table.integer("credit_amount").unsigned().notNullable().defaultTo(0);
     table.timestamps(false, true);
   });
