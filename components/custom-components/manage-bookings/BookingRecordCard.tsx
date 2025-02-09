@@ -15,6 +15,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import StudioPasswordModal from "./StudioPasswordModal";
 import BookingDetailsModal from "./BookingDetailsModal";
+import RateBookingModal from "./ReviewBookingModal";
 
 export interface BookingRecord {
   studio_id: string;
@@ -32,6 +33,7 @@ export interface BookingRecord {
   end_time: string;
   remarks: string;
   status: string;
+  has_reviewed: boolean;
 }
 
 interface Props {
@@ -39,9 +41,12 @@ interface Props {
 }
 
 const BookingRecordCard = ({ bookingRecord }: Props) => {
-  const [isPasswordAvailable, setPasswordAvailable] = useState(false);
+  //Open modal
   const [isOpenDetailModal, setOpenDetailModal] = useState(false);
   const [isOpenPasswordModal, setOpenPasswordModal] = useState(false);
+
+  //Password
+  const [isPasswordAvailable, setPasswordAvailable] = useState(false);
   const [doorPassword, setDoorPassword] = useState(null);
   const [doorPasswordError, setDoorPasswordError] = useState("");
   const [isFetchingDoorPassword, setFetchingDoorPassword] = useState(false);

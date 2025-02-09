@@ -2,7 +2,7 @@
 
 import { register } from "@/actions/auth";
 import AuthForm from "@/components/custom-components/auth/AuthForm";
-import { RegisterSchema } from "@/lib/zod-schema/auth";
+import { RegisterSchema } from "@/lib/validations/zod-schema/auth";
 
 const RegisterPage = () => {
   return (

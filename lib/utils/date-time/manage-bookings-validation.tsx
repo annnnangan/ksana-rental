@@ -69,3 +69,43 @@ export function validateCancelBookingAvailability(
 
   return isAvailable;
 }
+
+export function validateCanLeaveBookingReview(
+  has_reviewed: boolean,
+  booking_status: string,
+  booking_date: Date,
+  booking_start_time: string
+) {
+  const timeZone = "Asia/Hong_Kong";
+
+  const isCompleted = booking_status === "completed";
+
+  const bookingDateTime =
+    formatDate(new Date(booking_date)) +
+    " " +
+    convertTimeToString(booking_start_time);
+
+  const formattedBookingDateTime = parse(
+    bookingDateTime,
+    "yyyy-MM-dd HH:mm",
+    new Date()
+  );
+
+  const now = new TZDate(new Date(), timeZone);
+
+  const timeDifferenceInMinutes = differenceInMinutes(
+    now,
+    formattedBookingDateTime
+  );
+
+  const sevenDaysInMinutes = 7 * 24 * 60;
+
+  // The review can only be submitted if the booking has started and is within 7 days
+  const canLeaveReview =
+    isCompleted &&
+    !has_reviewed &&
+    timeDifferenceInMinutes >= 0 && //booking has started
+    timeDifferenceInMinutes <= sevenDaysInMinutes; //is within 7 days
+
+  return canLeaveReview;
+}

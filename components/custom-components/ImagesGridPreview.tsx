@@ -10,6 +10,7 @@ interface Props {
   gridCol?: number;
   gridColSpan?: string | undefined;
   imageRatio?: string;
+  objectFit?: string;
   imageAlt: string;
   allowDeleteImage: boolean;
 }
@@ -21,6 +22,7 @@ const ImagesGridPreview = ({
   gridCol = 12,
   gridColSpan = "col-span-12 md:col-span-6 lg:col-span-4",
   imageRatio = "aspect-video",
+  objectFit = "object-cover",
   imageAlt = "image",
   allowDeleteImage,
 }: Props) => {
@@ -43,7 +45,7 @@ const ImagesGridPreview = ({
                 <Image
                   src={src}
                   alt={imageAlt}
-                  className="object-cover transition-all duration-500 group-hover:brightness-50"
+                  className={`${objectFit} transition-all duration-500 group-hover:brightness-50`}
                   fill
                   sizes="w-auto"
                 />

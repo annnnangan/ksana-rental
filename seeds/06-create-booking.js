@@ -32,6 +32,7 @@ exports.seed = async function (knex) {
       whatsapp: "+85298765432",
       remarks: "可唔可以幫我set up一條Hammock。",
       is_complaint: false,
+      has_reviewed: true,
       stripe_payment_id: "pi_3QOf4WE9TWOIiP7J007pRGwF",
     },
     {
@@ -47,6 +48,7 @@ exports.seed = async function (knex) {
       whatsapp: "+85298765432",
       remarks: "",
       is_complaint: false,
+      has_reviewed: true,
       stripe_payment_id: "pi_3QOf4WE9TWOIiP7J007pRGwF",
     },
     {
@@ -62,6 +64,7 @@ exports.seed = async function (knex) {
       whatsapp: "+85298765432",
       remarks: "",
       is_complaint: false,
+      has_reviewed: false,
       stripe_payment_id: "pi_3QOf4WE9TWOIiP7J007pRGwF",
     },
     {
@@ -77,6 +80,7 @@ exports.seed = async function (knex) {
       whatsapp: "+85298765432",
       remarks: "",
       is_complaint: false,
+      has_reviewed: false,
       stripe_payment_id: "pi_3QOf4WE9TWOIiP7J007pRGwF",
     },
     {
@@ -92,6 +96,7 @@ exports.seed = async function (knex) {
       whatsapp: "+85298765432",
       remarks: "",
       is_complaint: true,
+      has_reviewed: true,
       stripe_payment_id: "pi_3QOf4WE9TWOIiP7J007pRGwF",
     },
     {
@@ -107,6 +112,7 @@ exports.seed = async function (knex) {
       whatsapp: "+85298765432",
       remarks: "",
       is_complaint: false,
+      has_reviewed: false,
       stripe_payment_id: "pi_3QOf4WE9TWOIiP7J007pRGwF",
     },
     {
@@ -122,6 +128,7 @@ exports.seed = async function (knex) {
       whatsapp: "+85298765432",
       remarks: "",
       is_complaint: false,
+      has_reviewed: false,
       stripe_payment_id: "pi_3QOf4WE9TWOIiP7J007pRGwF",
     },
     {
@@ -137,6 +144,7 @@ exports.seed = async function (knex) {
       whatsapp: "+85298765432",
       remarks: "",
       is_complaint: false,
+      has_reviewed: false,
       stripe_payment_id: "pi_3QOf4WE9TWOIiP7J007pRGwF",
     },
     {
@@ -152,6 +160,7 @@ exports.seed = async function (knex) {
       whatsapp: "+85298765432",
       remarks: "",
       is_complaint: false,
+      has_reviewed: false,
       stripe_payment_id: "pi_3QOf4WE9TWOIiP7J007pRGwF",
     },
     {
@@ -167,6 +176,7 @@ exports.seed = async function (knex) {
       whatsapp: "+85298765432",
       remarks: "",
       is_complaint: false,
+      has_reviewed: false,
       stripe_payment_id: "pi_3QOf4WE9TWOIiP7J007pRGwF",
     },
     {
@@ -182,6 +192,7 @@ exports.seed = async function (knex) {
       whatsapp: "+85298765432",
       remarks: "",
       is_complaint: false,
+      has_reviewed: false,
       stripe_payment_id: "pi_3QOf4WE9TWOIiP7J007pRGwF",
     },
     {
@@ -197,6 +208,7 @@ exports.seed = async function (knex) {
       whatsapp: "+85298765432",
       remarks: "",
       is_complaint: true,
+      has_reviewed: true,
       stripe_payment_id: "pi_3QOf4WE9TWOIiP7J007pRGwF",
     },
     {
@@ -212,6 +224,7 @@ exports.seed = async function (knex) {
       whatsapp: "+85298765432",
       remarks: "",
       is_complaint: false,
+      has_reviewed: false,
       stripe_payment_id: "pi_3QOf4WE9TWOIiP7J007pRGwF",
     },
     {
@@ -227,6 +240,7 @@ exports.seed = async function (knex) {
       whatsapp: "+85298765432",
       remarks: "",
       is_complaint: false,
+      has_reviewed: false,
       stripe_payment_id: "pi_3QOf4WE9TWOIiP7J007pRGwF",
     },
     {
@@ -242,6 +256,7 @@ exports.seed = async function (knex) {
       whatsapp: "+85298765432",
       remarks: "",
       is_complaint: true,
+      has_reviewed: true,
       stripe_payment_id: "pi_3QOf4WE9TWOIiP7J007pRGwF",
     },
     {
@@ -257,6 +272,7 @@ exports.seed = async function (knex) {
       whatsapp: "+85298765432",
       remarks: "",
       is_complaint: false,
+      has_reviewed: false,
       stripe_payment_id: "pi_3QOf4WE9TWOIiP7J007pRGwF",
     },
   ]);

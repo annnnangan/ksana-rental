@@ -95,7 +95,8 @@ export class UserService {
           "booking.date as booking_date",
           "booking.start_time",
           "booking.end_time",
-          "booking.remarks"
+          "booking.remarks",
+          "booking.has_reviewed"
         )
         .from("booking")
         .leftJoin("studio", "booking.studio_id", "studio.id")

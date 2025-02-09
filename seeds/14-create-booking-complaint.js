@@ -9,8 +9,7 @@ exports.seed = async function (knex) {
   await knex(tableName).del();
   await knex(tableName).insert([
     {
-      booking_id: 5,
-      content: "場地衛生非常糟糕。",
+      review_id: 3,
       status: "in-progress",
       resolved_at: null,
       is_refund: null,
@@ -19,8 +18,7 @@ exports.seed = async function (knex) {
       remarks: null,
     },
     {
-      booking_id: 12,
-      content: "空調壞了，室內非常悶熱，影響練習效果。",
+      review_id: 4,
       status: "resolved",
       resolved_at: new Date("2025-01-09"),
       is_refund: true,
@@ -29,8 +27,7 @@ exports.seed = async function (knex) {
       remarks: null,
     },
     {
-      booking_id: 15,
-      content: "場地與照片上有嚴重落差。",
+      review_id: 5,
       status: "resolved",
       resolved_at: new Date("2025-01-09"),
       is_refund: true,

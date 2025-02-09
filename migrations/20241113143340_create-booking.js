@@ -34,7 +34,8 @@ exports.up = async function (knex) {
         "expired",
       ])
       .notNullable();
-    table.boolean("is_complaint").notNullable().defaultTo(false);
+    table.boolean("is_complaint").defaultTo(false).notNullable();
+    table.boolean("has_reviewed").defaultTo(false).notNullable();
     table.timestamps(false, true);
   });
   await knex.raw(`

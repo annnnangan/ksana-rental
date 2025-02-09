@@ -18,6 +18,7 @@ import {
 } from "@/lib/http-errors";
 import handleError from "@/lib/handlers/error";
 import { BookingStatus } from "./model";
+import { reviewFormData } from "@/lib/validations/zod-schema/review-booking-schema";
 
 const dayOfWeekList = [
   "Sunday",
@@ -673,6 +674,78 @@ export class BookingService {
     }
   }
 
+  async submitBookingReview(
+    bookingReference: string,
+    userId: string,
+    data: reviewFormData
+  ) {
+    const txn = await this.knex.transaction(); // Start transaction
+    try {
+      const booking = await this.knex("booking")
+        .where({ reference_no: bookingReference, user_id: userId })
+        .first();
+
+      // If no booking found, throw an error
+      if (!booking) {
+        throw new NotFoundError("預約");
+      }
+
+      // Transaction 1: Insert a new row for review and return the review id
+      const reviewId = (
+        await txn
+          .insert({
+            booking_reference_no: bookingReference,
+            rating: data.rating,
+            review: data.review,
+            is_anonymous: data.is_anonymous,
+            is_hide_from_public: data.is_hide_from_public,
+            is_complaint: data.is_complaint,
+          })
+          .into("review")
+          .returning("id")
+      )[0].id;
+
+      // Transaction 2: Update booking table 's has_reviewed column to true
+      await txn("booking")
+        .update({ has_reviewed: true })
+        .where("reference_no", bookingReference);
+
+      // Transaction 3: if there is image -> insert new row with the review id returned above
+      if (data.images.length > 0) {
+        const reviewPhotos = data.images.map((image) => ({
+          review_id: reviewId,
+          photo: image,
+        }));
+
+        await txn.insert(reviewPhotos).into("review_photo");
+      }
+
+      // Transaction 3: if it is complaint, insert new row in booking_complaint
+      if (data.is_complaint) {
+        await txn
+          .insert({
+            review_id: reviewId,
+            status: "open",
+          })
+          .into("booking_complaint");
+      }
+
+      // Transaction 4: if complaint, change the booking table to true
+      if (data.is_complaint) {
+        await txn("booking")
+          .update("is_complaint", true)
+          .where("reference_no", bookingReference);
+      }
+
+      await txn.commit();
+      return { success: true };
+    } catch (error) {
+      console.log(error);
+      await txn.rollback(); // Rollback in case of an error
+      return handleError(error, "server") as ActionResponse;
+    }
+  }
+
   async getBookingInfoByReferenceNo(bookingReferenceNo: string) {
     try {
       // Find the booking first to make sure it exists
@@ -685,9 +758,32 @@ export class BookingService {
         throw new NotFoundError("預約");
       }
 
+      // Determine the latest status
+      let latestStatus = booking.status;
+
+      if (booking.status === "confirmed") {
+        const isCompleted = await this.knex("booking")
+          .where("reference_no", bookingReferenceNo)
+          .andWhereRaw("date::DATE + end_time::INTERVAL < NOW()")
+          .first();
+
+        if (isCompleted) {
+          latestStatus = "completed";
+        }
+      } else if (booking.status === "pending for payment") {
+        const isExpired = await this.knex("booking")
+          .where("reference_no", bookingReferenceNo)
+          .andWhereRaw("created_at < NOW() - INTERVAL '15 minutes'")
+          .first();
+
+        if (isExpired) {
+          latestStatus = "expired";
+        }
+      }
+
       return {
         success: true,
-        data: booking,
+        data: { ...booking, status: latestStatus },
       };
     } catch (error) {
       // Handle the error and provide a meaningful message
