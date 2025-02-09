@@ -3,7 +3,7 @@ import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
 import { userService } from "@/services/user/UserService";
-import { LoginSchema } from "../zod-schema/auth";
+import { LoginSchema } from "../validations/zod-schema/auth";
 
 export default {
   providers: [

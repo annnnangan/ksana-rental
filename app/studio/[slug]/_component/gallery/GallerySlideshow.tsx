@@ -1,7 +1,6 @@
 import { useState } from "react";
 // Import Swiper React components
 import { Swiper, SwiperSlide } from "swiper/react";
-import styled from "styled-components";
 
 // Import Swiper styles
 import "swiper/css";
@@ -18,8 +17,8 @@ const GlobalStyle = createGlobalStyle`
 `;
 
 // import required modules
+import StudioImage from "@/components/custom-components/studio/StudioImage";
 import { FreeMode, Navigation, Thumbs } from "swiper/modules";
-import StudioImage from "../../../../../components/_components/studio/StudioImage";
 
 interface Props {
   images: string[];

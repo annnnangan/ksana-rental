@@ -7,9 +7,8 @@ const tableName = "booking_complaint";
 exports.up = async function (knex) {
   await knex.schema.createTable(tableName, (table) => {
     table.increments();
-    table.integer("booking_id").unsigned();
-    table.foreign("booking_id").references("booking.id");
-    table.text("content").notNullable();
+    table.integer("review_id").unsigned();
+    table.foreign("review_id").references("review.id");
     table
       .enu("status", ["open", "in-progress", "resolved"])
       .notNullable()

@@ -1,6 +1,11 @@
 import { districtValues, equipmentMap, payoutMethod } from "@/services/model";
 import { isValidPhoneNumber } from "libphonenumber-js";
 import { z } from "zod";
+import {
+  allowedImageMineTypes,
+  formattedMineTypes,
+  maxGalleryImageSize,
+} from "./validations/file";
 
 //1. Booking Schema
 //date.parse("2020-01-01"); // pass
@@ -45,12 +50,7 @@ export type Tbooking = z.infer<typeof bookingSchema>;
 export type TbookingPhoneRemarks = z.infer<typeof bookingPhoneRemarksSchema>;
 
 //2. Studio Create Schema
-export const allowedImageMineTypes = ["image/jpeg", "image/jpg", "image/png"];
-export const formattedMineTypes = allowedImageMineTypes.map((type) =>
-  type.replace("image/", "")
-);
-export const maxCoverAndLogoImageSize = 1048576 * 2; // 2 MB
-export const maxGalleryImageSize = 1048576 * 5; // 5 MB
+
 const daysOfWeekEnum = z.enum([
   "Monday",
   "Tuesday",

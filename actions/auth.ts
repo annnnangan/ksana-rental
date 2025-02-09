@@ -7,7 +7,7 @@ import bcrypt from "bcryptjs";
 import { DEFAULT_LOGIN_REDIRECT } from "@/lib/next-auth-config/routes";
 import { userService } from "@/services/user/UserService";
 import { signIn } from "@/lib/next-auth-config/auth";
-import { LoginSchema, RegisterSchema } from "@/lib/zod-schema/auth";
+import { LoginSchema, RegisterSchema } from "@/lib/validations/zod-schema/auth";
 import { generateVerificationToken } from "@/lib/utils/generate-verification-token";
 import { sendVerificationEmail } from "@/lib/mail";
 import { verificationService } from "@/services/user/VerificationService";

@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
-import StudioImage from "../../../../../../components/_components/studio/StudioImage";
+
 import ReviewImageModal from "./ReviewImageModal";
 import { ReviewUserProfile } from "./ReviewSection";
+import StudioImage from "@/components/custom-components/studio/StudioImage";
 
 interface Props {
   imageList: string[];

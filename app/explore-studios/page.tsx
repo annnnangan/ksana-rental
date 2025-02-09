@@ -1,6 +1,8 @@
 import { allStudiosService } from "@/services/AllStudiosService";
 import Search from "./_component/Search";
-import StudioList, { studioCardInfo } from "./_component/StudioList";
+import StudioList, {
+  studioCardInfo,
+} from "../../components/custom-components/studio/StudioList";
 import ToastMessageWithRedirect from "@/components/custom-components/ToastMessageWithRedirect";
 
 export interface StudioQuery {

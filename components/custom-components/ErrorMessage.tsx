@@ -3,11 +3,7 @@ import { Text } from "@radix-ui/themes";
 
 const ErrorMessage = ({ children }: PropsWithChildren) => {
   if (!children) return null;
-  return (
-    <Text color="red" as="p" mt="1" className="text-sm">
-      {children}
-    </Text>
-  );
+  return <p className="text-sm mt-1 text-red-600 ">{children}</p>;
 };
 
 export default ErrorMessage;

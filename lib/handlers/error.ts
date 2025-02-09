@@ -47,10 +47,6 @@ const handleError = (error: unknown, responseType: ResponseType = "server") => {
     );
   }
 
-  if (error instanceof Error) {
-    return formatResponse(responseType, 500, error.message);
-  }
-
   return formatResponse(responseType, 500, "An unexpected error occurred");
 };
 
