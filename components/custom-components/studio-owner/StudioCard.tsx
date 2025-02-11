@@ -1,8 +1,4 @@
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/shadcn/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/shadcn/avatar";
 import { Building2, ImageIcon } from "lucide-react";
 import React from "react";
 import Image from "next/image";
@@ -10,10 +6,7 @@ import LinkButton from "@/components/animata/button/link-button";
 import StudioStatusBadge from "@/components/custom-components/StudioStatusBadge";
 import { MapPin } from "lucide-react";
 import { StudioStatus } from "@/services/model";
-import {
-  findAreaByDistrictValue,
-  getDistrictLabelByDistrictValue,
-} from "@/lib/utils/areas-districts-converter";
+import { findAreaByDistrictValue, getDistrictLabelByDistrictValue } from "@/lib/utils/areas-districts-converter";
 
 interface StudioInfo {
   id: string;
@@ -36,12 +29,7 @@ const StudioCard = ({ studioInfo }: Props) => {
         {/* Cover Image */}
         <div className="relative aspect-[3/1] bg-neutral-200  mb-1">
           {studioInfo.cover_photo ? (
-            <Image
-              alt="studio cover image"
-              src={studioInfo.cover_photo}
-              fill={true}
-              className="absolute inset-0 w-full h-full object-cover object-center"
-            />
+            <Image alt="studio cover image" src={studioInfo.cover_photo} fill={true} className="absolute inset-0 w-full h-full object-cover object-center" />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
               <ImageIcon />
@@ -79,16 +67,13 @@ const StudioCard = ({ studioInfo }: Props) => {
               <div className="flex justify-center items-center">
                 <MapPin size={14} />
                 <p className="text-sm">
-                  {getDistrictLabelByDistrictValue(studioInfo.district)},{" "}
-                  {findAreaByDistrictValue(studioInfo.district)?.label}
+                  {getDistrictLabelByDistrictValue(studioInfo.district)}, {findAreaByDistrictValue(studioInfo.district)?.label}
                 </p>
               </div>
             )}
           </div>
-          <LinkButton
-            href={`/studio-owner/studio/${studioInfo.id}/onboarding/basic-info`}
-            children={"繼續登記"}
-          />
+          {studioInfo.status === "active" && <LinkButton href={`/studio-owner/studio/${studioInfo.id}/manage/dashboard`}>管理場地</LinkButton>}
+          {studioInfo.status !== "active" && <LinkButton href={`/studio-owner/studio/${studioInfo.id}/onboarding/basic-info`}>繼續登記</LinkButton>}
         </div>
       </div>
     </div>

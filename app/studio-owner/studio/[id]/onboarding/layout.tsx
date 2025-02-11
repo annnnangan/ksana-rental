@@ -1,31 +1,10 @@
 "use client";
-import { StudioOwnerSidebar } from "@/components/side-bar/NavBar";
-import {
-  Breadcrumb,
-  BreadcrumbList,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbSeparator,
-  BreadcrumbPage,
-} from "@/components/shadcn/breadcrumb";
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/shadcn/sidebar";
+import { StudioOwnerSidebar } from "@/components/custom-components/layout/side-bar/NavBar";
+import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "@/components/shadcn/breadcrumb";
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/shadcn/sidebar";
 import { Separator } from "@/components/shadcn/separator";
 
-import {
-  CalendarCheck,
-  CircleChevronLeft,
-  CircleGauge,
-  Contact,
-  Dumbbell,
-  HandCoins,
-  House,
-  KeyRound,
-  ImageUp,
-} from "lucide-react";
+import { CalendarCheck, CircleChevronLeft, CircleGauge, Contact, Dumbbell, HandCoins, House, KeyRound, ImageUp } from "lucide-react";
 import { usePathname, useParams } from "next/navigation";
 import Link from "next/link";
 
@@ -85,10 +64,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
       <div className="w-full">
         <SidebarInset>
-          <Link
-            className="flex gap-x-2 items-center text-sm text-gray-500 ms-auto hover:-translate-x-3 transition-transform duration-200 ease-in-out"
-            href="/studio-owner/studios"
-          >
+          <Link className="flex gap-x-2 items-center text-sm text-gray-500 ms-auto hover:-translate-x-3 transition-transform duration-200 ease-in-out" href="/studio-owner/studios">
             <CircleChevronLeft size={20} />
             返回所有場地
           </Link>
@@ -98,9 +74,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="/studio-owner/studios">
-                    你的所有場地
-                  </BreadcrumbLink>
+                  <BreadcrumbLink href="/studio-owner/studios">你的所有場地</BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator className="hidden md:block" />
                 <BreadcrumbItem className="hidden md:block">

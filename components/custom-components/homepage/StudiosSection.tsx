@@ -1,12 +1,9 @@
-import Search from "@/app/explore-studios/_component/Search";
-import StudioList, {
-  studioCardInfo,
-} from "@/components/custom-components/studio/StudioList";
+import SearchFilter from "@/app/(user)/explore-studios/_component/Search";
+import { studioCardInfo } from "@/components/custom-components/studio/StudioList";
 import { allStudiosService } from "@/services/AllStudiosService";
-import React from "react";
-import ToastMessageWithRedirect from "../ToastMessageWithRedirect";
 import ButtonLink from "../ButtonLink";
 import StudioCardSwiper from "../studio/StudioCardSwiper";
+import ToastMessageWithRedirect from "../ToastMessageWithRedirect";
 
 const StudiosSection = async () => {
   let studioListData: studioCardInfo[] = [];
@@ -17,30 +14,18 @@ const StudiosSection = async () => {
       studioListData = studioList.data;
     }
   } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : "系統發生未預期錯誤，請重試。";
-    return (
-      <ToastMessageWithRedirect
-        type={"error"}
-        message={errorMessage}
-        redirectPath={"/"}
-      />
-    );
-    6;
+    const errorMessage = error instanceof Error ? error.message : "系統發生未預期錯誤，請重試。";
+    return <ToastMessageWithRedirect type={"error"} message={errorMessage} redirectPath={"/"} />;
   }
   return (
     <div className="my-10 flex flex-col items-center">
       <h2 className="text-2xl font-bold text-center mb-5">尋找場地</h2>
-      <Search isHideEndTime={true} />
+      <SearchFilter isHideEndTime={true} />
       <div className="w-full">
         <StudioCardSwiper slideItems={studioListData} />
       </div>
 
-      <ButtonLink
-        href="/explore-studios"
-        variant="default"
-        className="rounded-2xl"
-      >
+      <ButtonLink href="/explore-studios" variant="default" className="rounded-2xl">
         查看所有場地
       </ButtonLink>
     </div>

@@ -6,13 +6,7 @@ export class StudioService {
 
   async validateStudioIdtoUserId(studioId: number, userId: number) {
     try {
-      const isStudioExist = (
-        await knex
-          .select("*")
-          .from("studio")
-          .where("id", studioId)
-          .andWhere("user_id", userId)
-      )[0];
+      const isStudioExist = (await knex.select("*").from("studio").where("id", studioId).andWhere("user_id", userId))[0];
 
       //Throw error when the booking reference doesn't exist for the user
       if (isStudioExist == undefined) {
@@ -24,19 +18,14 @@ export class StudioService {
       if (error instanceof RequestError) {
         throw error;
       } else {
-        throw new RequestError(
-          500,
-          error instanceof Error ? error.message : "系統發生錯誤，請重試。"
-        );
+        throw new RequestError(500, error instanceof Error ? error.message : "系統發生錯誤，請重試。");
       }
     }
   }
 
   async getStudioIdBySlug(slug: string) {
     try {
-      const result = (
-        await this.knex.select("id").from("studio").where({ slug })
-      )[0]?.id;
+      const result = (await this.knex.select("id").from("studio").where({ slug }))[0]?.id;
 
       if (!result) {
         throw new NotFoundError("此場地");
@@ -50,38 +39,19 @@ export class StudioService {
       if (error instanceof RequestError) {
         throw error;
       } else {
-        throw new RequestError(
-          500,
-          error instanceof Error ? error.message : "系統發生錯誤。"
-        );
+        throw new RequestError(500, error instanceof Error ? error.message : "系統發生錯誤。");
       }
     }
   }
 
   async getStudioBasicInfo(studioId: number, userId: number) {
     try {
-      const isStudioExist = await this.validateStudioIdtoUserId(
-        studioId,
-        userId
-      );
+      const isStudioExist = await this.validateStudioIdtoUserId(studioId, userId);
 
       if (isStudioExist.success) {
         // Perform the update query
         const basicInfo = (
-          await this.knex
-            .select(
-              "cover_photo",
-              "logo",
-              "name",
-              "slug",
-              "status",
-              "district",
-              "address",
-              "description"
-            )
-            .from("studio")
-            .where("id", studioId)
-            .andWhere("user_id", userId)
+          await this.knex.select("cover_photo", "logo", "name", "slug", "status", "district", "address", "description").from("studio").where("id", studioId).andWhere("user_id", userId)
         )[0];
 
         if (basicInfo) {
@@ -97,28 +67,14 @@ export class StudioService {
       if (error instanceof RequestError) {
         throw error;
       } else {
-        throw new RequestError(
-          500,
-          error instanceof Error ? error.message : "系統發生錯誤。"
-        );
+        throw new RequestError(500, error instanceof Error ? error.message : "系統發生錯誤。");
       }
     }
   }
 
-  async getAllStudios(userId: number) {
+  async getAllStudios(userId: string) {
     try {
-      const studios = await this.knex
-        .select(
-          "id",
-          "cover_photo",
-          "logo",
-          "name",
-          "status",
-          "area",
-          "district"
-        )
-        .from("studio")
-        .where("user_id", userId);
+      const studios = await this.knex.select("id", "cover_photo", "logo", "name", "status", "area", "district").from("studio").where("user_id", userId);
 
       return {
         success: true,
@@ -128,10 +84,7 @@ export class StudioService {
       if (error instanceof RequestError) {
         throw error;
       } else {
-        throw new RequestError(
-          500,
-          error instanceof Error ? error.message : "系統發生錯誤。"
-        );
+        throw new RequestError(500, error instanceof Error ? error.message : "系統發生錯誤。");
       }
     }
   }
@@ -139,19 +92,9 @@ export class StudioService {
   async getStudioBusinessHours(studioId: number, userId: number) {
     try {
       const studioBusinessHoursData = await this.knex
-        .select(
-          "studio_business_hour.day_of_week",
-          "studio_business_hour.is_closed",
-          "studio_business_hour.open_time",
-          "studio_business_hour.end_time",
-          "studio_price.price_type"
-        )
+        .select("studio_business_hour.day_of_week", "studio_business_hour.is_closed", "studio_business_hour.open_time", "studio_business_hour.end_time", "studio_price.price_type")
         .from("studio_business_hour")
-        .leftJoin(
-          "studio_price",
-          "studio_business_hour.price_type_id",
-          "studio_price.id"
-        )
+        .leftJoin("studio_price", "studio_business_hour.price_type_id", "studio_price.id")
         .where("studio_business_hour.studio_id", studioId);
 
       return {
@@ -162,20 +105,14 @@ export class StudioService {
       if (error instanceof RequestError) {
         throw error;
       } else {
-        throw new RequestError(
-          500,
-          error instanceof Error ? error.message : "系統發生錯誤。"
-        );
+        throw new RequestError(500, error instanceof Error ? error.message : "系統發生錯誤。");
       }
     }
   }
 
   async getStudioPrice(studioId: number, userId: number) {
     try {
-      const studioPriceData = await this.knex
-        .select("price_type", "price")
-        .from("studio_price")
-        .where("studio_id", studioId);
+      const studioPriceData = await this.knex.select("price_type", "price").from("studio_price").where("studio_id", studioId);
 
       return {
         success: true,
@@ -185,10 +122,7 @@ export class StudioService {
       if (error instanceof RequestError) {
         throw error;
       } else {
-        throw new RequestError(
-          500,
-          error instanceof Error ? error.message : "系統發生錯誤。"
-        );
+        throw new RequestError(500, error instanceof Error ? error.message : "系統發生錯誤。");
       }
     }
   }
@@ -209,20 +143,14 @@ export class StudioService {
       if (error instanceof RequestError) {
         throw error;
       } else {
-        throw new RequestError(
-          500,
-          error instanceof Error ? error.message : "系統發生錯誤。"
-        );
+        throw new RequestError(500, error instanceof Error ? error.message : "系統發生錯誤。");
       }
     }
   }
 
   async getGallery(studioId: number, userId: number) {
     try {
-      const studioGalleryData = await this.knex
-        .select("photo")
-        .from("studio_photo")
-        .where("studio_id", studioId);
+      const studioGalleryData = await this.knex.select("photo").from("studio_photo").where("studio_id", studioId);
 
       return {
         success: true,
@@ -232,20 +160,14 @@ export class StudioService {
       if (error instanceof RequestError) {
         throw error;
       } else {
-        throw new RequestError(
-          500,
-          error instanceof Error ? error.message : "系統發生錯誤。"
-        );
+        throw new RequestError(500, error instanceof Error ? error.message : "系統發生錯誤。");
       }
     }
   }
 
   async removeGalleryImage(studioId: number, userId: number, imageURL: string) {
     try {
-      await this.knex("studio_photo")
-        .where("studio_id", studioId)
-        .andWhere("photo", imageURL)
-        .del();
+      await this.knex("studio_photo").where("studio_id", studioId).andWhere("photo", imageURL).del();
       return {
         success: true,
         data: "",
@@ -254,10 +176,7 @@ export class StudioService {
       if (error instanceof RequestError) {
         throw error;
       } else {
-        throw new RequestError(
-          500,
-          error instanceof Error ? error.message : "系統發生錯誤。"
-        );
+        throw new RequestError(500, error instanceof Error ? error.message : "系統發生錯誤。");
       }
     }
   }
@@ -265,9 +184,7 @@ export class StudioService {
   //Get Phone
   async getPhone(studioId: number, userId: number) {
     try {
-      const result = (
-        await this.knex.select("phone").from("studio").where("id", studioId)
-      )[0].phone;
+      const result = (await this.knex.select("phone").from("studio").where("id", studioId))[0].phone;
 
       return {
         success: true,
@@ -277,10 +194,7 @@ export class StudioService {
       if (error instanceof RequestError) {
         throw error;
       } else {
-        throw new RequestError(
-          500,
-          error instanceof Error ? error.message : "系統發生錯誤。"
-        );
+        throw new RequestError(500, error instanceof Error ? error.message : "系統發生錯誤。");
       }
     }
   }
@@ -288,10 +202,7 @@ export class StudioService {
   //Get Social
   async getSocial(studioId: number, userId: number) {
     try {
-      const result = await this.knex
-        .select("type", "contact")
-        .from("studio_social")
-        .where("studio_id", studioId);
+      const result = await this.knex.select("type", "contact").from("studio_social").where("studio_id", studioId);
       return {
         success: true,
         data: result.length > 0 ? result : "",
@@ -300,10 +211,7 @@ export class StudioService {
       if (error instanceof RequestError) {
         throw error;
       } else {
-        throw new RequestError(
-          500,
-          error instanceof Error ? error.message : "系統發生錯誤。"
-        );
+        throw new RequestError(500, error instanceof Error ? error.message : "系統發生錯誤。");
       }
     }
   }
@@ -311,18 +219,10 @@ export class StudioService {
   //Get Studio Payout Detail
   async getPayoutDetail(studioId: number, userId: number) {
     try {
-      const isStudioExist = await this.validateStudioIdtoUserId(
-        studioId,
-        userId
-      );
+      const isStudioExist = await this.validateStudioIdtoUserId(studioId, userId);
 
       if (isStudioExist.success) {
-        const result = (
-          await this.knex
-            .select("method", "account_name", "account_number")
-            .from("studio_payout_detail")
-            .where("id", studioId)
-        )[0];
+        const result = (await this.knex.select("method", "account_name", "account_number").from("studio_payout_detail").where("id", studioId))[0];
 
         return {
           success: true,
@@ -335,10 +235,7 @@ export class StudioService {
       if (error instanceof RequestError) {
         throw error;
       } else {
-        throw new RequestError(
-          500,
-          error instanceof Error ? error.message : "系統發生錯誤。"
-        );
+        throw new RequestError(500, error instanceof Error ? error.message : "系統發生錯誤。");
       }
     }
   }
@@ -346,18 +243,10 @@ export class StudioService {
   //Get Studio Door Password
   async getDoorPassword(studioId: number, userId: number) {
     try {
-      const isStudioExist = await this.validateStudioIdtoUserId(
-        studioId,
-        userId
-      );
+      const isStudioExist = await this.validateStudioIdtoUserId(studioId, userId);
 
       if (isStudioExist.success) {
-        const result = (
-          await this.knex
-            .select("is_reveal_door_password", "door_password")
-            .from("studio")
-            .where("id", studioId)
-        )[0];
+        const result = (await this.knex.select("is_reveal_door_password", "door_password").from("studio").where("id", studioId))[0];
 
         return {
           success: true,
@@ -370,26 +259,17 @@ export class StudioService {
       if (error instanceof RequestError) {
         throw error;
       } else {
-        throw new RequestError(
-          500,
-          error instanceof Error ? error.message : "系統發生錯誤。"
-        );
+        throw new RequestError(500, error instanceof Error ? error.message : "系統發生錯誤。");
       }
     }
   }
 
   async getOnboardingSteps(studioId: number, userId: number) {
     try {
-      const isStudioExist = await this.validateStudioIdtoUserId(
-        studioId,
-        userId
-      );
+      const isStudioExist = await this.validateStudioIdtoUserId(studioId, userId);
 
       if (isStudioExist.success) {
-        const result = await this.knex
-          .select("step")
-          .from("studio_onboarding_step")
-          .where({ studio_id: studioId, is_complete: true });
+        const result = await this.knex.select("step").from("studio_onboarding_step").where({ studio_id: studioId, is_complete: true });
 
         return {
           success: true,
@@ -402,25 +282,17 @@ export class StudioService {
       if (error instanceof RequestError) {
         throw error;
       } else {
-        throw new RequestError(
-          500,
-          error instanceof Error ? error.message : "系統發生錯誤。"
-        );
+        throw new RequestError(500, error instanceof Error ? error.message : "系統發生錯誤。");
       }
     }
   }
 
   async updateStudioStatus(studioId: number, userId: number, status: string) {
     try {
-      const isStudioExist = await this.validateStudioIdtoUserId(
-        studioId,
-        userId
-      );
+      const isStudioExist = await this.validateStudioIdtoUserId(studioId, userId);
 
       if (isStudioExist.success) {
-        await knex("studio")
-          .where({ id: studioId, user_id: userId })
-          .update({ status: status });
+        await knex("studio").where({ id: studioId, user_id: userId }).update({ status: status });
 
         return {
           success: true,
@@ -433,29 +305,17 @@ export class StudioService {
       if (error instanceof RequestError) {
         throw error;
       } else {
-        throw new RequestError(
-          500,
-          error instanceof Error ? error.message : "系統發生錯誤。"
-        );
+        throw new RequestError(500, error instanceof Error ? error.message : "系統發生錯誤。");
       }
     }
   }
 
-  async completeOnboardingStep(
-    studioId: number,
-    userId: number,
-    completedStep: string
-  ) {
+  async completeOnboardingStep(studioId: number, userId: number, completedStep: string) {
     try {
-      const isStudioExist = await this.validateStudioIdtoUserId(
-        studioId,
-        userId
-      );
+      const isStudioExist = await this.validateStudioIdtoUserId(studioId, userId);
 
       if (isStudioExist.success) {
-        await knex("studio_onboarding_step")
-          .where({ studio_id: studioId, step: completedStep })
-          .update({ is_complete: true });
+        await knex("studio_onboarding_step").where({ studio_id: studioId, step: completedStep }).update({ is_complete: true });
 
         return {
           success: true,
@@ -468,10 +328,7 @@ export class StudioService {
       if (error instanceof RequestError) {
         throw error;
       } else {
-        throw new RequestError(
-          500,
-          error instanceof Error ? error.message : "系統發生錯誤。"
-        );
+        throw new RequestError(500, error instanceof Error ? error.message : "系統發生錯誤。");
       }
     }
   }

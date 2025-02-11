@@ -9,7 +9,7 @@ interface Props {
   isHideEndTime?: boolean;
 }
 
-const Search = ({ isHideEndTime = false }: Props) => {
+const SearchFilter = ({ isHideEndTime = false }: Props) => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -17,12 +17,7 @@ const Search = ({ isHideEndTime = false }: Props) => {
     const params = new URLSearchParams();
 
     // Define the prioritized order for parameters
-    const orderedKeys: Array<keyof StudioQuery> = [
-      "location",
-      "date",
-      "startTime",
-      "endTime",
-    ];
+    const orderedKeys: Array<keyof StudioQuery> = ["location", "date", "startTime", "endTime"];
 
     // Create an object to store updated search parameters
     const updatedSearchParams: Partial<StudioQuery> = {};
@@ -30,10 +25,7 @@ const Search = ({ isHideEndTime = false }: Props) => {
     // Update the parameter being changed
     orderedKeys.forEach((key) => {
       if (key === type && value) {
-        updatedSearchParams[key] =
-          key === "startTime" || key === "endTime"
-            ? value.split(":")[0]
-            : value;
+        updatedSearchParams[key] = key === "startTime" || key === "endTime" ? value.split(":")[0] : value;
       } else {
         const currentValue = searchParams.get(key);
         if (currentValue) {
@@ -62,12 +54,9 @@ const Search = ({ isHideEndTime = false }: Props) => {
     <div className="mb-9 flex flex-wrap gap-5 items-center justify-center">
       <LocationPicker updateQueryString={updateQueryString} />
       <DatePicker updateQueryString={updateQueryString} />
-      <TimePicker
-        updateQueryString={updateQueryString}
-        isHideEndTime={isHideEndTime}
-      />
+      <TimePicker updateQueryString={updateQueryString} isHideEndTime={isHideEndTime} />
     </div>
   );
 };
 
-export default Search;
+export default SearchFilter;

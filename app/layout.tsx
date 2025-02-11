@@ -1,12 +1,9 @@
 import type { Metadata } from "next";
-import { Noto_Sans_TC } from "next/font/google";
-import "./globals.css";
-import "./theme-config.css";
-import { ToastContainer } from "react-toastify";
-import QueryClientProvider from "./QueryClientProvider";
 import { SessionProvider } from "next-auth/react";
-import NavBar from "@/components/custom-components/layout/main-nav-bar/NavBar";
-import Footer from "@/components/custom-components/layout/MainFooter";
+import { Noto_Sans_TC } from "next/font/google";
+import { ToastContainer } from "react-toastify";
+import "./globals.css";
+import QueryClientProvider from "./QueryClientProvider";
 
 const notoSansTC = Noto_Sans_TC({
   subsets: ["latin"], // Include subsets as per your use case
@@ -29,10 +26,7 @@ export default function RootLayout({
       <body className={`${notoSansTC.className} antialiased`}>
         <QueryClientProvider>
           <SessionProvider>
-            <NavBar />
-            <main className="mx-auto">{children}</main>
-            <Footer />
-
+            {children}
             <ToastContainer />
           </SessionProvider>
         </QueryClientProvider>
@@ -40,5 +34,3 @@ export default function RootLayout({
     </html>
   );
 }
-// px-2 md:px-3 lg:px-5 py-10
-// container;

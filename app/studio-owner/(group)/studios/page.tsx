@@ -1,38 +1,37 @@
-import ToastMessageWithRedirect from "@/components/custom-components/ToastMessageWithRedirect";
-import { studioService } from "@/services/StudioService";
-import AddNewStudio from "./AddNewStudio";
-import StudioCard from "./StudioCard";
+import { auth } from "@/lib/next-auth-config/auth";
+import { studioOwnerService } from "@/services/studio/StudioOwnerService";
 
-//Get cover image, logo, name, status, id
+import AddNewStudio from "@/components/custom-components/studio-owner/AddNewStudio";
+import StudioCard from "@/components/custom-components/studio-owner/StudioCard";
+import ToastMessageWithRedirect from "@/components/custom-components/ToastMessageWithRedirect";
 
 const StudiosPage = async () => {
-  const userId = 1;
+  const session = await auth();
 
-  let studios;
-
-  try {
-    //Get Basic Info from Database
-    const studiosResponse = await studioService.getAllStudios(userId);
-    studios = studiosResponse.data;
-  } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : "系統出現錯誤，請重試。";
-    return (
-      <ToastMessageWithRedirect
-        type={"error"}
-        message={errorMessage}
-        redirectPath={"/studio-owner/dashboard"}
-      />
-    );
+  if (!session?.user) {
+    return <ToastMessageWithRedirect type={"error"} message={"請先登入後才可處理。"} redirectPath={"/auth/login"} />;
   }
 
+  const response = await studioOwnerService.getStudiosByUserId(session?.user.id || "");
+
+  if (!response.success) {
+    return <ToastMessageWithRedirect type={"error"} message={response?.error?.message} redirectPath={"/"} />;
+  }
+
+  const studios = response.success && response.data;
+
   return (
-    <div className="flex flex-wrap -mx-3">
-      {studios.map((studio) => (
-        <StudioCard key={studio.id} studioInfo={studio} />
-      ))}
-      <AddNewStudio />
-    </div>
+    <>
+      {!studios && <AddNewStudio type="new" />}
+      {studios && (
+        <div className="flex flex-wrap -mx-3">
+          {studios?.map((studio) => (
+            <StudioCard key={studio.id} studioInfo={studio} />
+          ))}
+          <AddNewStudio type="existing" />
+        </div>
+      )}
+    </>
   );
 };
 

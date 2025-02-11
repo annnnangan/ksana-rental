@@ -1,9 +1,8 @@
 import { allStudiosService } from "@/services/AllStudiosService";
-import Search from "./_component/Search";
-import StudioList, {
-  studioCardInfo,
-} from "../../components/custom-components/studio/StudioList";
+
 import ToastMessageWithRedirect from "@/components/custom-components/ToastMessageWithRedirect";
+import StudioList, { studioCardInfo } from "@/components/custom-components/studio/StudioList";
+import SearchFilter from "./_component/Search";
 
 export interface StudioQuery {
   location: string;
@@ -21,20 +20,13 @@ const ExploreStudiosPage = async () => {
       studioListData = studioList.data;
     }
   } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : "系統發生未預期錯誤，請重試。";
-    return (
-      <ToastMessageWithRedirect
-        type={"error"}
-        message={errorMessage}
-        redirectPath={"/"}
-      />
-    );
+    const errorMessage = error instanceof Error ? error.message : "系統發生未預期錯誤，請重試。";
+    return <ToastMessageWithRedirect type={"error"} message={errorMessage} redirectPath={"/"} />;
   }
 
   return (
     <>
-      <Search />
+      <SearchFilter />
       <StudioList studioList={studioListData} />
     </>
   );
