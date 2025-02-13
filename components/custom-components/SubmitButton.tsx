@@ -7,22 +7,14 @@ interface Props {
   submittingText?: string;
   nonSubmittingText?: string;
   className?: string;
+  withIcon?: boolean;
 }
 
-const SubmitButton = ({
-  isSubmitting,
-  submittingText = "資料儲存中...",
-  nonSubmittingText = "往下一步",
-  className,
-}: Props) => {
+const SubmitButton = ({ isSubmitting, submittingText = "資料儲存中...", nonSubmittingText = "往下一步", withIcon = true, className }: Props) => {
   return (
-    <Button
-      type="submit"
-      className={`mt-5 px-12 ${className}`}
-      disabled={isSubmitting}
-    >
+    <Button type="submit" className={`mt-5 px-12 ${className}`} disabled={isSubmitting}>
       {isSubmitting ? submittingText : nonSubmittingText}
-      {isSubmitting ? <Loader2 className="animate-spin" /> : <MoveRight />}
+      {isSubmitting ? <Loader2 className="animate-spin" /> : withIcon ? <MoveRight /> : ""}
     </Button>
   );
 };

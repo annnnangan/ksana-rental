@@ -29,8 +29,8 @@ const navItems = (studioId: string): NavItems => ({
       icon: CircleGauge,
     },
     {
-      title: "可預約時間",
-      url: `/studio-owner/studio/${studioId}/manage/booking-time`,
+      title: "可預約時間及價錢",
+      url: `/studio-owner/studio/${studioId}/manage/business-hour-and-price`,
       icon: CalendarCog,
     },
     {
