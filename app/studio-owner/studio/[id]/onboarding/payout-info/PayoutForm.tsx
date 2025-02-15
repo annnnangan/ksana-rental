@@ -2,14 +2,8 @@
 import ErrorMessage from "@/components/custom-components/ErrorMessage";
 import { Input } from "@/components/shadcn/input";
 import { Label } from "@/components/shadcn/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/shadcn/select";
-import { StudioPayoutFormData, StudioPayoutSchema } from "@/lib/validations";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/shadcn/select";
+import { StudioPayoutFormData, StudioPayoutSchema } from "@/lib/validations/zod-schema/booking-schema";
 import { payoutMethod } from "@/services/model";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { usePathname, useRouter } from "next/navigation";
@@ -49,18 +43,15 @@ const PayoutForm = ({ studioId, defaultValue }: Props) => {
 
   const onSubmit = async (data: StudioPayoutFormData) => {
     try {
-      const savePayoutDetailResponse = await fetch(
-        `/api/studio/${studioId}/payout-detail`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            data,
-          }),
-        }
-      );
+      const savePayoutDetailResponse = await fetch(`/api/studio/${studioId}/payout-detail`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          data,
+        }),
+      });
 
       if (!savePayoutDetailResponse.ok) {
         const errorData = await savePayoutDetailResponse.json();
@@ -69,18 +60,15 @@ const PayoutForm = ({ studioId, defaultValue }: Props) => {
 
       //Save Onboarding Step Track
       const onboardingStep = getOnboardingStep(pathname);
-      const completeOnboardingStepResponse = await fetch(
-        `/api/studio/${studioId}/onboarding-step`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            onboardingStep,
-          }),
-        }
-      );
+      const completeOnboardingStepResponse = await fetch(`/api/studio/${studioId}/onboarding-step`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          onboardingStep,
+        }),
+      });
 
       if (!completeOnboardingStepResponse.ok) {
         // If the response status is not 2xx, throw an error with the response message
@@ -91,8 +79,7 @@ const PayoutForm = ({ studioId, defaultValue }: Props) => {
       router.push(`/studio-owner/studio/${studioId}/onboarding/confirmation`);
       router.refresh();
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "系統發生未預期錯誤，請重試。";
+      const errorMessage = error instanceof Error ? error.message : "系統發生未預期錯誤，請重試。";
       toast(errorMessage, {
         position: "top-right",
         type: "error",
@@ -134,13 +121,7 @@ const PayoutForm = ({ studioId, defaultValue }: Props) => {
           帳戶名稱
         </Label>
         <FieldRemarks>請填寫完整英文帳戶名稱(e.g. Chan Tai Man)。</FieldRemarks>
-        <Input
-          type="text"
-          id="payoutAccountName"
-          placeholder="請輸入帳戶名稱"
-          className="text-sm"
-          {...register("payoutAccountName")}
-        />
+        <Input type="text" id="payoutAccountName" placeholder="請輸入帳戶名稱" className="text-sm" {...register("payoutAccountName")} />
       </div>
 
       <ErrorMessage> {errors.payoutAccountName?.message}</ErrorMessage>
@@ -149,13 +130,7 @@ const PayoutForm = ({ studioId, defaultValue }: Props) => {
         <Label htmlFor="payoutAccountNumber" className="text-base font-bold">
           帳戶號碼
         </Label>
-        <Input
-          type="text"
-          id="payoutAccountNumber"
-          placeholder="請輸入帳戶號碼"
-          className="text-sm"
-          {...register("payoutAccountNumber")}
-        />
+        <Input type="text" id="payoutAccountNumber" placeholder="請輸入帳戶號碼" className="text-sm" {...register("payoutAccountNumber")} />
       </div>
 
       <ErrorMessage> {errors.payoutAccountNumber?.message}</ErrorMessage>

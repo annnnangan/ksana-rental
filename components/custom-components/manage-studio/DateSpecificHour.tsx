@@ -1,20 +1,20 @@
 "use client";
 
+import DeleteConfirmationModal from "@/components/custom-components/DeleteConfirmationModal";
+import ErrorMessage from "@/components/custom-components/ErrorMessage";
+import SubmitButton from "@/components/custom-components/SubmitButton";
 import { Button } from "@/components/shadcn/button";
 import { Calendar } from "@/components/shadcn/calendar";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/shadcn/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/shadcn/select";
-import ErrorMessage from "@/components/custom-components/ErrorMessage";
-import SubmitButton from "@/components/custom-components/SubmitButton";
-import DeleteConfirmationModal from "@/components/custom-components/DeleteConfirmationModal";
 import { CalendarPlus, CirclePlus, Clock7, X } from "lucide-react";
 import { toast } from "react-toastify";
 
-import { DateSpecificHoursSchema, DateSpecificHoursSchemaFormData } from "@/lib/validations/zod-schema/date-specific-hours-schema";
-import { deleteDateSpecificHours, saveDateSpecificHours } from "@/actions/studio";
 import { generateTimeslots } from "@/lib/utils/date-time/generate-timeslot";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import { deleteDateSpecificHour, saveDateSpecificHour } from "@/actions/studio";
+import { DateSpecificHourSchema, DateSpecificHourSchemaFormData } from "@/lib/validations/zod-schema/studio/studio-manage-schema";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
@@ -22,16 +22,16 @@ import { Controller, useForm } from "react-hook-form";
 
 interface Props {
   studioId: string;
-  dateSpecificHoursList: DateSpecificHoursSchemaFormData[];
+  dateSpecificHourList: DateSpecificHourSchemaFormData[];
 }
 
-const DateSpecificHours = ({ studioId, dateSpecificHoursList }: Props) => {
+const DateSpecificHour = ({ studioId, dateSpecificHourList }: Props) => {
   const router = useRouter();
   // useState / useTransaction
   const [isOpenModal, setOpenModal] = useState(false);
   const [isOpenDeleteConfirmationModal, setOpenDeleteConfirmationModal] = useState(false);
   const [isPending, startTransition] = useTransition();
-  const [selectedDeleteItem, setSelectedDeleteItem] = useState<DateSpecificHoursSchemaFormData | null>(null);
+  const [selectedDeleteItem, setSelectedDeleteItem] = useState<DateSpecificHourSchemaFormData | null>(null);
 
   // useForm
   const {
@@ -41,15 +41,15 @@ const DateSpecificHours = ({ studioId, dateSpecificHoursList }: Props) => {
     setValue,
     reset,
     formState: { errors, isSubmitting },
-  } = useForm<DateSpecificHoursSchemaFormData>({
-    resolver: zodResolver(DateSpecificHoursSchema),
+  } = useForm<DateSpecificHourSchemaFormData>({
+    resolver: zodResolver(DateSpecificHourSchema),
     defaultValues: {
-      timeslots: [{ from: "00:00", to: "18:00", priceType: "non-peak" }],
+      dateSpecificHour: { timeslots: [{ from: "00:00", to: "18:00", priceType: "non-peak" }] },
     },
   });
 
-  const timeslotsWatch = watch("timeslots");
-  const dateWatch = watch("date");
+  const timeslotsWatch = watch("dateSpecificHour.timeslots");
+  const dateWatch = watch("dateSpecificHour.date");
 
   // variable
   const fromTimeslots = useMemo(() => {
@@ -69,24 +69,24 @@ const DateSpecificHours = ({ studioId, dateSpecificHoursList }: Props) => {
   };
 
   const handleAddTimeslot = () => {
-    setValue("timeslots", [...(timeslotsWatch || []), { from: "", to: "", priceType: "non-peak" }]);
+    setValue("dateSpecificHour.timeslots", [...(timeslotsWatch || []), { from: "", to: "", priceType: "non-peak" }]);
   };
 
   const handleRemoveTimeslot = (index: number) => {
     setValue(
-      `timeslots`,
+      `dateSpecificHour.timeslots`,
       timeslotsWatch.filter((_, i) => i !== index)
     );
   };
 
   const handleUpdateTimeslot = (index: number, field: "from" | "to" | "priceType", value: string) => {
-    setValue(`timeslots.${index}.${field}`, value);
+    setValue(`dateSpecificHour.timeslots.${index}.${field}`, value);
   };
 
   const handleDeleteDateSpecificHours = (date: string) => {
     startTransition(() => {
-      deleteDateSpecificHours(date, studioId).then((data) => {
-        toast(data.error?.message || "成功新增特定日期之可預約時間。", {
+      deleteDateSpecificHour(date, studioId).then((data) => {
+        toast(data.error?.message || "成功刪除特定日期之可預約時間。", {
           position: "top-right",
           type: data?.success ? "success" : "error",
           autoClose: 1000,
@@ -98,9 +98,9 @@ const DateSpecificHours = ({ studioId, dateSpecificHoursList }: Props) => {
   };
 
   // submit function
-  const onSubmit = (data: DateSpecificHoursSchemaFormData) => {
+  const onSubmit = (data: DateSpecificHourSchemaFormData) => {
     startTransition(() => {
-      saveDateSpecificHours(data, studioId).then((data) => {
+      saveDateSpecificHour(data, studioId).then((data) => {
         toast(data.error?.message || "成功新增特定日期之可預約時間。", {
           position: "top-right",
           type: data?.success ? "success" : "error",
@@ -130,7 +130,7 @@ const DateSpecificHours = ({ studioId, dateSpecificHoursList }: Props) => {
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="flex justify-center mb-5">
               <Controller
-                name={`date`}
+                name={`dateSpecificHour.date`}
                 control={control}
                 render={({ field }) => (
                   <Calendar
@@ -138,7 +138,7 @@ const DateSpecificHours = ({ studioId, dateSpecificHoursList }: Props) => {
                     selected={field.value as Date}
                     onSelect={(date) => {
                       field.onChange(date);
-                      setValue(`timeslots`, [{ from: "00:00", to: "18:00", priceType: "non-peak" }]);
+                      setValue(`dateSpecificHour.timeslots`, [{ from: "00:00", to: "18:00", priceType: "non-peak" }]);
                     }}
                     initialFocus
                     disabled={{ before: new Date() }}
@@ -160,14 +160,14 @@ const DateSpecificHours = ({ studioId, dateSpecificHoursList }: Props) => {
                 {timeslotsWatch.length === 0 && <p className="text-center text-gray-400">-- 沒有可預約時間 --</p>}
                 {timeslotsWatch.length > 0 && (
                   <div className="flex flex-col gap-3">
-                    {errors.timeslots?.root && <ErrorMessage>{errors.timeslots?.root?.message}</ErrorMessage>}
+                    {errors.dateSpecificHour?.timeslots?.root && <ErrorMessage>{errors.dateSpecificHour?.timeslots?.root?.message}</ErrorMessage>}
                     <ul className="flex flex-col gap-y-5 md:gap-y-2">
                       {timeslotsWatch.map((timeslot, index) => (
                         <li className="flex flex-col" key={index}>
                           <div className="flex items-center gap-x-2 gap-y-1 flex-wrap">
                             {/* from */}
                             <Controller
-                              name={`timeslots.${index}.from`}
+                              name={`dateSpecificHour.timeslots.${index}.from`}
                               control={control}
                               render={({ field }) => (
                                 <Select value={field.value} onValueChange={(value) => handleUpdateTimeslot(index, "from", value)}>
@@ -187,7 +187,7 @@ const DateSpecificHours = ({ studioId, dateSpecificHoursList }: Props) => {
                             <span>-</span>
                             {/* to */}
                             <Controller
-                              name={`timeslots.${index}.to`}
+                              name={`dateSpecificHour.timeslots.${index}.to`}
                               control={control}
                               render={({ field }) => (
                                 <Select value={field.value} onValueChange={(value) => handleUpdateTimeslot(index, "to", value)}>
@@ -207,7 +207,7 @@ const DateSpecificHours = ({ studioId, dateSpecificHoursList }: Props) => {
 
                             {/* price type */}
                             <Controller
-                              name={`timeslots.${index}.priceType`}
+                              name={`dateSpecificHour.timeslots.${index}.priceType`}
                               control={control}
                               render={({ field }) => (
                                 <Select value={field.value} onValueChange={(value) => handleUpdateTimeslot(index, "priceType", value)}>
@@ -227,8 +227,8 @@ const DateSpecificHours = ({ studioId, dateSpecificHoursList }: Props) => {
 
                           {/* Display error */}
                           <div className="flex flex-wrap gap-2">
-                            <ErrorMessage>{errors.timeslots?.[index]?.from?.message}</ErrorMessage>
-                            <ErrorMessage>{errors.timeslots?.[index]?.to?.message}</ErrorMessage>
+                            <ErrorMessage>{errors.dateSpecificHour?.timeslots?.[index]?.from?.message}</ErrorMessage>
+                            <ErrorMessage>{errors.dateSpecificHour?.timeslots?.[index]?.to?.message}</ErrorMessage>
                           </div>
                         </li>
                       ))}
@@ -250,21 +250,21 @@ const DateSpecificHours = ({ studioId, dateSpecificHoursList }: Props) => {
       </Dialog>
 
       <div className="mt-5">
-        {dateSpecificHoursList.length == 0 && (
+        {dateSpecificHourList.length == 0 && (
           <div className="flex flex-col items-center">
             <Image src="/yoga-cartoon/yoga-girl-doing-triangle-pose.png" alt="yoga image" width="250" height="250" />
             <p className="text-gray-500">-- 未有設定 --</p>
           </div>
         )}
-        {dateSpecificHoursList.length > 0 && (
+        {dateSpecificHourList.length > 0 && (
           <ul>
-            {dateSpecificHoursList.map((item) => (
-              <li key={JSON.stringify(item.date)} className="border-b flex flex-wrap justify-between gap-x-10 gap-y-2 hover:bg-gray-50 cursor-pointer p-3 transition-colors">
+            {dateSpecificHourList.map((item) => (
+              <li key={JSON.stringify(item.dateSpecificHour.date)} className="border-b flex flex-wrap justify-between gap-x-10 gap-y-2 hover:bg-gray-50 cursor-pointer p-3 transition-colors">
                 <div className="md:flex gap-x-10 gap-y-3">
-                  <p className="font-bold text-brand-700">{item.date as string}</p>
-                  {item.timeslots.length > 0 ? (
+                  <p className="font-bold text-brand-700">{item.dateSpecificHour.date as string}</p>
+                  {item.dateSpecificHour.timeslots.length > 0 ? (
                     <ul className="flex flex-col gap-1">
-                      {item.timeslots.map((slot, index) => (
+                      {item.dateSpecificHour.timeslots.map((slot, index) => (
                         <li key={index} className="flex gap-x-5">
                           <span className="flex gap-2 items-center">
                             <Clock7 className="w-5 h-5" />
@@ -298,15 +298,15 @@ const DateSpecificHours = ({ studioId, dateSpecificHoursList }: Props) => {
           isOpenModal={isOpenDeleteConfirmationModal}
           setOpenModal={setOpenDeleteConfirmationModal}
           isDeleting={isPending}
-          handleDeleteItem={() => handleDeleteDateSpecificHours(selectedDeleteItem.date as string)}
+          handleDeleteItem={() => handleDeleteDateSpecificHours(selectedDeleteItem.dateSpecificHour.date as string)}
         >
           <div className="flex flex-col items-center">
             <p>你確定要刪除以下時間？</p>
             <p className="text-sm text-gray-700">刪除後，該日期之可預約時間，會根據恆常營業時間的設定。</p>
-            <p className="text-lg mt-2 text-primary font-bold">{selectedDeleteItem.date as string}</p>
-            {selectedDeleteItem.timeslots.length > 0 ? (
+            <p className="text-lg mt-2 text-primary font-bold">{selectedDeleteItem.dateSpecificHour.date as string}</p>
+            {selectedDeleteItem.dateSpecificHour.timeslots.length > 0 ? (
               <ul className="flex flex-col gap-1">
-                {selectedDeleteItem.timeslots.map((slot, index) => (
+                {selectedDeleteItem.dateSpecificHour.timeslots.map((slot, index) => (
                   <li key={index} className="flex gap-x-5">
                     <span className="flex gap-2 items-center">
                       <Clock7 className="w-5 h-5" />
@@ -326,4 +326,4 @@ const DateSpecificHours = ({ studioId, dateSpecificHoursList }: Props) => {
   );
 };
 
-export default DateSpecificHours;
+export default DateSpecificHour;

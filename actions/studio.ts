@@ -3,10 +3,12 @@
 import handleError from "@/lib/handlers/error";
 import { UnauthorizedError, ValidationError } from "@/lib/http-errors";
 import { auth } from "@/lib/next-auth-config/auth";
-import { DateSpecificHoursSchema, DateSpecificHoursSchemaFormData } from "@/lib/validations/zod-schema/date-specific-hours-schema";
+import { DateSpecificHourSchema, DateSpecificHourSchemaFormData } from "@/lib/validations/zod-schema/studio/studio-manage-schema";
+import { BusinessHoursAndPriceFormData, BusinessHoursAndPriceSchema } from "@/lib/validations/zod-schema/studio/studio-onboarding-schema";
+
 import { studioService } from "@/services/studio/StudioService";
 
-export const saveDateSpecificHours = async (data: DateSpecificHoursSchemaFormData, studioId: string) => {
+export const saveDateSpecificHour = async (data: DateSpecificHourSchemaFormData, studioId: string) => {
   try {
     //validate if user has logged in
     const session = await auth();
@@ -17,13 +19,13 @@ export const saveDateSpecificHours = async (data: DateSpecificHoursSchemaFormDat
     //validate if the studio belong to the user
 
     //zod safe parse
-    const validateFields = DateSpecificHoursSchema.safeParse(data);
+    const validateFields = DateSpecificHourSchema.safeParse(data);
     if (!validateFields.success) {
       throw new ValidationError(validateFields.error.flatten().fieldErrors);
     }
 
     //save to database
-    const result = await studioService.saveDateSpecificHours(data, studioId);
+    const result = await studioService.saveDateSpecificHour(data, studioId);
 
     if (!result.success) {
       return result;
@@ -35,7 +37,7 @@ export const saveDateSpecificHours = async (data: DateSpecificHoursSchemaFormDat
   }
 };
 
-export const deleteDateSpecificHours = async (date: string, studioId: string) => {
+export const deleteDateSpecificHour = async (date: string, studioId: string) => {
   try {
     //validate if user has logged in
     const session = await auth();
@@ -46,7 +48,35 @@ export const deleteDateSpecificHours = async (date: string, studioId: string) =>
     //validate if the studio belong to the user
 
     //save to database
-    const result = await studioService.deleteDateSpecificHoursByStudioId(date, studioId);
+    const result = await studioService.deleteDateSpecificHourByStudioId(date, studioId);
+
+    if (!result.success) {
+      return result;
+    }
+
+    return { success: true };
+  } catch (error) {
+    return handleError(error, "server") as ActionResponse;
+  }
+};
+
+export const saveBusinessHoursAndPrice = async (data: BusinessHoursAndPriceFormData, studioId: string, isOnboardingStep: boolean) => {
+  try {
+    //validate if user has logged in
+    const session = await auth();
+    if (!session?.user.id) {
+      throw new UnauthorizedError("請先登入後才可處理。");
+    }
+
+    //validate if the studio belong to the user
+
+    //zod safe parse
+    const validateFields = BusinessHoursAndPriceSchema.safeParse(data);
+    if (!validateFields.success) {
+      throw new ValidationError(validateFields.error.flatten().fieldErrors);
+    }
+
+    const result = await studioService.saveBusinessHoursAndPrice(data, studioId, isOnboardingStep);
 
     if (!result.success) {
       return result;

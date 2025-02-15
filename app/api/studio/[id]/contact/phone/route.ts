@@ -1,13 +1,10 @@
 import handleError from "@/lib/handlers/error";
 import { ValidationError } from "@/lib/http-errors";
-import { studioContactSchema } from "@/lib/validations";
+import { studioContactSchema } from "@/lib/validations/zod-schema/booking-schema";
 import { studioCreateService } from "@/services/StudioCreateService";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function PUT(
-  request: NextRequest,
-  props: { params: Promise<{ id: number }> }
-) {
+export async function PUT(request: NextRequest, props: { params: Promise<{ id: number }> }) {
   try {
     const params = await props.params;
     const body = await request.json();
@@ -19,11 +16,7 @@ export async function PUT(
       throw new ValidationError(validatedData.error.flatten().fieldErrors);
     }
 
-    const response = await studioCreateService.savePhone(
-      Number(params.id),
-      userId,
-      body.data
-    );
+    const response = await studioCreateService.savePhone(Number(params.id), userId, body.data);
 
     if (!response.success) {
       return new Error();

@@ -2,7 +2,7 @@
 import ErrorMessage from "@/components/custom-components/ErrorMessage";
 import { Button } from "@/components/shadcn/button";
 import { uploadImage } from "@/lib/utils/s3-upload/s3-image-upload-utils";
-import { studioGalleryFormData, studioGallerySchema } from "@/lib/validations";
+import { studioGalleryFormData, studioGallerySchema } from "@/lib/validations/zod-schema/booking-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ImageUpIcon } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
@@ -55,9 +55,7 @@ const GalleryForm = ({ defaultValues, studioId }: Props) => {
       // await deleteImageFromS3(identifier);
     } else {
       // Remove new uploaded image
-      const updatedImages = gallery.filter(
-        (image) => !(image instanceof File && image.lastModified === identifier)
-      );
+      const updatedImages = gallery.filter((image) => !(image instanceof File && image.lastModified === identifier));
       setValue("gallery", updatedImages, { shouldValidate: true });
     }
   };
@@ -103,22 +101,10 @@ const GalleryForm = ({ defaultValues, studioId }: Props) => {
       const errorResponse = await Promise.all(
         data.gallery
           .filter((image) => image instanceof File) // Only upload File objects (new images)
-          .map(
-            async (image) =>
-              await uploadImage(
-                image,
-                "gallery",
-                studioId,
-                `/api/studio/${studioId}/gallery`,
-                "PUT",
-                "studios"
-              )
-          )
+          .map(async (image) => await uploadImage(image, "gallery", studioId, `/api/studio/${studioId}/gallery`, "PUT", "studios"))
       );
 
-      const error = errorResponse.filter(
-        (errorMessage) => errorMessage !== undefined
-      );
+      const error = errorResponse.filter((errorMessage) => errorMessage !== undefined);
 
       if (error.length > 0) {
         throw new Error("系統發生未預期錯誤，請重試。");
@@ -126,18 +112,15 @@ const GalleryForm = ({ defaultValues, studioId }: Props) => {
 
       //Save Onboarding Step Track
       const onboardingStep = getOnboardingStep(pathname);
-      const completeOnboardingStepResponse = await fetch(
-        `/api/studio/${studioId}/onboarding-step`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            onboardingStep,
-          }),
-        }
-      );
+      const completeOnboardingStepResponse = await fetch(`/api/studio/${studioId}/onboarding-step`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          onboardingStep,
+        }),
+      });
 
       if (!completeOnboardingStepResponse.ok) {
         // If the response status is not 2xx, throw an error with the response message
@@ -148,8 +131,7 @@ const GalleryForm = ({ defaultValues, studioId }: Props) => {
       router.push(`/studio-owner/studio/${studioId}/onboarding/door-password`);
       router.refresh();
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "系統發生未預期錯誤，請重試。";
+      const errorMessage = error instanceof Error ? error.message : "系統發生未預期錯誤，請重試。";
       toast(errorMessage, {
         position: "top-right",
         type: "error",
@@ -162,36 +144,16 @@ const GalleryForm = ({ defaultValues, studioId }: Props) => {
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className="my-5 flex justify-center items-center flex-col rounded-md">
-        <Button
-          className="rounded-full text-sm border-primary hover:bg-primary hover:text-white mt-2"
-          variant="outline"
-          type="button"
-          onClick={handleUploadBtnClick}
-        >
+        <Button className="rounded-full text-sm border-primary hover:bg-primary hover:text-white mt-2" variant="outline" type="button" onClick={handleUploadBtnClick}>
           <ImageUpIcon /> 上載圖片
         </Button>
-        <p className="text-gray-500 mt-2 text-sm">
-          上傳的每張相片大小不超過5MB。
-        </p>
+        <p className="text-gray-500 mt-2 text-sm">上傳的每張相片大小不超過5MB。</p>
       </div>
-      <input
-        type="file"
-        accept="image/png, image/jpeg, image/jpg"
-        multiple
-        onChange={handleFileSelected}
-        className="hidden"
-        ref={hiddenFileInput}
-      />
+      <input type="file" accept="image/png, image/jpeg, image/jpg" multiple onChange={handleFileSelected} className="hidden" ref={hiddenFileInput} />
       <div className="mb-2">
         <ErrorMessage>{errors.gallery?.message}</ErrorMessage>
       </div>
-      <ImagesGridPreview
-        images={gallery}
-        removeImage={removeImage}
-        error={errors.gallery as FieldError[] | undefined}
-        imageAlt={"studio image"}
-        allowDeleteImage={true}
-      />
+      <ImagesGridPreview images={gallery} removeImage={removeImage} error={errors.gallery as FieldError[] | undefined} imageAlt={"studio image"} allowDeleteImage={true} />
       <SubmitButton isSubmitting={isSubmitting} />
     </form>
   );

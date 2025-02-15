@@ -2,10 +2,7 @@
 
 import ErrorMessage from "@/components/custom-components/ErrorMessage";
 import { Checkbox } from "@/components/shadcn/checkbox";
-import {
-  studioEquipmentFormData,
-  studioEquipmentSchema,
-} from "@/lib/validations";
+import { studioEquipmentFormData, studioEquipmentSchema } from "@/lib/validations/zod-schema/booking-schema";
 import { equipmentMap } from "@/services/model";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { usePathname, useRouter } from "next/navigation";
@@ -35,18 +32,15 @@ const EquipmentForm = ({ defaultValue, studioId }: Props) => {
 
   const onSubmit = async (data: studioEquipmentFormData) => {
     try {
-      const saveEquipmentResponse = await fetch(
-        `/api/studio/${studioId}/equipment`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            data,
-          }),
-        }
-      );
+      const saveEquipmentResponse = await fetch(`/api/studio/${studioId}/equipment`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          data,
+        }),
+      });
 
       if (!saveEquipmentResponse.ok) {
         const errorData = await saveEquipmentResponse.json();
@@ -55,18 +49,15 @@ const EquipmentForm = ({ defaultValue, studioId }: Props) => {
 
       //Save Onboarding Step Track
       const onboardingStep = getOnboardingStep(pathname);
-      const completeOnboardingStepResponse = await fetch(
-        `/api/studio/${studioId}/onboarding-step`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            onboardingStep,
-          }),
-        }
-      );
+      const completeOnboardingStepResponse = await fetch(`/api/studio/${studioId}/onboarding-step`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          onboardingStep,
+        }),
+      });
 
       if (!completeOnboardingStepResponse.ok) {
         // If the response status is not 2xx, throw an error with the response message
@@ -79,8 +70,7 @@ const EquipmentForm = ({ defaultValue, studioId }: Props) => {
 
       //Save text information to database
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "系統發生未預期錯誤，請重試。";
+      const errorMessage = error instanceof Error ? error.message : "系統發生未預期錯誤，請重試。";
       toast(errorMessage, {
         position: "top-right",
         type: "error",
@@ -104,11 +94,7 @@ const EquipmentForm = ({ defaultValue, studioId }: Props) => {
                 checked={field.value?.includes(item.value)}
                 id={item.value}
                 onCheckedChange={(checked) => {
-                  return checked
-                    ? field.onChange([...field.value, item.value])
-                    : field.onChange(
-                        field.value?.filter((value) => value !== item.value)
-                      );
+                  return checked ? field.onChange([...field.value, item.value]) : field.onChange(field.value?.filter((value) => value !== item.value));
                 }}
               />
             )}

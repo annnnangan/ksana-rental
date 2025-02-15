@@ -1,48 +1,16 @@
 export type PriceType = "peak" | "non-peak";
 
-export type daysOfWeekType =
-  | "Monday"
-  | "Tuesday"
-  | "Wednesday"
-  | "Thursday"
-  | "Friday"
-  | "Saturday"
-  | "Sunday";
+export type daysOfWeekType = "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday";
 
-export const daysOfWeek: daysOfWeekType[] = [
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-  "Sunday",
-];
+export const daysOfWeek: daysOfWeekType[] = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
-export type StudioStatus =
-  | "draft"
-  | "active"
-  | "suspended"
-  | "reviewing"
-  | "closed";
+export type StudioStatus = "draft" | "active" | "suspended" | "reviewing" | "closed";
 
-export type BookingStatus =
-  | "confirmed"
-  | "canceled"
-  | "pending for payment"
-  | "expired";
+export type BookingStatus = "confirmed" | "canceled" | "pending for payment" | "expired";
 
 export type PayoutStatus = "pending" | "complete";
 
-export const onBoardingRequiredSteps = [
-  "basic-info",
-  "business-hour-and-price",
-  "equipment",
-  "gallery",
-  "door-password",
-  "contact",
-  "payout-info",
-];
+export const onBoardingRequiredSteps = ["basic-info", "business-hour-and-price", "equipment", "gallery", "door-password", "contact", "payout-info"];
 
 export const districts = [
   {
@@ -80,9 +48,7 @@ export const districts = [
   },
 ];
 
-export const districtValues = districts
-  .flatMap((item) => item.district)
-  .map((location) => location.value) as [string, ...string[]];
+export const districtValues = districts.flatMap((item) => item.district).map((location) => location.value) as [string, ...string[]];
 
 export interface BasicInfo {
   cover_photo?: string | null;

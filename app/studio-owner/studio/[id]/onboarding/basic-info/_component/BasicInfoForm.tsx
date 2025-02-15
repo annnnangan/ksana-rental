@@ -4,25 +4,13 @@ import { useState } from "react";
 import { usePathname } from "next/navigation";
 
 import ErrorMessage from "@/components/custom-components/ErrorMessage";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/shadcn/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/shadcn/avatar";
 import { Input } from "@/components/shadcn/input";
 import { Label } from "@/components/shadcn/label";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/shadcn/select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/shadcn/select";
 import { Textarea } from "@/components/shadcn/textarea";
 import { uploadImage } from "@/lib/utils/s3-upload/s3-image-upload-utils";
-import { studioBasicInfoSchema } from "@/lib/validations";
+import { studioBasicInfoSchema } from "@/lib/validations/zod-schema/booking-schema";
 import { BasicInfo, districts } from "@/services/model";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Building2, Image as ImageIcon } from "lucide-react";
@@ -108,10 +96,7 @@ const BasicInfoForm = ({ basicInfoData, studioId }: Props) => {
 
     try {
       //only when user has uploaded new images, will trigger image upload process
-      if (
-        (!coverFile && !basicInfoData.cover_photo) ||
-        (!logoFile && !basicInfoData.logo)
-      ) {
+      if ((!coverFile && !basicInfoData.cover_photo) || (!logoFile && !basicInfoData.logo)) {
         if (!coverFile && !basicInfoData.cover_photo) {
           setCoverFileError("請上傳封面圖片");
           throw new Error("請上傳封面圖片");
@@ -127,13 +112,7 @@ const BasicInfoForm = ({ basicInfoData, studioId }: Props) => {
       if (coverFile || logoFile) {
         // Upload cover image
         if (coverFile) {
-          const errorResponse = await uploadImage(
-            coverFile,
-            "cover_photo",
-            studioId,
-            `/api/studio/${studioId}/basic-info/images`,
-            "PUT"
-          );
+          const errorResponse = await uploadImage(coverFile, "cover_photo", studioId, `/api/studio/${studioId}/basic-info/images`, "PUT");
           if (errorResponse) {
             setCoverFileError(errorResponse);
             throw new Error(errorResponse);
@@ -141,13 +120,7 @@ const BasicInfoForm = ({ basicInfoData, studioId }: Props) => {
         }
         // Upload logo image
         if (logoFile) {
-          const errorResponse = await uploadImage(
-            logoFile,
-            "logo",
-            studioId,
-            `/api/studio/${studioId}/basic-info/images`,
-            "PUT"
-          );
+          const errorResponse = await uploadImage(logoFile, "logo", studioId, `/api/studio/${studioId}/basic-info/images`, "PUT");
           if (errorResponse) {
             setLogoFileError(errorResponse);
             throw new Error(errorResponse);
@@ -158,19 +131,16 @@ const BasicInfoForm = ({ basicInfoData, studioId }: Props) => {
       const onboardingStep = getOnboardingStep(pathname);
 
       //Save Basic Info to Database
-      const saveBasicInfoResponse = await fetch(
-        `/api/studio/${studioId}/basic-info`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            data,
-            onboardingStep,
-          }),
-        }
-      );
+      const saveBasicInfoResponse = await fetch(`/api/studio/${studioId}/basic-info`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          data,
+          onboardingStep,
+        }),
+      });
 
       if (!saveBasicInfoResponse.ok) {
         // If the response status is not 2xx, throw an error with the response message
@@ -179,18 +149,15 @@ const BasicInfoForm = ({ basicInfoData, studioId }: Props) => {
       }
 
       //Save Onboarding Step Track
-      const completeOnboardingStepResponse = await fetch(
-        `/api/studio/${studioId}/onboarding-step`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            onboardingStep,
-          }),
-        }
-      );
+      const completeOnboardingStepResponse = await fetch(`/api/studio/${studioId}/onboarding-step`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          onboardingStep,
+        }),
+      });
 
       if (!completeOnboardingStepResponse.ok) {
         // If the response status is not 2xx, throw an error with the response message
@@ -198,15 +165,12 @@ const BasicInfoForm = ({ basicInfoData, studioId }: Props) => {
         throw new Error(errorData?.error.message || "系統發生未預期錯誤。");
       }
 
-      router.push(
-        `/studio-owner/studio/${studioId}/onboarding/business-hour-and-price`
-      );
+      router.push(`/studio-owner/studio/${studioId}/onboarding/business-hour-and-price`);
       router.refresh();
 
       //Save text information to database
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "系統發生未預期錯誤，請重試。";
+      const errorMessage = error instanceof Error ? error.message : "系統發生未預期錯誤，請重試。";
       toast(errorMessage, {
         position: "top-right",
         type: "error",
@@ -222,17 +186,9 @@ const BasicInfoForm = ({ basicInfoData, studioId }: Props) => {
       {/* Input 1: Cover Image */}
       <div className="relative max-w-full w-auto h-60 aspect-[3/1] bg-neutral-200 rounded-md mb-1">
         {coverPreviewUrl && coverFile ? (
-          <img
-            src={coverPreviewUrl}
-            alt="Cover preview"
-            className="absolute inset-0 w-full h-full object-cover rounded-md"
-          />
+          <img src={coverPreviewUrl} alt="Cover preview" className="absolute inset-0 w-full h-full object-cover rounded-md" />
         ) : basicInfoData.cover_photo ? (
-          <img
-            src={basicInfoData.cover_photo}
-            alt="Cover photo"
-            className="absolute inset-0 w-full h-full object-cover rounded-md"
-          />
+          <img src={basicInfoData.cover_photo} alt="Cover photo" className="absolute inset-0 w-full h-full object-cover rounded-md" />
         ) : (
           <div className="absolute right-1/2 top-1/2">
             <ImageIcon />
@@ -240,10 +196,7 @@ const BasicInfoForm = ({ basicInfoData, studioId }: Props) => {
         )}
 
         <div className="absolute bottom-3 right-3">
-          <UploadButton
-            onFileSelect={handleCoverSelect}
-            buttonLabel="上載封面圖片"
-          />
+          <UploadButton onFileSelect={handleCoverSelect} buttonLabel="上載封面圖片" />
         </div>
       </div>
       <FieldRemarks>圖片容量需為2MB內。</FieldRemarks>
@@ -275,13 +228,7 @@ const BasicInfoForm = ({ basicInfoData, studioId }: Props) => {
         <Label htmlFor="studioName" className="text-base font-bold">
           場地名稱
         </Label>
-        <Input
-          type="text"
-          id="studioName"
-          placeholder="請輸入場地名稱"
-          className="text-sm"
-          {...register("name")}
-        />
+        <Input type="text" id="studioName" placeholder="請輸入場地名稱" className="text-sm" {...register("name")} />
       </div>
 
       <ErrorMessage> {errors.name?.message}</ErrorMessage>
@@ -292,21 +239,11 @@ const BasicInfoForm = ({ basicInfoData, studioId }: Props) => {
         <Label htmlFor="studioName" className="text-base font-bold">
           場地網站別名
         </Label>
-        <FieldRemarks>
-          此處將用於在網站中顯示出的場地連結。只接受英文字、數字和連字號(hyphens)。
-        </FieldRemarks>
+        <FieldRemarks>此處將用於在網站中顯示出的場地連結。只接受英文字、數字和連字號(hyphens)。</FieldRemarks>
 
         <div className="relative flex items-center">
-          <span className="absolute left-3 text-gray-500 text-sm">
-            ksana.io/studio/
-          </span>
-          <Input
-            type="text"
-            id="studioSlug"
-            placeholder="請填寫場地網站別名。"
-            className="pl-[120px] text-sm"
-            {...register("slug")}
-          />
+          <span className="absolute left-3 text-gray-500 text-sm">ksana.io/studio/</span>
+          <Input type="text" id="studioSlug" placeholder="請填寫場地網站別名。" className="pl-[120px] text-sm" {...register("slug")} />
         </div>
       </div>
 
@@ -318,12 +255,7 @@ const BasicInfoForm = ({ basicInfoData, studioId }: Props) => {
           場地介紹
         </Label>
 
-        <Textarea
-          id="studioDescription"
-          placeholder="請填寫場地介紹。"
-          className="text-sm"
-          {...register("description")}
-        />
+        <Textarea id="studioDescription" placeholder="請填寫場地介紹。" className="text-sm" {...register("description")} />
       </div>
 
       <ErrorMessage> {errors.description?.message}</ErrorMessage>
@@ -359,13 +291,7 @@ const BasicInfoForm = ({ basicInfoData, studioId }: Props) => {
         />
         <ErrorMessage> {errors.district?.message}</ErrorMessage>
 
-        <Input
-          type="text"
-          id="address"
-          placeholder="請填寫場地地址。"
-          className="text-sm"
-          {...register("address")}
-        />
+        <Input type="text" id="address" placeholder="請填寫場地地址。" className="text-sm" {...register("address")} />
       </div>
 
       <ErrorMessage> {errors.address?.message}</ErrorMessage>

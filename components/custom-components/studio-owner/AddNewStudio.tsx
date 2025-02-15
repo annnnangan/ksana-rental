@@ -5,7 +5,7 @@ import { Button } from "@/components/shadcn/button";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/shadcn/dialog";
 import { Input } from "@/components/shadcn/input";
 import { Label } from "@/components/shadcn/label";
-import { studioNameSchema } from "@/lib/validations";
+import { studioNameSchema } from "@/lib/validations/zod-schema/booking-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CirclePlus, Loader2, MoveRight } from "lucide-react";
 import Image from "next/image";

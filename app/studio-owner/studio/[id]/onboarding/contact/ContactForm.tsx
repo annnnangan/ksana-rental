@@ -3,7 +3,7 @@ import ErrorMessage from "@/components/custom-components/ErrorMessage";
 import { Input } from "@/components/shadcn/input";
 import { Label } from "@/components/shadcn/label";
 import { removeCountryCode } from "@/lib/utils/remove-country-code";
-import { studioContactFormData, studioContactSchema } from "@/lib/validations";
+import { studioContactFormData, studioContactSchema } from "@/lib/validations/zod-schema/booking-schema";
 import { SocialLinks, SocialPlatform } from "@/services/model";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { usePathname, useRouter } from "next/navigation";
@@ -18,18 +18,9 @@ interface Props {
   socialDefaultValue: SocialLinks;
 }
 
-const socialChannels: SocialPlatform[] = [
-  "website",
-  "instagram",
-  "facebook",
-  "youtube",
-];
+const socialChannels: SocialPlatform[] = ["website", "instagram", "facebook", "youtube"];
 
-const ContactForm = ({
-  studioId,
-  phoneDefaultValue,
-  socialDefaultValue,
-}: Props) => {
+const ContactForm = ({ studioId, phoneDefaultValue, socialDefaultValue }: Props) => {
   const router = useRouter();
   const pathname = usePathname();
 
@@ -60,18 +51,13 @@ const ContactForm = ({
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(
-            errorData?.error.message || "系統發生未預期錯誤，請重試。"
-          );
+          throw new Error(errorData?.error.message || "系統發生未預期錯誤，請重試。");
         }
       }
 
       //Check which social link needs to be updated
       const socialUpdates: Partial<SocialLinks> = {};
-      for (const [key, value] of Object.entries(data.social) as [
-        SocialPlatform,
-        string
-      ][]) {
+      for (const [key, value] of Object.entries(data.social) as [SocialPlatform, string][]) {
         if (value !== socialDefaultValue[key]) {
           socialUpdates[key] = value;
         }
@@ -79,40 +65,32 @@ const ContactForm = ({
 
       //Only when there is social link needs to be updated, we called the API
       if (Object.keys(socialUpdates).length > 0) {
-        const socialResponse = await fetch(
-          `/api/studio/${studioId}/contact/social`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              data,
-            }),
-          }
-        );
+        const socialResponse = await fetch(`/api/studio/${studioId}/contact/social`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            data,
+          }),
+        });
 
         if (!socialResponse.ok) {
           const errorData = await socialResponse.json();
-          throw new Error(
-            errorData?.error.message || "系統發生未預期錯誤，請重試。"
-          );
+          throw new Error(errorData?.error.message || "系統發生未預期錯誤，請重試。");
         }
 
         //Save Onboarding Step Track
         const onboardingStep = getOnboardingStep(pathname);
-        const completeOnboardingStepResponse = await fetch(
-          `/api/studio/${studioId}/onboarding-step`,
-          {
-            method: "PATCH",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              onboardingStep,
-            }),
-          }
-        );
+        const completeOnboardingStepResponse = await fetch(`/api/studio/${studioId}/onboarding-step`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            onboardingStep,
+          }),
+        });
 
         if (!completeOnboardingStepResponse.ok) {
           // If the response status is not 2xx, throw an error with the response message
@@ -123,8 +101,7 @@ const ContactForm = ({
       router.push(`/studio-owner/studio/${studioId}/onboarding/payout-info`);
       router.refresh();
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "系統發生未預期錯誤，請重試。";
+      const errorMessage = error instanceof Error ? error.message : "系統發生未預期錯誤，請重試。";
       toast(errorMessage, {
         position: "top-right",
         type: "error",
@@ -165,21 +142,12 @@ const ContactForm = ({
       </div>
 
       {socialChannels.map((item) => (
-        <div
-          className="grid w-full md:w-1/2 items-center gap-1 mb-5"
-          key={item}
-        >
+        <div className="grid w-full md:w-1/2 items-center gap-1 mb-5" key={item}>
           <Label htmlFor={item} className="text-base font-bold">
             {item.charAt(0).toUpperCase() + item.slice(1)}
           </Label>
 
-          <Input
-            type="text"
-            id={item}
-            placeholder={`請填寫${item} - https://www.${item}.com/ksana`}
-            className="text-sm"
-            {...register(`social.${item}`)}
-          />
+          <Input type="text" id={item} placeholder={`請填寫${item} - https://www.${item}.com/ksana`} className="text-sm" {...register(`social.${item}`)} />
 
           <ErrorMessage>{errors.social?.[item]?.message}</ErrorMessage>
         </div>

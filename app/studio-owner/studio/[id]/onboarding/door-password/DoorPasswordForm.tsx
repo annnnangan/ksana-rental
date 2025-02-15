@@ -2,17 +2,8 @@
 import ErrorMessage from "@/components/custom-components/ErrorMessage";
 import { Input } from "@/components/shadcn/input";
 import { Label } from "@/components/shadcn/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/shadcn/select";
-import {
-  StudioDoorPasswordFormData,
-  StudioDoorPasswordSchema,
-} from "@/lib/validations";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/shadcn/select";
+import { StudioDoorPasswordFormData, StudioDoorPasswordSchema } from "@/lib/validations/zod-schema/booking-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { usePathname, useRouter } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
@@ -43,16 +34,8 @@ const DoorPasswordForm = ({ studioId, defaultValue }: Props) => {
   } = useForm<StudioDoorPasswordFormData>({
     resolver: zodResolver(StudioDoorPasswordSchema),
     defaultValues: {
-      isRevealDoorPassword:
-        defaultValue.is_reveal_door_password !== null
-          ? (defaultValue.is_reveal_door_password.toString() as
-              | "true"
-              | "false")
-          : undefined,
-      doorPassword:
-        defaultValue.is_reveal_door_password !== null
-          ? defaultValue.door_password
-          : undefined,
+      isRevealDoorPassword: defaultValue.is_reveal_door_password !== null ? (defaultValue.is_reveal_door_password.toString() as "true" | "false") : undefined,
+      doorPassword: defaultValue.is_reveal_door_password !== null ? defaultValue.door_password : undefined,
     },
   });
 
@@ -60,24 +43,16 @@ const DoorPasswordForm = ({ studioId, defaultValue }: Props) => {
 
   const onSubmit = async (data: StudioDoorPasswordFormData) => {
     try {
-      if (
-        (defaultValue.is_reveal_door_password !== null &&
-          defaultValue.is_reveal_door_password.toString() !==
-            data.isRevealDoorPassword) ||
-        defaultValue.door_password !== data.doorPassword
-      ) {
-        const saveDoorPasswordResponse = await fetch(
-          `/api/studio/${studioId}/door-password`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              data,
-            }),
-          }
-        );
+      if ((defaultValue.is_reveal_door_password !== null && defaultValue.is_reveal_door_password.toString() !== data.isRevealDoorPassword) || defaultValue.door_password !== data.doorPassword) {
+        const saveDoorPasswordResponse = await fetch(`/api/studio/${studioId}/door-password`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            data,
+          }),
+        });
 
         if (!saveDoorPasswordResponse.ok) {
           // If the response status is not 2xx, throw an error with the response message
@@ -87,18 +62,15 @@ const DoorPasswordForm = ({ studioId, defaultValue }: Props) => {
 
         //Save Onboarding Step Track
         const onboardingStep = getOnboardingStep(pathname);
-        const completeOnboardingStepResponse = await fetch(
-          `/api/studio/${studioId}/onboarding-step`,
-          {
-            method: "PATCH",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              onboardingStep,
-            }),
-          }
-        );
+        const completeOnboardingStepResponse = await fetch(`/api/studio/${studioId}/onboarding-step`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            onboardingStep,
+          }),
+        });
 
         if (!completeOnboardingStepResponse.ok) {
           // If the response status is not 2xx, throw an error with the response message
@@ -110,8 +82,7 @@ const DoorPasswordForm = ({ studioId, defaultValue }: Props) => {
       router.push(`/studio-owner/studio/${studioId}/onboarding/contact`);
       router.refresh();
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "系統發生未預期錯誤，請重試。";
+      const errorMessage = error instanceof Error ? error.message : "系統發生未預期錯誤，請重試。";
       toast(errorMessage, {
         position: "top-right",
         type: "error",
@@ -151,13 +122,7 @@ const DoorPasswordForm = ({ studioId, defaultValue }: Props) => {
             <Label htmlFor="doorPassword" className="text-base font-bold">
               大門密碼
             </Label>
-            <Input
-              type="text"
-              id="doorPassword"
-              placeholder="請輸入大門密碼"
-              className="text-sm"
-              {...register("doorPassword")}
-            />
+            <Input type="text" id="doorPassword" placeholder="請輸入大門密碼" className="text-sm" {...register("doorPassword")} />
           </div>
 
           <ErrorMessage> {errors.doorPassword?.message}</ErrorMessage>

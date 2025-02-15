@@ -1,13 +1,10 @@
 import handleError from "@/lib/handlers/error";
 import { ValidationError } from "@/lib/http-errors";
-import { StudioOnBoardingTermsSchema } from "@/lib/validations";
+import { StudioOnBoardingTermsSchema } from "@/lib/validations/zod-schema/booking-schema";
 import { studioService } from "@/services/StudioService";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function PATCH(
-  request: NextRequest,
-  props: { params: Promise<{ id: number }> }
-) {
+export async function PATCH(request: NextRequest, props: { params: Promise<{ id: number }> }) {
   try {
     const params = await props.params;
     const body = await request.json();
@@ -17,11 +14,7 @@ export async function PATCH(
     }
 
     const userId = 1;
-    const response = await studioService.updateStudioStatus(
-      Number(params.id),
-      userId,
-      "reviewing"
-    );
+    const response = await studioService.updateStudioStatus(Number(params.id), userId, "reviewing");
 
     if (response.success) {
       return NextResponse.json({ success: true }, { status: 201 });
