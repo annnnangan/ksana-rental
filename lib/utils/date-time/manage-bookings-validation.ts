@@ -1,65 +1,34 @@
-import {
-  convertTimeToString,
-  formatDate,
-} from "@/lib/utils/date-time/date-time-utils";
+import { convertTimeToString, formatDate } from "@/lib/utils/date-time/date-time-utils";
 import { TZDate } from "@date-fns/tz";
 import { differenceInMinutes, parse } from "date-fns";
 
-export function validateDoorPasswordAvailability(
-  booking_date: Date,
-  booking_start_time: string
-) {
+export function validateDoorPasswordAvailability(booking_date: Date, booking_start_time: string) {
   const timeZone = "Asia/Hong_Kong";
 
-  const bookingDateTime =
-    formatDate(new Date(booking_date)) +
-    " " +
-    convertTimeToString(booking_start_time);
+  const bookingDateTime = formatDate(new Date(booking_date)) + " " + convertTimeToString(booking_start_time);
 
-  const formattedBookingDateTime = parse(
-    bookingDateTime,
-    "yyyy-MM-dd HH:mm",
-    new Date()
-  );
+  const formattedBookingDateTime = parse(bookingDateTime, "yyyy-MM-dd HH:mm", new Date());
 
   const now = new TZDate(new Date(), timeZone);
 
-  const timeDifferenceInMinutes = differenceInMinutes(
-    formattedBookingDateTime,
-    now
-  );
+  const timeDifferenceInMinutes = differenceInMinutes(formattedBookingDateTime, now);
 
-  const isAvailable =
-    timeDifferenceInMinutes >= 0 && timeDifferenceInMinutes <= 120;
+  const isAvailable = timeDifferenceInMinutes >= 0 && timeDifferenceInMinutes <= 120;
 
   return isAvailable;
 }
 
-export function validateCancelBookingAvailability(
-  booking_status: string,
-  booking_date: Date,
-  booking_start_time: string
-) {
+export function validateCancelBookingAvailability(booking_status: string, booking_date: Date, booking_start_time: string) {
   const timeZone = "Asia/Hong_Kong";
   const isConfirmed = booking_status === "confirmed";
 
-  const bookingDateTime =
-    formatDate(new Date(booking_date)) +
-    " " +
-    convertTimeToString(booking_start_time);
+  const bookingDateTime = formatDate(new Date(booking_date)) + " " + convertTimeToString(booking_start_time);
 
-  const formattedBookingDateTime = parse(
-    bookingDateTime,
-    "yyyy-MM-dd HH:mm",
-    new Date()
-  );
+  const formattedBookingDateTime = parse(bookingDateTime, "yyyy-MM-dd HH:mm", new Date());
 
   const now = new TZDate(new Date(), timeZone);
 
-  const timeDifferenceInMinutes = differenceInMinutes(
-    formattedBookingDateTime,
-    now
-  );
+  const timeDifferenceInMinutes = differenceInMinutes(formattedBookingDateTime, now);
 
   const dayInMinutes = 24 * 60;
 
@@ -70,33 +39,18 @@ export function validateCancelBookingAvailability(
   return isAvailable;
 }
 
-export function validateCanLeaveBookingReview(
-  has_reviewed: boolean,
-  booking_status: string,
-  booking_date: Date,
-  booking_start_time: string
-) {
+export function validateCanLeaveBookingReview(has_reviewed: boolean, booking_status: string, booking_date: Date, booking_start_time: string) {
   const timeZone = "Asia/Hong_Kong";
 
   const isCompleted = booking_status === "completed";
 
-  const bookingDateTime =
-    formatDate(new Date(booking_date)) +
-    " " +
-    convertTimeToString(booking_start_time);
+  const bookingDateTime = formatDate(new Date(booking_date)) + " " + convertTimeToString(booking_start_time);
 
-  const formattedBookingDateTime = parse(
-    bookingDateTime,
-    "yyyy-MM-dd HH:mm",
-    new Date()
-  );
+  const formattedBookingDateTime = parse(bookingDateTime, "yyyy-MM-dd HH:mm", new Date());
 
   const now = new TZDate(new Date(), timeZone);
 
-  const timeDifferenceInMinutes = differenceInMinutes(
-    now,
-    formattedBookingDateTime
-  );
+  const timeDifferenceInMinutes = differenceInMinutes(now, formattedBookingDateTime);
 
   const sevenDaysInMinutes = 7 * 24 * 60;
 

@@ -1,19 +1,17 @@
-import React, { useTransition } from "react";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/shadcn/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/shadcn/dialog";
 import { Loader2, X } from "lucide-react";
-import SubmitButton from "./SubmitButton";
+import React from "react";
 import { Button } from "../shadcn/button";
 
 interface Props {
   children: React.ReactNode;
   isOpenModal: boolean;
+  isDeleting: boolean;
   setOpenModal: (response: boolean) => void;
-  handleDeleteItem: (item: string | Date) => void;
+  handleDeleteItem: () => void;
 }
 
-const DeleteConfirmationModal = ({ children, isOpenModal, setOpenModal, handleDeleteItem }: Props) => {
-  const [isPending, startTransition] = useTransition();
-
+const DeleteConfirmationModal = ({ children, isOpenModal, isDeleting, setOpenModal, handleDeleteItem }: Props) => {
   const handleCloseModal = () => {
     setOpenModal(false);
   };
@@ -28,11 +26,11 @@ const DeleteConfirmationModal = ({ children, isOpenModal, setOpenModal, handleDe
         <div className="px-5 pb-8">
           {children}
           <div className="flex items-center gap-3 mt-5">
-            <Button type="submit" variant="destructive" className={`mt-5 px-1 w-1/2`} disabled={isPending}>
-              {isPending ? "處理中..." : "確認刪除"}
-              {isPending ? <Loader2 className="animate-spin" /> : ""}
+            <Button type="submit" variant="destructive" className={`mt-5 px-1 w-1/2`} disabled={isDeleting} onClick={handleDeleteItem}>
+              {isDeleting ? "處理中..." : "確認刪除"}
+              {isDeleting ? <Loader2 className="animate-spin" /> : ""}
             </Button>
-            <Button type="button" variant="outline" className="w-1/2 mt-5" disabled={isPending} onClick={handleCloseModal}>
+            <Button type="button" variant="outline" className="w-1/2 mt-5" disabled={isDeleting} onClick={handleCloseModal}>
               取消
             </Button>
           </div>

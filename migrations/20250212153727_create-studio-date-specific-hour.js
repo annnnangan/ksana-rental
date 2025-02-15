@@ -10,11 +10,15 @@ exports.up = async function (knex) {
     table.integer("studio_id").unsigned();
     table.foreign("studio_id").references("studio.id");
     table.date("date").notNullable();
-    table.json("timeslots").notNullable();
-    //[{"from": "20:00", "to": "22:00", price_type: "peak", price_type_id: 2},{"from": "11:00", "to": "16:00",price_type: "non-peak", price_type_id: 1}]
-    //[] when unavailable
+    table.boolean("is_closed").notNullable().defaultTo(false);
+    table.time("from");
+    table.time("to");
+    table.integer("price_type_id").unsigned();
+    table.foreign("price_type_id").references("studio_price.id");
     table.timestamps(false, true);
   });
+
+  // Create the trigger for automatic timestamp update (if needed)
   await knex.raw(`
     CREATE TRIGGER update_timestamp
     BEFORE UPDATE

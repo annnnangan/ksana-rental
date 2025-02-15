@@ -2,8 +2,9 @@ import { knex } from "@/services/knex";
 import { Knex } from "knex";
 import { StudioStatus } from "../model";
 import { validateStudioService } from "./ValidateStudio";
-import { DateSpecificHoursSchemaFormData } from "@/lib/validations/zod-schema/manage-studio-schema";
+import { DateSpecificHoursSchemaFormData } from "@/lib/validations/zod-schema/date-specific-hours-schema";
 import handleError from "@/lib/handlers/error";
+import { NotFoundError } from "@/lib/http-errors";
 
 export class StudioService {
   constructor(private knex: Knex) {}
@@ -68,69 +69,88 @@ export class StudioService {
     };
   }
 
-  //Date Specific Hours
+  /* ----------------------------------- Handle Date Specific Hours ----------------------------------- */
   async saveDateSpecificHours(data: DateSpecificHoursSchemaFormData, studioId: string) {
     const { date, timeslots } = data;
+    const txn = await this.knex.transaction();
     try {
-      let updatedTimeslotsFormat = timeslots;
+      // Get all price types from DB and create a map
+      // From [{id: 1, price_type: "non-peak"},{id: 2, price_type: "peak"}]  --> { "non-peak": 1, "peak":2 })
+      const priceTypes = await this.knex.select("id", "price_type").from("studio_price").where({ studio_id: studioId });
+      const priceTypeMap: Record<string, number> = Object.fromEntries(priceTypes.map(({ id, price_type }) => [price_type, id]));
 
-      if (timeslots.length > 0) {
-        // Step 1: Fetch the price_type_id based on price_type and studio_id
-        // return [ { id: 3, price_type: 'non-peak' }, { id: 4, price_type: 'peak' } ]
-        const priceTypes = await this.knex("studio_price").select("id", "price_type").where({ studio_id: studioId });
-
-        // Step 2: Map the price_type to the corresponding price_type_id
-        // return { 'non-peak': 3, peak: 4 }
-        const priceTypeMap = priceTypes.reduce((acc, { price_type, id }) => {
-          acc[price_type] = id;
-          return acc;
-        }, {});
-
-        // Step 2: Map timeslots to their price_type_id
-        // return [{ from: '19:00', to: '22:00', price_type: 'peak', price_type_id: 4 }]
-        updatedTimeslotsFormat = timeslots
-          .map((timeslot) => ({
-            ...timeslot,
-            price_type_id: priceTypeMap[timeslot.price_type], // Replace price_type with price_type_id
-          }))
-          .sort((a, b) => a.from.localeCompare(b.from));
-      }
-
-      const isDateExist = (await this.knex.select("id").from("studio_date_specific_hour").where({ date: date, studio_id: studioId }))[0]?.id;
-
-      if (isDateExist) {
-        await this.knex("studio_date_specific_hour")
-          .where({ date: date, studio_id: studioId })
-          .update({
-            timeslots: JSON.stringify(updatedTimeslotsFormat),
-          });
+      // Formate the timeslot to insert into database
+      let formattedTimeslots;
+      if (timeslots.length === 0) {
+        formattedTimeslots = { studio_id: parseInt(studioId), date: date, is_closed: true };
       } else {
-        await this.knex("studio_date_specific_hour").insert({
+        formattedTimeslots = timeslots.map(({ from, to, priceType }) => ({
           studio_id: parseInt(studioId),
-          date: data.date,
-          timeslots: JSON.stringify(updatedTimeslotsFormat),
-        });
+          date,
+          is_closed: false,
+          from: from,
+          to: to,
+          price_type_id: priceTypeMap[priceType],
+        }));
       }
 
+      // Check if the date exist in the database
+      const isDateExist = await this.knex.select("id").from("studio_date_specific_hour").where({ date: date, studio_id: studioId });
+      // If date exist in the database - remove all the rows and then insert new rows
+      // If date doesn't exist in the database - create a new one
+      if (isDateExist.length > 0) {
+        await txn("studio_date_specific_hour").where({ date: date, studio_id: studioId }).del();
+        await txn("studio_date_specific_hour").insert(formattedTimeslots);
+      } else {
+        await txn("studio_date_specific_hour").insert(formattedTimeslots);
+      }
+
+      // Commit the transaction
+      await txn.commit();
       return { success: true };
     } catch (error) {
       console.dir(error);
+      await txn.rollback(); // Rollback in case of an error
       return handleError(error, "server") as ActionResponse;
     }
-
-    //check if the date exist already
-    //if yes, then update it
-    //if no, then insert a new row
   }
 
   async getAllDateSpecificHoursByStudioId(studioId: string) {
     try {
-      const result = await this.knex.select("date", "timeslots").from("studio_date_specific_hour").where({ studio_id: studioId });
+      const result = await this.knex
+        .select("studio_date_specific_hour.date", "studio_date_specific_hour.is_closed", "studio_date_specific_hour.from", "studio_date_specific_hour.to", "studio_price.price_type")
+        .from("studio_date_specific_hour")
+        .where({ "studio_date_specific_hour.studio_id": studioId })
+        .leftJoin("studio_price", "studio_date_specific_hour.price_type_id", "studio_price.id")
+        .orderBy([
+          { column: "studio_date_specific_hour.date", order: "asc" }, // Sort by date (earliest first)
+          { column: "studio_date_specific_hour.from", order: "asc" }, // Then sort by open time
+        ]);
 
       return {
         success: true,
         data: result,
       };
+    } catch (error) {
+      console.dir(error);
+      return handleError(error, "server") as ActionResponse;
+    }
+  }
+
+  async deleteDateSpecificHoursByStudioId(date: string, studioId: string) {
+    try {
+      // Check if the date exist in database
+      const isDateExist = await this.knex.select("id").from("studio_date_specific_hour").where({ date: date, studio_id: studioId });
+
+      //if no return not found
+      //if yes delete
+      if (isDateExist.length > 0) {
+        await this.knex("studio_date_specific_hour").where({ date: date, studio_id: studioId }).del();
+      } else {
+        throw new NotFoundError("時段");
+      }
+
+      return { success: true };
     } catch (error) {
       console.dir(error);
       return handleError(error, "server") as ActionResponse;

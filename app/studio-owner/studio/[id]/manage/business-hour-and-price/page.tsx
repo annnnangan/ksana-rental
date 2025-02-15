@@ -2,23 +2,28 @@ import { businessHourType, studioBusinessHourAndPriceFormData } from "@/lib/vali
 import { DayBusinessHour, daysOfWeek, daysOfWeekType, Price } from "@/services/model";
 
 import DateSpecificHours from "@/components/custom-components/manage-studio/DateSpecificHours";
+import ToastMessageWithRedirect from "@/components/custom-components/ToastMessageWithRedirect";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/shadcn/tabs";
 import { sessionUser } from "@/lib/next-auth-config/session-user";
+import { convertTimeToString, formatDate } from "@/lib/utils/date-time/date-time-utils";
 import { studioService } from "@/services/studio/StudioService";
-import { DateSpecificHoursSchemaFormData } from "@/lib/validations/zod-schema/manage-studio-schema";
 
 const BusinessHourAndPricePage = async ({ params }: { params: Promise<{ id: string }> }) => {
   //Get Studio ID from URL
   const studioId = (await params).id;
   const user = await sessionUser();
 
-  const dateSpecificHoursListResponse = await studioService.getAllDateSpecificHoursByStudioId("2");
+  if (!user) {
+    return <ToastMessageWithRedirect type={"error"} message={"請先登入。"} redirectPath={"/"} />;
+  }
+
+  const dateSpecificHoursListResponse = await studioService.getAllDateSpecificHoursByStudioId(studioId);
 
   if (!dateSpecificHoursListResponse.success) {
     return;
   }
 
-  const dateSpecificHoursList: DateSpecificHoursSchemaFormData[] | [] = dateSpecificHoursListResponse.success && dateSpecificHoursListResponse.data!;
+  const dateSpecificHoursList = dateSpecificHoursListResponse.success && formatDateSpecificHours(dateSpecificHoursListResponse.data!);
 
   // const businessHoursListResponse = await studioService.getStudioBusinessHours(studioId, user?.id);
 
@@ -93,4 +98,27 @@ function formatePriceData(priceData: Price[]) {
     nonPeakHourPrice,
     peakHourPrice,
   };
+}
+
+// format the database data to frontend data
+function formatDateSpecificHours(data: { date: Date; is_closed: boolean; from: string; to: string; price_type: "non-peak" | "peak" }[]) {
+  const groupedData: Record<string, { from: string; to: string; priceType: string }[]> = {};
+
+  data.forEach(({ date, is_closed, from, to, price_type }) => {
+    const formattedDate = formatDate(new Date(date));
+
+    if (!groupedData[formattedDate]) {
+      groupedData[formattedDate] = [];
+    }
+
+    if (!is_closed) {
+      groupedData[formattedDate].push({ from: convertTimeToString(from), to: convertTimeToString(to), priceType: price_type });
+    }
+  });
+
+  // Convert grouped object into an array
+  return Object.entries(groupedData).map(([date, timeslots]) => ({
+    date,
+    timeslots,
+  }));
 }
