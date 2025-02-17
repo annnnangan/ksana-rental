@@ -101,53 +101,10 @@ const BusinessHourAndPriceForm = ({ defaultValue, studioId, isOnboardingStep }: 
           type: data?.success ? "success" : "error",
           autoClose: 1000,
         });
+
         router.refresh();
       });
     });
-
-    // try {
-    //   console.log(data)
-    //   // const saveBusinessHoursPriceResponse = await fetch(`/api/studio/${studioId}/business-hours-and-price`, {
-    //   //   method: "PUT",
-    //   //   headers: {
-    //   //     "Content-Type": "application/json",
-    //   //   },
-    //   //   body: JSON.stringify({
-    //   //     data,
-    //   //   }),
-    //   // });
-    //   // if (!saveBusinessHoursPriceResponse.ok) {
-    //   //   // If the response status is not 2xx, throw an error with the response message
-    //   //   const errorData = await saveBusinessHoursPriceResponse.json();
-    //   //   throw new Error(errorData?.error.message || "系統發生未預期錯誤。");
-    //   // }
-    //   // //Save Onboarding Step Track
-    //   // const onboardingStep = getOnboardingStep(pathname);
-    //   // const completeOnboardingStepResponse = await fetch(`/api/studio/${studioId}/onboarding-step`, {
-    //   //   method: "PATCH",
-    //   //   headers: {
-    //   //     "Content-Type": "application/json",
-    //   //   },
-    //   //   body: JSON.stringify({
-    //   //     onboardingStep,
-    //   //   }),
-    //   // });
-    //   // if (!completeOnboardingStepResponse.ok) {
-    //   //   // If the response status is not 2xx, throw an error with the response message
-    //   //   const errorData = await completeOnboardingStepResponse.json();
-    //   //   throw new Error(errorData?.error.message || "系統發生未預期錯誤。");
-    //   // }
-    //   // router.push(`/studio-owner/studio/${studioId}/onboarding/equipment`);
-    //   // router.refresh();
-    // } catch (error) {
-    //   const errorMessage = error instanceof Error ? error.message : "系統發生未預期錯誤，請重試。";
-    //   toast(errorMessage, {
-    //     position: "top-right",
-    //     type: "error",
-    //     autoClose: 1000,
-    //   });
-    //   router.refresh();
-    // }
   };
 
   /* ------- Others: Remove the default on wheel change for number input ------ */

@@ -1,14 +1,15 @@
 import * as z from "zod";
-import { TimeslotsSchema } from "../timeslot-schema";
-import { BusinessHourSchema, studioSchema } from "./studio-schema";
+import { BusinessHourSchema, StudioSchema } from "./studio-schema";
 
 /* ----------------------- Step 0: Enter studio name ---------------------- */
-export const studioNameSchema = studioSchema.pick({
+export const studioNameSchema = StudioSchema.pick({
   name: true,
 });
 
 /* ----------------- Step 1: Enter studio basic information ----------------- */
-export const studioBasicInfoSchema = studioSchema.pick({
+export const OnboardingBasicInfoSchema = StudioSchema.pick({
+  logo: true,
+  cover: true,
   name: true,
   slug: true,
   description: true,
@@ -16,8 +17,10 @@ export const studioBasicInfoSchema = studioSchema.pick({
   address: true,
 });
 
+export type OnboardingBasicInfoFormData = z.infer<typeof OnboardingBasicInfoSchema>;
+
 /* -------------- Step 2: Enter studio business hours and price ------------- */
-export const BusinessHoursAndPriceSchema = studioSchema.pick({
+export const BusinessHoursAndPriceSchema = StudioSchema.pick({
   businessHours: true,
   peakHourPrice: true,
   nonPeakHourPrice: true,
@@ -27,21 +30,21 @@ export type BusinessHourType = z.infer<typeof BusinessHourSchema>;
 export type BusinessHoursAndPriceFormData = z.infer<typeof BusinessHoursAndPriceSchema>;
 
 /* --------------------- Step 3: Enter studio equipment --------------------- */
-export const studioEquipmentSchema = studioSchema.pick({
+export const studioEquipmentSchema = StudioSchema.pick({
   equipment: true,
 });
 
 export type studioEquipmentFormData = z.infer<typeof studioEquipmentSchema>;
 
 /* ------------------ Step 4: Gallery - upload studio image ----------------- */
-export const studioGallerySchema = studioSchema.pick({
+export const studioGallerySchema = StudioSchema.pick({
   gallery: true,
 });
 
 export type studioGalleryFormData = z.infer<typeof studioGallerySchema>;
 
 /* ----------------------------- Step 5: Contact ---------------------------- */
-export const studioContactSchema = studioSchema.pick({
+export const studioContactSchema = StudioSchema.pick({
   phone: true,
   social: true,
 });
@@ -50,7 +53,7 @@ export type studioContactFormData = z.infer<typeof studioContactSchema>;
 export type socialChannelKeys = keyof z.infer<typeof studioContactSchema>;
 
 /* ------------------------- Step 6: Payout Details ------------------------- */
-export const StudioPayoutSchema = studioSchema.pick({
+export const StudioPayoutSchema = StudioSchema.pick({
   payoutMethod: true,
   payoutAccountName: true,
   payoutAccountNumber: true,
@@ -58,7 +61,7 @@ export const StudioPayoutSchema = studioSchema.pick({
 export type StudioPayoutFormData = z.infer<typeof StudioPayoutSchema>;
 
 /* -------------------------- Step 7: Door Password ------------------------- */
-const StudioDoorPasswordBaseSchema = studioSchema.pick({
+const StudioDoorPasswordBaseSchema = StudioSchema.pick({
   isRevealDoorPassword: true,
   doorPassword: true,
 });
@@ -71,7 +74,7 @@ export const StudioDoorPasswordSchema = StudioDoorPasswordBaseSchema.refine((dat
 export type StudioDoorPasswordFormData = z.infer<typeof StudioDoorPasswordSchema>;
 
 /* -------------------------- Step 8: Confirmation -------------------------- */
-export const StudioOnBoardingTermsSchema = studioSchema.pick({
+export const StudioOnBoardingTermsSchema = StudioSchema.pick({
   onboardingTerms: true,
 });
 

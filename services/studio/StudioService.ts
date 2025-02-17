@@ -70,6 +70,20 @@ export class StudioService {
       data: studios,
     };
   }
+  /* ---------------------------------- slug ---------------------------------- */
+  async checkIsSlugExist(slug: string) {
+    try {
+      const studio_id = (await this.knex.select("id").from("studio").where({ slug }))[0]?.id;
+
+      return {
+        success: true,
+        data: studio_id,
+      };
+    } catch (error) {
+      console.dir(error);
+      return handleError(error, "server") as ActionResponse;
+    }
+  }
 
   /* ----------------------------------- Handle Date Specific Hour ----------------------------------- */
   async saveDateSpecificHour(data: DateSpecificHourSchemaFormData, studioId: string) {

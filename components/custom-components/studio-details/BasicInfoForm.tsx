@@ -21,32 +21,29 @@ import FieldRemarks from "../../_component/FieldRemarks";
 import SubmitButton from "../../_component/SubmitButton";
 import UploadButton from "./UploadButton";
 import { getOnboardingStep } from "@/lib/utils/get-onboarding-step-utils";
+import { ManageStudioBasicInfoSchema, ManageStudioBasicInfoFormData } from "@/lib/validations/zod-schema/studio/studio-manage-schema";
+import { OnboardingBasicInfoSchema, OnboardingBasicInfoFormData } from "@/lib/validations/zod-schema/studio/studio-onboarding-schema";
 
 interface Props {
-  basicInfoData: BasicInfo;
+  defaultValues: [];
   studioId: number;
+  isOnboardingStep: boolean;
 }
 
-type studioBasicInfoSchemaFormData = z.infer<typeof studioBasicInfoSchema>;
-
-const BasicInfoForm = ({ basicInfoData, studioId }: Props) => {
+const BasicInfoForm = ({ defaultValues, studioId, isOnboardingStep }: Props) => {
   const pathname = usePathname();
   const router = useRouter();
+
+  const FormSchema = isOnboardingStep ? OnboardingBasicInfoSchema : ManageStudioBasicInfoSchema;
+  type FormData = typeof FormSchema extends typeof OnboardingBasicInfoSchema ? OnboardingBasicInfoFormData : ManageStudioBasicInfoFormData;
 
   const {
     register,
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm<studioBasicInfoSchemaFormData>({
-    resolver: zodResolver(studioBasicInfoSchema),
-    defaultValues: {
-      name: basicInfoData?.name || undefined,
-      slug: basicInfoData?.slug || undefined,
-      description: basicInfoData?.description || undefined,
-      district: basicInfoData?.district || undefined,
-      address: basicInfoData?.address || undefined,
-    },
+  } = useForm<FormData>({
+    resolver: zodResolver(FormSchema),
   });
 
   const [coverFile, setCoverFile] = useState<File | null>(null);
@@ -184,7 +181,7 @@ const BasicInfoForm = ({ basicInfoData, studioId }: Props) => {
   return (
     <form onSubmit={onSubmit}>
       {/* Input 1: Cover Image */}
-      <div className="relative max-w-full w-auto h-60 aspect-[3/1] bg-neutral-200 rounded-md mb-1">
+      {/* <div className="relative max-w-full w-auto h-60 aspect-[3/1] bg-neutral-200 rounded-md mb-1">
         {coverPreviewUrl && coverFile ? (
           <img src={coverPreviewUrl} alt="Cover preview" className="absolute inset-0 w-full h-full object-cover rounded-md" />
         ) : basicInfoData.cover_photo ? (
@@ -200,10 +197,10 @@ const BasicInfoForm = ({ basicInfoData, studioId }: Props) => {
         </div>
       </div>
       <FieldRemarks>圖片容量需為2MB內。</FieldRemarks>
-      {coverFileError && <ErrorMessage> {coverFileError}</ErrorMessage>}
+      {coverFileError && <ErrorMessage> {coverFileError}</ErrorMessage>} */}
 
       {/* Input 2: Logo */}
-      <div className="mt-5 mb-1 flex items-end gap-4">
+      {/* <div className="mt-5 mb-1 flex items-end gap-4">
         <Avatar className="h-24 w-24">
           {logoPreviewUrl && logoFile ? (
             <AvatarImage src={logoPreviewUrl} className="object-cover" />
@@ -221,33 +218,42 @@ const BasicInfoForm = ({ basicInfoData, studioId }: Props) => {
 
       <FieldRemarks>圖片容量需為2MB內。</FieldRemarks>
 
-      {logoFileError && <ErrorMessage> {logoFileError}</ErrorMessage>}
+      {logoFileError && <ErrorMessage> {logoFileError}</ErrorMessage>} */}
 
       {/* Input 3: Studio Name */}
-      <div className="grid w-full items-center gap-1 mt-8">
-        <Label htmlFor="studioName" className="text-base font-bold">
-          場地名稱
-        </Label>
-        <Input type="text" id="studioName" placeholder="請輸入場地名稱" className="text-sm" {...register("name")} />
-      </div>
+      {isOnboardingStep && (
+        <>
+          <div className="grid w-full items-center gap-1 mt-8">
+            <Label htmlFor="studioName" className="text-base font-bold">
+              場地名稱
+            </Label>
+            <Input type="text" id="studioName" placeholder="請輸入場地名稱" className="text-sm" {...register("name")} />
+          </div>
 
-      <ErrorMessage> {errors.name?.message}</ErrorMessage>
+          <ErrorMessage> {errors.name?.message}</ErrorMessage>
+        </>
+      )}
 
       {/* Input 4: Studio slug */}
       {/* todo: validate if the studioSlug could be used when onblur */}
-      <div className="grid w-full items-center gap-1 mt-8">
-        <Label htmlFor="studioName" className="text-base font-bold">
-          場地網站別名
-        </Label>
-        <FieldRemarks>此處將用於在網站中顯示出的場地連結。只接受英文字、數字和連字號(hyphens)。</FieldRemarks>
 
-        <div className="relative flex items-center">
-          <span className="absolute left-3 text-gray-500 text-sm">ksana.io/studio/</span>
-          <Input type="text" id="studioSlug" placeholder="請填寫場地網站別名。" className="pl-[120px] text-sm" {...register("slug")} />
-        </div>
-      </div>
+      {isOnboardingStep && (
+        <>
+          <div className="grid w-full items-center gap-1 mt-8">
+            <Label htmlFor="studioName" className="text-base font-bold">
+              場地網站別名
+            </Label>
+            <FieldRemarks>此處將用於在網站中顯示出的場地連結。只接受英文字、數字和連字號(hyphens)。</FieldRemarks>
 
-      <ErrorMessage> {errors.slug?.message}</ErrorMessage>
+            <div className="relative flex items-center">
+              <span className="absolute left-3 text-gray-500 text-sm">ksana.io/studio/</span>
+              <Input type="text" id="studioSlug" placeholder="請填寫場地網站別名。" className="pl-[120px] text-sm" {...register("slug")} />
+            </div>
+          </div>
+
+          <ErrorMessage> {errors.slug?.message}</ErrorMessage>
+        </>
+      )}
 
       {/* Input 5: Studio Description */}
       <div className="grid w-full items-center gap-1 mt-8">

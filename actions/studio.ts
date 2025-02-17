@@ -87,3 +87,7 @@ export const saveBusinessHoursAndPrice = async (data: BusinessHoursAndPriceFormD
     return handleError(error, "server") as ActionResponse;
   }
 };
+
+export const saveManageBasicInfo = async () => {
+  return { success: true };
+};

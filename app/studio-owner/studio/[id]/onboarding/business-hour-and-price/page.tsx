@@ -1,6 +1,6 @@
 import React from "react";
 import StepTitle from "../_component/StepTitle";
-import BusinessHourAndPriceForm from "../../../../../../components/custom-components/manage-studio/BusinessHourAndPrice";
+import BusinessHourAndPriceForm from "../../../../../../components/custom-components/studio-details/BusinessHourAndPrice";
 import { businessHourType, studioBusinessHourAndPriceFormData } from "@/lib/validations/zod-schema/booking-schema";
 import { studioService } from "@/services/StudioService";
 import { DayBusinessHour, daysOfWeek, daysOfWeekType, Price } from "@/services/model";

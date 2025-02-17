@@ -1,14 +1,10 @@
 import ToastMessageWithRedirect from "@/components/custom-components/ToastMessageWithRedirect";
 import { studioService } from "@/services/StudioService";
-import BasicInfoForm from "./_component/BasicInfoForm";
+import BasicInfoForm from "../../../../../../components/custom-components/studio-details/BasicInfoForm";
 import { BasicInfo } from "@/services/model";
 
 //Component
-const StudioCreatePage = async ({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) => {
+const StudioCreatePage = async ({ params }: { params: Promise<{ id: string }> }) => {
   //Get Studio ID from URL
   const studioId = Number((await params).id);
 
@@ -34,15 +30,8 @@ const StudioCreatePage = async ({
       basicInfoData = basicInfo.data;
     }
   } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : "系統出現錯誤，請重試。";
-    return (
-      <ToastMessageWithRedirect
-        type={"error"}
-        message={errorMessage}
-        redirectPath={"/studio-owner/dashboard"}
-      />
-    );
+    const errorMessage = error instanceof Error ? error.message : "系統出現錯誤，請重試。";
+    return <ToastMessageWithRedirect type={"error"} message={errorMessage} redirectPath={"/studio-owner/dashboard"} />;
   }
 
   return <BasicInfoForm studioId={studioId} basicInfoData={basicInfoData} />;

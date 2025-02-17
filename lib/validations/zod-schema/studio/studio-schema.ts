@@ -1,24 +1,28 @@
 import { districtValues, equipmentMap, payoutMethod } from "@/services/model";
 import { isValidPhoneNumber } from "libphonenumber-js";
 import * as z from "zod";
-import { allowedImageMineTypes, formattedMineTypes, maxGalleryImageSize } from "../../file";
+import { allowedImageMineTypes, formattedMineTypes, maxCoverImageSize, maxGalleryImageSize, maxLogoImageSize } from "../../file";
 import { TimeslotsSchema } from "../timeslot-schema";
 
 const daysOfWeekEnum = z.enum(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]);
 
-// Define the schema for a single image for onboarding gallery step
-const singleImageSchema = z.union([
-  // For new image uploads
-  z
-    .instanceof(File)
-    .refine((file) => allowedImageMineTypes.includes(file.type), {
-      message: `不支持此檔案格式。請上傳${formattedMineTypes.join(", ")}圖片檔案`,
-    })
-    .refine((file) => file.size <= maxGalleryImageSize, {
-      message: "檔案容量超出5MB。",
-    }),
-  z.string().url({ message: "圖片無法顯示。" }), // For existing AWS URLs
-]);
+const createSingleImageSchema = (maxSize: number) => {
+  return z
+    .union([
+      z
+        .instanceof(File)
+        .refine((file) => allowedImageMineTypes.includes(file.type), {
+          message: `不支持此檔案格式。請上傳${formattedMineTypes.join(", ")}圖片檔案`,
+        })
+        .refine((file) => file.size <= maxSize, {
+          message: `圖片大小需小於${maxSize / (1024 * 1024)}MB。`,
+        }),
+      z.string().refine((url) => url.trim().length > 0, { message: "請上傳圖片。" }),
+    ])
+    .refine((value) => value instanceof File || (typeof value === "string" && value.length > 0), {
+      message: "請上傳圖片。",
+    });
+};
 
 export const BusinessHourSchema = z
   .object({
@@ -30,7 +34,9 @@ export const BusinessHourSchema = z
     path: ["timeslots"],
   });
 
-export const studioSchema = z.object({
+export const StudioSchema = z.object({
+  logo: createSingleImageSchema(maxLogoImageSize),
+  cover: createSingleImageSchema(maxCoverImageSize),
   name: z.string().min(1, "請填寫場地名稱。").max(50, "場地名稱最多可接受50字。"),
   slug: z
     .string()
@@ -54,7 +60,10 @@ export const studioSchema = z.object({
       })
     )
     .min(1, "請選擇至少一項設備"),
-  gallery: z.array(singleImageSchema).min(3, { message: "請上傳至少3張圖片。" }).max(15, { message: "最多只能上傳15張圖片。" }),
+  gallery: z
+    .array(createSingleImageSchema(maxGalleryImageSize)) // Gallery with its own size limit
+    .min(3, { message: "請上傳至少3張圖片。" })
+    .max(15, { message: "最多只能上傳15張圖片。" }),
   phone: z.string().refine(isValidPhoneNumber, "請輸入正確的電話號碼。"),
   social: z.object({
     website: z.string().url({ message: "請輸入有效網站。" }).optional().or(z.literal("")),
