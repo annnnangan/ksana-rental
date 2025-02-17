@@ -1,13 +1,12 @@
 import handleError from "@/lib/handlers/error";
+import { NotFoundError } from "@/lib/http-errors";
 import { ImageType } from "@/lib/validations/file";
 
 const computeSHA256 = async (file: File) => {
   const buffer = await file.arrayBuffer();
   const hashBuffer = await crypto.subtle.digest("SHA-256", buffer);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hashHex = hashArray
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
+  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
   return hashHex;
 };
 
@@ -22,15 +21,7 @@ export const addUploadTimestampToFile = (file: File, index: number) => {
   return newFile;
 };
 
-export const uploadImage = async (
-  file: File,
-  imageType: string,
-  studioId: number,
-  apiPath: string,
-  httpMethod: string,
-  folderName: string,
-  payoutId: number | string | undefined = undefined
-) => {
+export const uploadImage = async (file: File, imageType: string, studioId: number, apiPath: string, httpMethod: string, folderName: string, payoutId: number | string | undefined = undefined) => {
   const signedURLParams = {
     imageType,
     originalFileName: file.name,
@@ -53,9 +44,7 @@ export const uploadImage = async (
 
     if (!signedURLFetchResponse.ok) {
       const errorResponse = await signedURLFetchResponse.json();
-      throw new Error(
-        errorResponse.error.message || "Failed to generate signed URL."
-      );
+      throw new Error(errorResponse.error.message || "Failed to generate signed URL.");
     }
 
     const signedURLData = await signedURLFetchResponse.json();
@@ -93,19 +82,18 @@ export const uploadImage = async (
       });
     }
   } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : "系統出現錯誤，請重試。";
+    const errorMessage = error instanceof Error ? error.message : "系統出現錯誤，請重試。";
     return errorMessage;
   }
 };
 
 /* Upload Image to S3 and return the image url */
-export const generateAWSImageUrls = async (
-  images: File[],
-  folderName: string,
-  imageType: ImageType
-) => {
+export const generateAWSImageUrls = async (images: File[], folderName: string, imageType: ImageType) => {
   try {
+    if (!images) {
+      throw new NotFoundError("圖片");
+    }
+
     let s3ImagesUrl = [];
 
     if (images) {
@@ -116,7 +104,6 @@ export const generateAWSImageUrls = async (
           formData.append("file", image); // Append the file
           formData.append("folderName", folderName);
           formData.append("imageType", imageType);
-
           // Send request to the API route to upload the image
           const response = await fetch("/api/upload-image", {
             method: "POST",

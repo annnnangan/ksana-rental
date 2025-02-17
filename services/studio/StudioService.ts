@@ -1,12 +1,14 @@
 import handleError from "@/lib/handlers/error";
 import { NotFoundError } from "@/lib/http-errors";
 import { DateSpecificHourSchemaFormData } from "@/lib/validations/zod-schema/studio/studio-manage-schema";
-import { BusinessHoursAndPriceFormData } from "@/lib/validations/zod-schema/studio/studio-onboarding-schema";
+import { BasicInfoFormData, BusinessHoursAndPriceFormData } from "@/lib/validations/zod-schema/studio/studio-step-schema";
 import { knex } from "@/services/knex";
 import { Knex } from "knex";
 import { StudioStatus } from "../model";
 import { validateStudioService } from "./ValidateStudio";
 import { convertTimeToString, formatDate } from "@/lib/utils/date-time/date-time-utils";
+import { findAreaByDistrictValue } from "@/lib/utils/areas-districts-converter";
+import { FieldValues } from "react-hook-form";
 
 export class StudioService {
   constructor(private knex: Knex) {}
@@ -83,6 +85,33 @@ export class StudioService {
       console.dir(error);
       return handleError(error, "server") as ActionResponse;
     }
+  }
+
+  /* ----------------------------------- Handle Basic Info ----------------------------------- */
+  async saveBasicInfo(data: BasicInfoFormData, studioId: string, isOnboardingStep: boolean) {
+    const txn = await this.knex.transaction();
+
+    const area = findAreaByDistrictValue(data.district)?.value;
+
+    try {
+      await txn("studio")
+        .where({ id: studioId })
+        .update({ ...data, area: area });
+
+      if (isOnboardingStep) {
+        await txn("studio_onboarding_step").where({ studio_id: studioId, step: "basic-info" }).update({ is_complete: true });
+      }
+
+      // Commit the transaction
+      await txn.commit();
+      return { success: true };
+    } catch (error) {
+      console.dir(error);
+      await txn.rollback(); // Rollback in case of an error
+      return handleError(error, "server") as ActionResponse;
+    }
+    //check if data exist, if yes, delete -> insert new
+    //check if type = onboarding -> set onboarding step === true
   }
 
   /* ----------------------------------- Handle Date Specific Hour ----------------------------------- */

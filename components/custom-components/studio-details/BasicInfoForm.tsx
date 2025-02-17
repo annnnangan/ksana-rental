@@ -22,7 +22,7 @@ import SubmitButton from "../../_component/SubmitButton";
 import UploadButton from "./UploadButton";
 import { getOnboardingStep } from "@/lib/utils/get-onboarding-step-utils";
 import { ManageStudioBasicInfoSchema, ManageStudioBasicInfoFormData } from "@/lib/validations/zod-schema/studio/studio-manage-schema";
-import { OnboardingBasicInfoSchema, OnboardingBasicInfoFormData } from "@/lib/validations/zod-schema/studio/studio-onboarding-schema";
+import { OnboardingBasicInfoSchema, OnboardingBasicInfoFormData } from "@/lib/validations/zod-schema/studio/studio-step-schema";
 
 interface Props {
   defaultValues: [];

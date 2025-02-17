@@ -7,9 +7,9 @@ export const studioNameSchema = StudioSchema.pick({
 });
 
 /* ----------------- Step 1: Enter studio basic information ----------------- */
-export const OnboardingBasicInfoSchema = StudioSchema.pick({
+export const BasicInfoSchema = StudioSchema.pick({
   logo: true,
-  cover: true,
+  cover_photo: true,
   name: true,
   slug: true,
   description: true,
@@ -17,7 +17,7 @@ export const OnboardingBasicInfoSchema = StudioSchema.pick({
   address: true,
 });
 
-export type OnboardingBasicInfoFormData = z.infer<typeof OnboardingBasicInfoSchema>;
+export type BasicInfoFormData = z.infer<typeof BasicInfoSchema>;
 
 /* -------------- Step 2: Enter studio business hours and price ------------- */
 export const BusinessHoursAndPriceSchema = StudioSchema.pick({

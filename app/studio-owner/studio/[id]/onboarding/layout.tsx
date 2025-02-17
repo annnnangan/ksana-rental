@@ -1,5 +1,5 @@
 "use client";
-import { StudioOwnerSidebar } from "@/components/custom-components/layout/side-bar/NavBar";
+
 import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "@/components/shadcn/breadcrumb";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/shadcn/sidebar";
 import { Separator } from "@/components/shadcn/separator";
@@ -60,7 +60,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const currentTitle = currentNavItem?.title || "";
   return (
     <SidebarProvider>
-      <StudioOwnerSidebar navItems={navItems} />
+      {/* <StudioOwnerSidebar navItems={navItems} /> */}
 
       <div className="w-full">
         <SidebarInset>

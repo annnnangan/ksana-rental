@@ -5,20 +5,9 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import handleError from "@/lib/handlers/error";
 
 import { ForbiddenError } from "@/lib/http-errors";
-import {
-  allowedImageMineTypes,
-  formattedMineTypes,
-  ImageType,
-  maxImageSizes,
-} from "@/lib/validations/file";
+import { allowedImageMineTypes, formattedMineTypes, ImageType, maxImageSizes } from "@/lib/validations/file";
 import { generateFileName } from "../s3/route";
 import { s3Client } from "@/lib/utils/s3-upload/s3-client";
-
-interface UploadImageParams {
-  imageType: ImageType;
-  file: File;
-  folderName: string;
-}
 
 export async function POST(request: NextRequest) {
   try {
@@ -39,15 +28,11 @@ export async function POST(request: NextRequest) {
     }
 
     if (!allowedImageMineTypes.includes(file.type)) {
-      throw new ForbiddenError(
-        `不支持此檔案格式。請上傳${formattedMineTypes.join(", ")}圖片檔案`
-      );
+      throw new ForbiddenError(`不支持此檔案格式。請上傳${formattedMineTypes.join(", ")}圖片檔案`);
     }
 
     if (file.size > maxImageSize) {
-      throw new ForbiddenError(
-        `檔案容量超出${maxImageSize / (1024 * 1024)}MB。`
-      );
+      throw new ForbiddenError(`檔案容量超出${maxImageSize / (1024 * 1024)}MB。`);
     }
 
     const fileName = `${generateFileName()}.${file.name.split(".").at(-1)}`;

@@ -11,7 +11,7 @@ export type DateSpecificHourSchemaFormData = z.infer<typeof DateSpecificHourSche
 /* ------------------------ Basic Info ------------------------ */
 export const ManageStudioBasicInfoSchema = StudioSchema.pick({
   logo: true,
-  cover: true,
+  cover_photo: true,
   description: true,
   district: true,
   address: true,

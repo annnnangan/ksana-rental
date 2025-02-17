@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/shadcn/ta
 import { sessionUser } from "@/lib/next-auth-config/session-user";
 import { convertTimeToString, formatDate } from "@/lib/utils/date-time/date-time-utils";
 import { studioService } from "@/services/studio/StudioService";
-import { BusinessHoursAndPriceFormData } from "@/lib/validations/zod-schema/studio/studio-onboarding-schema";
+import { BusinessHoursAndPriceFormData } from "@/lib/validations/zod-schema/studio/studio-step-schema";
 
 const BusinessHourAndPricePage = async ({ params }: { params: Promise<{ id: string }> }) => {
   //Get Studio ID from URL

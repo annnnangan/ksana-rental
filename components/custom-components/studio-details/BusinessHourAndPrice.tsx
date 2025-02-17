@@ -13,7 +13,7 @@ import { toast } from "react-toastify";
 import { generateTimeslots } from "@/lib/utils/date-time/generate-timeslot";
 
 import { saveBusinessHoursAndPrice } from "@/actions/studio";
-import { BusinessHoursAndPriceFormData, BusinessHoursAndPriceSchema } from "@/lib/validations/zod-schema/studio/studio-onboarding-schema";
+import { BusinessHoursAndPriceFormData, BusinessHoursAndPriceSchema } from "@/lib/validations/zod-schema/studio/studio-step-schema";
 import { daysOfWeekType } from "@/services/model";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { usePathname, useRouter } from "next/navigation";

@@ -1,34 +1,38 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { DefaultValues, FieldValues, Path, SubmitHandler, useForm, UseFormReturn } from "react-hook-form";
-import { ZodType } from "zod";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useEffect, useState, useTransition } from "react";
+import { useForm } from "react-hook-form";
 import { useDebounceCallback } from "usehooks-ts";
-import { useEffect, useState } from "react";
 
-import { districts } from "@/services/model";
-
+import UploadButton from "@/components/custom-components/UploadButton";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/shadcn/avatar";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/shadcn/form";
 import { Input } from "@/components/shadcn/input";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/shadcn/select";
 import { Textarea } from "@/components/shadcn/textarea";
-import SubmitButton from "../SubmitButton";
 import { Building2, ImageIcon, Loader2 } from "lucide-react";
-import UploadButton from "@/components/custom-components/UploadButton";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/shadcn/avatar";
-import Image from "next/image";
+import { toast } from "react-toastify";
 import ErrorMessage from "../ErrorMessage";
-import { maxCoverImageSize, maxLogoImageSize } from "@/lib/validations/file";
+import SubmitButton from "../SubmitButton";
 
-interface Props<T extends FieldValues> {
-  schema: ZodType<T>;
-  defaultValues: T;
-  onSubmit: (data: T) => Promise<{ success: boolean; error?: string }>;
+import { saveBasicInfoForm } from "@/actions/studio";
+import { generateAWSImageUrls } from "@/lib/utils/s3-upload/s3-image-upload-utils";
+import { maxCoverImageSize, maxLogoImageSize } from "@/lib/validations/file";
+import { BasicInfoFormData, BasicInfoSchema } from "@/lib/validations/zod-schema/studio/studio-step-schema";
+import { districts } from "@/services/model";
+
+interface Props {
+  defaultValues: BasicInfoFormData;
   isOnboardingStep: boolean;
   studioId: string;
 }
 
-const BasicInfoForm2 = <T extends FieldValues>({ isOnboardingStep, studioId, schema, defaultValues, onSubmit }: Props<T>) => {
+const BasicInfoForm2 = ({ isOnboardingStep, studioId, defaultValues }: Props) => {
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
   /* ------------------------- Check if slug is unique ------------------------ */
   const [debounceSlug, setDebounceSlug] = useState("");
   const [isCheckingSlugUnique, setCheckingSlugUnique] = useState(false);
@@ -62,27 +66,70 @@ const BasicInfoForm2 = <T extends FieldValues>({ isOnboardingStep, studioId, sch
     checkSlugUnique();
   }, [debounceSlug]);
 
-  /* ------------------------- File Upload ------------------------ */
+  /* ------------------------- File Preview ------------------------ */
   const [logoPreview, setLogoPreview] = useState<string | undefined>(undefined);
   const [coverPreview, setCoverPreview] = useState<string | undefined>(undefined);
 
   /* ------------------------- React Hook Form ------------------------ */
 
-  const form: UseFormReturn<T> = useForm({
-    resolver: zodResolver(schema),
-    defaultValues: defaultValues as DefaultValues<T>,
+  const form = useForm({
+    resolver: zodResolver(BasicInfoSchema),
+    defaultValues: defaultValues,
   });
 
-  const watch = form.watch;
+  const { isSubmitting } = form.formState;
   const { errors } = form.formState;
 
-  const handleSubmit: SubmitHandler<T> = async (data) => {
-    console.log(data);
+  /* ------------------------- Form Submit ------------------------ */
+  const handleSubmit = async (data: BasicInfoFormData) => {
+    if (!isUniqueSlug) {
+      return;
+    }
+    // Create AWS S3 Image URLs
+    if (logoPreview) {
+      // Generate AWS Image URLs
+      const imageUrl = await generateAWSImageUrls([data.logo] as File[], `studio/${studioId}/logo`, "logo");
+
+      if (!imageUrl.success) {
+        toast(`Logo無法儲存: ${imageUrl?.error?.message}`, {
+          position: "top-right",
+          type: "error",
+          autoClose: 1000,
+        });
+        return;
+      }
+
+      data = { ...data, logo: imageUrl?.data?.[0] };
+    }
+
+    if (coverPreview) {
+      // Generate AWS Image URLs
+      const imageUrl = await generateAWSImageUrls([data.cover_photo] as File[], `studio/${studioId}/cover`, "cover");
+
+      if (!imageUrl.success) {
+        toast(`封面圖片無法儲存: ${imageUrl?.error?.message}。`, {
+          position: "top-right",
+          type: "error",
+          autoClose: 1000,
+        });
+        return;
+      }
+
+      data = { ...data, cover_photo: imageUrl?.data?.[0] };
+    }
+
+    //Update Database
+    startTransition(() => {
+      saveBasicInfoForm(data, studioId, isOnboardingStep).then((data) => {
+        toast(data.error?.message || "儲存成功。", {
+          position: "top-right",
+          type: data?.success ? "success" : "error",
+          autoClose: 1000,
+        });
+        router.refresh();
+      });
+    });
   };
-
-  const logoWatch = watch("logo");
-
-  console.log(logoWatch);
 
   return (
     <Form {...form}>
@@ -100,7 +147,7 @@ const BasicInfoForm2 = <T extends FieldValues>({ isOnboardingStep, studioId, sch
             <div className="absolute bottom-3 right-3">
               <FormField
                 control={form.control}
-                name={"cover" as Path<T>}
+                name="cover_photo"
                 render={({ field }) => (
                   <FormItem>
                     <FormControl>
@@ -124,7 +171,7 @@ const BasicInfoForm2 = <T extends FieldValues>({ isOnboardingStep, studioId, sch
           </div>
 
           <FormDescription>圖片大小需小於{maxCoverImageSize / (1024 * 1024)}MB。</FormDescription>
-          {errors?.cover?.message && <ErrorMessage>{String(errors?.cover?.message)}</ErrorMessage>}
+          {errors?.cover_photo?.message && <ErrorMessage>{String(errors?.cover_photo?.message)}</ErrorMessage>}
         </div>
 
         {/* Logo */}
@@ -138,7 +185,7 @@ const BasicInfoForm2 = <T extends FieldValues>({ isOnboardingStep, studioId, sch
             </Avatar>
             <FormField
               control={form.control}
-              name={"logo" as Path<T>}
+              name="logo"
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
@@ -166,14 +213,14 @@ const BasicInfoForm2 = <T extends FieldValues>({ isOnboardingStep, studioId, sch
         {/* Name */}
         <FormField
           control={form.control}
-          name={"name" as Path<T>}
+          name="name"
           render={({ field }) => (
             <FormItem className="w-full">
               <FormLabel className="text-base font-bold" htmlFor="studioName">
                 場地名稱
               </FormLabel>
               <FormControl>
-                <Input type="text" id="studioName" className="form-input text-sm" placeholder="請輸入場地名稱" {...field} />
+                <Input type="text" id="studioName" className="form-input text-sm" placeholder="請輸入場地名稱" {...field} disabled={!isOnboardingStep} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -183,7 +230,7 @@ const BasicInfoForm2 = <T extends FieldValues>({ isOnboardingStep, studioId, sch
         {/* Slug */}
         <FormField
           control={form.control}
-          name={"slug" as Path<T>}
+          name="slug"
           render={({ field }) => (
             <FormItem className="w-full">
               <FormLabel className="text-base font-bold" htmlFor="studioSlug">
@@ -197,8 +244,9 @@ const BasicInfoForm2 = <T extends FieldValues>({ isOnboardingStep, studioId, sch
                     type="text"
                     id="studioSlug"
                     placeholder="請填寫場地網站別名。"
-                    className="pl-[120px] text-sm"
+                    className={`pl-[120px] text-sm ${!isOnboardingStep ? "bg-gray-200" : ""}`}
                     {...field}
+                    disabled={!isOnboardingStep}
                     onChange={(e) => {
                       field.onChange(e);
                       debounced(e.target.value);
@@ -220,7 +268,7 @@ const BasicInfoForm2 = <T extends FieldValues>({ isOnboardingStep, studioId, sch
         {/* Description */}
         <FormField
           control={form.control}
-          name={"description" as Path<T>}
+          name="description"
           render={({ field }) => (
             <FormItem className="w-full">
               <FormLabel className="text-base font-bold" htmlFor="studioDescription">
@@ -238,7 +286,7 @@ const BasicInfoForm2 = <T extends FieldValues>({ isOnboardingStep, studioId, sch
         <div>
           <FormField
             control={form.control}
-            name={"district" as Path<T>}
+            name="district"
             render={({ field }) => (
               <FormItem className="w-[150px] mb-2">
                 <FormLabel className="text-base font-bold" htmlFor="district">
@@ -271,7 +319,7 @@ const BasicInfoForm2 = <T extends FieldValues>({ isOnboardingStep, studioId, sch
 
           <FormField
             control={form.control}
-            name={"address" as Path<T>}
+            name="address"
             render={({ field }) => (
               <FormItem className="w-full">
                 <FormControl>
@@ -283,7 +331,7 @@ const BasicInfoForm2 = <T extends FieldValues>({ isOnboardingStep, studioId, sch
           />
         </div>
 
-        <SubmitButton isSubmitting={false} submittingText={isOnboardingStep ? "往下一步" : "儲存"} withIcon={isOnboardingStep ? true : false} />
+        <SubmitButton isSubmitting={isSubmitting} submittingText={isOnboardingStep ? "往下一步" : "儲存"} withIcon={isOnboardingStep ? true : false} />
       </form>
     </Form>
   );

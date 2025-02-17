@@ -36,7 +36,7 @@ export const BusinessHourSchema = z
 
 export const StudioSchema = z.object({
   logo: createSingleImageSchema(maxLogoImageSize),
-  cover: createSingleImageSchema(maxCoverImageSize),
+  cover_photo: createSingleImageSchema(maxCoverImageSize),
   name: z.string().min(1, "請填寫場地名稱。").max(50, "場地名稱最多可接受50字。"),
   slug: z
     .string()
