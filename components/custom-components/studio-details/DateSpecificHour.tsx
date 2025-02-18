@@ -2,7 +2,7 @@
 
 import DeleteConfirmationModal from "@/components/custom-components/DeleteConfirmationModal";
 import ErrorMessage from "@/components/custom-components/ErrorMessage";
-import SubmitButton from "@/components/custom-components/SubmitButton";
+import SubmitButton from "@/components/custom-components/buttons/SubmitButton";
 import { Button } from "@/components/shadcn/button";
 import { Calendar } from "@/components/shadcn/calendar";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/shadcn/dialog";

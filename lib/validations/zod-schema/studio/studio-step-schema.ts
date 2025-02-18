@@ -2,9 +2,11 @@ import * as z from "zod";
 import { BusinessHourSchema, StudioSchema } from "./studio-schema";
 
 /* ----------------------- Step 0: Enter studio name ---------------------- */
-export const studioNameSchema = StudioSchema.pick({
+export const StudioNameSchema = StudioSchema.pick({
   name: true,
 });
+
+export type StudioNameFormData = z.infer<typeof StudioNameSchema>;
 
 /* ----------------- Step 1: Enter studio basic information ----------------- */
 export const BasicInfoSchema = StudioSchema.pick({

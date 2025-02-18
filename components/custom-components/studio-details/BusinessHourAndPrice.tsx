@@ -7,7 +7,7 @@ import { Input } from "@/components/shadcn/input";
 import { Label } from "@/components/shadcn/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/shadcn/select";
 import { Switch } from "@/components/shadcn/switch";
-import SubmitButton from "@/components/custom-components/SubmitButton";
+import SubmitButton from "@/components/custom-components/buttons/SubmitButton";
 import { toast } from "react-toastify";
 
 import { generateTimeslots } from "@/lib/utils/date-time/generate-timeslot";

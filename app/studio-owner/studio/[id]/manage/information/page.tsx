@@ -1,6 +1,7 @@
 import ResponsiveTab from "@/components/custom-components/layout/ResponsiveTab";
+import BasicInfoForm from "@/components/custom-components/studio-details/BasicInfoForm";
 import SectionTitle from "@/components/custom-components/studio-details/SectionTitle";
-import StudioDetailsContent from "@/components/custom-components/studio-details/StudioDetailsContent";
+import { studioService, StudioService } from "@/services/studio/StudioService";
 
 interface SearchQuery {
   tab: string;
@@ -28,11 +29,28 @@ const StudioInformationPage = async (props: Props) => {
   const { id: studioId } = await props.params;
   const activeTab = searchParams["tab"] || "basic-info";
 
+  let basicInfoFormDataDefaultValues = {
+    logo: "",
+    cover_photo: "",
+    name: "",
+    slug: "",
+    description: "",
+    address: "",
+    district: "",
+  };
+
+  const basicInfoFormDataResponse = await studioService.getBasicInfoFormData(studioId);
+  if (!basicInfoFormDataResponse.success) {
+    return;
+  }
+
+  basicInfoFormDataDefaultValues = basicInfoFormDataResponse.data;
+
   return (
     <div>
       <SectionTitle>更改場地資料</SectionTitle>
       <ResponsiveTab activeTab={activeTab} tabListMap={tabListMap} />
-      <StudioDetailsContent activeTab={activeTab} studioId={studioId} />
+      <div className="mt-5">{activeTab === "basic-info" && <BasicInfoForm studioId={studioId} isOnboardingStep={false} defaultValues={basicInfoFormDataDefaultValues} />}</div>
     </div>
   );
 };

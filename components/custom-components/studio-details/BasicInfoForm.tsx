@@ -1,310 +1,354 @@
 "use client";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { usePathname } from "next/navigation";
 
-import ErrorMessage from "@/components/custom-components/ErrorMessage";
+import { zodResolver } from "@hookform/resolvers/zod";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useEffect, useState, useTransition } from "react";
+import { useForm } from "react-hook-form";
+import { useDebounceCallback } from "usehooks-ts";
+
+import UploadButton from "@/components/custom-components/buttons/UploadButton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/shadcn/avatar";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/shadcn/form";
 import { Input } from "@/components/shadcn/input";
-import { Label } from "@/components/shadcn/label";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/shadcn/select";
 import { Textarea } from "@/components/shadcn/textarea";
-import { uploadImage } from "@/lib/utils/s3-upload/s3-image-upload-utils";
-import { studioBasicInfoSchema } from "@/lib/validations/zod-schema/booking-schema";
-import { BasicInfo, districts } from "@/services/model";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Building2, Image as ImageIcon } from "lucide-react";
-import { Controller, useForm } from "react-hook-form";
+import { Building2, ImageIcon, Loader2 } from "lucide-react";
 import { toast } from "react-toastify";
-import { z } from "zod";
-import FieldRemarks from "../../_component/FieldRemarks";
-import SubmitButton from "../../_component/SubmitButton";
-import UploadButton from "./UploadButton";
-import { getOnboardingStep } from "@/lib/utils/get-onboarding-step-utils";
-import { ManageStudioBasicInfoSchema, ManageStudioBasicInfoFormData } from "@/lib/validations/zod-schema/studio/studio-manage-schema";
-import { OnboardingBasicInfoSchema, OnboardingBasicInfoFormData } from "@/lib/validations/zod-schema/studio/studio-step-schema";
+import ErrorMessage from "../ErrorMessage";
+import SubmitButton from "../buttons/SubmitButton";
+
+import { saveBasicInfoForm } from "@/actions/studio";
+import { generateAWSImageUrls } from "@/lib/utils/s3-upload/s3-image-upload-utils";
+import { maxCoverImageSize, maxLogoImageSize } from "@/lib/validations/file";
+import { BasicInfoFormData, BasicInfoSchema } from "@/lib/validations/zod-schema/studio/studio-step-schema";
+import { districts } from "@/services/model";
 
 interface Props {
-  defaultValues: [];
-  studioId: number;
+  defaultValues: BasicInfoFormData;
   isOnboardingStep: boolean;
+  studioId: string;
 }
 
-const BasicInfoForm = ({ defaultValues, studioId, isOnboardingStep }: Props) => {
-  const pathname = usePathname();
+const BasicInfoForm2 = ({ isOnboardingStep, studioId, defaultValues }: Props) => {
+  /* ------------------------- React Hook Form ------------------------ */
+  const form = useForm({
+    resolver: zodResolver(BasicInfoSchema),
+    defaultValues: defaultValues,
+  });
+
+  const { isSubmitting } = form.formState;
+  const { errors } = form.formState;
+
+  const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
-  const FormSchema = isOnboardingStep ? OnboardingBasicInfoSchema : ManageStudioBasicInfoSchema;
-  type FormData = typeof FormSchema extends typeof OnboardingBasicInfoSchema ? OnboardingBasicInfoFormData : ManageStudioBasicInfoFormData;
+  /* ------------------------- Check if slug is unique ------------------------ */
+  const [debounceSlug, setDebounceSlug] = useState("");
+  const [isCheckingSlugUnique, setCheckingSlugUnique] = useState(false);
+  const [isUniqueSlug, setUniqueSlug] = useState(false);
+  const [checkSlugUniqueMessage, setCheckSlugUniqueMessage] = useState("");
 
-  const {
-    register,
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<FormData>({
-    resolver: zodResolver(FormSchema),
-  });
+  const debounced = useDebounceCallback(setDebounceSlug, 2000);
 
-  const [coverFile, setCoverFile] = useState<File | null>(null);
-  const [coverPreviewUrl, setCoverPreviewUrl] = useState<string | null>(null);
-  const [coverFileError, setCoverFileError] = useState<string | null>(null);
+  useEffect(() => {
+    const checkSlugUnique = async () => {
+      if (debounceSlug) {
+        setCheckingSlugUnique(true);
+        setCheckSlugUniqueMessage("");
+        setUniqueSlug(false);
+        try {
+          const response = await fetch(`/api/studio/check-slug-unique?slug=${debounceSlug}`);
+          const result = await response.json();
+          setCheckSlugUniqueMessage(result?.error?.message || "此網站別名未被使用。");
+          if (result.success) setUniqueSlug(true);
+        } catch {
+          setCheckSlugUniqueMessage("無法識別此網站別名。");
+        } finally {
+          setCheckingSlugUnique(false);
+        }
+      } else {
+        setCheckSlugUniqueMessage("");
+        setCheckingSlugUnique(false);
+        setUniqueSlug(false);
+      }
+    };
+    checkSlugUnique();
+  }, [debounceSlug]);
 
-  const [logoFile, setLogoFile] = useState<File | null>(null);
-  const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
-  const [logoFileError, setLogoFileError] = useState<string | null>(null);
+  /* ------------------------- File Preview ------------------------ */
+  const [logoPreview, setLogoPreview] = useState<string | undefined>(undefined);
+  const [coverPreview, setCoverPreview] = useState<string | undefined>(undefined);
 
-  const [isSubmitting, setSubmitting] = useState(false);
+  /* ------------------------- Form Submit ------------------------ */
+  const handleSubmit = async (data: BasicInfoFormData) => {
+    console.log("hello");
+    if (isOnboardingStep && !isUniqueSlug) {
+      return;
+    }
+    // Create AWS S3 Image URLs
+    if (logoPreview) {
+      // Generate AWS Image URLs
+      const imageUrl = await generateAWSImageUrls([data.logo] as File[], `studio/${studioId}/logo`, "logo");
 
-  //Display uploaded image
-  const handleCoverSelect = (selectedFile: File | null) => {
-    setCoverFile(selectedFile);
-    if (coverPreviewUrl) {
-      URL.revokeObjectURL(coverPreviewUrl);
+      if (!imageUrl.success) {
+        toast(`Logo無法儲存: ${imageUrl?.error?.message}`, {
+          position: "top-right",
+          type: "error",
+          autoClose: 1000,
+        });
+        return;
+      }
+
+      data = { ...data, logo: imageUrl?.data?.[0] };
     }
 
-    if (selectedFile) {
-      const url = URL.createObjectURL(selectedFile);
-      setCoverPreviewUrl(url);
-    } else {
-      setCoverPreviewUrl(null);
+    if (coverPreview) {
+      // Generate AWS Image URLs
+      const imageUrl = await generateAWSImageUrls([data.cover_photo] as File[], `studio/${studioId}/cover`, "cover");
+
+      if (!imageUrl.success) {
+        toast(`封面圖片無法儲存: ${imageUrl?.error?.message}。`, {
+          position: "top-right",
+          type: "error",
+          autoClose: 1000,
+        });
+        return;
+      }
+
+      data = { ...data, cover_photo: imageUrl?.data?.[0] };
     }
+
+    // Update Database
+    startTransition(() => {
+      saveBasicInfoForm(data, studioId, isOnboardingStep).then((data) => {
+        toast(data.error?.message || "儲存成功。", {
+          position: "top-right",
+          type: data?.success ? "success" : "error",
+          autoClose: 1000,
+        });
+        router.refresh();
+
+        if (isOnboardingStep && data.success) {
+          router.push(`/studio-owner/studio/${studioId}/onboarding/business-hour-and-price`);
+        }
+      });
+    });
   };
-
-  const handleLogoSelect = (selectedFile: File | null) => {
-    setLogoFile(selectedFile);
-
-    if (logoPreviewUrl) {
-      URL.revokeObjectURL(logoPreviewUrl);
-    }
-
-    if (selectedFile) {
-      const url = URL.createObjectURL(selectedFile);
-      setLogoPreviewUrl(url);
-    } else {
-      setLogoPreviewUrl(null);
-    }
-  };
-
-  const onSubmit = handleSubmit(async (data) => {
-    setCoverFileError(null);
-    setLogoFileError(null);
-    setSubmitting(true);
-
-    try {
-      //only when user has uploaded new images, will trigger image upload process
-      if ((!coverFile && !basicInfoData.cover_photo) || (!logoFile && !basicInfoData.logo)) {
-        if (!coverFile && !basicInfoData.cover_photo) {
-          setCoverFileError("請上傳封面圖片");
-          throw new Error("請上傳封面圖片");
-        }
-
-        if (!logoFile && !basicInfoData.logo) {
-          setLogoFileError("請上傳Logo");
-          throw new Error("請上傳Logo");
-        }
-        setSubmitting(false);
-      }
-
-      if (coverFile || logoFile) {
-        // Upload cover image
-        if (coverFile) {
-          const errorResponse = await uploadImage(coverFile, "cover_photo", studioId, `/api/studio/${studioId}/basic-info/images`, "PUT");
-          if (errorResponse) {
-            setCoverFileError(errorResponse);
-            throw new Error(errorResponse);
-          }
-        }
-        // Upload logo image
-        if (logoFile) {
-          const errorResponse = await uploadImage(logoFile, "logo", studioId, `/api/studio/${studioId}/basic-info/images`, "PUT");
-          if (errorResponse) {
-            setLogoFileError(errorResponse);
-            throw new Error(errorResponse);
-          }
-        }
-      }
-
-      const onboardingStep = getOnboardingStep(pathname);
-
-      //Save Basic Info to Database
-      const saveBasicInfoResponse = await fetch(`/api/studio/${studioId}/basic-info`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          data,
-          onboardingStep,
-        }),
-      });
-
-      if (!saveBasicInfoResponse.ok) {
-        // If the response status is not 2xx, throw an error with the response message
-        const errorData = await saveBasicInfoResponse.json();
-        throw new Error(errorData?.error.message || "系統發生未預期錯誤。");
-      }
-
-      //Save Onboarding Step Track
-      const completeOnboardingStepResponse = await fetch(`/api/studio/${studioId}/onboarding-step`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          onboardingStep,
-        }),
-      });
-
-      if (!completeOnboardingStepResponse.ok) {
-        // If the response status is not 2xx, throw an error with the response message
-        const errorData = await completeOnboardingStepResponse.json();
-        throw new Error(errorData?.error.message || "系統發生未預期錯誤。");
-      }
-
-      router.push(`/studio-owner/studio/${studioId}/onboarding/business-hour-and-price`);
-      router.refresh();
-
-      //Save text information to database
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "系統發生未預期錯誤，請重試。";
-      toast(errorMessage, {
-        position: "top-right",
-        type: "error",
-        autoClose: 1000,
-      });
-      router.refresh();
-    }
-    setSubmitting(false);
-  });
 
   return (
-    <form onSubmit={onSubmit}>
-      {/* Input 1: Cover Image */}
-      {/* <div className="relative max-w-full w-auto h-60 aspect-[3/1] bg-neutral-200 rounded-md mb-1">
-        {coverPreviewUrl && coverFile ? (
-          <img src={coverPreviewUrl} alt="Cover preview" className="absolute inset-0 w-full h-full object-cover rounded-md" />
-        ) : basicInfoData.cover_photo ? (
-          <img src={basicInfoData.cover_photo} alt="Cover photo" className="absolute inset-0 w-full h-full object-cover rounded-md" />
-        ) : (
-          <div className="absolute right-1/2 top-1/2">
-            <ImageIcon />
-          </div>
-        )}
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="w-full space-y-6">
+        {/* Cover */}
+        <div>
+          <div className="relative max-w-full w-auto h-60 aspect-[3/1] bg-neutral-200 rounded-md mb-1">
+            {coverPreview ||
+              (defaultValues.cover_photo && (
+                <Image
+                  src={coverPreview || (defaultValues.cover_photo as string)}
+                  alt="cover photo"
+                  fill
+                  className="absolute inset-0 w-full h-full object-cover rounded-md"
+                  sizes="(min-width: 1540px) 724px, (min-width: 1280px) 596px, (min-width: 1040px) 468px, (min-width: 780px) 340px, 276px"
+                />
+              ))}
+            {!coverPreview ||
+              (!defaultValues.cover_photo && (
+                <div className="absolute right-1/2 top-1/2">
+                  <ImageIcon />
+                </div>
+              ))}
 
-        <div className="absolute bottom-3 right-3">
-          <UploadButton onFileSelect={handleCoverSelect} buttonLabel="上載封面圖片" />
-        </div>
-      </div>
-      <FieldRemarks>圖片容量需為2MB內。</FieldRemarks>
-      {coverFileError && <ErrorMessage> {coverFileError}</ErrorMessage>} */}
-
-      {/* Input 2: Logo */}
-      {/* <div className="mt-5 mb-1 flex items-end gap-4">
-        <Avatar className="h-24 w-24">
-          {logoPreviewUrl && logoFile ? (
-            <AvatarImage src={logoPreviewUrl} className="object-cover" />
-          ) : basicInfoData.logo ? (
-            <AvatarImage src={basicInfoData.logo} className="object-cover" />
-          ) : (
-            <AvatarFallback>
-              <Building2 />
-            </AvatarFallback>
-          )}
-        </Avatar>
-
-        <UploadButton onFileSelect={handleLogoSelect} buttonLabel="上載Logo" />
-      </div>
-
-      <FieldRemarks>圖片容量需為2MB內。</FieldRemarks>
-
-      {logoFileError && <ErrorMessage> {logoFileError}</ErrorMessage>} */}
-
-      {/* Input 3: Studio Name */}
-      {isOnboardingStep && (
-        <>
-          <div className="grid w-full items-center gap-1 mt-8">
-            <Label htmlFor="studioName" className="text-base font-bold">
-              場地名稱
-            </Label>
-            <Input type="text" id="studioName" placeholder="請輸入場地名稱" className="text-sm" {...register("name")} />
-          </div>
-
-          <ErrorMessage> {errors.name?.message}</ErrorMessage>
-        </>
-      )}
-
-      {/* Input 4: Studio slug */}
-      {/* todo: validate if the studioSlug could be used when onblur */}
-
-      {isOnboardingStep && (
-        <>
-          <div className="grid w-full items-center gap-1 mt-8">
-            <Label htmlFor="studioName" className="text-base font-bold">
-              場地網站別名
-            </Label>
-            <FieldRemarks>此處將用於在網站中顯示出的場地連結。只接受英文字、數字和連字號(hyphens)。</FieldRemarks>
-
-            <div className="relative flex items-center">
-              <span className="absolute left-3 text-gray-500 text-sm">ksana.io/studio/</span>
-              <Input type="text" id="studioSlug" placeholder="請填寫場地網站別名。" className="pl-[120px] text-sm" {...register("slug")} />
+            <div className="absolute bottom-3 right-3">
+              <FormField
+                control={form.control}
+                name="cover_photo"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <UploadButton
+                        buttonLabel="上傳封面圖片"
+                        onFileSelect={(file) => {
+                          field.onChange(file);
+                          if (file) {
+                            const imageUrl = URL.createObjectURL(file);
+                            setCoverPreview(imageUrl);
+                          } else {
+                            setCoverPreview(undefined);
+                          }
+                        }}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
             </div>
           </div>
 
-          <ErrorMessage> {errors.slug?.message}</ErrorMessage>
-        </>
-      )}
+          <FormDescription>圖片大小需小於{maxCoverImageSize / (1024 * 1024)}MB。</FormDescription>
+          {errors?.cover_photo?.message && <ErrorMessage>{String(errors?.cover_photo?.message)}</ErrorMessage>}
+        </div>
 
-      {/* Input 5: Studio Description */}
-      <div className="grid w-full items-center gap-1 mt-8">
-        <Label htmlFor="studioDescription" className="text-base font-bold">
-          場地介紹
-        </Label>
+        {/* Logo */}
+        <div>
+          <div className="flex items-end gap-4 mb-1">
+            <Avatar className="h-24 w-24">
+              <AvatarImage src={logoPreview || (defaultValues.logo as string)} className="object-cover" />
+              <AvatarFallback>
+                <Building2 />
+              </AvatarFallback>
+            </Avatar>
+            <FormField
+              control={form.control}
+              name="logo"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <UploadButton
+                      buttonLabel="上傳Logo"
+                      onFileSelect={(file) => {
+                        field.onChange(file);
+                        if (file) {
+                          const imageUrl = URL.createObjectURL(file);
+                          setLogoPreview(imageUrl);
+                        } else {
+                          setLogoPreview(undefined);
+                        }
+                      }}
+                    />
+                  </FormControl>
+                  <FormDescription>圖片大小需小於{maxLogoImageSize / (1024 * 1024)}MB。</FormDescription>
+                </FormItem>
+              )}
+            />
+          </div>
+          {errors?.logo?.message && <ErrorMessage>{String(errors?.logo?.message)}</ErrorMessage>}
+        </div>
 
-        <Textarea id="studioDescription" placeholder="請填寫場地介紹。" className="text-sm" {...register("description")} />
-      </div>
-
-      <ErrorMessage> {errors.description?.message}</ErrorMessage>
-
-      {/* Input 6: Address */}
-
-      <div className="grid w-full items-center gap-1 mt-8">
-        <Label htmlFor="district" className="text-base font-bold">
-          場地地址
-        </Label>
-        <Controller
-          name="district"
-          control={control}
+        {/* Name */}
+        <FormField
+          control={form.control}
+          name="name"
           render={({ field }) => (
-            <Select onValueChange={field.onChange} value={field.value}>
-              <SelectTrigger className="w-[150px]">
-                <SelectValue placeholder="選擇場地之地區" />
-              </SelectTrigger>
-              <SelectContent>
-                {districts.map((item) => (
-                  <SelectGroup key={item.area.value}>
-                    <SelectLabel>---- {item.area.label} ----</SelectLabel>
-                    {item.district.map((location) => (
-                      <SelectItem value={location.value} key={location.value}>
-                        {location.label}
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                ))}
-              </SelectContent>
-            </Select>
+            <FormItem className="w-full">
+              <FormLabel className="text-base font-bold" htmlFor="studioName">
+                場地名稱
+              </FormLabel>
+              <FormControl>
+                <Input type="text" id="studioName" className={`form-input text-sm ${!isOnboardingStep ? "bg-gray-200" : ""}`} placeholder="請輸入場地名稱" {...field} disabled={!isOnboardingStep} />
+              </FormControl>
+              {!isOnboardingStep && <FormDescription>建立場地後無法修改，如需修改，請聯絡管理員。</FormDescription>}
+              <FormMessage />
+            </FormItem>
           )}
         />
-        <ErrorMessage> {errors.district?.message}</ErrorMessage>
 
-        <Input type="text" id="address" placeholder="請填寫場地地址。" className="text-sm" {...register("address")} />
-      </div>
+        {/* Slug */}
+        <FormField
+          control={form.control}
+          name="slug"
+          render={({ field }) => (
+            <FormItem className="w-full">
+              <FormLabel className="text-base font-bold" htmlFor="studioSlug">
+                場地網站別名
+              </FormLabel>
+              <FormDescription>此處將用於在網站中顯示出的場地連結。只接受英文字、數字和連字號(hyphens)。</FormDescription>
+              <FormControl>
+                <div className="relative flex items-center">
+                  <span className="absolute left-3 text-gray-500 text-sm">ksana.io/studio/</span>
+                  <Input
+                    type="text"
+                    id="studioSlug"
+                    placeholder="請填寫場地網站別名。"
+                    className={`pl-[120px] text-sm ${!isOnboardingStep ? "bg-gray-200" : ""}`}
+                    {...field}
+                    disabled={!isOnboardingStep}
+                    onChange={(e) => {
+                      field.onChange(e);
+                      debounced(e.target.value);
+                    }}
+                  />
+                </div>
+              </FormControl>
+              {!isOnboardingStep && <FormDescription>建立場地後無法修改，如需修改，請聯絡管理員。</FormDescription>}
+              {isCheckingSlugUnique && <Loader2 className="animate-spin h-3 w-3" />}
+              {!isCheckingSlugUnique && checkSlugUniqueMessage && (
+                <p className={`text-sm ${checkSlugUniqueMessage === "此網站別名未被使用。" ? "text-green-500" : "text-red-500"}`}>{checkSlugUniqueMessage}</p>
+              )}
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-      <ErrorMessage> {errors.address?.message}</ErrorMessage>
+        {/* Description */}
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem className="w-full">
+              <FormLabel className="text-base font-bold" htmlFor="studioDescription">
+                場地介紹
+              </FormLabel>
+              <FormControl>
+                <Textarea id="studioDescription" placeholder="請填寫場地介紹。" className="text-sm" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-      <SubmitButton isSubmitting={isSubmitting} />
-    </form>
+        {/* Address */}
+        <div>
+          <FormField
+            control={form.control}
+            name="district"
+            render={({ field }) => (
+              <FormItem className="w-[150px] mb-2">
+                <FormLabel className="text-base font-bold" htmlFor="district">
+                  場地地址
+                </FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="選擇場地之地區" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {districts.map((item) => (
+                      <SelectGroup key={item.area.value}>
+                        <SelectLabel>---- {item.area.label} ----</SelectLabel>
+                        {item.district.map((location) => (
+                          <SelectItem value={location.value} key={location.value}>
+                            {location.label}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="address"
+            render={({ field }) => (
+              <FormItem className="w-full">
+                <FormControl>
+                  <Input type="text" id="studioAddress" className="form-input text-sm" placeholder="請填寫場地地址" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <SubmitButton isSubmitting={isSubmitting || isPending} nonSubmittingText={isOnboardingStep ? "往下一步" : "儲存"} withIcon={isOnboardingStep ? true : false} />
+      </form>
+    </Form>
   );
 };
-
-export default BasicInfoForm;
+export default BasicInfoForm2;

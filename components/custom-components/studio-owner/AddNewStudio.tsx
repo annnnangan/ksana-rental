@@ -1,72 +1,61 @@
 "use client";
 import SlideArrowButton from "@/components/animata/button/slide-arrow-button";
-import ErrorMessage from "@/components/custom-components/ErrorMessage";
-import { Button } from "@/components/shadcn/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/shadcn/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/shadcn/dialog";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/shadcn/form";
 import { Input } from "@/components/shadcn/input";
-import { Label } from "@/components/shadcn/label";
-import { studioNameSchema } from "@/lib/validations/zod-schema/booking-schema";
+import { CirclePlus } from "lucide-react";
+import SubmitButton from "../buttons/SubmitButton";
+
+import { StudioNameFormData, StudioNameSchema } from "@/lib/validations/zod-schema/studio/studio-step-schema";
+
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CirclePlus, Loader2, MoveRight } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useTransition } from "react";
 import { useForm } from "react-hook-form";
+import { createNewDraftStudio } from "@/actions/studio";
+import { useSessionUser } from "@/hooks/use-session-user";
 import { toast } from "react-toastify";
-import { z } from "zod";
-type StudioNameFormData = z.infer<typeof studioNameSchema>;
 
 interface Props {
-  type?: "new" | "existing";
+  hasCreatedStudio: boolean;
 }
 
-const AddNewStudio = ({ type = "existing" }: Props) => {
-  const [isSubmitting, setSubmitting] = useState(false);
+const AddNewStudio = ({ hasCreatedStudio }: Props) => {
+  const user = useSessionUser();
+  /* ------------------------- React Hook Form ------------------------ */
+  const form = useForm({
+    resolver: zodResolver(StudioNameSchema),
+    defaultValues: { name: "" },
+  });
+
+  const { isSubmitting } = form.formState;
+
+  const [isPending, startTransition] = useTransition();
   const router = useRouter();
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<StudioNameFormData>({
-    resolver: zodResolver(studioNameSchema),
-  });
 
-  const onSubmit = handleSubmit(async (data) => {
-    try {
-      setSubmitting(true);
-      const response = await fetch("/api/studio", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
+  /* ------------------------- Form Submit ------------------------ */
+  const handleSubmit = async (data: StudioNameFormData) => {
+    // Update Database
+    startTransition(() => {
+      createNewDraftStudio(data, user?.id!).then((data) => {
+        if (!data.success) {
+          toast("無法建立場地。", {
+            position: "top-right",
+            type: "error",
+            autoClose: 1000,
+          });
+        } else {
+          router.push(`/studio-owner/studio/${data.data.id}/onboarding/basic-info`);
+        }
+        router.refresh();
       });
-
-      if (!response.ok) {
-        // If the response status is not 2xx, throw an error with the response message
-        const errorData = await response.json();
-        throw new Error(errorData?.error.message || "系統發生錯誤，請重試。");
-      }
-
-      const studioIdResult = await response.json();
-
-      router.push(`/studio-owner/studio/${studioIdResult.data}/onboarding/basic-info`);
-      router.refresh();
-    } catch (error) {
-      setSubmitting(false);
-      const errorMessage = (error as Error).message || "系統發生錯誤，請重試。";
-      router.refresh();
-      toast(errorMessage, {
-        position: "bottom-right",
-        type: "error",
-        autoClose: 1000,
-      });
-    }
-  });
+    });
+  };
 
   return (
     <Dialog>
-      {type === "existing" && (
+      {hasCreatedStudio && (
         <DialogTrigger className="px-3 pb-10 w-full min-h-[250px] lg:min-h-[300px] lg:w-1/2 xl:w-1/3">
           <div className="border-2 h-full rounded-sm bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer">
             <div className="flex gap-x-1 justify-center items-center h-full">
@@ -77,7 +66,7 @@ const AddNewStudio = ({ type = "existing" }: Props) => {
         </DialogTrigger>
       )}
 
-      {type === "new" && (
+      {!hasCreatedStudio && (
         <div className="flex justify-center items-center">
           <DialogTrigger asChild>
             <div className="flex flex-col items-center cursor-pointer">
@@ -93,23 +82,24 @@ const AddNewStudio = ({ type = "existing" }: Props) => {
           <DialogTitle>新增場地</DialogTitle>
           <DialogDescription>輸入場地名稱開始登記</DialogDescription>
         </DialogHeader>
-        <form onSubmit={onSubmit}>
-          <div className="flex items-center space-x-2">
-            <div className="grid flex-1 gap-2">
-              <Label htmlFor="name" className="sr-only">
-                Link
-              </Label>
-              <Input id="name" type="text" placeholder="請輸入場地名稱" className="text-sm" {...register("name")} />
-              <ErrorMessage> {errors.name?.message}</ErrorMessage>
-            </div>
-          </div>
-          <DialogFooter className="sm:justify-start mt-2">
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "處理中..." : "開始建立"}
-              {isSubmitting ? <Loader2 className="animate-spin" /> : <MoveRight />}
-            </Button>
-          </DialogFooter>
-        </form>
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="w-full">
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem className="w-full">
+                  <FormControl>
+                    <Input type="text" id="studioName" className={`form-input text-sm`} placeholder="請輸入場地名稱" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <SubmitButton isSubmitting={isSubmitting || isPending} nonSubmittingText={"開始建立"} />
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

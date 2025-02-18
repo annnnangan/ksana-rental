@@ -29,7 +29,7 @@ const UploadButton: React.FC<UploadButtonProps> = ({ onFileSelect, buttonLabel =
 
   return (
     <div>
-      <Button className="rounded-full text-sm border-primary hover:bg-primary hover:text-white" variant="outline" onClick={handleClick}>
+      <Button type="button" className="rounded-full text-sm border-primary hover:bg-primary hover:text-white" variant="outline" onClick={handleClick}>
         <ImageUpIcon /> {buttonLabel}
       </Button>
       <input className="hidden" type="file" accept={accept} onChange={handleFileChange} ref={hiddenFileInput} />

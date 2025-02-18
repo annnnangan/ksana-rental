@@ -4,11 +4,16 @@ import handleError from "@/lib/handlers/error";
 import { UnauthorizedError, ValidationError } from "@/lib/http-errors";
 import { auth } from "@/lib/next-auth-config/auth";
 import { DateSpecificHourSchema, DateSpecificHourSchemaFormData } from "@/lib/validations/zod-schema/studio/studio-manage-schema";
-import { BasicInfoFormData, BasicInfoSchema, BusinessHoursAndPriceFormData, BusinessHoursAndPriceSchema } from "@/lib/validations/zod-schema/studio/studio-step-schema";
+import {
+  BasicInfoFormData,
+  BasicInfoSchema,
+  BusinessHoursAndPriceFormData,
+  BusinessHoursAndPriceSchema,
+  StudioNameFormData,
+  StudioNameSchema,
+} from "@/lib/validations/zod-schema/studio/studio-step-schema";
 
 import { studioService } from "@/services/studio/StudioService";
-import { FieldValues } from "react-hook-form";
-import { ZodType } from "zod";
 
 export const saveDateSpecificHour = async (data: DateSpecificHourSchemaFormData, studioId: string) => {
   try {
@@ -114,6 +119,33 @@ export const saveBasicInfoForm = async (data: BasicInfoFormData, studioId: strin
     }
 
     return { success: true };
+  } catch (error) {
+    return handleError(error, "server") as ActionResponse;
+  }
+};
+
+export const createNewDraftStudio = async (data: StudioNameFormData, userId: string) => {
+  try {
+    /* --------------------- Validate if user has logged in --------------------- */
+    const session = await auth();
+    if (!session?.user.id) {
+      throw new UnauthorizedError("請先登入後才可處理。");
+    }
+
+    /* --------------------- Zod Safe Parse --------------------- */
+    const validateFields = StudioNameSchema.safeParse(data);
+
+    if (!validateFields.success) {
+      throw new ValidationError(validateFields.error.flatten().fieldErrors);
+    }
+
+    const result = await studioService.createNewDraftStudio(data, userId);
+
+    if (!result.success) {
+      return result;
+    }
+
+    return { success: true, data: result.data };
   } catch (error) {
     return handleError(error, "server") as ActionResponse;
   }

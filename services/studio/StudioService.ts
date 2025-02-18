@@ -1,7 +1,7 @@
 import handleError from "@/lib/handlers/error";
 import { NotFoundError } from "@/lib/http-errors";
 import { DateSpecificHourSchemaFormData } from "@/lib/validations/zod-schema/studio/studio-manage-schema";
-import { BasicInfoFormData, BusinessHoursAndPriceFormData } from "@/lib/validations/zod-schema/studio/studio-step-schema";
+import { BasicInfoFormData, BusinessHoursAndPriceFormData, StudioNameFormData } from "@/lib/validations/zod-schema/studio/studio-step-schema";
 import { knex } from "@/services/knex";
 import { Knex } from "knex";
 import { StudioStatus } from "../model";
@@ -72,7 +72,31 @@ export class StudioService {
       data: studios,
     };
   }
-  /* ---------------------------------- slug ---------------------------------- */
+
+  /* ---------------------------------- Create new draft studio ---------------------------------- */
+
+  async createNewDraftStudio(data: StudioNameFormData, userId: string) {
+    try {
+      const insertedData = await this.knex("studio")
+        .insert({
+          user_id: userId,
+          name: data.name,
+          status: "draft",
+          is_approved: false,
+        })
+        .returning("id");
+
+      return {
+        success: true,
+        data: insertedData[0],
+      };
+    } catch (error) {
+      console.dir(error);
+      return handleError(error, "server") as ActionResponse;
+    }
+  }
+
+  /* ---------------------------------- Handle unique slug check ---------------------------------- */
   async checkIsSlugExist(slug: string) {
     try {
       const studio_id = (await this.knex.select("id").from("studio").where({ slug }))[0]?.id;
@@ -112,6 +136,20 @@ export class StudioService {
     }
     //check if data exist, if yes, delete -> insert new
     //check if type = onboarding -> set onboarding step === true
+  }
+
+  async getBasicInfoFormData(studioId: string) {
+    try {
+      const result = (await this.knex.select("logo", "cover_photo", "name", "slug", "district", "address", "description").from("studio").where({ id: studioId }))[0];
+
+      return {
+        success: true,
+        data: result,
+      };
+    } catch (error) {
+      console.dir(error);
+      return handleError(error, "server") as ActionResponse;
+    }
   }
 
   /* ----------------------------------- Handle Date Specific Hour ----------------------------------- */

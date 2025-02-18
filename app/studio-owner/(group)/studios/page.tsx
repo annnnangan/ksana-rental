@@ -4,6 +4,7 @@ import { studioOwnerService } from "@/services/studio/StudioOwnerService";
 import AddNewStudio from "@/components/custom-components/studio-owner/AddNewStudio";
 import StudioCard from "@/components/custom-components/studio-owner/StudioCard";
 import ToastMessageWithRedirect from "@/components/custom-components/ToastMessageWithRedirect";
+import SubmitButton from "@/components/custom-components/buttons/SubmitButton";
 
 const StudiosPage = async () => {
   const session = await auth();
@@ -22,13 +23,13 @@ const StudiosPage = async () => {
 
   return (
     <>
-      {!studios && <AddNewStudio type="new" />}
+      {!studios && <AddNewStudio hasCreatedStudio={false} />}
       {studios && (
         <div className="flex flex-wrap -mx-3">
           {studios?.map((studio) => (
             <StudioCard key={studio.id} studioInfo={studio} />
           ))}
-          <AddNewStudio type="existing" />
+          <AddNewStudio hasCreatedStudio={true} />
         </div>
       )}
     </>

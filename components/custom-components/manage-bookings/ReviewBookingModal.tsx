@@ -1,13 +1,7 @@
 "use client";
 import { Button } from "@/components/shadcn/button";
 import { Checkbox } from "@/components/shadcn/checkbox";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/shadcn/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/shadcn/dialog";
 import { Label } from "@/components/shadcn/label";
 import { Textarea } from "@/components/shadcn/textarea";
 import ErrorMessage from "../ErrorMessage";
@@ -16,26 +10,17 @@ import ImagesGridPreview from "../ImagesGridPreview";
 import { Rating } from "@smastrom/react-rating";
 import "@smastrom/react-rating/style.css";
 
-import {
-  convertTimeToString,
-  formatDate,
-} from "@/lib/utils/date-time/date-time-utils";
-import {
-  reviewBookingSchema,
-  reviewFormData,
-} from "@/lib/validations/zod-schema/review-booking-schema";
+import { convertTimeToString, formatDate } from "@/lib/utils/date-time/date-time-utils";
+import { reviewBookingSchema, reviewFormData } from "@/lib/validations/zod-schema/review-booking-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 
 import { useTransition } from "react";
 import { BookingRecord } from "./BookingRecordCard";
-import {
-  addUploadTimestampToFile,
-  generateAWSImageUrls,
-} from "@/lib/utils/s3-upload/s3-image-upload-utils";
+import { addUploadTimestampToFile, generateAWSImageUrls } from "@/lib/utils/s3-upload/s3-image-upload-utils";
 import { reviewBooking } from "@/actions/booking";
 import { toast } from "react-toastify";
-import SubmitButton from "../SubmitButton";
+import SubmitButton from "../buttons/SubmitButton";
 import { useRouter } from "next/navigation";
 
 interface Props {
@@ -83,11 +68,7 @@ const ReviewBookingModal = ({ isOpen, setOpenModal, bookingRecord }: Props) => {
 
     if (data.images.length > 0) {
       // Generate AWS Image URLs
-      const imagesUrl = await generateAWSImageUrls(
-        data.images as File[],
-        "review",
-        "review"
-      );
+      const imagesUrl = await generateAWSImageUrls(data.images as File[], "review", "review");
 
       if (!imagesUrl.success) {
         toast("評論圖片無法儲存，請重試。", {
@@ -119,9 +100,7 @@ const ReviewBookingModal = ({ isOpen, setOpenModal, bookingRecord }: Props) => {
     if (e.target.files) {
       //convert FileList to array
       const newFiles = Array.from(e.target.files);
-      const newImageURLs = newFiles.map((file, index) =>
-        addUploadTimestampToFile(file, index)
-      );
+      const newImageURLs = newFiles.map((file, index) => addUploadTimestampToFile(file, index));
       setValue("images", [...imagesList, ...newImageURLs], {
         shouldValidate: true,
       });
@@ -131,9 +110,7 @@ const ReviewBookingModal = ({ isOpen, setOpenModal, bookingRecord }: Props) => {
   };
 
   const handleImageRemove = (identifier: string | number, imageSrc: string) => {
-    const updatedImages = imagesList.filter(
-      (image) => !(image instanceof File && image.lastModified === identifier)
-    );
+    const updatedImages = imagesList.filter((image) => !(image instanceof File && image.lastModified === identifier));
     URL.revokeObjectURL(imageSrc);
     setValue("images", updatedImages);
   };
@@ -144,16 +121,12 @@ const ReviewBookingModal = ({ isOpen, setOpenModal, bookingRecord }: Props) => {
         <DialogHeader className="flex justify-center items-center">
           <DialogTitle>撰寫場地評論</DialogTitle>
 
-          <DialogDescription>
-            預約編號: {bookingRecord.booking_reference_no}
-          </DialogDescription>
+          <DialogDescription>預約編號: {bookingRecord.booking_reference_no}</DialogDescription>
         </DialogHeader>
 
         <p className="mb-4">
-          請為你於 {formatDate(new Date(bookingRecord.booking_date))}{" "}
-          {convertTimeToString(bookingRecord.start_time)} -{" "}
-          {convertTimeToString(bookingRecord.end_time)} 在{" "}
-          {bookingRecord.studio_name} 的場地體驗，提供評分及評論。
+          請為你於 {formatDate(new Date(bookingRecord.booking_date))} {convertTimeToString(bookingRecord.start_time)} - {convertTimeToString(bookingRecord.end_time)} 在 {bookingRecord.studio_name}{" "}
+          的場地體驗，提供評分及評論。
         </p>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -165,58 +138,32 @@ const ReviewBookingModal = ({ isOpen, setOpenModal, bookingRecord }: Props) => {
               name="rating"
               control={control}
               rules={{ required: true }}
-              render={({ field }) => (
-                <Rating
-                  style={{ maxWidth: 150 }}
-                  value={field.value}
-                  onChange={(value: number) => setValue("rating", value)}
-                  isRequired
-                />
-              )}
+              render={({ field }) => <Rating style={{ maxWidth: 150 }} value={field.value} onChange={(value: number) => setValue("rating", value)} isRequired />}
             />
           </div>
 
           {/* Comment Textarea */}
           <div className="flex flex-col">
             <Label className="font-bold mb-1">評論</Label>
-            <Textarea
-              {...register("review")}
-              placeholder="請以不少於10字寫下你的評論。"
-              rows={4}
-            />
-            {errors.review && (
-              <ErrorMessage>{errors.review?.message}</ErrorMessage>
-            )}
+            <Textarea {...register("review")} placeholder="請以不少於10字寫下你的評論。" rows={4} />
+            {errors.review && <ErrorMessage>{errors.review?.message}</ErrorMessage>}
           </div>
 
           <div>
             <div className="flex flex-col">
               <Label className="font-bold mb-1">上傳圖片</Label>
-              <p className="text-xs text-gray-800 mb-2">
-                最多只可上傳5張圖片，每張圖片大小需小於1MB。
-              </p>
+              <p className="text-xs text-gray-800 mb-2">最多只可上傳5張圖片，每張圖片大小需小於1MB。</p>
 
               <Controller
                 control={control}
                 name={"images"}
                 render={({ field: { value, onChange, ...field } }) => {
-                  return (
-                    <input
-                      {...field}
-                      type="file"
-                      accept="image/png, image/jpeg, image/jpg"
-                      multiple
-                      className="text-sm"
-                      onChange={handleFileSelect}
-                    />
-                  );
+                  return <input {...field} type="file" accept="image/png, image/jpeg, image/jpg" multiple className="text-sm" onChange={handleFileSelect} />;
                 }}
               />
             </div>
 
-            {errors.images && (
-              <ErrorMessage>{errors.images?.message}</ErrorMessage>
-            )}
+            {errors.images && <ErrorMessage>{errors.images?.message}</ErrorMessage>}
 
             {imagesList.length > 0 && (
               <div className="mt-5 mb-20">
@@ -241,10 +188,7 @@ const ReviewBookingModal = ({ isOpen, setOpenModal, bookingRecord }: Props) => {
               control={control}
               render={({ field }) => (
                 <Label>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
+                  <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                   是否匿名評論？
                 </Label>
               )}
@@ -254,10 +198,7 @@ const ReviewBookingModal = ({ isOpen, setOpenModal, bookingRecord }: Props) => {
               control={control}
               render={({ field }) => (
                 <Label>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
+                  <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                   是否隱藏評論？
                 </Label>
               )}
@@ -267,10 +208,7 @@ const ReviewBookingModal = ({ isOpen, setOpenModal, bookingRecord }: Props) => {
               control={control}
               render={({ field }) => (
                 <Label>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
+                  <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                   是否向Ksana投訴？
                 </Label>
               )}
@@ -278,11 +216,7 @@ const ReviewBookingModal = ({ isOpen, setOpenModal, bookingRecord }: Props) => {
           </div>
 
           <div className="flex items-center gap-3 mt-5">
-            <SubmitButton
-              isSubmitting={isSubmitting}
-              nonSubmittingText="確認"
-              className="w-1/2"
-            />
+            <SubmitButton isSubmitting={isSubmitting} nonSubmittingText="確認" className="w-1/2" />
 
             <Button
               type="button"
