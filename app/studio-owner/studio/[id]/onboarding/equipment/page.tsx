@@ -1,27 +1,18 @@
 import React from "react";
 import EquipmentForm from "./EquipmentForm";
-import StepTitle from "../_component/StepTitle";
+import StepTitle from "../StepIntro";
 import { studioService } from "@/services/StudioService";
 
-const EquipmentPage = async ({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) => {
+const EquipmentPage = async ({ params }: { params: Promise<{ id: string }> }) => {
   //Get Studio ID from URL
   const studioId = Number((await params).id);
   const userId = 1;
 
-  const equipmentListResponse = await studioService.getStudioEquipment(
-    studioId,
-    userId
-  );
+  const equipmentListResponse = await studioService.getStudioEquipment(studioId, userId);
 
   if (!equipmentListResponse.success) return;
 
-  const defaultValue = equipmentListResponse.data
-    ? equipmentListResponse.data.map((item) => item.equipment)
-    : [];
+  const defaultValue = equipmentListResponse.data ? equipmentListResponse.data.map((item) => item.equipment) : [];
 
   return (
     <>

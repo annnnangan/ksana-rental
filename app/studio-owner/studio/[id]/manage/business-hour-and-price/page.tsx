@@ -1,6 +1,6 @@
 import { DayBusinessHour, daysOfWeek, daysOfWeekType, Price } from "@/services/model";
 
-import BusinessHourAndPrice from "@/components/custom-components/studio-details/BusinessHourAndPrice";
+import BusinessHourAndPrice from "@/components/custom-components/studio-details/BusinessHourAndPriceForm";
 import DateSpecificHour from "@/components/custom-components/studio-details/DateSpecificHour";
 import SectionTitle from "@/components/custom-components/studio-details/SectionTitle";
 import ToastMessageWithRedirect from "@/components/custom-components/ToastMessageWithRedirect";

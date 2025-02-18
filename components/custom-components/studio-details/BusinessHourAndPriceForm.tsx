@@ -35,10 +35,24 @@ const daysOfWeekMap: {
 ];
 
 interface Props {
-  defaultValue: BusinessHoursAndPriceFormData;
+  defaultValue: BusinessHoursAndPriceFormData | undefined;
   studioId: string;
   isOnboardingStep: boolean;
 }
+
+const emptyDefaultValue = {
+  businessHours: {
+    Monday: { is_enabled: false, timeslots: [] },
+    Tuesday: { is_enabled: false, timeslots: [] },
+    Wednesday: { is_enabled: false, timeslots: [] },
+    Thursday: { is_enabled: false, timeslots: [] },
+    Friday: { is_enabled: false, timeslots: [] },
+    Saturday: { is_enabled: false, timeslots: [] },
+    Sunday: { is_enabled: false, timeslots: [] },
+  },
+  peakHourPrice: "",
+  nonPeakHourPrice: "",
+};
 
 const BusinessHourAndPriceForm = ({ defaultValue, studioId, isOnboardingStep }: Props) => {
   const router = useRouter();
@@ -55,9 +69,9 @@ const BusinessHourAndPriceForm = ({ defaultValue, studioId, isOnboardingStep }: 
   } = useForm<BusinessHoursAndPriceFormData>({
     resolver: zodResolver(BusinessHoursAndPriceSchema),
     defaultValues: {
-      businessHours: defaultValue.businessHours,
-      peakHourPrice: defaultValue.peakHourPrice,
-      nonPeakHourPrice: defaultValue.nonPeakHourPrice,
+      businessHours: defaultValue?.businessHours || emptyDefaultValue.businessHours,
+      peakHourPrice: defaultValue?.peakHourPrice || emptyDefaultValue.peakHourPrice,
+      nonPeakHourPrice: defaultValue?.nonPeakHourPrice || emptyDefaultValue.nonPeakHourPrice,
     },
   });
 
@@ -96,13 +110,17 @@ const BusinessHourAndPriceForm = ({ defaultValue, studioId, isOnboardingStep }: 
   const onSubmit = async (data: BusinessHoursAndPriceFormData) => {
     startTransition(() => {
       saveBusinessHoursAndPrice(data, studioId, isOnboardingStep).then((data) => {
-        toast(data.error?.message || "更新成功。", {
+        toast(data.error?.message || "儲存成功。", {
           position: "top-right",
           type: data?.success ? "success" : "error",
           autoClose: 1000,
         });
 
         router.refresh();
+
+        if (isOnboardingStep && data.success) {
+          router.push(`/studio-owner/studio/${studioId}/onboarding/equipment`);
+        }
       });
     });
   };
@@ -124,7 +142,7 @@ const BusinessHourAndPriceForm = ({ defaultValue, studioId, isOnboardingStep }: 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       {/* Set up price for peak / non-peak hours  */}
-      <div className="border-2 rounded-md p-5 md:p-8 mt-8 md:mt-12">
+      <div className="border-2 rounded-md p-5 md:p-8">
         {/* Peak Hour */}
         <div className="grid w-full md:w-1/2 items-center gap-1">
           <Label htmlFor="peakHourPrice" className="text-base font-bold">

@@ -30,11 +30,21 @@ interface Props {
   studioId: string;
 }
 
-const BasicInfoForm2 = ({ isOnboardingStep, studioId, defaultValues }: Props) => {
+const emptyDefaultValues = {
+  logo: "",
+  cover_photo: "",
+  name: "",
+  slug: "",
+  description: "",
+  address: "",
+  district: "",
+};
+
+const BasicInfoForm = ({ isOnboardingStep, studioId, defaultValues }: Props) => {
   /* ------------------------- React Hook Form ------------------------ */
   const form = useForm({
     resolver: zodResolver(BasicInfoSchema),
-    defaultValues: defaultValues,
+    defaultValues: defaultValues ?? emptyDefaultValues,
   });
 
   const { isSubmitting } = form.formState;
@@ -82,7 +92,6 @@ const BasicInfoForm2 = ({ isOnboardingStep, studioId, defaultValues }: Props) =>
 
   /* ------------------------- Form Submit ------------------------ */
   const handleSubmit = async (data: BasicInfoFormData) => {
-    console.log("hello");
     if (isOnboardingStep && !isUniqueSlug) {
       return;
     }
@@ -142,22 +151,21 @@ const BasicInfoForm2 = ({ isOnboardingStep, studioId, defaultValues }: Props) =>
         {/* Cover */}
         <div>
           <div className="relative max-w-full w-auto h-60 aspect-[3/1] bg-neutral-200 rounded-md mb-1">
-            {coverPreview ||
-              (defaultValues.cover_photo && (
-                <Image
-                  src={coverPreview || (defaultValues.cover_photo as string)}
-                  alt="cover photo"
-                  fill
-                  className="absolute inset-0 w-full h-full object-cover rounded-md"
-                  sizes="(min-width: 1540px) 724px, (min-width: 1280px) 596px, (min-width: 1040px) 468px, (min-width: 780px) 340px, 276px"
-                />
-              ))}
-            {!coverPreview ||
-              (!defaultValues.cover_photo && (
-                <div className="absolute right-1/2 top-1/2">
-                  <ImageIcon />
-                </div>
-              ))}
+            {(coverPreview || defaultValues?.cover_photo) && (
+              <Image
+                src={coverPreview || (defaultValues.cover_photo as string)}
+                alt="cover photo"
+                fill
+                className="absolute inset-0 w-full h-full object-cover rounded-md"
+                sizes="(min-width: 1540px) 724px, (min-width: 1280px) 596px, (min-width: 1040px) 468px, (min-width: 780px) 340px, 276px"
+              />
+            )}
+
+            {!coverPreview && !defaultValues?.cover_photo && (
+              <div className="absolute right-1/2 top-1/2">
+                <ImageIcon />
+              </div>
+            )}
 
             <div className="absolute bottom-3 right-3">
               <FormField
@@ -193,7 +201,7 @@ const BasicInfoForm2 = ({ isOnboardingStep, studioId, defaultValues }: Props) =>
         <div>
           <div className="flex items-end gap-4 mb-1">
             <Avatar className="h-24 w-24">
-              <AvatarImage src={logoPreview || (defaultValues.logo as string)} className="object-cover" />
+              <AvatarImage src={logoPreview || (defaultValues?.logo as string)} className="object-cover" />
               <AvatarFallback>
                 <Building2 />
               </AvatarFallback>
@@ -351,4 +359,4 @@ const BasicInfoForm2 = ({ isOnboardingStep, studioId, defaultValues }: Props) =>
     </Form>
   );
 };
-export default BasicInfoForm2;
+export default BasicInfoForm;

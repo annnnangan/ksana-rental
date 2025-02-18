@@ -1,18 +1,13 @@
 import React from "react";
-import { Button } from "../shadcn/button";
+
 import Link from "next/link";
+import { Button } from "@/components/shadcn/button";
 
 interface Props {
   href: string;
   children: React.ReactNode;
   className?: string;
-  variant?:
-    | "link"
-    | "default"
-    | "destructive"
-    | "outline"
-    | "secondary"
-    | "ghost";
+  variant?: "link" | "default" | "destructive" | "outline" | "secondary" | "ghost";
 }
 
 const ButtonLink = ({ href, children, className, variant = "link" }: Props) => {

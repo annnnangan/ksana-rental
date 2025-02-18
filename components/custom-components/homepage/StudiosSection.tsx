@@ -1,9 +1,10 @@
 import SearchFilter from "@/app/(user)/explore-studios/_component/Search";
 import { studioCardInfo } from "@/components/custom-components/studio/StudioList";
 import { allStudiosService } from "@/services/AllStudiosService";
-import ButtonLink from "../ButtonLink";
+
 import StudioCardSwiper from "../studio/StudioCardSwiper";
 import ToastMessageWithRedirect from "../ToastMessageWithRedirect";
+import ButtonLink from "../buttons/ButtonLink";
 
 const StudiosSection = async () => {
   let studioListData: studioCardInfo[] = [];

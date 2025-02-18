@@ -29,22 +29,12 @@ const StudioInformationPage = async (props: Props) => {
   const { id: studioId } = await props.params;
   const activeTab = searchParams["tab"] || "basic-info";
 
-  let basicInfoFormDataDefaultValues = {
-    logo: "",
-    cover_photo: "",
-    name: "",
-    slug: "",
-    description: "",
-    address: "",
-    district: "",
-  };
-
   const basicInfoFormDataResponse = await studioService.getBasicInfoFormData(studioId);
   if (!basicInfoFormDataResponse.success) {
     return;
   }
 
-  basicInfoFormDataDefaultValues = basicInfoFormDataResponse.data;
+  const basicInfoFormDataDefaultValues = basicInfoFormDataResponse.data ?? undefined;
 
   return (
     <div>

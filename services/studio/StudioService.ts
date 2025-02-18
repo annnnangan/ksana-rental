@@ -4,7 +4,7 @@ import { DateSpecificHourSchemaFormData } from "@/lib/validations/zod-schema/stu
 import { BasicInfoFormData, BusinessHoursAndPriceFormData, StudioNameFormData } from "@/lib/validations/zod-schema/studio/studio-step-schema";
 import { knex } from "@/services/knex";
 import { Knex } from "knex";
-import { StudioStatus } from "../model";
+import { onBoardingRequiredSteps, StudioStatus } from "../model";
 import { validateStudioService } from "./ValidateStudio";
 import { convertTimeToString, formatDate } from "@/lib/utils/date-time/date-time-utils";
 import { findAreaByDistrictValue } from "@/lib/utils/areas-districts-converter";
@@ -73,11 +73,31 @@ export class StudioService {
     };
   }
 
+  /* ---------------------------------- Get Onboarding Step Status ---------------------------------- */
+  async getOnboardingStepStatus(studioId: string) {
+    try {
+      const result = await this.knex.select("step", "is_complete").from("studio_onboarding_step").where({ studio_id: studioId });
+
+      if (result.length === 0) {
+        throw new NotFoundError("場地");
+      }
+
+      return {
+        success: true,
+        data: result,
+      };
+    } catch (error) {
+      console.dir(error);
+      return handleError(error, "server") as ActionResponse;
+    }
+  }
+
   /* ---------------------------------- Create new draft studio ---------------------------------- */
 
   async createNewDraftStudio(data: StudioNameFormData, userId: string) {
+    const txn = await this.knex.transaction();
     try {
-      const insertedData = await this.knex("studio")
+      const insertedData = await txn("studio")
         .insert({
           user_id: userId,
           name: data.name,
@@ -86,11 +106,20 @@ export class StudioService {
         })
         .returning("id");
 
+      const onboardingData = [...onBoardingRequiredSteps, "confirmation"].map((step) => ({
+        studio_id: insertedData[0].id,
+        step: step,
+        is_complete: false,
+      }));
+
+      await txn("studio_onboarding_step").insert(onboardingData);
+      await txn.commit();
       return {
         success: true,
         data: insertedData[0],
       };
     } catch (error) {
+      await txn.rollback();
       console.dir(error);
       return handleError(error, "server") as ActionResponse;
     }
@@ -141,10 +170,11 @@ export class StudioService {
   async getBasicInfoFormData(studioId: string) {
     try {
       const result = (await this.knex.select("logo", "cover_photo", "name", "slug", "district", "address", "description").from("studio").where({ id: studioId }))[0];
-
+      // Ensure all fields are non-null by mapping through result
+      const sanitizedResult = result && Object.fromEntries(Object.entries(result).map(([key, value]) => [key, value ?? ""]));
       return {
         success: true,
-        data: result,
+        data: sanitizedResult,
       };
     } catch (error) {
       console.dir(error);
@@ -243,17 +273,31 @@ export class StudioService {
   /* ----------------------------------- Handle Business Hours and Price ----------------------------------- */
   async saveBusinessHoursAndPrice(data: BusinessHoursAndPriceFormData, studioId: string, isOnboardingStep: boolean) {
     const { businessHours, peakHourPrice, nonPeakHourPrice } = data;
+    console.log(data);
     const txn = await this.knex.transaction();
     try {
-      /* ------------------------------ Handle price update ------------------------------ */
-      await txn("studio_price").where({ studio_id: studioId, price_type: "non-peak" }).update({ price: nonPeakHourPrice });
-      await txn("studio_price").where({ studio_id: studioId, price_type: "peak" }).update({ price: peakHourPrice });
+      /* ------------------------------ Check if price data exist  ------------------------------ */
+      const isPriceDataExist = await this.knex("studio_price").where({ studio_id: studioId });
+
+      /* ------------------------------ Handle price update/create  ------------------------------ */
+      if (isPriceDataExist.length == 0) {
+        await txn("studio_price").insert({ studio_id: studioId, price_type: "non-peak", price: nonPeakHourPrice });
+        await txn("studio_price").insert({ studio_id: studioId, price_type: "peak", price: peakHourPrice });
+      } else {
+        await txn("studio_price").where({ studio_id: studioId, price_type: "non-peak" }).update({ price: nonPeakHourPrice });
+        await txn("studio_price").where({ studio_id: studioId, price_type: "peak" }).update({ price: peakHourPrice });
+      }
 
       /* ------------------------------ Handle business hours update ------------------------------ */
 
       // Get all price types from DB and create a map
       // From [{id: 1, price_type: "non-peak"},{id: 2, price_type: "peak"}]  --> { "non-peak": 1, "peak":2 })
       const priceTypes = await this.knex.select("id", "price_type").from("studio_price").where({ studio_id: studioId });
+
+      if (priceTypes.length === 0) {
+        throw new NotFoundError("價錢");
+      }
+
       const priceTypeMap: Record<string, number> = Object.fromEntries(priceTypes.map(({ id, price_type }) => [price_type, id]));
 
       // Formate the data before insert into database
@@ -283,10 +327,10 @@ export class StudioService {
       }
 
       // Check if the business hour data exist in the database
-      const isDataExist = await this.knex.select("id").from("studio_business_hour").where({ studio_id: studioId });
+      const isBusinessHourDataExist = await this.knex.select("id").from("studio_business_hour").where({ studio_id: studioId });
       // If date exist in the database - remove all the rows and then insert new rows
       // If date doesn't exist in the database - create a new one
-      if (isDataExist.length > 0) {
+      if (isBusinessHourDataExist.length > 0) {
         await txn("studio_business_hour").where({ studio_id: studioId }).del();
         await txn("studio_business_hour").insert(formattedData);
       } else {

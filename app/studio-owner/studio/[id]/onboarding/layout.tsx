@@ -1,12 +1,14 @@
 "use client";
 
-import { Breadcrumb, BreadcrumbList, BreadcrumbItem, BreadcrumbLink, BreadcrumbSeparator, BreadcrumbPage } from "@/components/shadcn/breadcrumb";
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/shadcn/sidebar";
+import { NavMain } from "@/components/custom-components/layout/backend-panel-nav-bar/NavMain";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/shadcn/breadcrumb";
 import { Separator } from "@/components/shadcn/separator";
+import { Sidebar, SidebarContent, SidebarInset, SidebarProvider, SidebarRail, SidebarTrigger } from "@/components/shadcn/sidebar";
+import { useQuery } from "@tanstack/react-query";
+import { CalendarCheck, CircleChevronLeft, CircleGauge, Contact, Dumbbell, HandCoins, House, ImageUp, KeyRound } from "lucide-react";
 
-import { CalendarCheck, CircleChevronLeft, CircleGauge, Contact, Dumbbell, HandCoins, House, KeyRound, ImageUp } from "lucide-react";
-import { usePathname, useParams } from "next/navigation";
 import Link from "next/link";
+import { useParams, usePathname } from "next/navigation";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const params = useParams<{ id: string }>();
@@ -17,6 +19,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       title: "基本資料",
       url: `/studio-owner/studio/${studioId}/onboarding/basic-info`,
       icon: CircleGauge,
+      completed: true,
     },
     {
       title: "營業時間及價格",
@@ -60,9 +63,16 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const currentTitle = currentNavItem?.title || "";
   return (
     <SidebarProvider>
-      {/* <StudioOwnerSidebar navItems={navItems} /> */}
+      <Sidebar collapsible="icon">
+        <SidebarContent className="mt-4">
+          {navItems.map((item) => (
+            <NavMain key={item.title} items={[item]} />
+          ))}
+        </SidebarContent>
+        <SidebarRail />
+      </Sidebar>
 
-      <div className="w-full">
+      <main className="p-5 lg:p-10 w-full">
         <SidebarInset>
           <Link className="flex gap-x-2 items-center text-sm text-gray-500 ms-auto hover:-translate-x-3 transition-transform duration-200 ease-in-out" href="/studio-owner/studios">
             <CircleChevronLeft size={20} />
@@ -78,7 +88,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 </BreadcrumbItem>
                 <BreadcrumbSeparator className="hidden md:block" />
                 <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="#">場地建立</BreadcrumbLink>
+                  <BreadcrumbLink>場地建立</BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator className="hidden md:block" />
                 <BreadcrumbItem>
@@ -87,9 +97,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </BreadcrumbList>
             </Breadcrumb>
           </header>
-          <main className="mx-auto w-full"> {children}</main>
+          {children}
         </SidebarInset>
-      </div>
+      </main>
     </SidebarProvider>
   );
 }

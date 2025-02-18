@@ -1,5 +1,5 @@
 import { studioService } from "@/services/StudioService";
-import StepTitle from "../_component/StepTitle";
+import StepTitle from "../StepIntro";
 import ConfirmationForm from "./ConfirmationForm";
 import { onBoardingRequiredSteps } from "@/services/model";
 
@@ -7,36 +7,23 @@ const ContactPage = async ({ params }: { params: Promise<{ id: string }> }) => {
   //Get Studio ID from URL
   const studioId = Number((await params).id);
   const userId = 1;
-  const onboardingStepsResult = await studioService.getOnboardingSteps(
-    studioId,
-    userId
-  );
+  const onboardingStepsResult = await studioService.getOnboardingSteps(studioId, userId);
 
-  const isFilledAllSteps =
-    onboardingStepsResult.success &&
-    areAllStepsCompleted(onboardingStepsResult.data, onBoardingRequiredSteps);
+  const isFilledAllSteps = onboardingStepsResult.success && areAllStepsCompleted(onboardingStepsResult.data, onBoardingRequiredSteps);
 
   return (
     <>
       <div>
         <StepTitle>確認申請</StepTitle>
-        <p className="text-sm md:text-base mb-6">
-          請閱讀和同意條款與細則，並送出你的申請，Ksana會於3-7個工作天內審查你的申請。
-        </p>
+        <p className="text-sm md:text-base mb-6">請閱讀和同意條款與細則，並送出你的申請，Ksana會於3-7個工作天內審查你的申請。</p>
       </div>
 
-      <ConfirmationForm
-        studioId={studioId}
-        isFilledAllSteps={isFilledAllSteps}
-      />
+      <ConfirmationForm studioId={studioId} isFilledAllSteps={isFilledAllSteps} />
     </>
   );
 };
 
-function areAllStepsCompleted(
-  completedSteps: { step: string }[],
-  requiredSteps: string[]
-) {
+function areAllStepsCompleted(completedSteps: { step: string }[], requiredSteps: string[]) {
   const completedStepSet = new Set(completedSteps.map((step) => step.step));
   return requiredSteps.every((step) => completedStepSet.has(step));
 }
