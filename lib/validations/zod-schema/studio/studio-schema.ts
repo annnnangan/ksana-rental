@@ -59,10 +59,11 @@ export const StudioSchema = z.object({
         }),
       })
     )
-    .min(1, "請選擇至少一項設備"),
+    .min(1, "請選擇至少一項設備")
+    .default([] as string[]),
   gallery: z
     .array(createSingleImageSchema(maxGalleryImageSize)) // Gallery with its own size limit
-    .min(3, { message: "請上傳至少3張圖片。" })
+    .min(6, { message: "請上傳至少6張圖片。" })
     .max(15, { message: "最多只能上傳15張圖片。" }),
   phone: z.string().refine(isValidPhoneNumber, "請輸入正確的電話號碼。"),
   social: z.object({

@@ -9,6 +9,9 @@ import {
   BasicInfoSchema,
   BusinessHoursAndPriceFormData,
   BusinessHoursAndPriceSchema,
+  EquipmentFormData,
+  EquipmentSchema,
+  GalleryFormData,
   StudioNameFormData,
   StudioNameSchema,
 } from "@/lib/validations/zod-schema/studio/studio-step-schema";
@@ -67,29 +70,28 @@ export const deleteDateSpecificHour = async (date: string, studioId: string) => 
   }
 };
 
-export const saveBusinessHoursAndPrice = async (data: BusinessHoursAndPriceFormData, studioId: string, isOnboardingStep: boolean) => {
+export const createNewDraftStudio = async (data: StudioNameFormData, userId: string) => {
   try {
-    //validate if user has logged in
+    /* --------------------- Validate if user has logged in --------------------- */
     const session = await auth();
     if (!session?.user.id) {
       throw new UnauthorizedError("請先登入後才可處理。");
     }
 
-    //validate if the studio belong to the user
+    /* --------------------- Zod Safe Parse --------------------- */
+    const validateFields = StudioNameSchema.safeParse(data);
 
-    //zod safe parse
-    const validateFields = BusinessHoursAndPriceSchema.safeParse(data);
     if (!validateFields.success) {
       throw new ValidationError(validateFields.error.flatten().fieldErrors);
     }
 
-    const result = await studioService.saveBusinessHoursAndPrice(data, studioId, isOnboardingStep);
+    const result = await studioService.createNewDraftStudio(data, userId);
 
     if (!result.success) {
       return result;
     }
 
-    return { success: true };
+    return { success: true, data: result.data };
   } catch (error) {
     return handleError(error, "server") as ActionResponse;
   }
@@ -124,28 +126,100 @@ export const saveBasicInfoForm = async (data: BasicInfoFormData, studioId: strin
   }
 };
 
-export const createNewDraftStudio = async (data: StudioNameFormData, userId: string) => {
+export const saveBusinessHoursAndPrice = async (data: BusinessHoursAndPriceFormData, studioId: string, isOnboardingStep: boolean) => {
   try {
-    /* --------------------- Validate if user has logged in --------------------- */
+    //validate if user has logged in
     const session = await auth();
     if (!session?.user.id) {
       throw new UnauthorizedError("請先登入後才可處理。");
     }
 
-    /* --------------------- Zod Safe Parse --------------------- */
-    const validateFields = StudioNameSchema.safeParse(data);
+    //validate if the studio belong to the user
 
+    //zod safe parse
+    const validateFields = BusinessHoursAndPriceSchema.safeParse(data);
     if (!validateFields.success) {
       throw new ValidationError(validateFields.error.flatten().fieldErrors);
     }
 
-    const result = await studioService.createNewDraftStudio(data, userId);
+    const result = await studioService.saveBusinessHoursAndPrice(data, studioId, isOnboardingStep);
 
     if (!result.success) {
       return result;
     }
 
-    return { success: true, data: result.data };
+    return { success: true };
+  } catch (error) {
+    return handleError(error, "server") as ActionResponse;
+  }
+};
+
+export const saveEquipment = async (data: EquipmentFormData, studioId: string, isOnboardingStep: boolean) => {
+  try {
+    //validate if user has logged in
+    const session = await auth();
+    if (!session?.user.id) {
+      throw new UnauthorizedError("請先登入後才可處理。");
+    }
+
+    //validate if the studio belong to the user
+
+    //zod safe parse
+    const validateFields = EquipmentSchema.safeParse(data);
+    if (!validateFields.success) {
+      throw new ValidationError(validateFields.error.flatten().fieldErrors);
+    }
+
+    const result = await studioService.saveEquipment(data, studioId, isOnboardingStep);
+
+    if (!result.success) {
+      return result;
+    }
+
+    return { success: true };
+  } catch (error) {
+    return handleError(error, "server") as ActionResponse;
+  }
+};
+
+export const deleteGalleryImages = async (imageUrls: string[], studioId: string) => {
+  try {
+    //validate if user has logged in
+    const session = await auth();
+    if (!session?.user.id) {
+      throw new UnauthorizedError("請先登入後才可處理。");
+    }
+
+    //validate if the studio belong to the user
+
+    //save to database
+    const result = await studioService.deleteGalleryImages(imageUrls, studioId);
+
+    if (!result.success) {
+      return result;
+    }
+
+    return { success: true };
+  } catch (error) {
+    return handleError(error, "server") as ActionResponse;
+  }
+};
+
+export const saveGallery = async (imageUrls: string[], studioId: string, isOnboardingStep: boolean) => {
+  try {
+    //validate if user has logged in
+    const session = await auth();
+    if (!session?.user.id) {
+      throw new UnauthorizedError("請先登入後才可處理。");
+    }
+
+    const result = await studioService.saveGallery(imageUrls, studioId, isOnboardingStep);
+
+    if (!result.success) {
+      return result;
+    }
+
+    return { success: true };
   } catch (error) {
     return handleError(error, "server") as ActionResponse;
   }

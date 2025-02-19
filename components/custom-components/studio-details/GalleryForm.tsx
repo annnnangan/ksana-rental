@@ -1,27 +1,29 @@
 "use client";
 import ErrorMessage from "@/components/custom-components/ErrorMessage";
 import { Button } from "@/components/shadcn/button";
-import { uploadImage } from "@/lib/utils/s3-upload/s3-image-upload-utils";
-import { studioGalleryFormData, studioGallerySchema } from "@/lib/validations/zod-schema/booking-schema";
+import { generateAWSImageUrls } from "@/lib/utils/s3-upload/s3-image-upload-utils";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ImageUpIcon } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
-import React, { useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import React, { useRef, useState, useTransition } from "react";
 import { FieldError, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import SubmitButton from "../_component/SubmitButton";
 
-import { getOnboardingStep } from "@/lib/utils/get-onboarding-step-utils";
+import { deleteGalleryImages, saveGallery } from "@/actions/studio";
+import SubmitButton from "@/components/custom-components/buttons/SubmitButton";
 import ImagesGridPreview from "@/components/custom-components/ImagesGridPreview";
+import { GalleryFormData, GallerySchema } from "@/lib/validations/zod-schema/studio/studio-step-schema";
 
 interface Props {
   defaultValues: string[];
-  studioId: number;
+  studioId: string;
+  isOnboardingStep: boolean;
 }
 
-const GalleryForm = ({ defaultValues, studioId }: Props) => {
+const GalleryForm = ({ defaultValues, studioId, isOnboardingStep }: Props) => {
   const router = useRouter();
-  const pathname = usePathname();
+  const [isPending, startTransition] = useTransition();
 
   const [awsImagesToDelete, setAWSImagesToDelete] = useState<string[]>([]); // To track to be deleted AWS images
   const {
@@ -29,8 +31,8 @@ const GalleryForm = ({ defaultValues, studioId }: Props) => {
     watch,
     setValue,
     formState: { errors, isSubmitting },
-  } = useForm<studioGalleryFormData>({
-    resolver: zodResolver(studioGallerySchema),
+  } = useForm<GalleryFormData>({
+    resolver: zodResolver(GallerySchema),
     defaultValues: {
       gallery: [...defaultValues],
     },
@@ -74,62 +76,71 @@ const GalleryForm = ({ defaultValues, studioId }: Props) => {
 
   const gallery = watch("gallery");
 
-  const onSubmit = async (data: studioGalleryFormData) => {
+  const onSubmit = async (data: GalleryFormData) => {
     try {
-      //Delete image in database and AWS when user click delete button on the existing image
+      // Delete image in database and AWS when user clicks delete button on the existing image and save
       if (awsImagesToDelete) {
-        awsImagesToDelete.forEach(async (image) => {
-          const awsResponse = await fetch("/api/s3", {
-            method: "DELETE",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(image),
-          });
-
-          if (awsResponse.ok) {
-            await fetch(`/api/studio/${studioId}/gallery`, {
+        // Use a flag to track if deletion fails
+        const deleteFailed = await Promise.all(
+          awsImagesToDelete.map(async (image) => {
+            // Delete from AWS
+            const awsResponse = await fetch("/api/s3-image", {
               method: "DELETE",
               headers: {
                 "Content-Type": "application/json",
               },
-              body: JSON.stringify(image),
+              body: JSON.stringify({ image }),
             });
-          }
+
+            if (!awsResponse.ok) {
+              toast("圖片無法刪除，請重試。", {
+                position: "top-right",
+                type: "error",
+                autoClose: 1000,
+              });
+              router.refresh();
+              return true; // Mark deletion as failed
+            }
+
+            // Delete from database if AWS deletion was successful
+            await deleteGalleryImages([image], studioId);
+            return false; // Mark deletion as successful
+          })
+        );
+
+        // If any deletion failed, stop further execution
+        if (deleteFailed.includes(true)) {
+          return; // Exit the function early
+        }
+      }
+
+      const newUploadImages: File[] = data.gallery.filter((image) => image instanceof File);
+
+      const newUploadImageUrls = await generateAWSImageUrls(newUploadImages as File[], `studio/${studioId}/gallery`, "gallery");
+
+      if (!newUploadImageUrls.success) {
+        toast("圖片無法儲存，請重試。", {
+          position: "top-right",
+          type: "error",
+          autoClose: 1000,
+        });
+        return;
+      } else {
+        startTransition(() => {
+          saveGallery(newUploadImageUrls.data, studioId, isOnboardingStep).then((data) => {
+            toast(data.error?.message || "儲存成功。", {
+              position: "top-right",
+              type: data?.success ? "success" : "error",
+              autoClose: 1000,
+            });
+            router.refresh();
+
+            if (isOnboardingStep && data.success) {
+              router.push(`/studio-owner/studio/${studioId}/onboarding/door-password`);
+            }
+          });
         });
       }
-      const errorResponse = await Promise.all(
-        data.gallery
-          .filter((image) => image instanceof File) // Only upload File objects (new images)
-          .map(async (image) => await uploadImage(image, "gallery", studioId, `/api/studio/${studioId}/gallery`, "PUT", "studios"))
-      );
-
-      const error = errorResponse.filter((errorMessage) => errorMessage !== undefined);
-
-      if (error.length > 0) {
-        throw new Error("系統發生未預期錯誤，請重試。");
-      }
-
-      //Save Onboarding Step Track
-      const onboardingStep = getOnboardingStep(pathname);
-      const completeOnboardingStepResponse = await fetch(`/api/studio/${studioId}/onboarding-step`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          onboardingStep,
-        }),
-      });
-
-      if (!completeOnboardingStepResponse.ok) {
-        // If the response status is not 2xx, throw an error with the response message
-        const errorData = await completeOnboardingStepResponse.json();
-        throw new Error(errorData?.error.message || "系統發生未預期錯誤。");
-      }
-
-      router.push(`/studio-owner/studio/${studioId}/onboarding/door-password`);
-      router.refresh();
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "系統發生未預期錯誤，請重試。";
       toast(errorMessage, {
@@ -153,8 +164,15 @@ const GalleryForm = ({ defaultValues, studioId }: Props) => {
       <div className="mb-2">
         <ErrorMessage>{errors.gallery?.message}</ErrorMessage>
       </div>
-      <ImagesGridPreview images={gallery} removeImage={removeImage} error={errors.gallery as FieldError[] | undefined} imageAlt={"studio image"} allowDeleteImage={true} />
-      <SubmitButton isSubmitting={isSubmitting} />
+      <ImagesGridPreview
+        gridCol={"grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"}
+        images={gallery}
+        removeImage={removeImage}
+        error={errors.gallery as FieldError[] | undefined}
+        imageAlt={"studio image"}
+        allowDeleteImage={true}
+      />
+      <SubmitButton isSubmitting={isSubmitting || isPending} nonSubmittingText={isOnboardingStep ? "往下一步" : "儲存"} withIcon={isOnboardingStep ? true : false} />
     </form>
   );
 };

@@ -23,13 +23,7 @@ const OverviewTabContent = ({ payoutOverview }: Props) => {
         </div>
         <div>
           <p className="font-bold">Payout Method</p>
-          <p>
-            {
-              payoutMethod.find(
-                (method) => method.value === payoutOverview.payout_method
-              )?.label
-            }
-          </p>
+          <p>{payoutMethod.find((method) => method.value === payoutOverview.payout_method)?.label}</p>
         </div>
         <div>
           <p className="font-bold">Payout Account</p>
@@ -43,14 +37,7 @@ const OverviewTabContent = ({ payoutOverview }: Props) => {
 
       <div className="w-full md:basis-2/3">
         {payoutOverview.payout_proof ? (
-          <ImagesGridPreview
-            images={payoutOverview.payout_proof}
-            imageAlt={"payout proof"}
-            allowDeleteImage={false}
-            gridCol={3}
-            gridColSpan={""}
-            imageRatio="aspect-[3/4]"
-          />
+          <ImagesGridPreview images={payoutOverview.payout_proof} imageAlt={"payout proof"} allowDeleteImage={false} gridCol={"grid-cols-3"} imageRatio="aspect-[3/4]" />
         ) : (
           <ProofUploadAndPreview payoutOverview={payoutOverview} />
         )}

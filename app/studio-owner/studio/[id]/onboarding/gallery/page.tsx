@@ -1,29 +1,23 @@
-import ToastMessageWithRedirect from "@/components/custom-components/ToastMessageWithRedirect";
-import StepTitle from "../StepIntro";
-import GalleryForm from "./GalleryForm";
-import { studioService } from "@/services/StudioService";
+import GalleryForm from "@/components/custom-components/studio-details/GalleryForm";
+import { studioService } from "@/services/studio/StudioService";
+import StepIntro from "../StepIntro";
 
 const GalleryPage = async ({ params }: { params: Promise<{ id: string }> }) => {
-  //Get Studio ID from URL
-  const studioId = Number((await params).id);
+  const studioId = (await params).id;
 
-  //Get User ID
-  const userId = 1;
+  const formDataResponse = await studioService.getGallery(studioId);
 
-  //Get existing value as default value
-  const studioGalleryResponse = await studioService.getGallery(studioId, userId);
+  if (!formDataResponse.success) {
+    return;
+  }
 
-  if (!studioGalleryResponse.success) return;
-
-  const defaultValues = studioGalleryResponse.data ? studioGalleryResponse.data.map((image) => image.photo) : [];
+  let formDataDefaultValues = formDataResponse.data;
 
   return (
     <>
-      <div>
-        <StepTitle>上傳場地照片</StepTitle>
-        <p className="text-sm md:text-base mb-6">請上傳最少3張，最多15張場地照片。</p>
-      </div>
-      <GalleryForm studioId={studioId} defaultValues={defaultValues} />
+      <StepIntro title={"上傳場地照片"} description="請上傳最少3張，最多15張場地照片。" />
+
+      <GalleryForm studioId={studioId} defaultValues={formDataDefaultValues!} isOnboardingStep={true} />
     </>
   );
 };

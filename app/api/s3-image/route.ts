@@ -1,14 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { DeleteObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
+import crypto from "crypto";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 import handleError from "@/lib/handlers/error";
 
 import { ForbiddenError } from "@/lib/http-errors";
 import { allowedImageMineTypes, formattedMineTypes, ImageType, maxImageSizes } from "@/lib/validations/file";
-import { generateFileName } from "../s3/route";
-import { s3Client } from "@/lib/utils/s3-upload/s3-client";
 
+import { s3Client } from "@/lib/utils/s3-upload/s3-client";
+import { getS3ImageKeyFromS3URL } from "@/lib/utils/s3-upload/get-s3-image-key-from-s3-url";
+
+const generateFileName = (bytes = 32) => crypto.randomBytes(bytes).toString("hex");
+
+/* ---------------------------- Get S3 Image URL ---------------------------- */
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData(); // Parse FormData here
@@ -70,6 +75,26 @@ export async function POST(request: NextRequest) {
       data: { imageUrl: uploadedImageUrl },
     });
   } catch (error) {
+    return handleError(error, "api") as APIErrorResponse;
+  }
+}
+
+/* ---------------------------- Delete S3 Image URL ---------------------------- */
+export async function DELETE(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const s3ImageKey = getS3ImageKeyFromS3URL(body.image);
+    const deleteParams = {
+      Bucket: process.env.AWS_BUCKET_NAME!, // Your S3 bucket name
+      Key: s3ImageKey, // The path to the image you want to delete
+    };
+    const command = new DeleteObjectCommand(deleteParams);
+    // Send the delete command
+    const result = await s3Client.send(command);
+
+    return NextResponse.json({ success: true }, { status: 201 });
+  } catch (error) {
+    console.dir(error);
     return handleError(error, "api") as APIErrorResponse;
   }
 }

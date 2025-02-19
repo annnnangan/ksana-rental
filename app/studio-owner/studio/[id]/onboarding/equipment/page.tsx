@@ -1,26 +1,22 @@
-import React from "react";
-import EquipmentForm from "./EquipmentForm";
-import StepTitle from "../StepIntro";
-import { studioService } from "@/services/StudioService";
+import { studioService } from "@/services/studio/StudioService";
+import StepIntro from "../StepIntro";
+import EquipmentForm from "@/components/custom-components/studio-details/EquipmentForm";
 
 const EquipmentPage = async ({ params }: { params: Promise<{ id: string }> }) => {
-  //Get Studio ID from URL
-  const studioId = Number((await params).id);
-  const userId = 1;
+  const studioId = (await params).id;
 
-  const equipmentListResponse = await studioService.getStudioEquipment(studioId, userId);
+  const formDataResponse = await studioService.getEquipment(studioId);
 
-  if (!equipmentListResponse.success) return;
+  if (!formDataResponse.success) {
+    return;
+  }
 
-  const defaultValue = equipmentListResponse.data ? equipmentListResponse.data.map((item) => item.equipment) : [];
+  let formDataDefaultValues = formDataResponse.data;
 
   return (
     <>
-      <div>
-        <StepTitle>設定場地設備</StepTitle>
-        <p className="text-sm md:text-base mb-6">選擇場地內有的設備。</p>
-      </div>
-      <EquipmentForm defaultValue={defaultValue} studioId={studioId} />
+      <StepIntro title={"設定場地設備"} description="選擇場地內有的設備。" />
+      <EquipmentForm defaultValues={formDataDefaultValues!} studioId={studioId} isOnboardingStep={true} />
     </>
   );
 };

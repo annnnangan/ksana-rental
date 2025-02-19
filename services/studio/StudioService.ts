@@ -1,7 +1,7 @@
 import handleError from "@/lib/handlers/error";
 import { NotFoundError } from "@/lib/http-errors";
 import { DateSpecificHourSchemaFormData } from "@/lib/validations/zod-schema/studio/studio-manage-schema";
-import { BasicInfoFormData, BusinessHoursAndPriceFormData, StudioNameFormData } from "@/lib/validations/zod-schema/studio/studio-step-schema";
+import { BasicInfoFormData, BusinessHoursAndPriceFormData, EquipmentFormData, GalleryFormData, StudioNameFormData } from "@/lib/validations/zod-schema/studio/studio-step-schema";
 import { knex } from "@/services/knex";
 import { Knex } from "knex";
 import { onBoardingRequiredSteps, StudioStatus } from "../model";
@@ -147,6 +147,8 @@ export class StudioService {
     const area = findAreaByDistrictValue(data.district)?.value;
 
     try {
+      //TODO - check if studio slug is unique
+
       await txn("studio")
         .where({ id: studioId })
         .update({ ...data, area: area });
@@ -405,6 +407,133 @@ export class StudioService {
         success: true,
         data: pricesObject,
       };
+    } catch (error) {
+      console.dir(error);
+      return handleError(error, "server") as ActionResponse;
+    }
+  }
+
+  /* ----------------------------------- Handle Equipment ----------------------------------- */
+  async saveEquipment(data: EquipmentFormData, studioId: string, isOnboardingStep: boolean) {
+    const txn = await this.knex.transaction();
+    try {
+      // Return the equipment list in id
+      const newEquipmentIdList = await Promise.all(
+        data.equipment.map(async (item) => {
+          const result = await this.knex.select("id").from("equipment").where("equipment", item).first();
+          if (!result) {
+            // Throw an error if the equipment is not found
+            throw new NotFoundError(`設備`);
+          }
+          return result.id;
+        })
+      );
+
+      const insertList = newEquipmentIdList.map((itemId) => ({ studio_id: studioId, equipment_id: itemId }));
+
+      // Check if there is existing equipment list
+      const existingEquipmentIdList = await this.knex.select("id").from("studio_equipment").where({ studio_id: studioId });
+
+      // If doesn't exist, then directly insert
+      if (existingEquipmentIdList.length == 0) {
+        await txn("studio_equipment").insert(insertList);
+      } else {
+        await txn("studio_equipment").where({ studio_id: studioId }).del();
+        await txn("studio_equipment").insert(insertList);
+      }
+
+      if (isOnboardingStep) {
+        await txn("studio_onboarding_step").where({ studio_id: studioId, step: "equipment" }).update({ is_complete: true });
+      }
+
+      // Commit the transaction
+      await txn.commit();
+      return { success: true };
+    } catch (error) {
+      console.dir(error);
+      await txn.rollback(); // Rollback in case of an error
+      return handleError(error, "server") as ActionResponse;
+    }
+  }
+
+  async getEquipment(studioId: string) {
+    try {
+      const result = await this.knex.select("equipment.equipment").from("studio_equipment").leftJoin("equipment", "studio_equipment.equipment_id", "equipment.id").where({ studio_id: studioId });
+
+      let equipmentArray = [];
+      if (result.length > 0) {
+        equipmentArray = result.map((item) => item.equipment);
+      }
+
+      return {
+        success: true,
+        data: equipmentArray,
+      };
+    } catch (error) {
+      console.dir(error);
+      return handleError(error, "server") as ActionResponse;
+    }
+  }
+  /* ----------------------------------- Handle Gallery ----------------------------------- */
+  async getGallery(studioId: string) {
+    try {
+      const result = await this.knex.select("photo").from("studio_photo").where({ studio_id: studioId });
+
+      let galleryArray = [];
+      if (result.length > 0) {
+        galleryArray = result.map((item) => item.photo);
+      }
+
+      return {
+        success: true,
+        data: galleryArray,
+      };
+    } catch (error) {
+      console.dir(error);
+      return handleError(error, "server") as ActionResponse;
+    }
+  }
+
+  async saveGallery(imageUrls: string[], studioId: string, isOnboardingStep: boolean) {
+    const txn = await this.knex.transaction();
+    try {
+      if (imageUrls.length > 0) {
+        const photos = imageUrls.map((image) => ({
+          studio_id: studioId,
+          photo: image,
+        }));
+
+        await txn("studio_photo").insert(photos);
+      }
+
+      if (isOnboardingStep) {
+        await txn("studio_onboarding_step").where({ studio_id: studioId, step: "gallery" }).update({ is_complete: true });
+      }
+
+      // Commit the transaction
+      await txn.commit();
+      return { success: true };
+    } catch (error) {
+      console.dir(error);
+      await txn.rollback(); // Rollback in case of an error
+      return handleError(error, "server") as ActionResponse;
+    }
+  }
+
+  async deleteGalleryImages(imageUrls: string[], studioId: string) {
+    try {
+      // Check if the date exist in database
+      const isImageExist = await this.knex.select("photo").from("studio_photo").where("studio_id", studioId).whereIn("photo", imageUrls);
+
+      //if no return not found
+      //if yes delete
+      if (isImageExist.length > 0) {
+        await this.knex("studio_photo").where("studio_id", studioId).whereIn("photo", imageUrls).del();
+      } else {
+        throw new NotFoundError("圖片");
+      }
+
+      return { success: true };
     } catch (error) {
       console.dir(error);
       return handleError(error, "server") as ActionResponse;

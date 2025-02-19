@@ -39,10 +39,10 @@ export default async function Layout({ children, params }: Props) {
   return (
     <SidebarProvider>
       <StudioPanelNavBar availableStudios={availableStudios as []} currentStudioId={currentStudioId} />
-      <main className="p-5 lg:p-10 w-full">
-        <SidebarInset>
+      <main className="px-5 lg:px-10 w-full">
+        <SidebarInset className="pt-5">
           <SidebarTrigger />
-          {children}
+          <div className="pb-10">{children}</div>
         </SidebarInset>
       </main>
     </SidebarProvider>

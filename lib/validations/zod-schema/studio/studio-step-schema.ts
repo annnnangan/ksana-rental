@@ -32,18 +32,18 @@ export type BusinessHourType = z.infer<typeof BusinessHourSchema>;
 export type BusinessHoursAndPriceFormData = z.infer<typeof BusinessHoursAndPriceSchema>;
 
 /* --------------------- Step 3: Enter studio equipment --------------------- */
-export const studioEquipmentSchema = StudioSchema.pick({
+export const EquipmentSchema = StudioSchema.pick({
   equipment: true,
 });
 
-export type studioEquipmentFormData = z.infer<typeof studioEquipmentSchema>;
+export type EquipmentFormData = z.infer<typeof EquipmentSchema>;
 
 /* ------------------ Step 4: Gallery - upload studio image ----------------- */
-export const studioGallerySchema = StudioSchema.pick({
+export const GallerySchema = StudioSchema.pick({
   gallery: true,
 });
 
-export type studioGalleryFormData = z.infer<typeof studioGallerySchema>;
+export type GalleryFormData = z.infer<typeof GallerySchema>;
 
 /* ----------------------------- Step 5: Contact ---------------------------- */
 export const studioContactSchema = StudioSchema.pick({

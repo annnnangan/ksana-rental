@@ -56,7 +56,6 @@ const emptyDefaultValue = {
 
 const BusinessHourAndPriceForm = ({ defaultValue, studioId, isOnboardingStep }: Props) => {
   const router = useRouter();
-  const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
 
   const {
@@ -65,7 +64,7 @@ const BusinessHourAndPriceForm = ({ defaultValue, studioId, isOnboardingStep }: 
     handleSubmit,
     watch,
     setValue,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<BusinessHoursAndPriceFormData>({
     resolver: zodResolver(BusinessHoursAndPriceSchema),
     defaultValues: {
@@ -286,7 +285,7 @@ const BusinessHourAndPriceForm = ({ defaultValue, studioId, isOnboardingStep }: 
         </div>
       ))}
 
-      <SubmitButton withIcon={false} isSubmitting={isPending} nonSubmittingText={"儲存"} submittingText={"資料儲存中..."} />
+      <SubmitButton isSubmitting={isSubmitting || isPending} nonSubmittingText={isOnboardingStep ? "往下一步" : "儲存"} withIcon={isOnboardingStep ? true : false} />
     </form>
   );
 };
