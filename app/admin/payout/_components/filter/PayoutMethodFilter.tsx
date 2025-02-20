@@ -1,18 +1,10 @@
 "use client";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/shadcn/select";
-import { payoutMethod, PayoutMethod } from "@/services/model";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/shadcn/select";
+import { payoutMethodMap } from "@/lib/constants/studio-details";
+import { PayoutMethod } from "@/services/model";
 import { useRouter, useSearchParams } from "next/navigation";
 
-const paymentMethod: { label: string; value?: PayoutMethod }[] = [
-  { label: "All" },
-  ...payoutMethod,
-];
+const paymentMethod: { label: string; value?: PayoutMethod }[] = [{ label: "All" }, ...payoutMethodMap];
 
 const PayoutMethodFilter = () => {
   const router = useRouter();
@@ -26,10 +18,7 @@ const PayoutMethodFilter = () => {
   }
 
   return (
-    <Select
-      onValueChange={handleChange}
-      value={searchParams.get("payoutMethod") || ""}
-    >
+    <Select onValueChange={handleChange} value={searchParams.get("payoutMethod") || ""}>
       <SelectTrigger className="w-[180px]">
         <SelectValue placeholder="Payment Method" />
       </SelectTrigger>

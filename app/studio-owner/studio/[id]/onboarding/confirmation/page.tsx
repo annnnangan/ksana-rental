@@ -1,31 +1,30 @@
-import { studioService } from "@/services/StudioService";
-import StepTitle from "../StepIntro";
+import { studioService } from "@/services/studio/StudioService";
+import StepIntro from "../StepIntro";
 import ConfirmationForm from "./ConfirmationForm";
-import { onBoardingRequiredSteps } from "@/services/model";
+import ErrorMessage from "@/components/custom-components/ErrorMessage";
+import ToastMessageWithRedirect from "@/components/custom-components/ToastMessageWithRedirect";
 
 const ContactPage = async ({ params }: { params: Promise<{ id: string }> }) => {
-  //Get Studio ID from URL
-  const studioId = Number((await params).id);
-  const userId = 1;
-  const onboardingStepsResult = await studioService.getOnboardingSteps(studioId, userId);
+  const studioId = (await params).id;
 
-  const isFilledAllSteps = onboardingStepsResult.success && areAllStepsCompleted(onboardingStepsResult.data, onBoardingRequiredSteps);
+  const isCompletedAllStepsResponse = await studioService.checkIfCompletedAllOnboardingSteps(studioId);
+
+  let errorMessage;
+
+  if (!isCompletedAllStepsResponse.success) {
+    errorMessage = isCompletedAllStepsResponse?.error?.message;
+    if (errorMessage === "請勿重複送出申請。") {
+      return <ToastMessageWithRedirect type={"error"} message={"請勿重複送出申請。"} redirectPath={"/studio-owner/studios"} />;
+    }
+  }
 
   return (
     <>
-      <div>
-        <StepTitle>確認申請</StepTitle>
-        <p className="text-sm md:text-base mb-6">請閱讀和同意條款與細則，並送出你的申請，Ksana會於3-7個工作天內審查你的申請。</p>
-      </div>
-
-      <ConfirmationForm studioId={studioId} isFilledAllSteps={isFilledAllSteps} />
+      <StepIntro title={"確認申請"} description="請閱讀和同意條款與細則，並送出你的申請，Ksana會於3-7個工作天內審查你的申請。"></StepIntro>
+      <ConfirmationForm studioId={studioId} isFilledAllSteps={isCompletedAllStepsResponse.success} />
+      {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
     </>
   );
 };
-
-function areAllStepsCompleted(completedSteps: { step: string }[], requiredSteps: string[]) {
-  const completedStepSet = new Set(completedSteps.map((step) => step.step));
-  return requiredSteps.every((step) => completedStepSet.has(step));
-}
 
 export default ContactPage;

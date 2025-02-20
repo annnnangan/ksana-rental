@@ -3,7 +3,6 @@
 import { Checkbox } from "@/components/shadcn/checkbox";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/shadcn/form";
 import SubmitButton from "../buttons/SubmitButton";
-import { equipmentMap } from "@/services/model";
 
 import { EquipmentFormData, EquipmentSchema } from "@/lib/validations/zod-schema/studio/studio-step-schema";
 
@@ -14,6 +13,7 @@ import { useTransition } from "react";
 import { z } from "zod";
 import { toast } from "react-toastify";
 import { saveEquipment } from "@/actions/studio";
+import { equipmentMap } from "@/lib/constants/studio-details";
 
 interface Props {
   defaultValues: string[] | [];

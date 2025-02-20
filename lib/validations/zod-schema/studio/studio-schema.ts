@@ -1,8 +1,9 @@
-import { districtValues, equipmentMap, payoutMethod } from "@/services/model";
+import { districtValues } from "@/services/model";
 import { isValidPhoneNumber } from "libphonenumber-js";
 import * as z from "zod";
 import { allowedImageMineTypes, formattedMineTypes, maxCoverImageSize, maxGalleryImageSize, maxLogoImageSize } from "../../file";
 import { TimeslotsSchema } from "../timeslot-schema";
+import { equipmentMap, payoutMethodMap } from "@/lib/constants/studio-details";
 
 const daysOfWeekEnum = z.enum(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]);
 
@@ -72,19 +73,14 @@ export const StudioSchema = z.object({
     facebook: z.string().url({ message: "請輸入有效Facebook網站。" }).optional().or(z.literal("")),
     youtube: z.string().url({ message: "請輸入有效Youtube網站。" }).optional().or(z.literal("")),
   }),
-  payoutMethod: z.enum(payoutMethod.map((item) => item.value) as [string], {
+  payoutMethod: z.enum(payoutMethodMap.map((item) => item.value) as [string], {
     errorMap: () => ({
       message: "收帳方法無效。請選擇有效的收帳方法。",
     }),
   }),
   payoutAccountName: z.string().min(5, "請填寫正確帳戶名稱。").max(50, "請填寫正確帳戶名稱。"),
   payoutAccountNumber: z.string().regex(/^\d+$/, "請填寫正確帳戶號碼。").min(5, "請填寫正確帳戶號碼。").max(50, "請填寫正確帳戶號碼。"),
-  isRevealDoorPassword: z.enum(["true", "false"], {
-    errorMap: () => ({
-      message: "請選擇是否同意由Ksana向租用場地者發送大門密碼。",
-    }),
-  }),
-  doorPassword: z.string().optional(),
+  doorPassword: z.string().min(4, "請填寫大門密碼。"),
   onboardingTerms: z
     .boolean()
     .default(false)

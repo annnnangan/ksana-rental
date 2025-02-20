@@ -3,29 +3,9 @@ import handleError from "@/lib/handlers/error";
 import { ValidationError } from "@/lib/http-errors";
 import { auth } from "@/lib/next-auth-config/auth";
 import { StudioDoorPasswordSchema } from "@/lib/validations/zod-schema/booking-schema";
-import { studioService } from "@/services/studio/StudioService";
+import { bookingService } from "@/services/BookingService";
 import { studioCreateService } from "@/services/StudioCreateService";
 import { NextRequest, NextResponse } from "next/server";
-
-export async function PUT(request: NextRequest, props: { params: Promise<{ id: number }> }) {
-  try {
-    const params = await props.params;
-    const body = await request.json();
-    const validatedData = StudioDoorPasswordSchema.safeParse(body.data);
-    if (!validatedData.success) {
-      throw new ValidationError(validatedData.error.flatten().fieldErrors);
-    }
-
-    const userId = 1;
-    const response = await studioCreateService.saveDoorPassword(Number(params.id), userId, body.data);
-
-    if (response.success) {
-      return NextResponse.json({ success: true }, { status: 201 });
-    }
-  } catch (error) {
-    return handleError(error, "api") as APIErrorResponse;
-  }
-}
 
 //GET Door Password
 export async function GET(request: NextRequest, props: { params: Promise<{ id: string }> }) {
@@ -58,7 +38,7 @@ export async function GET(request: NextRequest, props: { params: Promise<{ id: s
     //   );
     // }
 
-    const result = await studioService.getDoorPassword(studioId);
+    const result = await bookingService.getDoorPasswordForBooking(studioId);
 
     if (!result?.success) {
       return NextResponse.json({ success: false, error: { message: result?.error?.message } }, { status: result?.errorCode });

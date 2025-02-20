@@ -17,6 +17,7 @@ export const BasicInfoSchema = StudioSchema.pick({
   description: true,
   district: true,
   address: true,
+  phone: true,
 });
 
 export type BasicInfoFormData = z.infer<typeof BasicInfoSchema>;
@@ -45,39 +46,32 @@ export const GallerySchema = StudioSchema.pick({
 
 export type GalleryFormData = z.infer<typeof GallerySchema>;
 
-/* ----------------------------- Step 5: Contact ---------------------------- */
-export const studioContactSchema = StudioSchema.pick({
-  phone: true,
+/* -------------------------- Step 5: Door Password ------------------------- */
+export const DoorPasswordSchema = StudioSchema.pick({
+  doorPassword: true,
+});
+
+export type DoorPasswordFormData = z.infer<typeof DoorPasswordSchema>;
+
+/* ----------------------------- Step 6: Social ---------------------------- */
+export const SocialSchema = StudioSchema.pick({
   social: true,
 });
 
-export type studioContactFormData = z.infer<typeof studioContactSchema>;
-export type socialChannelKeys = keyof z.infer<typeof studioContactSchema>;
+export type SocialFormData = z.infer<typeof SocialSchema>;
+export type SocialChannelKeys = keyof z.infer<typeof SocialSchema>;
 
-/* ------------------------- Step 6: Payout Details ------------------------- */
-export const StudioPayoutSchema = StudioSchema.pick({
+/* ------------------------- Step 7: Payout Details ------------------------- */
+export const PayoutSchema = StudioSchema.pick({
   payoutMethod: true,
   payoutAccountName: true,
   payoutAccountNumber: true,
 });
-export type StudioPayoutFormData = z.infer<typeof StudioPayoutSchema>;
-
-/* -------------------------- Step 7: Door Password ------------------------- */
-const StudioDoorPasswordBaseSchema = StudioSchema.pick({
-  isRevealDoorPassword: true,
-  doorPassword: true,
-});
-
-export const StudioDoorPasswordSchema = StudioDoorPasswordBaseSchema.refine((data) => data.isRevealDoorPassword === "false" || (data.isRevealDoorPassword === "true" && data.doorPassword?.length), {
-  message: "請填寫大門密碼。",
-  path: ["doorPassword"], // Attach the error to the doorPassword field
-});
-
-export type StudioDoorPasswordFormData = z.infer<typeof StudioDoorPasswordSchema>;
+export type PayoutFormData = z.infer<typeof PayoutSchema>;
 
 /* -------------------------- Step 8: Confirmation -------------------------- */
-export const StudioOnBoardingTermsSchema = StudioSchema.pick({
+export const OnboardingTermsSchema = StudioSchema.pick({
   onboardingTerms: true,
 });
 
-export type StudioOnBoardingTermsFormData = z.infer<typeof StudioOnBoardingTermsSchema>;
+export type OnboardingTermsFormData = z.infer<typeof OnboardingTermsSchema>;

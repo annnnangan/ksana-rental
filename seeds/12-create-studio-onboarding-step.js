@@ -33,7 +33,7 @@ exports.seed = async function (knex) {
     },
     {
       studio_id: 1,
-      step: "contact",
+      step: "social",
       is_complete: true,
     },
     {
@@ -73,7 +73,7 @@ exports.seed = async function (knex) {
     },
     {
       studio_id: 2,
-      step: "contact",
+      step: "social",
       is_complete: false,
     },
     {

@@ -9,9 +9,16 @@ import {
   BasicInfoSchema,
   BusinessHoursAndPriceFormData,
   BusinessHoursAndPriceSchema,
+  DoorPasswordFormData,
   EquipmentFormData,
   EquipmentSchema,
   GalleryFormData,
+  OnboardingTermsFormData,
+  OnboardingTermsSchema,
+  PayoutFormData,
+  PayoutSchema,
+  SocialFormData,
+  SocialSchema,
   StudioNameFormData,
   StudioNameSchema,
 } from "@/lib/validations/zod-schema/studio/studio-step-schema";
@@ -214,6 +221,104 @@ export const saveGallery = async (imageUrls: string[], studioId: string, isOnboa
     }
 
     const result = await studioService.saveGallery(imageUrls, studioId, isOnboardingStep);
+
+    if (!result.success) {
+      return result;
+    }
+
+    return { success: true };
+  } catch (error) {
+    return handleError(error, "server") as ActionResponse;
+  }
+};
+
+export const saveDoorPassword = async (data: DoorPasswordFormData, studioId: string, isOnboardingStep: boolean) => {
+  try {
+    //validate if user has logged in
+    const session = await auth();
+    if (!session?.user.id) {
+      throw new UnauthorizedError("請先登入後才可處理。");
+    }
+
+    const result = await studioService.saveDoorPassword(data, studioId, isOnboardingStep);
+
+    if (!result.success) {
+      return result;
+    }
+
+    return { success: true };
+  } catch (error) {
+    return handleError(error, "server") as ActionResponse;
+  }
+};
+
+export const saveSocial = async (data: SocialFormData, studioId: string, isOnboardingStep: boolean) => {
+  try {
+    //validate if user has logged in
+    const session = await auth();
+    if (!session?.user.id) {
+      throw new UnauthorizedError("請先登入後才可處理。");
+    }
+
+    //zod safe parse
+    const validateFields = SocialSchema.safeParse(data);
+    if (!validateFields.success) {
+      throw new ValidationError(validateFields.error.flatten().fieldErrors);
+    }
+
+    const result = await studioService.saveSocial(data, studioId, isOnboardingStep);
+
+    if (!result.success) {
+      return result;
+    }
+
+    return { success: true };
+  } catch (error) {
+    return handleError(error, "server") as ActionResponse;
+  }
+};
+
+export const savePayoutInfo = async (data: PayoutFormData, studioId: string, isOnboardingStep: boolean) => {
+  try {
+    //validate if user has logged in
+    const session = await auth();
+    if (!session?.user.id) {
+      throw new UnauthorizedError("請先登入後才可處理。");
+    }
+
+    //zod safe parse
+    const validateFields = PayoutSchema.safeParse(data);
+    if (!validateFields.success) {
+      throw new ValidationError(validateFields.error.flatten().fieldErrors);
+    }
+
+    const result = await studioService.savePayoutInfo(data, studioId, isOnboardingStep);
+
+    if (!result.success) {
+      return result;
+    }
+
+    return { success: true };
+  } catch (error) {
+    return handleError(error, "server") as ActionResponse;
+  }
+};
+
+export const completeOnboardingApplication = async (data: OnboardingTermsFormData, studioId: string) => {
+  try {
+    //validate if user has logged in
+    const session = await auth();
+    if (!session?.user.id) {
+      throw new UnauthorizedError("請先登入後才可處理。");
+    }
+
+    //zod safe parse
+    const validateFields = OnboardingTermsSchema.safeParse(data);
+    if (!validateFields.success) {
+      throw new ValidationError(validateFields.error.flatten().fieldErrors);
+    }
+
+    const result = await studioService.completeStudioOnboardingApplication(data, studioId);
 
     if (!result.success) {
       return result;

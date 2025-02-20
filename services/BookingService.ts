@@ -8,6 +8,7 @@ import { ForbiddenError, NotFoundError, RequestError, UnauthorizedError } from "
 import handleError from "@/lib/handlers/error";
 import { BookingStatus } from "./model";
 import { reviewFormData } from "@/lib/validations/zod-schema/review-booking-schema";
+import { validateStudioService } from "./studio/ValidateStudio";
 
 const dayOfWeekList = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
@@ -583,6 +584,43 @@ export class BookingService {
       // Handle the error and provide a meaningful message
       console.error(error);
       return handleError(error, "server") as ActionResponse;
+    }
+  }
+
+  //Get Studio Door Password
+  async getDoorPasswordForBooking(studioId: string) {
+    try {
+      //check if studio exist
+      const isStudioExist = await validateStudioService.validateIsStudioExistById(studioId);
+
+      if (!isStudioExist.success) {
+        return isStudioExist;
+      }
+
+      if (isStudioExist.success && isStudioExist.data.id) {
+        const result = await this.knex.select("door_password").from("studio").where("id", studioId).first();
+
+        if (!result.door_password) {
+          return {
+            success: false,
+            error: { message: "無法取得大門密碼，請聯絡場地以取得密碼。" },
+            errorStatus: 404,
+          };
+        }
+
+        return {
+          success: true,
+          data: result,
+        };
+      }
+    } catch (error) {
+      console.error("Error fetching door password:", error);
+
+      return {
+        success: false,
+        error: { message: "無法取得大門密碼，請聯絡場地以取得密碼。" },
+        errorStatus: 500,
+      };
     }
   }
 }

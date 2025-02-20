@@ -42,8 +42,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       icon: KeyRound,
     },
     {
-      title: "聯絡資料",
-      url: `/studio-owner/studio/${studioId}/onboarding/contact`,
+      title: "社交媒體",
+      url: `/studio-owner/studio/${studioId}/onboarding/social`,
       icon: Contact,
     },
     {
@@ -72,9 +72,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <SidebarRail />
       </Sidebar>
 
-      <main className="p-5 lg:p-10 w-full">
+      <div className="px-5 lg:px-10 w-full">
         <SidebarInset>
-          <Link className="flex gap-x-2 items-center text-sm text-gray-500 ms-auto hover:-translate-x-3 transition-transform duration-200 ease-in-out" href="/studio-owner/studios">
+          <Link className="mt-5 flex gap-x-2 items-center text-sm text-gray-500 ms-auto hover:-translate-x-3 transition-transform duration-200 ease-in-out" href="/studio-owner/studios">
             <CircleChevronLeft size={20} />
             返回所有場地
           </Link>
@@ -97,9 +97,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </BreadcrumbList>
             </Breadcrumb>
           </header>
-          {children}
+          <div className="pb-10">{children}</div>
         </SidebarInset>
-      </main>
+      </div>
     </SidebarProvider>
   );
 }

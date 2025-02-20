@@ -1,14 +1,23 @@
+import { onBoardingRequiredSteps } from "@/lib/constants/studio-details";
 import handleError from "@/lib/handlers/error";
-import { NotFoundError } from "@/lib/http-errors";
+import { ForbiddenError, NotFoundError, UnauthorizedError } from "@/lib/http-errors";
+import { findAreaByDistrictValue } from "@/lib/utils/areas-districts-converter";
+import { convertTimeToString } from "@/lib/utils/date-time/date-time-utils";
 import { DateSpecificHourSchemaFormData } from "@/lib/validations/zod-schema/studio/studio-manage-schema";
-import { BasicInfoFormData, BusinessHoursAndPriceFormData, EquipmentFormData, GalleryFormData, StudioNameFormData } from "@/lib/validations/zod-schema/studio/studio-step-schema";
+import {
+  BasicInfoFormData,
+  BusinessHoursAndPriceFormData,
+  DoorPasswordFormData,
+  EquipmentFormData,
+  OnboardingTermsFormData,
+  PayoutFormData,
+  SocialFormData,
+  StudioNameFormData,
+} from "@/lib/validations/zod-schema/studio/studio-step-schema";
 import { knex } from "@/services/knex";
 import { Knex } from "knex";
-import { onBoardingRequiredSteps, StudioStatus } from "../model";
+import { StudioStatus } from "../model";
 import { validateStudioService } from "./ValidateStudio";
-import { convertTimeToString, formatDate } from "@/lib/utils/date-time/date-time-utils";
-import { findAreaByDistrictValue } from "@/lib/utils/areas-districts-converter";
-import { FieldValues } from "react-hook-form";
 
 export class StudioService {
   constructor(private knex: Knex) {}
@@ -171,7 +180,7 @@ export class StudioService {
 
   async getBasicInfoFormData(studioId: string) {
     try {
-      const result = (await this.knex.select("logo", "cover_photo", "name", "slug", "district", "address", "description").from("studio").where({ id: studioId }))[0];
+      const result = (await this.knex.select("logo", "cover_photo", "name", "slug", "district", "address", "description", "phone").from("studio").where({ id: studioId }))[0];
       // Ensure all fields are non-null by mapping through result
       const sanitizedResult = result && Object.fromEntries(Object.entries(result).map(([key, value]) => [key, value ?? ""]));
       return {
@@ -275,32 +284,34 @@ export class StudioService {
   /* ----------------------------------- Handle Business Hours and Price ----------------------------------- */
   async saveBusinessHoursAndPrice(data: BusinessHoursAndPriceFormData, studioId: string, isOnboardingStep: boolean) {
     const { businessHours, peakHourPrice, nonPeakHourPrice } = data;
-    console.log(data);
+
     const txn = await this.knex.transaction();
+
     try {
       /* ------------------------------ Check if price data exist  ------------------------------ */
       const isPriceDataExist = await this.knex("studio_price").where({ studio_id: studioId });
 
+      let nonPeakHourPriceId;
+      let peakHourPiceId;
+
       /* ------------------------------ Handle price update/create  ------------------------------ */
       if (isPriceDataExist.length == 0) {
-        await txn("studio_price").insert({ studio_id: studioId, price_type: "non-peak", price: nonPeakHourPrice });
-        await txn("studio_price").insert({ studio_id: studioId, price_type: "peak", price: peakHourPrice });
+        nonPeakHourPriceId = (await txn("studio_price").insert({ studio_id: studioId, price_type: "non-peak", price: nonPeakHourPrice }).returning("id"))[0].id;
+        peakHourPiceId = (await txn("studio_price").insert({ studio_id: studioId, price_type: "peak", price: peakHourPrice }).returning("id"))[0].id;
       } else {
-        await txn("studio_price").where({ studio_id: studioId, price_type: "non-peak" }).update({ price: nonPeakHourPrice });
-        await txn("studio_price").where({ studio_id: studioId, price_type: "peak" }).update({ price: peakHourPrice });
+        nonPeakHourPriceId = (await txn("studio_price").where({ studio_id: studioId, price_type: "non-peak" }).update({ price: nonPeakHourPrice }).returning("id"))[0].id;
+        peakHourPiceId = (await txn("studio_price").where({ studio_id: studioId, price_type: "peak" }).update({ price: peakHourPrice }).returning("id"))[0].id;
       }
 
       /* ------------------------------ Handle business hours update ------------------------------ */
 
       // Get all price types from DB and create a map
       // From [{id: 1, price_type: "non-peak"},{id: 2, price_type: "peak"}]  --> { "non-peak": 1, "peak":2 })
-      const priceTypes = await this.knex.select("id", "price_type").from("studio_price").where({ studio_id: studioId });
+      const priceTypeMap = { "non-peak": nonPeakHourPriceId, peak: peakHourPiceId };
 
-      if (priceTypes.length === 0) {
+      if (!nonPeakHourPriceId || !peakHourPiceId) {
         throw new NotFoundError("價錢");
       }
-
-      const priceTypeMap: Record<string, number> = Object.fromEntries(priceTypes.map(({ id, price_type }) => [price_type, id]));
 
       // Formate the data before insert into database
       let formattedData = [];
@@ -377,7 +388,7 @@ export class StudioService {
         }
 
         if (!is_closed) {
-          acc[day_of_week].timeslots.push({ from: convertTimeToString(from), to: convertTimeToString(to), priceType: price_type });
+          acc[day_of_week].timeslots.push({ from: convertTimeToString(from), to: convertTimeToString(to) === "00:00" ? "24:00" : convertTimeToString(to), priceType: price_type });
         }
 
         return acc;
@@ -540,40 +551,196 @@ export class StudioService {
     }
   }
 
-  //Get Studio Door Password
+  /* ----------------------------------- Handle DoorPassword ----------------------------------- */
   async getDoorPassword(studioId: string) {
     try {
-      //check if studio exist
-      const isStudioExist = await validateStudioService.validateIsStudioExistById(studioId);
+      const result = await this.knex.select("door_password").from("studio").where({ id: studioId });
 
-      if (!isStudioExist.success) {
-        return isStudioExist;
+      let door_password;
+
+      if (result[0].door_password == null) {
+        door_password = "";
+      } else {
+        door_password = result[0].door_password;
       }
-
-      if (isStudioExist.success && isStudioExist.data.id) {
-        const result = await this.knex.select("door_password").from("studio").where("id", studioId).first();
-
-        if (!result.door_password) {
-          return {
-            success: false,
-            error: { message: "無法取得大門密碼，請聯絡場地以取得密碼。" },
-            errorStatus: 404,
-          };
-        }
-
-        return {
-          success: true,
-          data: result,
-        };
-      }
-    } catch (error) {
-      console.error("Error fetching door password:", error);
 
       return {
-        success: false,
-        error: { message: "無法取得大門密碼，請聯絡場地以取得密碼。" },
-        errorStatus: 500,
+        success: true,
+        data: door_password,
       };
+    } catch (error) {
+      console.dir(error);
+      return handleError(error, "server") as ActionResponse;
+    }
+  }
+
+  async saveDoorPassword(data: DoorPasswordFormData, studioId: string, isOnboardingStep: boolean) {
+    const txn = await this.knex.transaction();
+    try {
+      await txn("studio").where({ id: studioId }).update({ door_password: data.doorPassword });
+
+      if (isOnboardingStep) {
+        await txn("studio_onboarding_step").where({ studio_id: studioId, step: "door-password" }).update({ is_complete: true });
+      }
+      // Commit the transaction
+      await txn.commit();
+      return { success: true };
+    } catch (error) {
+      console.dir(error);
+      await txn.rollback(); // Rollback in case of an error
+      return handleError(error, "server") as ActionResponse;
+    }
+  }
+
+  /* ----------------------------------- Handle Social Media ----------------------------------- */
+  async getSocial(studioId: string) {
+    try {
+      const result = await this.knex.select("type", "contact").from("studio_social").where({ studio_id: studioId });
+
+      let socialList;
+
+      if (result.length === 0) {
+        socialList = "";
+      } else {
+        socialList = result.reduce((acc, { type, contact }) => {
+          const key = type;
+          acc[key] = contact;
+          return acc;
+        }, {});
+      }
+
+      return {
+        success: true,
+        data: socialList,
+      };
+    } catch (error) {
+      console.dir(error);
+      return handleError(error, "server") as ActionResponse;
+    }
+  }
+
+  async saveSocial(data: SocialFormData, studioId: string, isOnboardingStep: boolean) {
+    const txn = await this.knex.transaction();
+    try {
+      // check if data exist
+      const isDataExist = await this.knex("studio_social").where({ studio_id: studioId });
+
+      if (isDataExist.length > 0) {
+        await txn("studio_social").where({ studio_id: studioId }).del();
+      }
+
+      const transformedData = Object.entries(data.social)
+        .filter(([_, value]) => value) // Skip if value is empty (null, undefined, or "")
+        .map(([key, value]) => ({
+          studio_id: studioId,
+          type: key,
+          contact: value,
+        }));
+
+      await txn("studio_social").insert(transformedData);
+
+      if (isOnboardingStep) {
+        await txn("studio_onboarding_step").where({ studio_id: studioId, step: "social" }).update({ is_complete: true });
+      }
+      // Commit the transaction
+      await txn.commit();
+      return { success: true };
+    } catch (error) {
+      console.dir(error);
+      await txn.rollback(); // Rollback in case of an error
+      return handleError(error, "server") as ActionResponse;
+    }
+  }
+  /* ----------------------------------- Handle Payout Info ----------------------------------- */
+
+  async getPayoutInfo(studioId: string) {
+    try {
+      const result = await this.knex.select("method", "account_name", "account_number").from("studio_payout_detail").where({ studio_id: studioId });
+
+      return {
+        success: true,
+        data: result[0] === "null" ? "" : result[0],
+      };
+    } catch (error) {
+      console.dir(error);
+      return handleError(error, "server") as ActionResponse;
+    }
+  }
+
+  async savePayoutInfo(data: PayoutFormData, studioId: string, isOnboardingStep: boolean) {
+    const txn = await this.knex.transaction();
+    try {
+      const isDataExist = await this.knex("studio_payout_detail").where({ studio_id: studioId });
+
+      if (isDataExist.length > 0) {
+        await txn("studio_payout_detail").update({ method: data.payoutMethod, account_name: data.payoutAccountName, account_number: data.payoutAccountNumber }).where({ studio_id: studioId });
+      } else {
+        await txn("studio_payout_detail").insert({ studio_id: studioId, method: data.payoutMethod, account_name: data.payoutAccountName, account_number: data.payoutAccountNumber });
+      }
+
+      if (isOnboardingStep) {
+        await txn("studio_onboarding_step").where({ studio_id: studioId, step: "payout-info" }).update({ is_complete: true });
+      }
+      // Commit the transaction
+      await txn.commit();
+      return { success: true };
+    } catch (error) {
+      console.dir(error);
+      await txn.rollback(); // Rollback in case of an error
+      return handleError(error, "server") as ActionResponse;
+    }
+  }
+
+  /* ----------------------------------- Submit Studio Onboarding Application ----------------------------------- */
+  async completeStudioOnboardingApplication(data: OnboardingTermsFormData, studioId: string) {
+    const txn = await this.knex.transaction();
+    try {
+      const hasSubmittedApplication = await this.knex.select("step").from("studio_onboarding_step").where({ studio_id: studioId, is_complete: true, step: "confirmation" });
+
+      if (hasSubmittedApplication.length > 0) {
+        throw new ForbiddenError("請勿重複送出申請。");
+      }
+
+      if (!data.onboardingTerms) {
+        throw new ForbiddenError("請同意條款與細則。");
+      }
+
+      //check if all the step is completed, if yes, then change studio status to reviewing
+
+      const completedOnboardingSteps = await this.knex.select("step").from("studio_onboarding_step").where({ studio_id: studioId, is_complete: true });
+
+      const checkHasAllSteps = onBoardingRequiredSteps.every((step) => completedOnboardingSteps.some((obj) => obj.step === step));
+
+      if (checkHasAllSteps) {
+        await txn("studio_onboarding_step").insert({ studio_id: studioId, step: "confirmation", is_complete: true });
+        await txn("studio").update({ status: "reviewing" }).where({ id: studioId });
+      } else {
+        throw new ForbiddenError("未完成所有步驟，無法送出申請。");
+      }
+
+      await txn.commit();
+      return { success: true };
+    } catch (error) {
+      console.dir(error);
+      await txn.rollback();
+      return handleError(error, "server") as ActionResponse;
+    }
+  }
+
+  async checkIfCompletedAllOnboardingSteps(studioId: string) {
+    try {
+      const completedOnboardingSteps = await this.knex.select("step").from("studio_onboarding_step").where({ studio_id: studioId, is_complete: true });
+
+      const checkHasAllSteps = onBoardingRequiredSteps.every((step) => completedOnboardingSteps.some((obj) => obj.step === step));
+
+      if (!checkHasAllSteps) {
+        throw new ForbiddenError("未完成所有步驟，無法送出申請。");
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.dir(error);
+      return handleError(error, "server") as ActionResponse;
     }
   }
 }

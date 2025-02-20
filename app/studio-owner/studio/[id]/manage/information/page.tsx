@@ -1,9 +1,12 @@
 import ResponsiveTab from "@/components/custom-components/layout/ResponsiveTab";
 import LoadingSpinner from "@/components/custom-components/loading/LoadingSpinner";
 import BasicInfoForm from "@/components/custom-components/studio-details/BasicInfoForm";
+import DoorPasswordForm from "@/components/custom-components/studio-details/DoorPasswordForm";
 import EquipmentForm from "@/components/custom-components/studio-details/EquipmentForm";
 import GalleryForm from "@/components/custom-components/studio-details/GalleryForm";
+import PayoutForm from "@/components/custom-components/studio-details/PayoutForm";
 import SectionTitle from "@/components/custom-components/studio-details/SectionTitle";
+import SocialForm from "@/components/custom-components/studio-details/SocialForm";
 import { studioService, StudioService } from "@/services/studio/StudioService";
 import { Suspense } from "react";
 
@@ -24,8 +27,9 @@ const tabListMap = [
   { name: "基本資料", query: "basic-info" },
   { name: "設備", query: "equipment" },
   { name: "圖片", query: "gallery" },
-  { name: "聯絡", query: "contact" },
   { name: "大門密碼", query: "door-password" },
+  { name: "社交媒體", query: "social" },
+  { name: "收款資料", query: "payout-info" },
 ];
 
 const StudioInformationPage = async (props: Props) => {
@@ -42,6 +46,12 @@ const StudioInformationPage = async (props: Props) => {
         return studioService.getEquipment(studioId);
       case "gallery":
         return studioService.getGallery(studioId);
+      case "door-password":
+        return studioService.getDoorPassword(studioId);
+      case "social":
+        return studioService.getSocial(studioId);
+      case "payout-info":
+        return studioService.getPayoutInfo(studioId);
       default:
         return { success: false };
     }
@@ -61,6 +71,9 @@ const StudioInformationPage = async (props: Props) => {
             {activeTab === "basic-info" && <BasicInfoForm studioId={studioId} isOnboardingStep={false} defaultValues={defaultValues} />}
             {activeTab === "gallery" && <GalleryForm studioId={studioId} isOnboardingStep={false} defaultValues={defaultValues} />}
             {activeTab === "equipment" && <EquipmentForm studioId={studioId} isOnboardingStep={false} defaultValues={defaultValues} />}
+            {activeTab === "door-password" && <DoorPasswordForm studioId={studioId} isOnboardingStep={false} defaultValues={defaultValues} />}
+            {activeTab === "social" && <SocialForm studioId={studioId} isOnboardingStep={false} defaultValues={defaultValues} />}
+            {activeTab === "payout-info" && <PayoutForm studioId={studioId} isOnboardingStep={false} defaultValues={defaultValues} />}
           </Suspense>
         </div>
       ) : (

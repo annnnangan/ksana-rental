@@ -19,6 +19,7 @@ import ErrorMessage from "../ErrorMessage";
 import SubmitButton from "../buttons/SubmitButton";
 
 import { saveBasicInfoForm } from "@/actions/studio";
+import { removeCountryCode } from "@/lib/utils/remove-country-code";
 import { generateAWSImageUrls } from "@/lib/utils/s3-upload/s3-image-upload-utils";
 import { maxCoverImageSize, maxLogoImageSize } from "@/lib/validations/file";
 import { BasicInfoFormData, BasicInfoSchema } from "@/lib/validations/zod-schema/studio/studio-step-schema";
@@ -38,6 +39,7 @@ const emptyDefaultValues = {
   description: "",
   address: "",
   district: "",
+  phone: "",
 };
 
 const BasicInfoForm = ({ isOnboardingStep, studioId, defaultValues }: Props) => {
@@ -46,6 +48,8 @@ const BasicInfoForm = ({ isOnboardingStep, studioId, defaultValues }: Props) => 
     resolver: zodResolver(BasicInfoSchema),
     defaultValues: defaultValues ?? emptyDefaultValues,
   });
+
+  const { setValue } = form;
 
   const { isSubmitting } = form.formState;
   const { errors } = form.formState;
@@ -56,7 +60,7 @@ const BasicInfoForm = ({ isOnboardingStep, studioId, defaultValues }: Props) => 
   /* ------------------------- Check if slug is unique ------------------------ */
   const [debounceSlug, setDebounceSlug] = useState("");
   const [isCheckingSlugUnique, setCheckingSlugUnique] = useState(false);
-  const [isUniqueSlug, setUniqueSlug] = useState(false);
+  const [isUniqueSlug, setUniqueSlug] = useState(true);
   const [checkSlugUniqueMessage, setCheckSlugUniqueMessage] = useState("");
 
   const debounced = useDebounceCallback(setDebounceSlug, 2000);
@@ -92,9 +96,13 @@ const BasicInfoForm = ({ isOnboardingStep, studioId, defaultValues }: Props) => 
 
   /* ------------------------- Form Submit ------------------------ */
   const handleSubmit = async (data: BasicInfoFormData) => {
-    if (isOnboardingStep && !isUniqueSlug) {
+    const initialSlug = defaultValues.slug;
+
+    // If the slug hasn't changed, skip the uniqueness check
+    if (data.slug !== initialSlug && !isUniqueSlug) {
       return;
     }
+
     // Create AWS S3 Image URLs
     if (logoPreview) {
       // Generate AWS Image URLs
@@ -299,6 +307,35 @@ const BasicInfoForm = ({ isOnboardingStep, studioId, defaultValues }: Props) => 
               </FormLabel>
               <FormControl>
                 <Textarea id="studioDescription" placeholder="請填寫場地介紹。" className="text-sm" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Phone */}
+        <FormField
+          control={form.control}
+          name="phone"
+          render={({ field }) => (
+            <FormItem className="w-full">
+              <FormLabel className="text-base font-bold" htmlFor="studioPhone">
+                聯絡電話
+              </FormLabel>
+              <FormControl>
+                <Input
+                  type="text"
+                  id="studioPhone"
+                  className="form-input text-sm"
+                  placeholder="請填寫場地聯絡電話"
+                  // Strip the country code when displaying the value
+                  defaultValue={removeCountryCode(field.value)} // Remove country code for display
+                  onChange={(e) => {
+                    const phoneNumber = e.target.value;
+                    // Update the form value with the country code on change
+                    setValue("phone", `+852${phoneNumber}`);
+                  }}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

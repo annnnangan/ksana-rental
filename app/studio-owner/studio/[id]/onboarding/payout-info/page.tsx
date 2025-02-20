@@ -1,24 +1,22 @@
-import { studioService } from "@/services/StudioService";
-import StepTitle from "../StepIntro";
-import PayoutForm from "./PayoutForm";
+import PayoutForm from "@/components/custom-components/studio-details/PayoutForm";
+import StepIntro from "../StepIntro";
+import { studioService } from "@/services/studio/StudioService";
 
 const PayoutDetailPage = async ({ params }: { params: Promise<{ id: string }> }) => {
-  //Get Studio ID from URL
-  const studioId = Number((await params).id);
-  const userId = 1;
+  const studioId = (await params).id;
 
-  const defaultValueResult = await studioService.getPayoutDetail(studioId, userId);
+  const formDataResponse = await studioService.getPayoutInfo(studioId);
 
-  const defaultValue = defaultValueResult.success && defaultValueResult.data;
+  if (!formDataResponse.success) {
+    return;
+  }
+
+  let formDataDefaultValues = formDataResponse.data;
 
   return (
     <>
-      <div>
-        <StepTitle>填寫收帳資料</StepTitle>
-        <p className="text-sm md:text-base mb-6">我們會利用以下所填寫資料將每星期款項存入你的帳戶，請確保資料正確，否則會無法收取款項。</p>
-      </div>
-
-      <PayoutForm studioId={studioId} defaultValue={defaultValue} />
+      <StepIntro title="填寫收帳資料" description="我們會利用以下所填寫資料將每星期款項存入你的帳戶，請確保資料正確，否則會無法收取款項。" />
+      <PayoutForm studioId={studioId} defaultValues={formDataDefaultValues} isOnboardingStep={true} />
     </>
   );
 };
