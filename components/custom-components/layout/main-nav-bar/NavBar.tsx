@@ -2,7 +2,7 @@ import Link from "next/link";
 import AuthStatus from "./AuthStatus";
 import BecomeStudioOwner from "./BecomeStudioOwner";
 import Image from "next/image";
-import ButtonLink from "../../ButtonLink";
+import ButtonLink from "../../buttons/ButtonLink";
 
 const NavBar = () => {
   return (

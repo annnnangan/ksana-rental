@@ -1,5 +1,5 @@
 "use client";
-import SubmitButton from "@/app/studio-owner/studio/[id]/onboarding/_component/SubmitButton";
+
 import ErrorMessage from "@/components/custom-components/ErrorMessage";
 import ImagesGridPreview from "@/components/custom-components/ImagesGridPreview";
 import { uploadImage } from "@/lib/utils/s3-upload/s3-image-upload-utils";
@@ -7,6 +7,7 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { toast } from "react-toastify";
 import { StudioPayoutOverviewData } from "../../page";
+import SubmitButton from "@/components/custom-components/buttons/SubmitButton";
 
 const addUploadTimestampToFile = (file: File, index: number) => {
   // Encode the index into the lastModified timestamp
@@ -36,9 +37,7 @@ const ProofUploadAndPreview = ({ payoutOverview }: Props) => {
     if (e.target.files) {
       //convert FileList to array
       const newFiles = Array.from(e.target.files);
-      const newImageURLs = newFiles.map((file, index) =>
-        addUploadTimestampToFile(file, index)
-      );
+      const newImageURLs = newFiles.map((file, index) => addUploadTimestampToFile(file, index));
       setImages([...images, ...newImageURLs]);
       //reset input after upload
       e.target.value = "";
@@ -46,9 +45,7 @@ const ProofUploadAndPreview = ({ payoutOverview }: Props) => {
   };
 
   const handleImageRemove = (identifier: string | number, imageSrc: string) => {
-    const updatedImages = images.filter(
-      (image) => !(image instanceof File && image.lastModified === identifier)
-    );
+    const updatedImages = images.filter((image) => !(image instanceof File && image.lastModified === identifier));
     URL.revokeObjectURL(imageSrc);
     setImages(updatedImages);
   };
@@ -90,25 +87,10 @@ const ProofUploadAndPreview = ({ payoutOverview }: Props) => {
 
     //Upload Image
     const errorResponse = await Promise.all(
-      images
-        .filter((image) => image instanceof File)
-        .map(
-          async (image) =>
-            await uploadImage(
-              image,
-              "payout-proof",
-              studio_id,
-              `/api/admin/payout/proof`,
-              "POST",
-              "payout-proof",
-              payout_id
-            )
-        )
+      images.filter((image) => image instanceof File).map(async (image) => await uploadImage(image, "payout-proof", studio_id, `/api/admin/payout/proof`, "POST", "payout-proof", payout_id))
     );
 
-    const error = errorResponse.filter(
-      (errorMessage) => errorMessage !== undefined
-    );
+    const error = errorResponse.filter((errorMessage) => errorMessage !== undefined);
 
     if (error.length > 0) {
       setError(error.toString());
@@ -129,34 +111,16 @@ const ProofUploadAndPreview = ({ payoutOverview }: Props) => {
     <>
       <form className="border rounded-lg p-5 mb-5" onSubmit={handleSubmit}>
         <p className="font-bold mb-2">Upload payout proof</p>
-        <input
-          type="file"
-          accept="image/png, image/jpeg, image/jpg"
-          multiple
-          className="text-sm"
-          onChange={handleFileSelect}
-        />
+        <input type="file" accept="image/png, image/jpeg, image/jpg" multiple className="text-sm" onChange={handleFileSelect} />
 
         {error && <ErrorMessage>{error}</ErrorMessage>}
 
         <div className="mt-5 mb-20">
           <p className="font-bold">Payout Proof Preview</p>
-          <ImagesGridPreview
-            images={images}
-            removeImage={handleImageRemove}
-            imageAlt={"payout proof"}
-            allowDeleteImage={true}
-            gridCol={3}
-            gridColSpan={""}
-            imageRatio="aspect-[3/4]"
-          />
+          <ImagesGridPreview images={images} removeImage={handleImageRemove} imageAlt={"payout proof"} allowDeleteImage={true} gridCol={"grid-cols-3"} imageRatio="aspect-[3/4]" />
         </div>
 
-        <SubmitButton
-          isSubmitting={loading}
-          submittingText="Saving..."
-          nonSubmittingText="Submit and Confirm Payout"
-        />
+        <SubmitButton isSubmitting={loading} submittingText="Saving..." nonSubmittingText="Submit and Confirm Payout" />
       </form>
     </>
   );

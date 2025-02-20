@@ -1,4 +1,4 @@
-import { Tbooking } from "@/lib/validations";
+import { Tbooking } from "@/lib/validations/zod-schema/booking-schema";
 import { create } from "zustand";
 
 interface BookingStore {
@@ -22,16 +22,13 @@ const useBookingStore = create<BookingStore>((set) => ({
     remarks: "",
     whatsapp: "",
   },
-  setBookingTime: (startTime) =>
-    set((store) => ({ bookingInfo: { ...store.bookingInfo, startTime } })),
+  setBookingTime: (startTime) => set((store) => ({ bookingInfo: { ...store.bookingInfo, startTime } })),
   resetBookingTime: () =>
     set((store) => ({
       bookingInfo: { ...store.bookingInfo, startTime: "" },
     })),
-  setBookingDate: (date) =>
-    set((store) => ({ bookingInfo: { ...store.bookingInfo, date } })),
-  setBookingPrice: (price) =>
-    set((store) => ({ bookingInfo: { ...store.bookingInfo, price } })),
+  setBookingDate: (date) => set((store) => ({ bookingInfo: { ...store.bookingInfo, date } })),
+  setBookingPrice: (price) => set((store) => ({ bookingInfo: { ...store.bookingInfo, price } })),
   resetBookingPrice: () =>
     set((store) => ({
       bookingInfo: { ...store.bookingInfo, bookingPrice: 0 },

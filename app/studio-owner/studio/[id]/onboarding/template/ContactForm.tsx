@@ -1,5 +1,5 @@
 "use client";
-import { studioContactFormData, studioContactSchema } from "@/lib/validations";
+import { studioContactFormData, studioContactSchema } from "@/lib/validations/zod-schema/booking-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React from "react";
 import { useForm } from "react-hook-form";
@@ -34,8 +34,7 @@ const ContactForm = ({ studioId }: Props) => {
 
       //Save text information to database
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "系統發生未預期錯誤，請重試。";
+      const errorMessage = error instanceof Error ? error.message : "系統發生未預期錯誤，請重試。";
       toast(errorMessage, {
         position: "top-right",
         type: "error",

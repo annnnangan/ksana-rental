@@ -1,4 +1,6 @@
 import { GENERAL_ERROR_MESSAGE } from "@/lib/constants/error-message";
+import handleError from "@/lib/handlers/error";
+import { NotFoundError } from "@/lib/http-errors";
 import { knex } from "@/services/knex";
 import { Knex } from "knex";
 
@@ -6,9 +8,7 @@ export class ValidateStudioService {
   constructor(private knex: Knex) {}
 
   async validateIsStudioExistBySlug(slug: string) {
-    const result = (
-      await this.knex.select("id").from("studio").where("slug", slug)
-    )[0]?.id;
+    const result = (await this.knex.select("id").from("studio").where("slug", slug))[0]?.id;
 
     if (!result) {
       return {
@@ -26,11 +26,7 @@ export class ValidateStudioService {
 
   async validateIsStudioExistById(id: string) {
     try {
-      const result = await this.knex
-        .select("id")
-        .from("studio")
-        .where("id", id)
-        .first();
+      const result = await this.knex.select("id").from("studio").where("id", id).first();
 
       if (!result.id) {
         return {

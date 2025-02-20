@@ -1,51 +1,24 @@
-import ToastMessageWithRedirect from "@/components/custom-components/ToastMessageWithRedirect";
-import { studioService } from "@/services/StudioService";
-import BasicInfoForm from "./_component/BasicInfoForm";
-import { BasicInfo } from "@/services/model";
+import BasicInfoForm from "@/components/custom-components/studio-details/BasicInfoForm";
 
-//Component
-const StudioCreatePage = async ({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) => {
-  //Get Studio ID from URL
-  const studioId = Number((await params).id);
+import { studioService } from "@/services/studio/StudioService";
+import StepIntro from "../StepIntro";
 
-  //Get User ID
-  const userId = 1;
+const StudioCreatePage = async ({ params }: { params: Promise<{ id: string }> }) => {
+  const studioId = (await params).id;
 
-  //Global variable for storing image URL from server
-  let basicInfoData: BasicInfo = {
-    cover_photo: null,
-    logo: null,
-    name: null,
-    slug: null,
-    status: "draft",
-    district: null,
-    address: null,
-    description: null,
-  };
-
-  try {
-    //Get Basic Info from Database
-    const basicInfo = await studioService.getStudioBasicInfo(studioId, userId);
-    if (basicInfo?.success) {
-      basicInfoData = basicInfo.data;
-    }
-  } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : "系統出現錯誤，請重試。";
-    return (
-      <ToastMessageWithRedirect
-        type={"error"}
-        message={errorMessage}
-        redirectPath={"/studio-owner/dashboard"}
-      />
-    );
+  const basicInfoFormDataResponse = await studioService.getBasicInfoFormData(studioId);
+  if (!basicInfoFormDataResponse.success) {
+    return;
   }
 
-  return <BasicInfoForm studioId={studioId} basicInfoData={basicInfoData} />;
+  let basicInfoFormDataDefaultValues = basicInfoFormDataResponse.data;
+
+  return (
+    <div>
+      <StepIntro title={"設定場地基本資料"} />
+      <BasicInfoForm studioId={studioId} isOnboardingStep={true} defaultValues={basicInfoFormDataDefaultValues} />
+    </div>
+  );
 };
 
 export default StudioCreatePage;

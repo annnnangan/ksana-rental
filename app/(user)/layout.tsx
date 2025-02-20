@@ -1,7 +1,15 @@
+import NavBar from "@/components/custom-components/layout/main-nav-bar/NavBar";
+import Footer from "@/components/custom-components/layout/MainFooter";
 import React from "react";
 
-const layout = ({ children }: { children: React.ReactNode }) => {
-  return <div className="container p-4 md:p-10">{children}</div>;
+const userLayout = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <>
+      <NavBar />
+      <main className="mx-auto container p-3 lg:p-5">{children}</main>
+      <Footer />
+    </>
+  );
 };
 
-export default layout;
+export default userLayout;

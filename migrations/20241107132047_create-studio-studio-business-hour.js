@@ -9,20 +9,10 @@ exports.up = async function (knex) {
     table.increments();
     table.integer("studio_id").unsigned();
     table.foreign("studio_id").references("studio.id");
-    table
-      .enu("day_of_week", [
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday",
-        "Sunday",
-      ])
-      .notNullable();
+    table.enu("day_of_week", ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]).notNullable();
     table.boolean("is_closed").notNullable().defaultTo(false);
-    table.time("open_time");
-    table.time("end_time");
+    table.time("from");
+    table.time("to");
     table.integer("price_type_id").unsigned();
     table.foreign("price_type_id").references("studio_price.id");
     table.timestamps(false, true);

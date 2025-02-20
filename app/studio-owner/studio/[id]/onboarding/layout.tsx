@@ -1,33 +1,14 @@
 "use client";
-import { StudioOwnerSidebar } from "@/components/side-bar/NavBar";
-import {
-  Breadcrumb,
-  BreadcrumbList,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbSeparator,
-  BreadcrumbPage,
-} from "@/components/shadcn/breadcrumb";
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/shadcn/sidebar";
-import { Separator } from "@/components/shadcn/separator";
 
-import {
-  CalendarCheck,
-  CircleChevronLeft,
-  CircleGauge,
-  Contact,
-  Dumbbell,
-  HandCoins,
-  House,
-  KeyRound,
-  ImageUp,
-} from "lucide-react";
-import { usePathname, useParams } from "next/navigation";
+import { NavMain } from "@/components/custom-components/layout/backend-panel-nav-bar/NavMain";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/shadcn/breadcrumb";
+import { Separator } from "@/components/shadcn/separator";
+import { Sidebar, SidebarContent, SidebarInset, SidebarProvider, SidebarRail, SidebarTrigger } from "@/components/shadcn/sidebar";
+import { useQuery } from "@tanstack/react-query";
+import { CalendarCheck, CircleChevronLeft, CircleGauge, Contact, Dumbbell, HandCoins, House, ImageUp, KeyRound } from "lucide-react";
+
 import Link from "next/link";
+import { useParams, usePathname } from "next/navigation";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const params = useParams<{ id: string }>();
@@ -38,6 +19,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       title: "基本資料",
       url: `/studio-owner/studio/${studioId}/onboarding/basic-info`,
       icon: CircleGauge,
+      completed: true,
     },
     {
       title: "營業時間及價格",
@@ -60,8 +42,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       icon: KeyRound,
     },
     {
-      title: "聯絡資料",
-      url: `/studio-owner/studio/${studioId}/onboarding/contact`,
+      title: "社交媒體",
+      url: `/studio-owner/studio/${studioId}/onboarding/social`,
       icon: Contact,
     },
     {
@@ -81,14 +63,18 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const currentTitle = currentNavItem?.title || "";
   return (
     <SidebarProvider>
-      <StudioOwnerSidebar navItems={navItems} />
+      <Sidebar collapsible="icon">
+        <SidebarContent className="mt-4">
+          {navItems.map((item) => (
+            <NavMain key={item.title} items={[item]} />
+          ))}
+        </SidebarContent>
+        <SidebarRail />
+      </Sidebar>
 
-      <div className="w-full">
+      <div className="px-5 lg:px-10 w-full">
         <SidebarInset>
-          <Link
-            className="flex gap-x-2 items-center text-sm text-gray-500 ms-auto hover:-translate-x-3 transition-transform duration-200 ease-in-out"
-            href="/studio-owner/studios"
-          >
+          <Link className="mt-5 flex gap-x-2 items-center text-sm text-gray-500 ms-auto hover:-translate-x-3 transition-transform duration-200 ease-in-out" href="/studio-owner/studios">
             <CircleChevronLeft size={20} />
             返回所有場地
           </Link>
@@ -98,13 +84,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="/studio-owner/studios">
-                    你的所有場地
-                  </BreadcrumbLink>
+                  <BreadcrumbLink href="/studio-owner/studios">你的所有場地</BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator className="hidden md:block" />
                 <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="#">場地建立</BreadcrumbLink>
+                  <BreadcrumbLink>場地建立</BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator className="hidden md:block" />
                 <BreadcrumbItem>
@@ -113,7 +97,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               </BreadcrumbList>
             </Breadcrumb>
           </header>
-          <main className="mx-auto w-full"> {children}</main>
+          <div className="pb-10">{children}</div>
         </SidebarInset>
       </div>
     </SidebarProvider>

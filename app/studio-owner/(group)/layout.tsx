@@ -1,46 +1,17 @@
-"use client";
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/shadcn/sidebar";
-import { CircleGauge, House, Settings2 } from "lucide-react";
-import { NavBar } from "../../../components/side-bar/NavBar";
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/shadcn/sidebar";
 
-const userData = {
-  name: "shadcn",
-  email: "m@example.com",
-  avatar: "/avatars/shadcn.jpg",
-};
-
-const navItems = {
-  Core: [
-    {
-      title: "Dashboard",
-      url: "/studio-owner/dashboard",
-      icon: CircleGauge,
-    },
-    {
-      title: "Studios",
-      url: "/studio-owner/studios",
-      icon: House,
-    },
-    {
-      title: "Settings",
-      url: "/studio-owner/settings",
-      icon: Settings2,
-    },
-  ],
-};
+import { StudioOwnerPanelNavBar } from "@/components/custom-components/layout/backend-panel-nav-bar/StudioOwnerPanelNavBar";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider>
-      <NavBar user={userData} navItems={navItems} />
-      <SidebarInset>
-        <SidebarTrigger className="-ml-1" />
-        {children}
-      </SidebarInset>
+      <StudioOwnerPanelNavBar />
+      <main className="p-5 lg:p-10 w-full">
+        <SidebarInset>
+          <SidebarTrigger />
+          {children}
+        </SidebarInset>
+      </main>
     </SidebarProvider>
   );
 }

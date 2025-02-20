@@ -1,24 +1,14 @@
 import ToastMessageWithRedirect from "@/components/custom-components/ToastMessageWithRedirect";
 import { Button } from "@/components/shadcn/button";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/shadcn/table";
-import {
-  formatDate,
-  getLastMonday,
-} from "@/lib/utils/date-time/date-time-utils";
+import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/shadcn/table";
+import { formatDate, getLastMonday } from "@/lib/utils/date-time/date-time-utils";
 import { fetchWithBaseUrl } from "@/lib/utils/fetch-with-base-url";
-import { PayoutMethod, payoutMethod, PayoutStatus } from "@/services/model";
+import { PayoutMethod, PayoutStatus } from "@/services/model";
 import { startOfWeek, subDays } from "date-fns";
 import { ArrowUpIcon, HandCoins } from "lucide-react";
 import Link from "next/link";
 import PayoutStatusBadge from "./PayoutStatusBadge";
+import { payoutMethodMap } from "@/lib/constants/studio-details";
 
 export interface PayoutQuery {
   startDate: string;
@@ -49,13 +39,8 @@ const columns: {
   { label: "Payout Action", value: "payoutAction" },
 ];
 
-const PayoutOverviewTable = async ({
-  searchParams,
-  defaultStartDate,
-  defaultEndDate,
-}: Props) => {
-  const payoutStartDate =
-    searchParams.startDate || formatDate(defaultStartDate);
+const PayoutOverviewTable = async ({ searchParams, defaultStartDate, defaultEndDate }: Props) => {
+  const payoutStartDate = searchParams.startDate || formatDate(defaultStartDate);
   const payoutEndDate = searchParams.endDate || formatDate(defaultEndDate);
 
   const queryParams = new URLSearchParams({
@@ -79,28 +64,17 @@ const PayoutOverviewTable = async ({
   }
 
   // Fetch data
-  const payoutOverviewDataResponse = await fetchWithBaseUrl(
-    `/api/admin/payout?${queryParams.toString()}`
-  );
+  const payoutOverviewDataResponse = await fetchWithBaseUrl(`/api/admin/payout?${queryParams.toString()}`);
 
   if (!payoutOverviewDataResponse.success) {
-    return (
-      <ToastMessageWithRedirect
-        type={"error"}
-        message={payoutOverviewDataResponse.error.message}
-        redirectPath={"/admin/payout"}
-      />
-    );
+    return <ToastMessageWithRedirect type={"error"} message={payoutOverviewDataResponse.error.message} redirectPath={"/admin/payout"} />;
   }
 
-  const { total_payout_amount, studios_payout_list: payoutList } =
-    payoutOverviewDataResponse.data;
+  const { total_payout_amount, studios_payout_list: payoutList } = payoutOverviewDataResponse.data;
 
   return (
     <Table>
-      {payoutList.length === 0 && (
-        <TableCaption>No Payout Information</TableCaption>
-      )}
+      {payoutList.length === 0 && <TableCaption>No Payout Information</TableCaption>}
 
       <TableHeader>
         <TableRow>
@@ -113,9 +87,7 @@ const PayoutOverviewTable = async ({
               >
                 {column.label}
               </Link>
-              {column.value === searchParams?.orderBy && (
-                <ArrowUpIcon className="inline" size={16} />
-              )}
+              {column.value === searchParams?.orderBy && <ArrowUpIcon className="inline" size={16} />}
             </TableHead>
           ))}
         </TableRow>
@@ -123,44 +95,26 @@ const PayoutOverviewTable = async ({
 
       {payoutList.length > 0 && (
         <TableBody>
-          {payoutList.map(
-            (studio: {
-              studio_id: number;
-              studio_name: string;
-              studio_slug: string;
-              payout_status: PayoutStatus;
-              payout_method: string;
-              total_payout_amount: number;
-            }) => (
-              <TableRow key={studio.studio_id}>
-                <TableCell>{studio.studio_id}</TableCell>
-                <TableCell>{studio.studio_name}</TableCell>
+          {payoutList.map((studio: { studio_id: number; studio_name: string; studio_slug: string; payout_status: PayoutStatus; payout_method: string; total_payout_amount: number }) => (
+            <TableRow key={studio.studio_id}>
+              <TableCell>{studio.studio_id}</TableCell>
+              <TableCell>{studio.studio_name}</TableCell>
 
-                <TableCell>
-                  <PayoutStatusBadge payoutStatus={studio.payout_status} />
-                </TableCell>
-                <TableCell>
-                  {
-                    payoutMethod.find(
-                      (method) => method.value === studio.payout_method
-                    )?.label
-                  }
-                </TableCell>
-                <TableCell>HKD$ {studio.total_payout_amount}</TableCell>
-                <TableCell>
-                  <Button variant="link">
-                    <Link
-                      href={`/admin/payout/studio/${studio.studio_slug}?startDate=${payoutStartDate}&endDate=${payoutEndDate}`}
-                      className="flex items-center gap-2"
-                    >
-                      <span className="hidden md:block">Payment Details</span>
-                      <HandCoins />
-                    </Link>
-                  </Button>
-                </TableCell>
-              </TableRow>
-            )
-          )}
+              <TableCell>
+                <PayoutStatusBadge payoutStatus={studio.payout_status} />
+              </TableCell>
+              <TableCell>{payoutMethodMap.find((method) => method.value === studio.payout_method)?.label}</TableCell>
+              <TableCell>HKD$ {studio.total_payout_amount}</TableCell>
+              <TableCell>
+                <Button variant="link">
+                  <Link href={`/admin/payout/studio/${studio.studio_slug}?startDate=${payoutStartDate}&endDate=${payoutEndDate}`} className="flex items-center gap-2">
+                    <span className="hidden md:block">Payment Details</span>
+                    <HandCoins />
+                  </Link>
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
         </TableBody>
       )}
     </Table>

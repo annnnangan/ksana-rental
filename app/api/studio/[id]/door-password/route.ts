@@ -1,47 +1,14 @@
-import {
-  GENERAL_ERROR_MESSAGE,
-  UNAUTHORIZED_ACCESS_MESSAGE,
-} from "@/lib/constants/error-message";
+import { GENERAL_ERROR_MESSAGE, UNAUTHORIZED_ACCESS_MESSAGE } from "@/lib/constants/error-message";
 import handleError from "@/lib/handlers/error";
 import { ValidationError } from "@/lib/http-errors";
 import { auth } from "@/lib/next-auth-config/auth";
-import { StudioDoorPasswordSchema } from "@/lib/validations";
-import { studioService } from "@/services/studio/StudioService";
+import { StudioDoorPasswordSchema } from "@/lib/validations/zod-schema/booking-schema";
+import { bookingService } from "@/services/BookingService";
 import { studioCreateService } from "@/services/StudioCreateService";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function PUT(
-  request: NextRequest,
-  props: { params: Promise<{ id: number }> }
-) {
-  try {
-    const params = await props.params;
-    const body = await request.json();
-    const validatedData = StudioDoorPasswordSchema.safeParse(body.data);
-    if (!validatedData.success) {
-      throw new ValidationError(validatedData.error.flatten().fieldErrors);
-    }
-
-    const userId = 1;
-    const response = await studioCreateService.saveDoorPassword(
-      Number(params.id),
-      userId,
-      body.data
-    );
-
-    if (response.success) {
-      return NextResponse.json({ success: true }, { status: 201 });
-    }
-  } catch (error) {
-    return handleError(error, "api") as APIErrorResponse;
-  }
-}
-
 //GET Door Password
-export async function GET(
-  request: NextRequest,
-  props: { params: Promise<{ id: string }> }
-) {
+export async function GET(request: NextRequest, props: { params: Promise<{ id: string }> }) {
   try {
     const params = await props.params;
     const studioId = params.id;
@@ -51,17 +18,11 @@ export async function GET(
     const bookingReferenceNumber = searchParams.get("booking");
 
     if (!bookingReferenceNumber) {
-      return NextResponse.json(
-        { success: false, message: "預約不存在。" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, message: "預約不存在。" }, { status: 404 });
     }
 
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, message: UNAUTHORIZED_ACCESS_MESSAGE },
-        { status: 401 }
-      );
+      return NextResponse.json({ success: false, message: UNAUTHORIZED_ACCESS_MESSAGE }, { status: 401 });
     }
 
     // const isBookingBelongUser =
@@ -77,23 +38,14 @@ export async function GET(
     //   );
     // }
 
-    const result = await studioService.getDoorPassword(studioId);
+    const result = await bookingService.getDoorPasswordForBooking(studioId);
 
     if (!result?.success) {
-      return NextResponse.json(
-        { success: false, error: { message: result?.error?.message } },
-        { status: result?.errorCode }
-      );
+      return NextResponse.json({ success: false, error: { message: result?.error?.message } }, { status: result?.errorCode });
     }
 
-    return NextResponse.json(
-      { success: true, data: result.data },
-      { status: 201 }
-    );
+    return NextResponse.json({ success: true, data: result.data }, { status: 201 });
   } catch {
-    return NextResponse.json(
-      { success: false, error: { message: GENERAL_ERROR_MESSAGE } },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: { message: GENERAL_ERROR_MESSAGE } }, { status: 500 });
   }
 }

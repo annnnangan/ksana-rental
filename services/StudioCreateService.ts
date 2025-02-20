@@ -3,13 +3,7 @@ import { knex } from "@/services/knex";
 import { Knex } from "knex";
 import { BasicInfo, districts, onBoardingRequiredSteps } from "./model";
 import { findAreaByDistrictValue } from "@/lib/utils/areas-districts-converter";
-import {
-  studioBusinessHourAndPriceFormData,
-  studioContactFormData,
-  StudioDoorPasswordFormData,
-  studioEquipmentFormData,
-  StudioPayoutFormData,
-} from "@/lib/validations";
+import { studioBusinessHourAndPriceFormData, studioContactFormData, StudioDoorPasswordFormData, studioEquipmentFormData, StudioPayoutFormData } from "@/lib/validations/zod-schema/booking-schema";
 export class StudioCreateService {
   constructor(private knex: Knex) {}
 
@@ -33,10 +27,7 @@ export class StudioCreateService {
       if (error instanceof RequestError) {
         throw error;
       } else {
-        throw new RequestError(
-          500,
-          error instanceof Error ? error.message : "系統發生錯誤。"
-        );
+        throw new RequestError(500, error instanceof Error ? error.message : "系統發生錯誤。");
       }
     }
   }
@@ -69,22 +60,14 @@ export class StudioCreateService {
       if (error instanceof RequestError) {
         throw error;
       } else {
-        throw new RequestError(
-          500,
-          error instanceof Error ? error.message : "系統發生錯誤。"
-        );
+        throw new RequestError(500, error instanceof Error ? error.message : "系統發生錯誤。");
       }
     }
   }
 
   //Save image into Studio table
   //todo - params: studioId, userId, imageType (cover or logo). image S3 URL
-  async saveImage(
-    studioId: number,
-    userId: number,
-    imageType: "cover_photo" | "logo",
-    imageUrl: string
-  ) {
+  async saveImage(studioId: number, userId: number, imageType: "cover_photo" | "logo", imageUrl: string) {
     try {
       // Perform the update query
       const updatedData = await knex("studio")
@@ -103,10 +86,7 @@ export class StudioCreateService {
       if (error instanceof RequestError) {
         throw error;
       } else {
-        throw new RequestError(
-          500,
-          error instanceof Error ? error.message : "系統發生錯誤。"
-        );
+        throw new RequestError(500, error instanceof Error ? error.message : "系統發生錯誤。");
       }
     }
   }
@@ -119,9 +99,7 @@ export class StudioCreateService {
         throw new Error("資料有缺少，請填寫。");
       }
 
-      const validDistrictValues = districts.flatMap((region) =>
-        region.district.map((district) => district.value)
-      );
+      const validDistrictValues = districts.flatMap((region) => region.district.map((district) => district.value));
 
       if (!validDistrictValues.includes(district)) {
         throw new Error(`你所填寫之地區不正確。`);
@@ -146,19 +124,12 @@ export class StudioCreateService {
       if (error instanceof RequestError) {
         throw error;
       } else {
-        throw new RequestError(
-          500,
-          error instanceof Error ? error.message : "系統發生錯誤。"
-        );
+        throw new RequestError(500, error instanceof Error ? error.message : "系統發生錯誤。");
       }
     }
   }
 
-  async saveBusinessHours(
-    studioId: number,
-    userId: number,
-    data: studioBusinessHourAndPriceFormData
-  ) {
+  async saveBusinessHours(studioId: number, userId: number, data: studioBusinessHourAndPriceFormData) {
     try {
       const { businessHours } = data;
 
@@ -189,18 +160,13 @@ export class StudioCreateService {
 
         await this.knex.transaction(async (trx) => {
           // Delete existing rows for this day to avoid duplicates
-          await trx("studio_business_hour")
-            .where({ studio_id: studioId, day_of_week: day })
-            .del();
+          await trx("studio_business_hour").where({ studio_id: studioId, day_of_week: day }).del();
 
           for (const slot of timeSlots) {
             const { open, close, priceType } = slot;
 
             // Retrieve the price_type_id based on priceType
-            const priceTypeRow = await trx("studio_price")
-              .select("id")
-              .where({ price_type: priceType, studio_id: studioId })
-              .first();
+            const priceTypeRow = await trx("studio_price").select("id").where({ price_type: priceType, studio_id: studioId }).first();
 
             if (!priceTypeRow) {
               throw new Error(`Invalid priceType: ${priceType}`);
@@ -229,19 +195,12 @@ export class StudioCreateService {
       if (error instanceof RequestError) {
         throw error;
       } else {
-        throw new RequestError(
-          500,
-          error instanceof Error ? error.message : "系統發生錯誤。"
-        );
+        throw new RequestError(500, error instanceof Error ? error.message : "系統發生錯誤。");
       }
     }
   }
 
-  async savePrice(
-    studioId: number,
-    userId: number,
-    data: studioBusinessHourAndPriceFormData
-  ) {
+  async savePrice(studioId: number, userId: number, data: studioBusinessHourAndPriceFormData) {
     try {
       const { nonPeakHourPrice, peakHourPrice } = data;
 
@@ -259,9 +218,7 @@ export class StudioCreateService {
       for (const [price_type, price] of Object.entries(priceList)) {
         await this.knex.transaction(async (trx) => {
           // Attempt to update the row
-          const updatedRows = await trx("studio_price")
-            .update({ price })
-            .where({ studio_id: studioId, price_type });
+          const updatedRows = await trx("studio_price").update({ price }).where({ studio_id: studioId, price_type });
 
           // If no rows were updated, perform an insert
           if (updatedRows === 0) {
@@ -282,19 +239,12 @@ export class StudioCreateService {
       if (error instanceof RequestError) {
         throw error;
       } else {
-        throw new RequestError(
-          500,
-          error instanceof Error ? error.message : "系統發生錯誤。"
-        );
+        throw new RequestError(500, error instanceof Error ? error.message : "系統發生錯誤。");
       }
     }
   }
 
-  async saveEquipment(
-    studioId: number,
-    userId: number,
-    data: studioEquipmentFormData
-  ) {
+  async saveEquipment(studioId: number, userId: number, data: studioEquipmentFormData) {
     try {
       if (!data || data.equipment.length == 0) {
         throw new Error("資料有缺少，請填寫。");
@@ -303,11 +253,7 @@ export class StudioCreateService {
       //[1,4,6]
       const equipmentIdList = await Promise.all(
         data.equipment.map(async (item) => {
-          const result = await this.knex
-            .select("id")
-            .from("equipment")
-            .where("equipment", item)
-            .first(); // Use `.first()` to get a single row
+          const result = await this.knex.select("id").from("equipment").where("equipment", item).first(); // Use `.first()` to get a single row
 
           if (!result) {
             // Throw an error if the equipment is not found
@@ -341,10 +287,7 @@ export class StudioCreateService {
       if (error instanceof RequestError) {
         throw error;
       } else {
-        throw new RequestError(
-          500,
-          error instanceof Error ? error.message : "系統發生錯誤。"
-        );
+        throw new RequestError(500, error instanceof Error ? error.message : "系統發生錯誤。");
       }
     }
   }
@@ -365,19 +308,12 @@ export class StudioCreateService {
       if (error instanceof RequestError) {
         throw error;
       } else {
-        throw new RequestError(
-          500,
-          error instanceof Error ? error.message : "系統發生錯誤。"
-        );
+        throw new RequestError(500, error instanceof Error ? error.message : "系統發生錯誤。");
       }
     }
   }
 
-  async savePhone(
-    studioId: number,
-    userId: number,
-    data: studioContactFormData
-  ) {
+  async savePhone(studioId: number, userId: number, data: studioContactFormData) {
     try {
       if (!data) {
         throw new Error("資料有缺少，請填寫。");
@@ -396,19 +332,12 @@ export class StudioCreateService {
       if (error instanceof RequestError) {
         throw error;
       } else {
-        throw new RequestError(
-          500,
-          error instanceof Error ? error.message : "系統發生錯誤。"
-        );
+        throw new RequestError(500, error instanceof Error ? error.message : "系統發生錯誤。");
       }
     }
   }
 
-  async saveSocial(
-    studioId: number,
-    userId: number,
-    data: studioContactFormData
-  ) {
+  async saveSocial(studioId: number, userId: number, data: studioContactFormData) {
     try {
       if (!data) {
         throw new Error("資料有缺少，請填寫。");
@@ -435,19 +364,12 @@ export class StudioCreateService {
       if (error instanceof RequestError) {
         throw error;
       } else {
-        throw new RequestError(
-          500,
-          error instanceof Error ? error.message : "系統發生錯誤。"
-        );
+        throw new RequestError(500, error instanceof Error ? error.message : "系統發生錯誤。");
       }
     }
   }
 
-  async savePayoutDetail(
-    studioId: number,
-    userId: number,
-    data: StudioPayoutFormData
-  ) {
+  async savePayoutDetail(studioId: number, userId: number, data: StudioPayoutFormData) {
     try {
       const { payoutMethod, payoutAccountName, payoutAccountNumber } = data;
 
@@ -483,19 +405,12 @@ export class StudioCreateService {
       if (error instanceof RequestError) {
         throw error;
       } else {
-        throw new RequestError(
-          500,
-          error instanceof Error ? error.message : "系統發生錯誤。"
-        );
+        throw new RequestError(500, error instanceof Error ? error.message : "系統發生錯誤。");
       }
     }
   }
 
-  async saveDoorPassword(
-    studioId: number,
-    userId: number,
-    data: StudioDoorPasswordFormData
-  ) {
+  async saveDoorPassword(studioId: number, userId: number, data: StudioDoorPasswordFormData) {
     try {
       const { isRevealDoorPassword, doorPassword } = data;
 
@@ -503,10 +418,7 @@ export class StudioCreateService {
         throw new Error("資料有缺少，請填寫。");
       }
 
-      if (
-        isRevealDoorPassword === "true" &&
-        doorPassword?.length === undefined
-      ) {
+      if (isRevealDoorPassword === "true" && doorPassword?.length === undefined) {
         throw new Error("請填寫大門密碼。");
       }
 
@@ -532,10 +444,7 @@ export class StudioCreateService {
       if (error instanceof RequestError) {
         throw error;
       } else {
-        throw new RequestError(
-          500,
-          error instanceof Error ? error.message : "系統發生錯誤。"
-        );
+        throw new RequestError(500, error instanceof Error ? error.message : "系統發生錯誤。");
       }
     }
   }

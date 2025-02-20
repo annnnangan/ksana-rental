@@ -1,6 +1,6 @@
 import handleError from "@/lib/handlers/error";
 import { ValidationError } from "@/lib/http-errors";
-import { studioNameSchema } from "@/lib/validations";
+import { studioNameSchema } from "@/lib/validations/zod-schema/booking-schema";
 import { studioService } from "@/services/studio/StudioService";
 import { studioCreateService } from "@/services/StudioCreateService";
 import { NextRequest, NextResponse } from "next/server";
@@ -17,10 +17,7 @@ export async function GET(request: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
-    return NextResponse.json(
-      { success: false, error: { message: "系統出現錯誤。" } },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: { message: "系統出現錯誤。" } }, { status: 500 });
   }
 }
 
@@ -31,26 +28,17 @@ export async function POST(request: NextRequest) {
     const validatedStudioName = studioNameSchema.safeParse(body);
 
     if (!validatedStudioName.success) {
-      throw new ValidationError(
-        validatedStudioName.error.flatten().fieldErrors
-      );
+      throw new ValidationError(validatedStudioName.error.flatten().fieldErrors);
     }
     const userId = 1;
-    const createNewStudioResponse = await studioCreateService.createNewStudio(
-      userId,
-      body.name
-    );
+    const createNewStudioResponse = await studioCreateService.createNewStudio(userId, body.name);
 
     if (createNewStudioResponse.success) {
       const studioId = createNewStudioResponse.data;
-      const insertOnboardingStepsResponse =
-        await studioCreateService.insertOnboardingSteps(studioId, userId);
+      const insertOnboardingStepsResponse = await studioCreateService.insertOnboardingSteps(studioId, userId);
 
       if (insertOnboardingStepsResponse.success) {
-        return NextResponse.json(
-          { success: true, data: createNewStudioResponse.data },
-          { status: 201 }
-        );
+        return NextResponse.json({ success: true, data: createNewStudioResponse.data }, { status: 201 });
       }
     }
   } catch (error) {

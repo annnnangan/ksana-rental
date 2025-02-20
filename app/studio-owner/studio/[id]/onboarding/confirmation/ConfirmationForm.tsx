@@ -1,116 +1,102 @@
 "use client";
-import ErrorMessage from "@/components/custom-components/ErrorMessage";
+import SubmitButton from "@/components/custom-components/buttons/SubmitButton";
+import { Button } from "@/components/shadcn/button";
 import { Checkbox } from "@/components/shadcn/checkbox";
-import {
-  StudioOnBoardingTermsFormData,
-  StudioOnBoardingTermsSchema,
-} from "@/lib/validations";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/shadcn/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/shadcn/form";
+import { OnboardingTermsFormData, OnboardingTermsSchema } from "@/lib/validations/zod-schema/studio/studio-step-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { usePathname, useRouter } from "next/navigation";
-import { Controller, useForm } from "react-hook-form";
-import { toast } from "react-toastify";
-import ConfirmationButton from "./ConfirmationButton";
+import { useRouter } from "next/navigation";
+import { useTransition } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 import TermsAndConditions from "./TermsAndConditions";
-import { getOnboardingStep } from "@/lib/utils/get-onboarding-step-utils";
+import { toast } from "react-toastify";
+import { completeOnboardingApplication } from "@/actions/studio";
 
 interface Props {
-  studioId: number;
+  studioId: string;
   isFilledAllSteps: boolean;
 }
 
 const ConfirmationForm = ({ studioId, isFilledAllSteps }: Props) => {
-  const router = useRouter();
-  const pathname = usePathname();
-  const {
-    control,
-    watch,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<StudioOnBoardingTermsFormData>({
-    resolver: zodResolver(StudioOnBoardingTermsSchema),
-    defaultValues: { onboardingTerms: false },
+  const form = useForm<z.infer<typeof OnboardingTermsSchema>>({
+    resolver: zodResolver(OnboardingTermsSchema),
+    defaultValues: {
+      onboardingTerms: false,
+    },
   });
 
-  const onboardingTermsValue = watch("onboardingTerms");
+  const { isSubmitting } = form.formState;
 
-  const onSubmit = async (data: StudioOnBoardingTermsFormData) => {
-    try {
-      const response = await fetch(`/api/studio/${studioId}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          data,
-        }),
-      });
+  const { watch } = form;
 
-      if (!response.ok) {
-        // If the response status is not 2xx, throw an error with the response message
-        const errorData = await response.json();
-        throw new Error(errorData?.error.message || "系統發生未預期錯誤。");
-      }
+  const onboardingTermsWatch = watch("onboardingTerms");
 
-      //Save Onboarding Step Track
-      const onboardingStep = getOnboardingStep(pathname);
-      const completeOnboardingStepResponse = await fetch(
-        `/api/studio/${studioId}/onboarding-step`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            onboardingStep,
-          }),
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+
+  const onSubmit = async (data: OnboardingTermsFormData) => {
+    startTransition(() => {
+      completeOnboardingApplication(data, studioId).then((data) => {
+        toast(data.error?.message || "申請成功送出，請等待申請審查。", {
+          position: "top-right",
+          type: data?.success ? "success" : "error",
+          autoClose: 1000,
+        });
+        router.refresh();
+        if (data.success) {
+          router.push("/studio-owner/studios");
         }
-      );
-
-      if (!completeOnboardingStepResponse.ok) {
-        // If the response status is not 2xx, throw an error with the response message
-        const errorData = await completeOnboardingStepResponse.json();
-        throw new Error(errorData?.error.message || "系統發生未預期錯誤。");
-      }
-
-      toast.success("申請成功送出，請等待申請審查。");
-      router.push("/studio-owner/studios");
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "系統發生未預期錯誤，請重試。";
-      toast(errorMessage, {
-        position: "top-right",
-        type: "error",
-        autoClose: 1000,
       });
-      router.refresh();
-    }
+    });
   };
 
   return (
-    <form onSubmit={(e) => e.preventDefault()}>
-      <TermsAndConditions />
-      <div className="flex mt-5 gap-2 items-center">
-        <Controller
+    <Form {...form}>
+      <form className="space-y-8">
+        <TermsAndConditions />
+        <FormField
+          control={form.control}
           name="onboardingTerms"
-          control={control}
-          render={({ field }) => (
-            <Checkbox
-              checked={field.value}
-              id="onboardingTerms"
-              onCheckedChange={field.onChange}
-            />
-          )}
+          render={({ field }) => {
+            return (
+              <FormItem className="flex flex-row items-center space-x-3 space-y-0">
+                <FormControl>
+                  <Checkbox checked={field.value} onCheckedChange={field.onChange} className="h-6 w-6" />
+                </FormControl>
+                <FormLabel className="text-md font-normal">同意以上條款與細則</FormLabel>
+              </FormItem>
+            );
+          }}
         />
-        <label htmlFor="onboardingTerms">同意以上條款與細則</label>
-      </div>
-      <ErrorMessage>{errors.onboardingTerms?.message}</ErrorMessage>
 
-      <ConfirmationButton
-        isFilledAllSteps={isFilledAllSteps}
-        isAcceptedTnC={onboardingTermsValue}
-        onSubmit={handleSubmit(onSubmit)}
-      />
-    </form>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button type="button" className="mt-5 px-12" disabled={!isFilledAllSteps || !onboardingTermsWatch}>
+              送出申請
+            </Button>
+          </DialogTrigger>
+
+          {onboardingTermsWatch && (
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>你確認要送出申請嗎？</DialogTitle>
+                <DialogDescription>請確保所有資料正確無誤，否則申請通過時間會被延誤。</DialogDescription>
+              </DialogHeader>
+
+              <DialogFooter className="sm:justify-start">
+                <DialogClose asChild>
+                  <div onClick={form.handleSubmit(onSubmit)}>
+                    <SubmitButton isSubmitting={isSubmitting} submittingText={"申請送出中..."} nonSubmittingText={"確認送出"} />
+                  </div>
+                </DialogClose>
+              </DialogFooter>
+            </DialogContent>
+          )}
+        </Dialog>
+      </form>
+    </Form>
   );
 };
 

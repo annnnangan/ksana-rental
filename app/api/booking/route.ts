@@ -1,6 +1,6 @@
 import handleError from "@/lib/handlers/error";
 import { ValidationError } from "@/lib/http-errors";
-import { bookingSchema } from "@/lib/validations";
+import { bookingSchema } from "@/lib/validations/zod-schema/booking-schema";
 import { bookingService } from "@/services/BookingService";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -19,10 +19,7 @@ export async function POST(request: NextRequest) {
     if (result.success) {
       let newBookingNumber = result.data;
 
-      return NextResponse.json(
-        { success: true, data: newBookingNumber },
-        { status: 201 }
-      );
+      return NextResponse.json({ success: true, data: newBookingNumber }, { status: 201 });
     }
   } catch (error) {
     return handleError(error, "api") as APIErrorResponse;

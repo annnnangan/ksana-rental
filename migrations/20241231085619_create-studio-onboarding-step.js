@@ -9,18 +9,7 @@ exports.up = async function (knex) {
     table.increments();
     table.integer("studio_id").unsigned();
     table.foreign("studio_id").references("studio.id");
-    table
-      .enu("step", [
-        "basic-info",
-        "business-hour-and-price",
-        "equipment",
-        "gallery",
-        "door-password",
-        "contact",
-        "payout-info",
-        "confirmation",
-      ])
-      .notNullable();
+    table.enu("step", ["basic-info", "business-hour-and-price", "equipment", "gallery", "door-password", "social", "payout-info", "confirmation"]).notNullable();
     table.boolean("is_complete").defaultTo(false).notNullable();
     table.timestamps(false, true);
   });
