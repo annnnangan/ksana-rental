@@ -1,5 +1,5 @@
 "use client";
-import { NavBar } from "@/components/custom-components/layout/side-bar/NavBar";
+// import { NavBar } from "@/components/custom-components/layout/side-bar/NavBar";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/shadcn/sidebar";
 
 import { CircleGauge, ClipboardMinus, Contact, FileClock, Flag, HandCoins, House, Landmark, Settings2 } from "lucide-react";

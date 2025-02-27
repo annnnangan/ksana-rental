@@ -9,6 +9,7 @@ import handleError from "@/lib/handlers/error";
 import { BookingStatus } from "./model";
 import { reviewFormData } from "@/lib/validations/zod-schema/review-booking-schema";
 import { validateStudioService } from "./studio/ValidateStudio";
+import { bookingStatusService } from "./booking/BookingStatusService";
 
 const dayOfWeekList = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
@@ -577,37 +578,11 @@ export class BookingService {
   }
 
   /**
-   * Applies filtering logic based on bookingType.
-   * This method is private and should only be used inside this service.
-   */
-  private applyBookingTypeFilter(query: Knex.QueryBuilder, bookingType: string) {
-    switch (bookingType) {
-      case "confirmed":
-        return query.andWhere("booking.status", "confirmed").andWhereRaw("booking.date::DATE + end_time::INTERVAL > NOW()");
-
-      case "pending-for-payment":
-        return query.andWhere("booking.status", "pending for payment").andWhereRaw("booking.created_at >= NOW() - INTERVAL '15 minutes'");
-
-      case "completed":
-        return query.andWhere("booking.status", "confirmed").andWhereRaw("booking.date::DATE + end_time::INTERVAL < NOW()");
-
-      case "canceled-and-expired":
-        return query.where(function () {
-          this.where("booking.status", "canceled").orWhere(function () {
-            this.where("booking.status", "pending for payment").andWhereRaw("booking.created_at < NOW() - INTERVAL '15 minutes'");
-          });
-        });
-
-      default:
-        return query; // If no filter is applied, return the unmodified query
-    }
-  }
-
-  /**
    * Return Booking List Based on Role and Status
    * If userId exist, then it will return relevant booking information to particular user
    * If studioId exist, then it will return relevant booking information to particular studio
    */
+
   async getBookingListByRoleAndStatus({ userId, studioId, bookingType }: { userId?: string; studioId?: string; bookingType: string }) {
     try {
       let query = this.knex.select().from("booking");
@@ -652,8 +627,7 @@ export class BookingService {
       }
 
       // Apply booking type filter using a reusable function
-      query = this.applyBookingTypeFilter(query, bookingType);
-
+      query = bookingStatusService.applyBookingStatusFilter(query, bookingType);
       // Order by booking date
       query = query.orderBy("booking.date", "desc");
 
