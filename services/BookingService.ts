@@ -9,6 +9,7 @@ import handleError from "@/lib/handlers/error";
 import { BookingStatus } from "./model";
 import { reviewFormData } from "@/lib/validations/zod-schema/review-booking-schema";
 import { validateStudioService } from "./studio/ValidateStudio";
+import { bookingStatusService } from "./booking/BookingStatusService";
 
 const dayOfWeekList = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
@@ -440,53 +441,6 @@ export class BookingService {
     }
   }
 
-  async cancelBookingAndRefundCredit(bookingReferenceNo: string, userId: string) {
-    const txn = await this.knex.transaction(); // Start transaction
-    try {
-      const booking = await this.knex("booking").where({ reference_no: bookingReferenceNo, user_id: userId }).first(); // Get the first matching record
-
-      // If no booking found, throw an error
-      if (!booking) {
-        throw new NotFoundError("預約");
-      }
-
-      // Check if the booking is already canceled
-      if (booking.status === "canceled") {
-        throw new ForbiddenError("預約已取消。");
-      }
-
-      // Get existing booking price
-      const refundCreditAmount = parseInt(booking.price);
-
-      // Get existing user credit
-      const existingCreditAmount = (await this.knex.select("credit_amount").from("users").where({ id: userId }))[0]?.credit_amount;
-
-      // Transaction 1: Update the booking status
-      await txn("booking").where({ reference_no: bookingReferenceNo, user_id: userId }).update({ status: "canceled" });
-
-      // Transaction 2: Update user's total credit
-      const updatedCredit = parseInt(existingCreditAmount) + refundCreditAmount;
-
-      await txn("users").where({ id: userId }).update({ credit_amount: updatedCredit });
-
-      // Transaction 3: Log credit change
-      await txn("credit_audit_log").insert({
-        user_id: userId,
-        description: "預約取消，退回積分",
-        booking_reference_no: bookingReferenceNo,
-        action: "add",
-        credit_amount: updatedCredit,
-      });
-
-      // Step 7: Commit the transaction
-      await txn.commit();
-      return { success: true };
-    } catch (error) {
-      await txn.rollback(); // Rollback in case of an error
-      return handleError(error, "server") as ActionResponse;
-    }
-  }
-
   async submitBookingReview(bookingReference: string, userId: string, data: reviewFormData) {
     const txn = await this.knex.transaction(); // Start transaction
     try {
@@ -586,7 +540,6 @@ export class BookingService {
       return handleError(error, "server") as ActionResponse;
     }
   }
-
   //Get Studio Door Password
   async getDoorPasswordForBooking(studioId: string) {
     try {
@@ -621,6 +574,133 @@ export class BookingService {
         error: { message: "無法取得大門密碼，請聯絡場地以取得密碼。" },
         errorStatus: 500,
       };
+    }
+  }
+
+  /**
+   * Return Booking List Based on Role and Status
+   * If userId exist, then it will return relevant booking information to particular user
+   * If studioId exist, then it will return relevant booking information to particular studio
+   */
+
+  async getBookingListByRoleAndStatus({ userId, studioId, bookingType }: { userId?: string; studioId?: string; bookingType: string }) {
+    try {
+      let query = this.knex.select().from("booking");
+
+      if (userId) {
+        query = query
+          .select(
+            "studio.id as studio_id",
+            "studio.logo as studio_logo",
+            "studio.slug as studio_slug",
+            "studio.name as studio_name",
+            "studio.address as studio_address",
+            "studio.phone as studio_contact",
+            "booking.reference_no as booking_reference_no",
+            "booking.price",
+            "booking.actual_payment",
+            "booking.credit_redeem_payment",
+            "booking.date as booking_date",
+            "booking.start_time",
+            "booking.end_time",
+            "booking.remarks",
+            "booking.has_reviewed"
+          )
+          .leftJoin("studio", "booking.studio_id", "studio.id")
+          .where({ "booking.user_id": userId });
+      } else if (studioId) {
+        query = query
+          .select(
+            "booking.studio_id",
+            "booking.reference_no as booking_reference_no",
+            "booking.price",
+            "booking.date as booking_date",
+            "booking.start_time",
+            "booking.end_time",
+            "booking.remarks",
+            "booking.status",
+            "users.name as user_name",
+            "booking.whatsapp as user_phone"
+          )
+          .leftJoin("users", "booking.user_id", "users.id")
+          .where({ "booking.studio_id": studioId });
+      }
+
+      // Apply booking type filter using a reusable function
+      query = bookingStatusService.applyBookingStatusFilter(query, bookingType);
+      // Order by booking date
+      query = query.orderBy("booking.date", "desc");
+
+      const bookingRecords = await query;
+
+      const bookingsRecordsWithStatus = bookingRecords.map((booking) => ({
+        ...booking,
+        status: bookingType,
+      }));
+
+      return {
+        success: true,
+        data: bookingsRecordsWithStatus,
+      };
+    } catch (error) {
+      console.dir(error);
+      return handleError(error, "server") as ActionResponse;
+    }
+  }
+
+  /* -------------- Handle Booking Cancellation by User / Studio -------------- */
+  async cancelBookingAndRefundCredit({ userId, studioId, bookingReferenceNo, role }: { userId?: string; studioId?: string; bookingReferenceNo: string; role: "user" | "studio" }) {
+    const txn = await this.knex.transaction(); // Start transaction
+    try {
+      let booking;
+
+      if (role === "user" && userId) {
+        booking = await this.knex("booking").where({ reference_no: bookingReferenceNo, user_id: userId }).first();
+      }
+
+      if (role === "studio" && studioId) {
+        booking = await this.knex("booking").where({ reference_no: bookingReferenceNo, studio_id: studioId }).first();
+      }
+
+      // If no booking found, throw an error
+      if (!booking) {
+        throw new NotFoundError("預約");
+      }
+
+      // Check if the booking is already canceled
+      if (booking.status === "canceled") {
+        throw new ForbiddenError("預約已取消。");
+      }
+
+      // Get existing booking price
+      const refundCreditAmount = parseInt(booking.price);
+
+      // Get existing user credit
+      const existingCreditAmount = (await this.knex.select("credit_amount").from("users").where({ id: booking.user_id }))[0]?.credit_amount;
+
+      // Transaction 1: Update the booking status
+      await txn("booking").where({ reference_no: bookingReferenceNo }).update({ status: "canceled" });
+
+      // Transaction 2: Update user's total credit
+      const updatedCredit = parseInt(existingCreditAmount) + refundCreditAmount;
+
+      await txn("users").where({ id: booking.user_id }).update({ credit_amount: updatedCredit });
+
+      // Transaction 3: Log credit change
+      await txn("credit_audit_log").insert({
+        user_id: booking.user_id,
+        description: `${role === "user" ? "用戶" : "場地"}取消預約，退回積分`,
+        booking_reference_no: bookingReferenceNo,
+        action: "add",
+        credit_amount: refundCreditAmount,
+      });
+
+      // Step 7: Commit the transaction
+      await txn.commit();
+      return { success: true };
+    } catch (error) {
+      await txn.rollback(); // Rollback in case of an error
+      return handleError(error, "server") as ActionResponse;
     }
   }
 }
