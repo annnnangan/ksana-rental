@@ -27,7 +27,11 @@ export async function middleware(req: NextRequest) {
 
   // Redirect unauthenticated users away from private routes
   if (!isLoggedIn && !isPublicRoute) {
-    return NextResponse.redirect(new URL("/auth/login", nextUrl));
+    // Store the current URL in the query parameter `redirectTo`
+    const redirectUrl = new URL("/auth/login", nextUrl.origin);
+    redirectUrl.searchParams.set("redirect", nextUrl.pathname + nextUrl.search);
+
+    return NextResponse.redirect(redirectUrl);
   }
 
   return NextResponse.next();
