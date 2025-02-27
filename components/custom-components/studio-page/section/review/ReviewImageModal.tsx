@@ -1,15 +1,11 @@
 "use client";
 import { Button } from "@/components/shadcn/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/shadcn/dialog";
-import { CircleX, Grid2x2 } from "lucide-react";
-import GallerySlideshow from "../../gallery/GallerySlideshow";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/shadcn/dialog";
+import { CircleX } from "lucide-react";
+
 import { ReviewUserProfile } from "./ReviewSection";
 import AvatarWithFallback from "@/components/custom-components/AvatarWithFallback";
+import GallerySlideshow from "@/components/custom-components/studio-page/gallery/GallerySlideshow";
 
 interface Props {
   isOpen: boolean;
@@ -18,12 +14,7 @@ interface Props {
   userProfile: ReviewUserProfile;
 }
 
-const ReviewImageModal = ({
-  isOpen,
-  onCloseModal,
-  images,
-  userProfile,
-}: Props) => {
+const ReviewImageModal = ({ isOpen, onCloseModal, images, userProfile }: Props) => {
   return (
     <Dialog open={isOpen}>
       <DialogContent className="flex flex-col w-full max-w-6xl h-[90vh] overflow-hidden rounded-lg p-4">
@@ -32,11 +23,7 @@ const ReviewImageModal = ({
             <div className="flex items-center gap-x-2">
               <DialogTitle>
                 <div className="flex gap-3 items-center">
-                  <AvatarWithFallback
-                    size="xs"
-                    avatarUrl={userProfile.icon}
-                    type={"user"}
-                  />
+                  <AvatarWithFallback size="xs" avatarUrl={userProfile.icon} type={"user"} />
                   <div>
                     <p className="font-bold text-md">{userProfile.name}</p>
                   </div>
