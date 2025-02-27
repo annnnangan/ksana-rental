@@ -1,49 +1,37 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  DefaultValues,
-  FieldValues,
-  Path,
-  SubmitHandler,
-  useForm,
-  UseFormReturn,
-} from "react-hook-form";
+import { DefaultValues, FieldValues, Path, SubmitHandler, useForm, UseFormReturn } from "react-hook-form";
 import { ZodType } from "zod";
 
 import { Button } from "@/components/shadcn/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/shadcn/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/shadcn/form";
 import { Input } from "@/components/shadcn/input";
 import { AUTH_FIELD_NAMES, AUTH_FIELD_TYPES } from "@/lib/constants/auth";
 import Link from "next/link";
 import { useState, useTransition } from "react";
 import AuthResponse from "./AuthResponse";
 import { SocialLogin } from "./SocialLogin";
+import { DEFAULT_LOGIN_REDIRECT } from "@/lib/next-auth-config/routes";
 
 interface Props<T extends FieldValues> {
   schema: ZodType<T>;
   defaultValues: T;
-  onSubmit: (data: T) => Promise<{
+  onSubmit: (
+    data: T,
+    redirect?: string
+  ) => Promise<{
     success: boolean;
     data?: { message: string };
     error?: { message: string };
   }>;
   type: "LOGIN" | "REGISTER";
+  isModal: boolean;
+  handleSwitchForm?: () => void;
+  callbackUrl?: string;
 }
 
-const AuthForm = <T extends FieldValues>({
-  type,
-  schema,
-  defaultValues,
-  onSubmit,
-}: Props<T>) => {
+const AuthForm = <T extends FieldValues>({ type, schema, defaultValues, onSubmit, isModal = false, handleSwitchForm, callbackUrl }: Props<T>) => {
   // const router = useRouter();
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
@@ -59,8 +47,11 @@ const AuthForm = <T extends FieldValues>({
   const handleSubmit: SubmitHandler<T> = async (values) => {
     setError("");
     setSuccess("");
+    // Default callbackUrl to be passed if it's not provided
+    const url = callbackUrl || DEFAULT_LOGIN_REDIRECT;
+
     startTransition(() => {
-      onSubmit(values).then((data) => {
+      onSubmit(values, url).then((data) => {
         setError(data?.error?.message);
         setSuccess(data?.data?.message);
       });
@@ -70,38 +61,35 @@ const AuthForm = <T extends FieldValues>({
   return (
     <div className="flex flex-col gap-4">
       <div className="flex gap-5 flex-wrap">
-        <h1 className="text-2xl font-semibold">
-          {isLogin ? "歡迎回來Ksana" : "創建帳號"}
-        </h1>
+        <h1 className="text-2xl font-semibold">{isLogin ? "歡迎回來Ksana" : "創建帳號"}</h1>
         <p className="text-center text-sm text-gray-400">
           {isLogin ? "還未有帳號？ " : "已有帳號? "}
-          <Button variant="link" type="button" className="p-0">
-            <Link
-              href={isLogin ? "/auth/register" : "/auth/login"}
-              className="font-bold text-primary"
-            >
+          {!isModal && (
+            <Button variant="link" type="button" className="p-0">
+              <Link href={isLogin ? "/auth/register" : "/auth/login"} className="font-bold text-primary">
+                {isLogin ? "快速註冊" : "馬上登入"}
+              </Link>
+            </Button>
+          )}
+
+          {isModal && (
+            <Button variant="link" type="button" className="p-0" onClick={handleSwitchForm}>
               {isLogin ? "快速註冊" : "馬上登入"}
-            </Link>
-          </Button>
+            </Button>
+          )}
         </p>
       </div>
       <div className="my-3">
-        <SocialLogin />
+        <SocialLogin callbackUrl={callbackUrl} />
       </div>
 
       <div className="flex items-center justify-center gap-3">
-        <span className="flex-1 border-t border-gray-300"></span>{" "}
-        <p className="text-gray-400 text-center">
-          {isLogin ? "或使用電郵密碼登入" : "或填寫以下資料創建帳號。"}
-        </p>
+        <span className="flex-1 border-t border-gray-300"></span> <p className="text-gray-400 text-center">{isLogin ? "或使用電郵密碼登入" : "或填寫以下資料創建帳號。"}</p>
         <span className="flex-1 border-t border-gray-300"></span>{" "}
       </div>
 
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(handleSubmit)}
-          className="w-full space-y-6"
-        >
+        <form onSubmit={form.handleSubmit(handleSubmit)} className="w-full space-y-6">
           {Object.keys(defaultValues).map((field) => (
             <FormField
               key={field}
@@ -109,23 +97,9 @@ const AuthForm = <T extends FieldValues>({
               name={field as Path<T>}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="capitalize">
-                    {
-                      AUTH_FIELD_NAMES[
-                        field.name as keyof typeof AUTH_FIELD_NAMES
-                      ]
-                    }
-                  </FormLabel>
+                  <FormLabel className="capitalize">{AUTH_FIELD_NAMES[field.name as keyof typeof AUTH_FIELD_NAMES]}</FormLabel>
                   <FormControl>
-                    <Input
-                      disabled={isPending}
-                      type={
-                        AUTH_FIELD_TYPES[
-                          field.name as keyof typeof AUTH_FIELD_TYPES
-                        ]
-                      }
-                      {...field}
-                    />
+                    <Input disabled={isPending} type={AUTH_FIELD_TYPES[field.name as keyof typeof AUTH_FIELD_TYPES]} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

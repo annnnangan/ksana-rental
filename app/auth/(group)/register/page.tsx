@@ -16,6 +16,7 @@ const RegisterPage = () => {
         confirmPassword: "",
       }}
       onSubmit={register}
+      isModal={false}
     />
   );
 };

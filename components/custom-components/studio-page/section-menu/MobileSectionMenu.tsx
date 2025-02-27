@@ -1,14 +1,7 @@
 "use client";
-import { Button } from "@/components/shadcn/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/shadcn/select";
-import Link from "next/link";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/shadcn/select";
 import { useEffect, useState } from "react";
+import BookNowButton from "../BookNowButton";
 
 const sectionItemList = [
   {
@@ -38,9 +31,7 @@ const sectionItemList = [
 ];
 
 const MobileSectionMenu = () => {
-  const [activeSection, setActiveSection] = useState(
-    sectionItemList[0].sectionId
-  );
+  const [activeSection, setActiveSection] = useState(sectionItemList[0].sectionId);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -81,21 +72,11 @@ const MobileSectionMenu = () => {
           <SelectValue placeholder="Select a section" />
         </SelectTrigger>
         <div className="absolute top-1.5 right-2 ">
-          <Button>
-            <Link href="/booking/date-time">立即預約</Link>
-          </Button>
+          <BookNowButton />
         </div>
         <SelectContent>
           {sectionItemList.map((section) => (
-            <SelectItem
-              key={section.sectionId}
-              value={section.sectionId}
-              className={
-                activeSection === section.sectionId
-                  ? "text-primary font-bold"
-                  : ""
-              }
-            >
+            <SelectItem key={section.sectionId} value={section.sectionId} className={activeSection === section.sectionId ? "text-primary font-bold" : ""}>
               {section.title}
             </SelectItem>
           ))}

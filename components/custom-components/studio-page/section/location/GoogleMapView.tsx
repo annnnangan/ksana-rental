@@ -1,5 +1,6 @@
 "use client";
-import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
+import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
+
 import { Coordinates } from "./LocationSection";
 
 interface Props {
@@ -12,16 +13,20 @@ const containerStyle = {
 };
 
 const GoogleMapView = ({ coordinates }: Props) => {
+  const { isLoaded } = useJsApiLoader({
+    id: "google-map-script",
+    googleMapsApiKey: process.env.NEXT_PUBLIC_MAPS_API_KEY!,
+    libraries: ["geometry", "drawing"],
+  });
+
   return (
-    <LoadScript googleMapsApiKey={process.env.NEXT_PUBLIC_MAPS_API_KEY!}>
-      <GoogleMap
-        mapContainerStyle={containerStyle}
-        center={coordinates}
-        zoom={20}
-      >
-        <Marker position={coordinates} />
-      </GoogleMap>
-    </LoadScript>
+    <>
+      {isLoaded && (
+        <GoogleMap mapContainerStyle={containerStyle} center={coordinates} zoom={20}>
+          <Marker position={coordinates} />
+        </GoogleMap>
+      )}
+    </>
   );
 };
 

@@ -1,13 +1,9 @@
 "use client";
 import StudioImage from "@/components/custom-components/studio/StudioImage";
 import { Button } from "@/components/shadcn/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/shadcn/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/shadcn/dialog";
 import { CircleX, GalleryThumbnails } from "lucide-react";
+import BookNowButton from "../BookNowButton";
 
 interface Props {
   isOpenListModal: boolean;
@@ -16,12 +12,7 @@ interface Props {
   images: string[];
 }
 
-const GalleryListModal = ({
-  isOpenListModal,
-  onCloseListModal,
-  openSlideshowModal,
-  images,
-}: Props) => {
+const GalleryListModal = ({ isOpenListModal, onCloseListModal, openSlideshowModal, images }: Props) => {
   return (
     <>
       <Dialog open={isOpenListModal}>
@@ -30,24 +21,16 @@ const GalleryListModal = ({
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-x-2">
                 <DialogTitle>所有圖片</DialogTitle>
-                <Button
-                  variant="outline"
-                  className="rounded-full"
-                  onClick={openSlideshowModal}
-                >
+                <Button variant="outline" className="rounded-full" onClick={openSlideshowModal}>
                   <GalleryThumbnails />
                   <span className="hidden md:inline">Slideshow</span>
                 </Button>
               </div>
 
               <div className="flex items-center gap-x-2">
-                <Button type="button">立即預約</Button>
+                <BookNowButton />
 
-                <Button
-                  type="button"
-                  variant="ghost"
-                  onClick={onCloseListModal}
-                >
+                <Button type="button" variant="ghost" onClick={onCloseListModal}>
                   <CircleX />
                 </Button>
               </div>
@@ -55,11 +38,7 @@ const GalleryListModal = ({
           </DialogHeader>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3 overflow-y-auto p-4">
             {images.map((image) => (
-              <StudioImage
-                onClick={openSlideshowModal}
-                imageUrl={image}
-                key={image}
-              />
+              <StudioImage onClick={openSlideshowModal} imageUrl={image} key={image} />
             ))}
           </div>
         </DialogContent>

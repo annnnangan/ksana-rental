@@ -1,14 +1,10 @@
 "use client";
 import { Button } from "@/components/shadcn/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/shadcn/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/shadcn/dialog";
 import { CircleX } from "lucide-react";
 import GallerySlideshow from "./GallerySlideshow";
 import { Grid2x2 } from "lucide-react";
+import BookNowButton from "../BookNowButton";
 
 interface Props {
   isOpen: boolean;
@@ -17,12 +13,7 @@ interface Props {
   images: string[];
 }
 
-const GallerySlideshowModal = ({
-  isOpen,
-  onCloseModal,
-  openListModal,
-  images,
-}: Props) => {
+const GallerySlideshowModal = ({ isOpen, onCloseModal, openListModal, images }: Props) => {
   return (
     <Dialog open={isOpen}>
       <DialogContent className="flex flex-col w-full max-w-6xl h-[90vh] overflow-hidden rounded-lg p-4">
@@ -30,17 +21,13 @@ const GallerySlideshowModal = ({
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-x-2">
               <DialogTitle>所有圖片</DialogTitle>
-              <Button
-                variant="outline"
-                className="rounded-full"
-                onClick={openListModal}
-              >
+              <Button variant="outline" className="rounded-full" onClick={openListModal}>
                 <Grid2x2 /> <span className="hidden md:inline">Gallery</span>
               </Button>
             </div>
 
             <div className="flex items-center gap-x-2">
-              <Button type="button">立即預約</Button>
+              <BookNowButton />
               <Button type="button" variant="ghost" onClick={onCloseModal}>
                 <CircleX />
               </Button>

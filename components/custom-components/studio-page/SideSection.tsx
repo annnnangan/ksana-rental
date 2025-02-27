@@ -1,6 +1,5 @@
-import { Button } from "@/components/shadcn/button";
-import Link from "next/link";
 import React from "react";
+import BookNowButton from "./BookNowButton";
 
 interface Props {
   peakHourPrice: number;
@@ -21,9 +20,7 @@ const SideSection = ({ peakHourPrice, nonPeakHourPrice }: Props) => {
           <p className="text-lg">HK$ {[[nonPeakHourPrice]]}</p>
         </div>
       </div>
-      <Button type="button" className="w-full">
-        <Link href="/booking/date-time?studio=">立即預約</Link>
-      </Button>
+      <BookNowButton />
     </div>
   );
 };

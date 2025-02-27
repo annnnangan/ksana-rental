@@ -6,6 +6,7 @@ import { CircleX } from "lucide-react";
 import { ReviewUserProfile } from "./ReviewSection";
 import AvatarWithFallback from "@/components/custom-components/AvatarWithFallback";
 import GallerySlideshow from "@/components/custom-components/studio-page/gallery/GallerySlideshow";
+import BookNowButton from "../../BookNowButton";
 
 interface Props {
   isOpen: boolean;
@@ -32,7 +33,7 @@ const ReviewImageModal = ({ isOpen, onCloseModal, images, userProfile }: Props) 
             </div>
 
             <div className="flex items-center gap-x-2">
-              <Button type="button">立即預約</Button>
+              <BookNowButton />
               <Button type="button" variant="ghost" onClick={onCloseModal}>
                 <CircleX />
               </Button>
