@@ -6,7 +6,7 @@ import classNames from "classnames";
 interface Props {
   isBooked: boolean;
   priceType: PriceType;
-  startTime: number;
+  startTime: number | string;
   isSelected: boolean;
   onSelect: () => void;
 }
@@ -32,7 +32,7 @@ const Timeslot = ({ isBooked, priceType, startTime, isSelected, onSelect }: Prop
   });
 
   return (
-    <Button variant={isSelected ? "default" : "outline"} disabled={isBooked} className={buttonClass} onClick={onSelect}>
+    <Button variant={isSelected ? "default" : "outline"} disabled={isBooked} className={buttonClass} onClick={onSelect} type="button">
       <span className={dotClass}></span>
       {startTime}
     </Button>
