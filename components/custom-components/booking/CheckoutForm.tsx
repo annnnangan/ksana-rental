@@ -1,29 +1,31 @@
 "use client";
 
 import convertToSubcurrency from "@/lib/utils/convert-to-subcurrency-utils";
-import { Box, Button, Flex, Spinner } from "@radix-ui/themes";
-import {
-  PaymentElement,
-  useElements,
-  useStripe,
-} from "@stripe/react-stripe-js";
+import { PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import { useRouter } from "next/navigation";
 
+import { useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import SubmitButton from "../buttons/SubmitButton";
+import LoadingSpinner from "../loading/LoadingSpinner";
+
 interface Props {
-  price: number;
-  bookingReferenceNumber: string;
+  amount: number;
 }
 
-const CheckoutForm = ({ price, bookingReferenceNumber }: Props) => {
+const CheckoutForm = ({ amount }: Props) => {
+  const searchParams = useSearchParams();
+  const bookingReferenceNumber = searchParams.get("booking");
   const router = useRouter();
   const stripe = useStripe();
   const elements = useElements();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [errorMessage, setErrorMessage] = useState<string>();
   const [clientSecret, setClientSecret] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Create payment intent
   useEffect(() => {
     fetch("/api/booking/create-payment-intent", {
       method: "POST",
@@ -31,14 +33,14 @@ const CheckoutForm = ({ price, bookingReferenceNumber }: Props) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        price: convertToSubcurrency(price),
-        bookingReferenceNumber: bookingReferenceNumber,
+        price: convertToSubcurrency(amount),
       }),
     })
       .then((res) => res.json())
       .then((data) => setClientSecret(data.clientSecret));
-  }, [price]);
+  }, [amount]);
 
+  // User submit payment
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setLoading(true);
@@ -61,7 +63,7 @@ const CheckoutForm = ({ price, bookingReferenceNumber }: Props) => {
         elements,
         clientSecret,
         confirmParams: {
-          return_url: `${origin}/booking/payment-success`,
+          return_url: `${origin}/booking/success`,
         },
         redirect: "if_required",
       });
@@ -70,6 +72,7 @@ const CheckoutForm = ({ price, bookingReferenceNumber }: Props) => {
         throw new Error("系統錯誤，請重試。");
       }
 
+      // Get Payment Status and Returned Stripe Payment ID
       const paymentStatus = result.paymentIntent.status;
       const stripePaymentId = result.paymentIntent.id;
 
@@ -77,23 +80,20 @@ const CheckoutForm = ({ price, bookingReferenceNumber }: Props) => {
         throw new Error("付款失敗，請重試。");
       }
 
+      // If payment is success, update the booking status to confirmed
       if (paymentStatus === "succeeded") {
-        const response = await fetch(
-          `/api/booking/payment/${bookingReferenceNumber}`,
-          {
-            method: "PATCH",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ paymentStatus, stripePaymentId }),
-          }
-        );
+        const response = await fetch(`/api/booking/payment/${bookingReferenceNumber}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ paymentStatus, stripePaymentId }),
+        });
         const res = await response.json();
+        // Redirect user to the success page
         if (res.success) {
           router.refresh();
-          router.push(
-            `/booking/payment-success?booking=${bookingReferenceNumber}`
-          );
+          router.push(`/booking/success?booking=${bookingReferenceNumber}`);
         }
       }
     } catch (error) {
@@ -103,33 +103,19 @@ const CheckoutForm = ({ price, bookingReferenceNumber }: Props) => {
         type: "error",
         autoClose: 1000,
       });
-      router.refresh();
+      router.push(`/`);
     }
     setLoading(false);
   };
 
   if (!clientSecret || !stripe || !elements) {
-    return (
-      <Flex display="flex" justify="center" align="center">
-        <Spinner />
-      </Flex>
-    );
+    return <LoadingSpinner height={"h-[100px]"} />;
   }
 
   return (
     <form onSubmit={handleSubmit}>
       {clientSecret && <PaymentElement />}
-      {errorMessage && <div>{errorMessage}</div>}
-
-      <Box mt="5">
-        <Button disabled={!stripe || loading} style={{ width: "100%" }}>
-          {!loading ? (
-            `Pay $${price}`
-          ) : (
-            <Spinner loading>Processing...</Spinner>
-          )}
-        </Button>
-      </Box>
+      <SubmitButton isSubmitting={!stripe || loading} submittingText="付款處理中" nonSubmittingText={`付款HK$ ${amount}`} className="w-full" />
     </form>
   );
 };

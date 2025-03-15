@@ -1,4 +1,4 @@
-import { bookingService } from "@/services/BookingService";
+import { bookingService } from "@/services/booking/BookingService";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest, props: { params: Promise<{ slug: string }> }) {

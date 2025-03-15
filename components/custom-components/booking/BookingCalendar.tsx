@@ -4,26 +4,24 @@ import { Calendar } from "@/components/shadcn/calendar";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/shadcn/card";
 import { Switch } from "@/components/shadcn/switch";
 import AvatarWithFallback from "../AvatarWithFallback";
+import SubmitButton from "../buttons/SubmitButton";
+import ErrorMessage from "../ErrorMessage";
 import Timeslot from "./Timeslot";
 
-import { CalendarCheck2, Clock10, X } from "lucide-react";
+import { CalendarCheck2, Clock10, MapPinHouse, X } from "lucide-react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
 import classNames from "classnames";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
 
+import { calculateBookingEndTime } from "@/lib/utils/date-time/date-time-utils";
 import { formatDate } from "@/lib/utils/date-time/format-date-utils";
 import { BookingDateTimeSelectFormData, BookingDateTimeSelectSchema } from "@/lib/validations/zod-schema/booking-schema";
 import { PriceType } from "@/services/model";
 import useBookingStore from "@/stores/BookingStore";
-import SubmitButton from "../buttons/SubmitButton";
-import ErrorMessage from "../ErrorMessage";
-import { useSessionUser } from "@/hooks/use-session-user";
-import { toast } from "react-toastify";
-import { calculateBookingEndTime } from "@/lib/utils/date-time/date-time-utils";
 
 const timeslotsResult = [
   {
@@ -78,8 +76,24 @@ const timeslotsResult = [
 
 const availableCredit = 50;
 
-const BookingCalendar = () => {
+const BookingCalendar = ({
+  bookingStudioBasicInfo,
+}: {
+  bookingStudioBasicInfo: {
+    name: string;
+    slug: string;
+    logo: string;
+    cover_photo: string;
+    district: string;
+    address: string;
+    min_price: number;
+    number_of_review: number;
+    number_of_completed_booking: number;
+    rating: number;
+  };
+}) => {
   const router = useRouter();
+
   const [startMonth, setStartMonth] = useState<Date>();
   const [endMonth, setEndMonth] = useState<Date>();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -95,10 +109,10 @@ const BookingCalendar = () => {
   } = useForm({
     resolver: zodResolver(BookingDateTimeSelectSchema),
     defaultValues: {
-      studioSlug: "soul-yogi-studio",
-      studioAddress: "1234455463464",
-      studioName: "Soul Yogi Studio",
-      studioLogo: "https://images.unsplash.com/photo-1740507619572-ac180ca2630f?q=80&w=1487&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      studioSlug: bookingStudioBasicInfo.slug,
+      studioAddress: bookingStudioBasicInfo.address,
+      studioName: bookingStudioBasicInfo.name,
+      studioLogo: bookingStudioBasicInfo.logo,
       date: new Date(),
       startTime: "",
       isUsedCredit: false,
@@ -144,7 +158,7 @@ const BookingCalendar = () => {
     setEndMonth(new Date(today.getFullYear(), today.getMonth() + 3, 0));
   }, []);
 
-  const onSubmit = (data: BookingDateTimeSelectFormData) => {
+  const onSubmit = async (data: BookingDateTimeSelectFormData) => {
     setBookingInfo({
       studioName: data.studioName,
       studioSlug: data.studioSlug,
@@ -157,7 +171,8 @@ const BookingCalendar = () => {
       paidAmount: data.paidAmount,
       usedCredit: data.usedCredit,
     });
-    router.push("/booking/confirmation");
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    router.push("/booking/confirmation"); // Wait for navigation
   };
 
   return (
@@ -210,8 +225,12 @@ const BookingCalendar = () => {
             </div>
             <div className="bg-gray-50 py-5 px-4 rounded-xl shadow space-y-5">
               <div className="flex items-center gap-2">
-                <AvatarWithFallback avatarUrl={null} type={"studio"} />
-                <p>場地名字</p>
+                <AvatarWithFallback avatarUrl={bookingStudioBasicInfo.logo} type={"studio"} />
+                <p className="font-bold">{bookingStudioBasicInfo.name}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <MapPinHouse size={20} />
+                <p>場地地址：{bookingStudioBasicInfo.address}</p>
               </div>
               <div className="flex items-center gap-2">
                 <CalendarCheck2 size={20} />
@@ -219,9 +238,7 @@ const BookingCalendar = () => {
               </div>
               <div className="flex items-center gap-2">
                 <Clock10 size={20} />
-                <p>
-                  預約時間：{startTimeWatch} - {calculateBookingEndTime(startTimeWatch)}
-                </p>
+                <p>預約時間：{startTimeWatch ? `${startTimeWatch} - ${calculateBookingEndTime(startTimeWatch)}` : "---"}</p>
               </div>
             </div>
           </div>
@@ -231,11 +248,11 @@ const BookingCalendar = () => {
           {/* Order Information - Mobile - Sticky bottom banner */}
           <div className="fixed bottom-0 left-0 w-full bg-white border-t-2 rounded-t-xl z-10 shadow-lg p-4 flex justify-between items-center h-16 lg:hidden">
             <p className="text-lg font-bold">HK$ {startTimeWatch ? paidAmountWatch : "---"}</p>
-            <div className="flex gap-2">
+            <div className="flex justify-center items-center gap-2">
               <Button variant="outline" onClick={() => setIsDrawerOpen((prev) => !prev)} type="button">
                 詳情
               </Button>
-              <Button className="w-24">下一步</Button>
+              <SubmitButton isSubmitting={isSubmitting} submittingText={"處理中..."} nonSubmittingText={"下一步"} withIcon={false} className="w-full mb-5" />
             </div>
           </div>
 

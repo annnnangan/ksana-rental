@@ -1,15 +1,14 @@
-import { Tbooking, TbookingPhoneRemarks } from "@/lib/validations/zod-schema/booking-schema";
+import { calculateBookingEndTime, convertStringToTime, isPastDate, isPastDateTime } from "@/lib/utils/date-time/date-time-utils";
+import { BookingFormData } from "@/lib/validations/zod-schema/booking-schema";
 import { knex } from "@/services/knex";
-import { calculateBookingEndTime, convertStringToTime, isPastDate, isPastDateTime, isTimeInRange } from "@/lib/utils/date-time/date-time-utils";
 
-import { compareAsc, getDate, getDay } from "date-fns";
-import { Knex } from "knex";
-import { ForbiddenError, NotFoundError, RequestError, UnauthorizedError } from "@/lib/http-errors";
 import handleError from "@/lib/handlers/error";
-import { BookingStatus } from "./model";
+import { ForbiddenError, NotFoundError, RequestError, UnauthorizedError } from "@/lib/http-errors";
 import { reviewFormData } from "@/lib/validations/zod-schema/review-booking-schema";
-import { validateStudioService } from "./studio/ValidateStudio";
-import { bookingStatusService } from "./booking/BookingStatusService";
+import { Knex } from "knex";
+import { validateStudioService } from "../studio/ValidateStudio";
+import { bookingStatusService } from "./BookingStatusService";
+import { validateBookingService } from "./ValidateBookingService";
 
 const dayOfWeekList = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
@@ -88,17 +87,7 @@ export class BookingService {
     }
   }
 
-  async getStudioNameAddress(studioSlug: string) {
-    const studioId = (await this.knex.select("id").from("studio").where("slug", studioSlug))[0]?.id;
-
-    if (!studioId) return { success: false, msg: "Studio doesn't exist.", status: 404 };
-
-    return {
-      success: true,
-      data: await this.knex.select("name", "address").from("studio").where("slug", studioSlug),
-    };
-  }
-
+  /* ---------------------- Generate Available Timeslots ---------------------- */
   async getBusinessHourAndPriceType(dayOfWeek: number, studioSlug: string) {
     // todo: use slug to match the studio id
     const studioId = (await this.knex.select("id").from("studio").where("slug", studioSlug))[0]?.id;
@@ -167,86 +156,6 @@ export class BookingService {
     };
   }
 
-  async createBooking(bookingInfo: Tbooking, userId: number) {
-    try {
-      //1. Validate if the studio exist
-      const studioId = (await this.knex.select("id").from("studio").where("slug", bookingInfo.studio))[0]?.id;
-
-      if (!studioId) {
-        throw new NotFoundError("此場地");
-      }
-
-      //2. Validate if the selected date and time is not in the past
-      const isPastBookingDateTime = isPastDateTime(bookingInfo.date, bookingInfo.startTime);
-
-      if (isPastBookingDateTime) {
-        throw new Error("你所選擇之日期時間已過。");
-      }
-
-      //3. Validate if the selected date and time is available for booking
-      //3a. check if it is inside the booking table with status = confirm & pending for payment -> if yes throw error
-      const isBooked = (
-        await this.knex
-          .select("id")
-          .from("booking")
-          .where("date", bookingInfo.date)
-          .andWhere("start_time", bookingInfo.startTime)
-          .andWhere("studio_id", studioId)
-          .andWhere(function () {
-            this.whereIn("status", ["confirm", "complete", "pending for payment"]);
-          })
-      )[0]?.id;
-
-      if (isBooked) {
-        throw new Error("你所選擇之日期時間已被預約。");
-      }
-      //3b. check if it is within the business hour
-      const businessHours = await this.knex
-        .select("open_time", "end_time", "is_closed")
-        .from("studio_business_hour")
-        .where("day_of_week", dayOfWeekList[getDay(bookingInfo.date)])
-        .andWhere("studio_id", studioId);
-
-      if (businessHours[0]["is_closed"] || !isTimeInRange(bookingInfo.startTime, businessHours)) {
-        throw new Error("你所選擇之日期時間不在營業時間內。");
-      }
-
-      //3c. check if it is inside the timeblock table -> if yes -> throw error
-      const timeblockList = await this.knex.select("start_time as open_time", "end_time").from("studio_timeblock").where("date", bookingInfo.date).andWhere("studio_id", studioId);
-
-      if (timeblockList.length > 0 && isTimeInRange(bookingInfo.startTime, timeblockList)) {
-        throw new Error("你所選擇之日期時間不在營業時間內。");
-      }
-
-      const insertedData = await this.knex
-        .insert({
-          user_id: userId,
-          studio_id: studioId,
-          date: new Date(bookingInfo.date),
-          start_time: convertStringToTime(bookingInfo.startTime),
-          end_time: convertStringToTime(calculateBookingEndTime(bookingInfo.startTime)),
-          price: bookingInfo.price,
-          whatsapp: bookingInfo.whatsapp,
-          remarks: bookingInfo.remarks,
-          status: "pending for payment",
-          is_complaint: false,
-        })
-        .into("booking")
-        .returning("reference_no");
-
-      return {
-        success: true,
-        data: insertedData[0],
-      };
-    } catch (error) {
-      if (error instanceof RequestError) {
-        throw error;
-      } else {
-        throw new RequestError(500, error instanceof Error ? error.message : "An unknown error occurred");
-      }
-    }
-  }
-
   async getBookingStatus(bookingReference: string, userId: number) {
     try {
       const bookingStatus = (await this.knex.select("status").from("booking").where("reference_no", bookingReference).andWhere("user_id", userId))[0]?.status;
@@ -258,119 +167,6 @@ export class BookingService {
       return {
         success: true,
         data: bookingStatus,
-      };
-    } catch (error) {
-      if (error instanceof RequestError) {
-        throw error;
-      } else {
-        throw new RequestError(500, error instanceof Error ? error.message : "An unknown error occurred");
-      }
-    }
-  }
-
-  async updateIsAcceptTnCValue(bookingReference: string, userId: number) {
-    try {
-      //check if this booking reference number belong to the user
-      const bookingReferenceResult = (await this.knex.select("status", "is_accept_tnc").from("booking").where("reference_no", bookingReference).andWhere("user_id", userId))[0];
-
-      //Throw error when no result return
-      if (bookingReferenceResult === undefined) {
-        throw new NotFoundError("此預約");
-      }
-
-      //check the booking reference status
-      if (bookingReferenceResult.status !== "pending for payment") {
-        throw new ForbiddenError("你的預約已過期/已完成，請重新預約。");
-      }
-
-      //If the reference number belongs to the user and the status is pending for payment
-      //Update the is_accept_tnc value from false to true
-      if (bookingReferenceResult.is_accept_tnc === false) {
-        await this.knex("booking").update("is_accept_tnc", true).where("reference_no", bookingReference).andWhere("user_id", userId);
-      }
-
-      return {
-        success: true,
-        message: "Successfully update the is_accept_tnc to true",
-        data: [],
-      };
-    } catch (error) {
-      if (error instanceof RequestError) {
-        throw error;
-      } else {
-        throw new RequestError(500, error instanceof Error ? error.message : "An unknown error occurred");
-      }
-    }
-  }
-
-  async getBookingInfo(bookingReference: string, userId: number) {
-    try {
-      //check if this booking reference number belong to the user
-      const bookingReferenceResult = (await this.knex.select("status", "is_accept_tnc").from("booking").where("reference_no", bookingReference).andWhere("user_id", userId))[0];
-
-      //Throw error when the booking reference doesn't exist
-      if (bookingReferenceResult === undefined) {
-        throw new NotFoundError("此預約");
-      }
-
-      //Throw error when the booking has been completed/canceled/expired
-      if (bookingReferenceResult.status !== "pending for payment") {
-        throw new ForbiddenError("你的預約已過期/已完成，請重新預約。");
-      }
-
-      //Get studio info when the booking reference number belongs to user and is pending for payment
-      const studioData = (
-        await this.knex
-          .select("studio.name", "studio.address", "booking.date", "booking.start_time", "booking.end_time", "booking.price", "booking.whatsapp", "booking.remarks")
-          .from("booking")
-          .leftJoin("studio", "booking.studio_id", "studio.id")
-          .where("booking.reference_no", bookingReference)
-          .andWhere("booking.user_id", userId)
-      )[0];
-      return {
-        success: true,
-        data: studioData,
-      };
-    } catch (error) {
-      if (error instanceof RequestError) {
-        throw error;
-      } else {
-        throw new RequestError(500, error instanceof Error ? error.message : "An unknown error occurred");
-      }
-    }
-  }
-
-  async updatePhoneRemarks(bookingReference: string, userId: number, bookingInfo: TbookingPhoneRemarks) {
-    try {
-      //check if this booking reference number belong to the user
-      const bookingReferenceResult = (await this.knex.select("status", "is_accept_tnc").from("booking").where("reference_no", bookingReference).andWhere("user_id", userId))[0];
-
-      //Throw error when the booking reference doesn't exist
-      if (bookingReferenceResult === undefined) {
-        throw new NotFoundError("此預約");
-      }
-
-      if (bookingReferenceResult["is_accept_tnc"] === false) {
-        throw new ForbiddenError("你還沒同意條款與細則。");
-      }
-
-      if (bookingReferenceResult.status !== "pending for payment") {
-        //Throw error when the booking has been completed/canceled/expired
-        throw new ForbiddenError("你的預約已過期/已完成，請重新預約。");
-      }
-
-      await this.knex("booking")
-        .update({
-          whatsapp: bookingInfo.whatsapp,
-          remarks: bookingInfo.remarks,
-        })
-        .where("reference_no", bookingReference)
-        .andWhere("user_id", userId);
-
-      return {
-        success: true,
-        message: "Whatsapp and remarks are updated successfully.",
-        data: [],
       };
     } catch (error) {
       if (error instanceof RequestError) {
@@ -395,11 +191,7 @@ export class BookingService {
         data: [],
       };
     } catch (error) {
-      if (error instanceof RequestError) {
-        throw error;
-      } else {
-        throw new RequestError(500, error instanceof Error ? error.message : "An unknown error occurred");
-      }
+      return handleError(error, "server") as ActionResponse;
     }
   }
 
@@ -540,6 +332,7 @@ export class BookingService {
       return handleError(error, "server") as ActionResponse;
     }
   }
+
   //Get Studio Door Password
   async getDoorPasswordForBooking(studioId: string) {
     try {
@@ -577,12 +370,209 @@ export class BookingService {
     }
   }
 
+  /* -------------------------------------------------- 💳 Create Booking ------------------------------------------------------------ */
+  // 1. Create pending for payment booking before going to payment page to on hold timeslots to avoid double booking
+  async createPendingForPaymentBooking(bookingInfo: BookingFormData, userId: string) {
+    try {
+      /* ---------------------- Validate if the studio exist ---------------------- */
+      const validationStudioResponse = await validateStudioService.validateIsStudioExistBySlug(bookingInfo.studioSlug);
+
+      if (!validationStudioResponse.success) {
+        return validationStudioResponse;
+      }
+
+      const studioId = validationStudioResponse.data?.studio_id;
+
+      /* -------- Validate if the selected date and time is not in the past ------- */
+      const isPastBookingDateTime = isPastDateTime(bookingInfo.date, bookingInfo.startTime);
+
+      if (isPastBookingDateTime) {
+        throw new ForbiddenError("你所選擇之預約日期時間已過。");
+      }
+
+      //TODO - Validate if the selected date and time is available for booking
+      //a. check if it is inside the booking table with status = confirm & pending for payment -> if yes throw error
+      // const isBooked = (
+      //   await this.knex
+      //     .select("id")
+      //     .from("booking")
+      //     .where("date", bookingInfo.date)
+      //     .andWhere("start_time", bookingInfo.startTime)
+      //     .andWhere("studio_id", studioId)
+      //     .andWhere(function () {
+      //       this.whereIn("status", ["confirm", "complete", "pending for payment"]);
+      //     })
+      // )[0]?.id;
+
+      // if (isBooked) {
+      //   throw new Error("你所選擇之日期時間已被預約。");
+      // }
+      //b. check if it is within the business hour
+      // const businessHours = await this.knex
+      //   .select("open_time", "end_time", "is_closed")
+      //   .from("studio_business_hour")
+      //   .where("day_of_week", dayOfWeekList[getDay(bookingInfo.date)])
+      //   .andWhere("studio_id", studioId);
+
+      // if (businessHours[0]["is_closed"] || !isTimeInRange(bookingInfo.startTime, businessHours)) {
+      //   throw new Error("你所選擇之日期時間不在營業時間內。");
+      // }
+
+      //c. check if it is inside the timeblock table -> if yes -> throw error
+      // const timeblockList = await this.knex.select("start_time as open_time", "end_time").from("studio_timeblock").where("date", bookingInfo.date).andWhere("studio_id", studioId);
+
+      // if (timeblockList.length > 0 && isTimeInRange(bookingInfo.startTime, timeblockList)) {
+      //   throw new Error("你所選擇之日期時間不在營業時間內。");
+      // }
+
+      const insertedData = await this.knex
+        .insert({
+          user_id: userId,
+          studio_id: studioId,
+          date: new Date(bookingInfo.date),
+          start_time: convertStringToTime(bookingInfo.startTime),
+          end_time: convertStringToTime(calculateBookingEndTime(bookingInfo.startTime)),
+          price: bookingInfo.price,
+          actual_payment: bookingInfo.paidAmount,
+          credit_redeem_payment: bookingInfo.usedCredit,
+          whatsapp: bookingInfo.phone,
+          remarks: bookingInfo.remarks,
+          status: "pending for payment",
+          is_complaint: false,
+        })
+        .into("booking")
+        .returning("reference_no");
+
+      return {
+        success: true,
+        data: insertedData[0],
+      };
+    } catch (error) {
+      console.dir(error);
+      return handleError(error, "server") as ActionResponse;
+    }
+  }
+
+  // 2. Get booking information for booking payment step
+  async getBookingInfoForPayment(bookingReference: string, userId: string) {
+    try {
+      // Validate if this booking reference number belong to the user
+      const validateIsBookingBelongUserResult = await validateBookingService.validateIsBookingBelongUser(bookingReference, userId);
+
+      // Throw error when the booking reference doesn't exist
+      if (!validateIsBookingBelongUserResult.success) {
+        return validateIsBookingBelongUserResult;
+      }
+
+      // Validate to see if the booking is pending for payment within 15 mins
+      const pendingForPaymentBooking = (await this.knex
+        .select("status", "created_at")
+        .from("booking")
+        .where("reference_no", bookingReference)
+        .andWhere("status", "pending for payment")
+        .andWhereRaw("created_at >= NOW() - INTERVAL '15 minutes'")
+        .first())
+        ? true
+        : false;
+
+      if (!pendingForPaymentBooking) {
+        throw new ForbiddenError("此預約已失效/已完成，請重新預約。");
+      }
+
+      // Get booking info when the booking reference number belongs to user and is pending for payment
+      const actualPayment = (await this.knex.select("actual_payment").from("booking").where("booking.reference_no", bookingReference))[0];
+
+      return {
+        success: true,
+        data: actualPayment,
+      };
+    } catch (error) {
+      return handleError(error, "server") as ActionResponse;
+    }
+  }
+
+  // 3. Update booking status to confirmed and insert stripe payment id when payment success
+  async updateBookingStatusToConfirmed(bookingReference: string, userId: string, stripePaymentId: string) {
+    try {
+      // Validate if this booking reference number belong to the user
+      const validateIsBookingBelongUserResult = await validateBookingService.validateIsBookingBelongUser(bookingReference, userId);
+
+      // Throw error when the booking reference doesn't exist
+      if (!validateIsBookingBelongUserResult.success) {
+        return validateIsBookingBelongUserResult;
+      }
+
+      // Validate to see if the booking is pending for payment within 15 mins
+      const pendingForPaymentBooking = (await this.knex
+        .select("status", "created_at")
+        .from("booking")
+        .where("reference_no", bookingReference)
+        .andWhere("status", "pending for payment")
+        .andWhereRaw("created_at >= NOW() - INTERVAL '15 minutes'")
+        .first())
+        ? true
+        : false;
+
+      if (!pendingForPaymentBooking) {
+        throw new ForbiddenError("此預約已失效/已完成，請重新預約。");
+      }
+
+      // Update the stripe payment id and booking status to confirmed when payment is success
+      await knex("booking").where({ reference_no: bookingReference, user_id: userId }).update({ stripe_payment_id: stripePaymentId, status: "confirmed" });
+
+      return {
+        success: true,
+        data: "",
+      };
+    } catch (error) {
+      return handleError(error, "server") as ActionResponse;
+    }
+  }
+
+  // 4. Return booking information for confirmed booking in booking success page
+  async getBookingInfoForBookingSuccessPage(bookingReference: string, userId: string) {
+    try {
+      // Validate if this booking reference number belong to the user
+      const validateIsBookingBelongUserResult = await validateBookingService.validateIsBookingBelongUser(bookingReference, userId);
+
+      // Throw error when the booking reference doesn't exist
+      if (!validateIsBookingBelongUserResult.success) {
+        return validateIsBookingBelongUserResult;
+      }
+
+      console.log("validateIsBookingBelongUserResult", validateIsBookingBelongUserResult);
+
+      // Check if the booking status is confirmed
+      const isConfirmedBooking = (await this.knex.select("status").from("booking").where("reference_no", bookingReference).andWhere("status", "confirmed").first()) ? true : false;
+
+      if (!isConfirmedBooking) {
+        throw new ForbiddenError("此預約未成功，請重新預約。");
+      }
+
+      const bookingRecord = await this.knex
+        .select("booking.reference_no", "booking.date", "booking.start_time", "booking.end_time", "studio.name as studio_name", "studio.address as studio_address")
+        .from("booking")
+        .where("booking.reference_no", bookingReference)
+        .andWhere("booking.status", "confirmed")
+        .leftJoin("studio", "booking.studio_id", "studio.id")
+        .first();
+
+      return {
+        success: true,
+        data: bookingRecord,
+      };
+    } catch (error) {
+      console.dir(error);
+      return handleError(error, "server") as ActionResponse;
+    }
+  }
+
+  /* -------------------------------------------------- 📚 Get Booking List ------------------------------------------------------------ */
   /**
    * Return Booking List Based on Role and Status
    * If userId exist, then it will return relevant booking information to particular user
    * If studioId exist, then it will return relevant booking information to particular studio
    */
-
   async getBookingListByRoleAndStatus({ userId, studioId, bookingType }: { userId?: string; studioId?: string; bookingType: string }) {
     try {
       let query = this.knex.select().from("booking");
@@ -648,7 +638,7 @@ export class BookingService {
     }
   }
 
-  /* -------------- Handle Booking Cancellation by User / Studio -------------- */
+  /* ------------------------------------- Handle Booking Cancellation by User / Studio ------------------------------------ */
   async cancelBookingAndRefundCredit({ userId, studioId, bookingReferenceNo, role }: { userId?: string; studioId?: string; bookingReferenceNo: string; role: "user" | "studio" }) {
     const txn = await this.knex.transaction(); // Start transaction
     try {

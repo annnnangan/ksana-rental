@@ -1,46 +1,26 @@
 import { GENERAL_ERROR_MESSAGE } from "@/lib/constants/error-message";
+import handleError from "@/lib/handlers/error";
+import { NotFoundError } from "@/lib/http-errors";
 import { knex } from "@/services/knex";
 import { Knex } from "knex";
 
 export class ValidateBookingService {
   constructor(private knex: Knex) {}
 
-  async validateIsBookingBelongUser(
-    booking_reference_no: string,
-    user_id: string
-  ) {
+  async validateIsBookingBelongUser(bookingReferenceNumber: string, userId: string) {
     try {
-      console.log(booking_reference_no);
-      console.log(user_id);
-      const result = (
-        await this.knex
-          .select("date", "start_time")
-          .from("booking")
-          .where("reference_no", booking_reference_no)
-          .andWhere("user_id", user_id)
-      )[0];
-
-      console.log(result);
+      const result = (await this.knex.select("id").from("booking").where("reference_no", bookingReferenceNumber).andWhere("user_id", userId))[0];
 
       if (!result) {
-        return {
-          success: false,
-          error: { message: "你沒有此預約。" },
-          errorCode: 404,
-        };
+        throw new NotFoundError("預約");
       }
 
       return {
         success: true,
-        data: result,
       };
     } catch (error) {
       console.log(error);
-      return {
-        success: false,
-        error: { message: GENERAL_ERROR_MESSAGE },
-        errorStatus: 500,
-      };
+      return handleError(error, "server") as ActionResponse;
     }
   }
 }
