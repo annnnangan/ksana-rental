@@ -1,19 +1,16 @@
+import BasicInfo from "@/components/custom-components/studio-page/BasicInfo";
+import TopGallery from "@/components/custom-components/studio-page/gallery/TopGallery";
+import DesktopSectionMenu from "@/components/custom-components/studio-page/section-menu/DesktopSectionMenu";
+import MobileSectionMenu from "@/components/custom-components/studio-page/section-menu/MobileSectionMenu";
+import DescriptionSection from "@/components/custom-components/studio-page/section/DescriptionSection";
+import EquipmentSection from "@/components/custom-components/studio-page/section/EquipmentSection";
+import LocationSection from "@/components/custom-components/studio-page/section/location/LocationSection";
+import PriceSection from "@/components/custom-components/studio-page/section/PriceSection";
+import ReviewSection from "@/components/custom-components/studio-page/section/review/ReviewSection";
+import SocialMediaSection from "@/components/custom-components/studio-page/section/social-media/SocialMediaSection";
+import SideSection from "@/components/custom-components/studio-page/SideSection";
 import ToastMessageWithRedirect from "@/components/custom-components/ToastMessageWithRedirect";
 import { studioService } from "@/services/StudioService";
-import BasicInfo from "./_component/BasicInfo";
-import TopGallery from "./_component/gallery/TopGallery";
-import PriceSection from "./_component/section/PriceSection";
-
-import DescriptionSection from "./_component/section/DescriptionSection";
-import EquipmentSection from "./_component/section/EquipmentSection";
-
-import ReviewSection from "./_component/section/review/ReviewSection";
-
-import DesktopSectionMenu from "./_component/section-menu/DesktopSectionMenu";
-import MobileSectionMenu from "./_component/section-menu/MobileSectionMenu";
-import LocationSection from "./_component/section/location/LocationSection";
-import SocialMediaSection from "./_component/section/social-media/SocialMediaSection";
-import SideSection from "./_component/SideSection";
 
 export interface StudioInfo {
   name: string;
@@ -27,11 +24,7 @@ export interface StudioInfo {
   address: string;
 }
 
-const StudioPage = async ({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) => {
+const StudioPage = async ({ params }: { params: Promise<{ slug: string }> }) => {
   const slug = (await params).slug;
   let studioImages;
 
@@ -41,24 +34,12 @@ const StudioPage = async ({
     const res = await studioService.getStudioIdBySlug(slug);
     const studioId = res.data;
 
-    const studioGalleryResponse = await studioService.getGallery(
-      studioId,
-      userId
-    );
+    const studioGalleryResponse = await studioService.getGallery(studioId, userId);
 
-    studioImages = studioGalleryResponse.data
-      ? studioGalleryResponse.data.map((image) => image.photo)
-      : [];
+    studioImages = studioGalleryResponse.data ? studioGalleryResponse.data.map((image) => image.photo) : [];
   } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : "系統出現錯誤。";
-    return (
-      <ToastMessageWithRedirect
-        type={"error"}
-        message={errorMessage}
-        redirectPath={"/explore-studios"}
-      />
-    );
+    const errorMessage = error instanceof Error ? error.message : "系統出現錯誤。";
+    return <ToastMessageWithRedirect type={"error"} message={errorMessage} redirectPath={"/explore-studios"} />;
   }
 
   const basicInfo = {
@@ -99,10 +80,7 @@ const StudioPage = async ({
           <ReviewSection />
         </div>
         <div className="mt-5 hidden md:block md:basis-2/6 lg:basis-1/4">
-          <SideSection
-            peakHourPrice={basicInfo.priceList.peakHour}
-            nonPeakHourPrice={basicInfo.priceList.nonPeakHour}
-          />
+          <SideSection peakHourPrice={basicInfo.priceList.peakHour} nonPeakHourPrice={basicInfo.priceList.nonPeakHour} />
         </div>
       </div>
     </>

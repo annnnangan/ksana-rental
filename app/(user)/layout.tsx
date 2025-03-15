@@ -4,11 +4,11 @@ import React from "react";
 
 const userLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <>
+    <div className="flex flex-col min-h-screen">
       <NavBar />
-      <main className="mx-auto container p-3 lg:p-5">{children}</main>
+      <main className="flex-grow mx-auto container p-3 lg:p-5">{children}</main>
       <Footer />
-    </>
+    </div>
   );
 };
 

@@ -12,7 +12,7 @@ import { generateVerificationToken } from "@/lib/utils/generate-verification-tok
 import { sendVerificationEmail } from "@/lib/mail";
 import { verificationService } from "@/services/user/VerificationService";
 
-export const login = async (values: z.infer<typeof LoginSchema>) => {
+export const login = async (values: z.infer<typeof LoginSchema>, redirect?: string) => {
   const validateFields = LoginSchema.safeParse(values);
   if (!validateFields.success) {
     return { success: false, error: { message: "資料錯誤，無法登入。" } };
@@ -26,14 +26,9 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
   }
 
   if (!existingUser.email_verified) {
-    const verificationToken = await generateVerificationToken(
-      existingUser.email
-    );
+    const verificationToken = await generateVerificationToken(existingUser.email);
 
-    await sendVerificationEmail(
-      verificationToken.email,
-      verificationToken.token
-    );
+    await sendVerificationEmail(verificationToken.email, verificationToken.token);
 
     return {
       success: true,
@@ -44,10 +39,12 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
   try {
     //give this function the provider for login, in this case, it is credentials
     //also give this function the information that is used to sign in
+
+    console.log(redirect);
     await signIn("credentials", {
       email,
       password,
-      redirectTo: DEFAULT_LOGIN_REDIRECT,
+      redirectTo: redirect || DEFAULT_LOGIN_REDIRECT,
     });
 
     return { success: true, data: { message: "成功登入" } };
@@ -70,7 +67,7 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
   }
 };
 
-export const register = async (values: z.infer<typeof RegisterSchema>) => {
+export const register = async (values: z.infer<typeof RegisterSchema>, redirect: string) => {
   const validateFields = RegisterSchema.safeParse(values);
   if (!validateFields.success) {
     return {
@@ -102,7 +99,7 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
   const verificationToken = await generateVerificationToken(email);
   //Send verification token email with the above token
 
-  await sendVerificationEmail(verificationToken.email, verificationToken.token);
+  await sendVerificationEmail(verificationToken.email, verificationToken.token, redirect);
 
   return {
     success: true,
@@ -111,9 +108,7 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
 };
 
 export const newVerification = async (token: string) => {
-  const existingToken = (
-    await verificationService.getVerificationTokenByToken(token)
-  )?.data;
+  const existingToken = (await verificationService.getVerificationTokenByToken(token))?.data;
 
   if (!existingToken) {
     return { success: false, error: { message: "驗證碼錯誤，無法驗證。" } };
@@ -124,8 +119,7 @@ export const newVerification = async (token: string) => {
     return { success: false, error: { message: "驗證碼已過期，無法驗證。" } };
   }
 
-  const existingUser = (await userService.getUserByEmail(existingToken.email))
-    ?.data;
+  const existingUser = (await userService.getUserByEmail(existingToken.email))?.data;
 
   if (!existingUser) {
     return { success: false, error: { message: "驗證碼錯誤，無法驗證。" } };
@@ -142,16 +136,11 @@ export const newVerification = async (token: string) => {
 
 export const resendVerification = async (token: string) => {
   //Check if the verification code exist
-  const isExistingToken = (
-    await verificationService.getVerificationTokenByToken(token)
-  )?.data;
+  const isExistingToken = (await verificationService.getVerificationTokenByToken(token))?.data;
 
-  if (!isExistingToken)
-    return { success: false, error: { message: "驗證碼錯誤，無法重新發送。" } };
+  if (!isExistingToken) return { success: false, error: { message: "驗證碼錯誤，無法重新發送。" } };
   //Generate the verification token
-  const verificationToken = await generateVerificationToken(
-    isExistingToken.email
-  );
+  const verificationToken = await generateVerificationToken(isExistingToken.email);
   //Send verification token email with the above token
   await sendVerificationEmail(verificationToken.email, verificationToken.token);
 

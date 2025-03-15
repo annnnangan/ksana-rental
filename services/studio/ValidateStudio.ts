@@ -8,20 +8,21 @@ export class ValidateStudioService {
   constructor(private knex: Knex) {}
 
   async validateIsStudioExistBySlug(slug: string) {
-    const result = (await this.knex.select("id").from("studio").where("slug", slug))[0]?.id;
+    try {
+      const result = (await this.knex.select("id").from("studio").where("slug", slug))[0]?.id;
 
-    if (!result) {
+      if (!result) {
+        throw new NotFoundError("場地");
+      }
+
       return {
-        success: false,
-        error: { message: "場地不存在。" },
-        errorCode: 404,
+        success: true,
+        data: { studio_id: result },
       };
+    } catch (error) {
+      console.dir(error);
+      return handleError(error, "server") as ActionResponse;
     }
-
-    return {
-      success: true,
-      data: result,
-    };
   }
 
   async validateIsStudioExistById(id: string) {
