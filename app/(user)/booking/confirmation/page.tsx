@@ -20,10 +20,11 @@ import { toast } from "react-toastify";
 import { createPendingForPaymentBooking } from "@/actions/booking";
 import { Textarea } from "@/components/shadcn/textarea";
 import { useSessionUser } from "@/hooks/use-session-user";
-import { calculateBookingEndTime } from "@/lib/utils/date-time/date-time-utils";
+
 import { formatDate } from "@/lib/utils/date-time/format-date-utils";
 import { BookingFormData, BookingSchema } from "@/lib/validations/zod-schema/booking-schema";
 import useBookingStore from "@/stores/BookingStore";
+import { calculateBookingEndTime } from "@/lib/utils/date-time/formate-time-utils";
 
 const BookingConfirmationPage = () => {
   const user = useSessionUser();
@@ -92,6 +93,7 @@ const BookingConfirmationPage = () => {
     startTransition(() => {
       createPendingForPaymentBooking(data).then((data) => {
         if (!data.success) {
+          //@ts-ignore
           toast(data?.error?.message, {
             position: "top-right",
             type: "error",

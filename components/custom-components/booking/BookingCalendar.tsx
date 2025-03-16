@@ -8,7 +8,7 @@ import SubmitButton from "../buttons/SubmitButton";
 import ErrorMessage from "../ErrorMessage";
 import Timeslot from "./Timeslot";
 
-import { CalendarCheck2, Clock10, MapPinHouse, X } from "lucide-react";
+import { CalendarCheck2, CalendarX2, Clock10, MapPinHouse, X } from "lucide-react";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
@@ -17,62 +17,12 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 
-import { calculateBookingEndTime } from "@/lib/utils/date-time/date-time-utils";
+import { calculateBookingEndTime } from "@/lib/utils/date-time/formate-time-utils";
 import { formatDate } from "@/lib/utils/date-time/format-date-utils";
 import { BookingDateTimeSelectFormData, BookingDateTimeSelectSchema } from "@/lib/validations/zod-schema/booking-schema";
 import { PriceType } from "@/services/model";
 import useBookingStore from "@/stores/BookingStore";
-
-const timeslotsResult = [
-  {
-    time: "09:00",
-    is_booked: true,
-    price: 100,
-    price_type: "non-peak",
-  },
-  {
-    time: "10:00",
-    is_booked: false,
-    price: 100,
-    price_type: "non-peak",
-  },
-  {
-    time: "11:00",
-    is_booked: false,
-    price: 100,
-    price_type: "non-peak",
-  },
-  {
-    time: "12:00",
-    is_booked: false,
-    price: 100,
-    price_type: "non-peak",
-  },
-  {
-    time: "13:00",
-    is_booked: false,
-    price: 200,
-    price_type: "non-peak",
-  },
-  {
-    time: "14:00",
-    is_booked: false,
-    price: 300,
-    price_type: "non-peak",
-  },
-  {
-    time: "22:00",
-    is_booked: false,
-    price: 100,
-    price_type: "peak",
-  },
-  {
-    time: "23:00",
-    is_booked: false,
-    price: 100,
-    price_type: "peak",
-  },
-];
+import SectionFallback from "../SectionFallback";
 
 const availableCredit = 50;
 
@@ -158,6 +108,8 @@ const BookingCalendar = ({
     setEndMonth(new Date(today.getFullYear(), today.getMonth() + 3, 0));
   }, []);
 
+  const { data: timeslotsResult, isLoading: isLoadingTimeslots, isError } = useBookingTimeslots(bookingStudioBasicInfo.slug, formatDate(dateWatch ?? new Date()));
+
   const onSubmit = async (data: BookingDateTimeSelectFormData) => {
     setBookingInfo({
       studioName: data.studioName,
@@ -187,6 +139,7 @@ const BookingCalendar = ({
                   mode="single"
                   selected={dateWatch}
                   onSelect={(date) => setValue("date", date!)}
+                  required
                   className="rounded-md border"
                   initialFocus
                   disabled={{ before: new Date() }}
@@ -206,20 +159,27 @@ const BookingCalendar = ({
                 <div className="space-y-2">
                   {errors?.startTime && <ErrorMessage>{errors?.startTime?.message}</ErrorMessage>}
                   <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-                    {timeslotsResult.map((time) => (
-                      <Timeslot
-                        key={time.time}
-                        isBooked={time.is_booked}
-                        priceType={time.price_type as PriceType}
-                        startTime={time.time}
-                        isSelected={startTimeWatch === time.time.toString()}
-                        onSelect={() => {
-                          setValue("startTime", time.time);
-                          setValue("price", time.price);
-                        }}
-                      />
-                    ))}
+                    {isLoadingTimeslots && Array.from({ length: 5 }, (_, i) => <Timeslot isLoading={true} key={i} />)}
+
+                    {!isLoadingTimeslots &&
+                      //@ts-ignore
+                      timeslotsResult?.length > 0 &&
+                      timeslotsResult?.map((time) => (
+                        <Timeslot
+                          isLoading={false}
+                          key={time.time}
+                          isBooked={time.is_booked}
+                          priceType={time.price_type as PriceType}
+                          startTime={time.time}
+                          isSelected={startTimeWatch === time.time.toString()}
+                          onSelect={() => {
+                            setValue("startTime", time.time);
+                            setValue("price", time.price);
+                          }}
+                        />
+                      ))}
                   </div>
+                  {!isLoadingTimeslots && timeslotsResult?.length === 0 && <SectionFallback icon={CalendarX2} fallbackText={"暫無可預約時間"} />}
                 </div>
               </div>
             </div>
@@ -283,6 +243,7 @@ const BookingCalendar = ({
                           setValue("usedCredit", 0);
                         }
                       }}
+                      //@ts-ignore
                       disabled={!startTimeWatch || availableCredit === 0}
                     />
                   )}
@@ -332,6 +293,7 @@ const BookingCalendar = ({
                             setValue("usedCredit", 0);
                           }
                         }}
+                        //@ts-ignore
                         disabled={!startTimeWatch || availableCredit == 0}
                       />
                     )}
@@ -370,15 +332,22 @@ export default BookingCalendar;
 
 // React Query to Fetch timeslots
 const useBookingTimeslots = (selectedStudioSlug: string, selectedDate: string) => {
-  useQuery({
+  return useQuery({
     queryKey: ["timeslots", selectedStudioSlug, selectedDate],
     queryFn: async () => {
-      const res = await fetch(`/api/studio`);
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      const res = await fetch(`/api/booking/timeslots/${selectedStudioSlug}/${selectedDate}`);
+      if (!res.ok) {
+        throw new Error("Failed to fetch timeslots");
+      }
       const result = await res.json();
-      return result.data as { name: string; slug: string }[];
+      if (!result.success) {
+        throw new Error(result.error.message);
+      }
+      return result.data as { time: string; is_booked: boolean; price: number; price_type: string }[];
     },
     staleTime: 2 * 60 * 1000, // Cache for 2 minutes
-    enabled: !!selectedStudioSlug && !!selectedDate, // Only fetch when both studioId and date are present
+    enabled: !!selectedStudioSlug && !!selectedDate, // Fetch only when both are provided
   });
 };
 

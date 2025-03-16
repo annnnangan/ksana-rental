@@ -22,7 +22,7 @@ const BookingPage = async ({ searchParams }: { searchParams: Promise<{ [key: str
   let bookingStudioBasicInfo;
   // @ts-ignore
   const bookingStudioBasicInfoResult = await studioService.getStudioBasicInfo({ slug: studioSlug });
-  console.log("hello", bookingStudioBasicInfoResult);
+
   if (bookingStudioBasicInfoResult.success) {
     bookingStudioBasicInfo = bookingStudioBasicInfoResult.data[0];
   } else {

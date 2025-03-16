@@ -1,12 +1,12 @@
 import ButtonLink from "@/components/custom-components/buttons/ButtonLink";
 import { auth } from "@/lib/next-auth-config/auth";
-import { convertTimeToString } from "@/lib/utils/date-time/date-time-utils";
 import { formatDate } from "@/lib/utils/date-time/format-date-utils";
 import { Bell, Building2, Calendar, MapPinHouse } from "lucide-react";
 import Image from "next/image";
 import ToastMessageWithRedirect from "@/components/custom-components/ToastMessageWithRedirect";
 import { bookingService } from "@/services/booking/BookingService";
 import { GENERAL_ERROR_MESSAGE } from "@/lib/constants/error-message";
+import { convertTimeToString } from "@/lib/utils/date-time/formate-time-utils";
 
 const BookingSuccessPage = async ({ searchParams }: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) => {
   // Check

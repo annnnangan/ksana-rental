@@ -1,4 +1,3 @@
-import { calculateBookingEndTime, convertStringToTime, isPastDate, isPastDateTime } from "@/lib/utils/date-time/date-time-utils";
 import { BookingFormData } from "@/lib/validations/zod-schema/booking-schema";
 import { knex } from "@/services/knex";
 
@@ -9,8 +8,10 @@ import { Knex } from "knex";
 import { validateStudioService } from "../studio/ValidateStudio";
 import { bookingStatusService } from "./BookingStatusService";
 import { validateBookingService } from "./ValidateBookingService";
-
-const dayOfWeekList = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+import { getDay } from "date-fns";
+import { calculateBookingEndTime, convertStringToTime, getHourFromTime } from "@/lib/utils/date-time/formate-time-utils";
+import { formatDate, getDayOfWeekInEnglishByDate } from "@/lib/utils/date-time/format-date-utils";
+import { isPastDateTime } from "@/lib/utils/date-time/formate-date-time";
 
 export class BookingService {
   constructor(private knex: Knex) {}
@@ -87,286 +88,81 @@ export class BookingService {
     }
   }
 
-  /* ---------------------- Generate Available Timeslots ---------------------- */
-  async getBusinessHourAndPriceType(dayOfWeek: number, studioSlug: string) {
-    // todo: use slug to match the studio id
-    const studioId = (await this.knex.select("id").from("studio").where("slug", studioSlug))[0]?.id;
-
-    // todo: where condition: day of week + studio id
-    return this.knex
-      .select("studio_business_hour.is_closed", "studio_business_hour.open_time", "studio_business_hour.end_time", "studio_price.price_type", "studio_price.price")
-      .from("studio_business_hour")
-      .where("day_of_week", dayOfWeekList[dayOfWeek])
-      .andWhere("studio_business_hour.studio_id", studioId)
-      .leftJoin("studio_price", "studio_business_hour.price_type_id", "studio_price.id");
-  }
-
-  async getStudioTimeblock(studioSlug: string, date: Date) {
-    const studioId = (await this.knex.select("id").from("studio").where("slug", studioSlug))[0]?.id;
-
-    //Return error when studio don't exist
-    if (!studioId) {
-      return { success: false, msg: "Studio doesn't exist.", status: 404 };
-    }
-
-    //if the date we get is not in the past, we don't return any result
-    //in the past = -1
-    if (isPastDate(date)) {
-      return {
-        success: false,
-        msg: "The date you pass is in the past.",
-        status: 400,
-      };
-    }
-
-    return {
-      success: true,
-      data: await this.knex.select("start_time", "end_time").from("studio_timeblock").where("studio_id", studioId).andWhere("date", new Date(date)),
-    };
-  }
-
-  async getBookedTimeslot(studioSlug: string, date: Date) {
-    //1. Validate if studio exist
-    const studioId = (await this.knex.select("id").from("studio").where("slug", studioSlug))[0]?.id;
-
-    if (!studioId) {
-      return { success: false, msg: "Studio doesn't exist.", status: 404 };
-    }
-
-    //2. Validate if the selected date and time is not in the past
-
-    if (isPastDate(date)) {
-      return {
-        success: false,
-        msg: "The date you pass is in the past.",
-        status: 400,
-      };
-    }
-
-    return {
-      success: true,
-      data: await this.knex
-        .select("start_time", "end_time")
-        .from("booking")
-        .where("studio_id", studioId)
-        .andWhere("date", new Date(date))
-        .andWhere(function () {
-          this.whereIn("status", ["confirm", "complete", "pending for payment"]);
-        }),
-    };
-  }
-
-  async getBookingStatus(bookingReference: string, userId: number) {
+  /* ---------------------- 🕣 Generate Available Timeslots ---------------------- */
+  async getStudioOpeningHourByDate(date: string, studioSlug: string) {
     try {
-      const bookingStatus = (await this.knex.select("status").from("booking").where("reference_no", bookingReference).andWhere("user_id", userId))[0]?.status;
+      // 👁 Check if studio exist
+      const isStudioExistResponse = await validateStudioService.validateIsStudioExistBySlug(studioSlug);
 
-      if (!bookingStatus) {
-        throw new NotFoundError("此預約");
+      if (!isStudioExistResponse.success) {
+        return isStudioExistResponse;
+      }
+
+      const studioId = isStudioExistResponse.data?.studio_id;
+      let openingHour;
+
+      // 👁 Check if studio has set opening hour for specific date
+      const dateSpecificResult = await this.knex
+        .select("studio_date_specific_hour.is_closed", "studio_date_specific_hour.from", "studio_date_specific_hour.to", "studio_price.price_type", "studio_price.price")
+        .from("studio_date_specific_hour")
+        .leftJoin("studio_price", "studio_date_specific_hour.price_type_id", "studio_price.id")
+        .where({ "studio_date_specific_hour.studio_id": studioId, "studio_date_specific_hour.date": date });
+
+      // 👁 If no, then return the opening hour set for weekly
+      if (dateSpecificResult.length === 0) {
+        const dayOfWeekResult = await this.knex
+          .select("studio_business_hour.is_closed", "studio_business_hour.from", "studio_business_hour.to", "studio_price.price_type", "studio_price.price")
+          .from("studio_business_hour")
+          .leftJoin("studio_price", "studio_business_hour.price_type_id", "studio_price.id")
+          .where({ "studio_business_hour.studio_id": studioId, "studio_business_hour.day_of_week": getDayOfWeekInEnglishByDate(date) });
+        openingHour = dayOfWeekResult;
+      } else {
+        openingHour = dateSpecificResult;
       }
 
       return {
         success: true,
-        data: bookingStatus,
+        data: openingHour,
       };
-    } catch (error) {
-      if (error instanceof RequestError) {
-        throw error;
-      } else {
-        throw new RequestError(500, error instanceof Error ? error.message : "An unknown error occurred");
-      }
-    }
-  }
-
-  async updateConfirmBooking(bookingReference: string, userId: number, stripePaymentId: string) {
-    try {
-      const isValidBooking = await this.validateBooking(bookingReference, userId);
-
-      if (isValidBooking.success) {
-        await this.knex("booking").update({ status: "confirm", stripe_payment_id: stripePaymentId }).where("reference_no", bookingReference).andWhere("user_id", userId);
-      }
-
-      return {
-        success: true,
-        message: "The booking status has been updated",
-        data: [],
-      };
-    } catch (error) {
-      return handleError(error, "server") as ActionResponse;
-    }
-  }
-
-  async getConfirmBookingInfo(bookingReference: string, userId: number) {
-    try {
-      //todo - validate if the booking reference number belongs to user
-      const isValidBooking = await this.validateIsBookingExist(bookingReference, userId);
-
-      if (isValidBooking.success) {
-        //todo - check booking status
-        const bookingStatus = await this.getBookingStatus(bookingReference, userId);
-
-        //todo - No information will be pulled when the status is not confirm
-        if (bookingStatus.data !== "confirm") {
-          throw new Error("此預約未付款/已過期。");
-        }
-
-        if (bookingStatus.data === "confirm") {
-          const bookingData = (
-            await this.knex
-              .select("studio.slug", "studio.name", "studio.address", "booking.date", "booking.start_time", "booking.end_time")
-              .from("booking")
-              .leftJoin("studio", "booking.studio_id", "studio.id")
-              .where("booking.reference_no", bookingReference)
-              .andWhere("booking.user_id", userId)
-          )[0];
-          return {
-            success: true,
-            data: bookingData,
-          };
-        }
-      }
-    } catch (error) {
-      if (error instanceof RequestError) {
-        throw error;
-      } else {
-        throw new RequestError(500, error instanceof Error ? error.message : "系統發生錯誤。");
-      }
-    }
-  }
-
-  async submitBookingReview(bookingReference: string, userId: string, data: reviewFormData) {
-    const txn = await this.knex.transaction(); // Start transaction
-    try {
-      const booking = await this.knex("booking").where({ reference_no: bookingReference, user_id: userId }).first();
-
-      // If no booking found, throw an error
-      if (!booking) {
-        throw new NotFoundError("預約");
-      }
-
-      // Transaction 1: Insert a new row for review and return the review id
-      const reviewId = (
-        await txn
-          .insert({
-            booking_reference_no: bookingReference,
-            rating: data.rating,
-            review: data.review,
-            is_anonymous: data.is_anonymous,
-            is_hide_from_public: data.is_hide_from_public,
-            is_complaint: data.is_complaint,
-          })
-          .into("review")
-          .returning("id")
-      )[0].id;
-
-      // Transaction 2: Update booking table 's has_reviewed column to true
-      await txn("booking").update({ has_reviewed: true }).where("reference_no", bookingReference);
-
-      // Transaction 3: if there is image -> insert new row with the review id returned above
-      if (data.images.length > 0) {
-        const reviewPhotos = data.images.map((image) => ({
-          review_id: reviewId,
-          photo: image,
-        }));
-
-        await txn.insert(reviewPhotos).into("review_photo");
-      }
-
-      // Transaction 3: if it is complaint, insert new row in booking_complaint
-      if (data.is_complaint) {
-        await txn
-          .insert({
-            review_id: reviewId,
-            status: "open",
-          })
-          .into("booking_complaint");
-      }
-
-      // Transaction 4: if complaint, change the booking table to true
-      if (data.is_complaint) {
-        await txn("booking").update("is_complaint", true).where("reference_no", bookingReference);
-      }
-
-      await txn.commit();
-      return { success: true };
     } catch (error) {
       console.log(error);
-      await txn.rollback(); // Rollback in case of an error
       return handleError(error, "server") as ActionResponse;
     }
   }
 
-  async getBookingInfoByReferenceNo(bookingReferenceNo: string) {
+  async getStudioBookedTimeslotByDate(date: string, studioSlug: string) {
     try {
-      // Find the booking first to make sure it exists
-      const booking = await this.knex("booking").where({ reference_no: bookingReferenceNo }).first(); // Get the first matching record
+      // 👁 Check if studio exist
+      const isStudioExistResponse = await validateStudioService.validateIsStudioExistBySlug(studioSlug);
 
-      // If no booking found, throw an error
-      if (!booking) {
-        throw new NotFoundError("預約");
+      if (!isStudioExistResponse.success) {
+        return isStudioExistResponse;
       }
 
-      // Determine the latest status
-      let latestStatus = booking.status;
+      const studioId = isStudioExistResponse.data?.studio_id;
 
-      if (booking.status === "confirmed") {
-        const isCompleted = await this.knex("booking").where("reference_no", bookingReferenceNo).andWhereRaw("date::DATE + end_time::INTERVAL < NOW()").first();
+      const bookedTimeslot = await this.knex
+        .select("start_time")
+        .from("booking")
+        .where("studio_id", studioId)
+        .andWhere("date", date)
+        .andWhere(function () {
+          this.where("booking.status", "confirmed").orWhere(function () {
+            this.where("booking.status", "pending for payment").andWhereRaw("booking.created_at >= NOW() - INTERVAL '15 minutes'");
+          });
+        });
 
-        if (isCompleted) {
-          latestStatus = "completed";
-        }
-      } else if (booking.status === "pending for payment") {
-        const isExpired = await this.knex("booking").where("reference_no", bookingReferenceNo).andWhereRaw("created_at < NOW() - INTERVAL '15 minutes'").first();
+      const formattedBookedTimeslot = bookedTimeslot.map((time) => getHourFromTime(time.start_time, false));
 
-        if (isExpired) {
-          latestStatus = "expired";
-        }
-      }
-
+      // Return [] when no booked timeslot for the date
+      // Return format - [ 10, 15 ] when there is booked timeslot for the date
       return {
         success: true,
-        data: { ...booking, status: latestStatus },
+        data: formattedBookedTimeslot,
       };
     } catch (error) {
-      // Handle the error and provide a meaningful message
-      console.error(error);
+      console.log(error);
       return handleError(error, "server") as ActionResponse;
-    }
-  }
-
-  //Get Studio Door Password
-  async getDoorPasswordForBooking(studioId: string) {
-    try {
-      //check if studio exist
-      const isStudioExist = await validateStudioService.validateIsStudioExistById(studioId);
-
-      if (!isStudioExist.success) {
-        return isStudioExist;
-      }
-
-      if (isStudioExist.success && isStudioExist.data.id) {
-        const result = await this.knex.select("door_password").from("studio").where("id", studioId).first();
-
-        if (!result.door_password) {
-          return {
-            success: false,
-            error: { message: "無法取得大門密碼，請聯絡場地以取得密碼。" },
-            errorStatus: 404,
-          };
-        }
-
-        return {
-          success: true,
-          data: result,
-        };
-      }
-    } catch (error) {
-      console.error("Error fetching door password:", error);
-
-      return {
-        success: false,
-        error: { message: "無法取得大門密碼，請聯絡場地以取得密碼。" },
-        errorStatus: 500,
-      };
     }
   }
 
@@ -638,6 +434,81 @@ export class BookingService {
     }
   }
 
+  async getBookingInfoByReferenceNo(bookingReferenceNo: string) {
+    try {
+      // Find the booking first to make sure it exists
+      const booking = await this.knex("booking").where({ reference_no: bookingReferenceNo }).first(); // Get the first matching record
+
+      // If no booking found, throw an error
+      if (!booking) {
+        throw new NotFoundError("預約");
+      }
+
+      // Determine the latest status
+      let latestStatus = booking.status;
+
+      if (booking.status === "confirmed") {
+        const isCompleted = await this.knex("booking").where("reference_no", bookingReferenceNo).andWhereRaw("date::DATE + end_time::INTERVAL < NOW()").first();
+
+        if (isCompleted) {
+          latestStatus = "completed";
+        }
+      } else if (booking.status === "pending for payment") {
+        const isExpired = await this.knex("booking").where("reference_no", bookingReferenceNo).andWhereRaw("created_at < NOW() - INTERVAL '15 minutes'").first();
+
+        if (isExpired) {
+          latestStatus = "expired";
+        }
+      }
+
+      return {
+        success: true,
+        data: { ...booking, status: latestStatus },
+      };
+    } catch (error) {
+      // Handle the error and provide a meaningful message
+      console.error(error);
+      return handleError(error, "server") as ActionResponse;
+    }
+  }
+
+  //Get Studio Door Password
+  async getDoorPasswordForBooking(studioId: string) {
+    try {
+      //check if studio exist
+      const isStudioExist = await validateStudioService.validateIsStudioExistById(studioId);
+
+      if (!isStudioExist.success) {
+        return isStudioExist;
+      }
+
+      if (isStudioExist.success && isStudioExist.data.id) {
+        const result = await this.knex.select("door_password").from("studio").where("id", studioId).first();
+
+        if (!result.door_password) {
+          return {
+            success: false,
+            error: { message: "無法取得大門密碼，請聯絡場地以取得密碼。" },
+            errorStatus: 404,
+          };
+        }
+
+        return {
+          success: true,
+          data: result,
+        };
+      }
+    } catch (error) {
+      console.error("Error fetching door password:", error);
+
+      return {
+        success: false,
+        error: { message: "無法取得大門密碼，請聯絡場地以取得密碼。" },
+        errorStatus: 500,
+      };
+    }
+  }
+
   /* ------------------------------------- Handle Booking Cancellation by User / Studio ------------------------------------ */
   async cancelBookingAndRefundCredit({ userId, studioId, bookingReferenceNo, role }: { userId?: string; studioId?: string; bookingReferenceNo: string; role: "user" | "studio" }) {
     const txn = await this.knex.transaction(); // Start transaction
@@ -689,6 +560,68 @@ export class BookingService {
       await txn.commit();
       return { success: true };
     } catch (error) {
+      await txn.rollback(); // Rollback in case of an error
+      return handleError(error, "server") as ActionResponse;
+    }
+  }
+
+  async submitBookingReview(bookingReference: string, userId: string, data: reviewFormData) {
+    const txn = await this.knex.transaction(); // Start transaction
+    try {
+      const booking = await this.knex("booking").where({ reference_no: bookingReference, user_id: userId }).first();
+
+      // If no booking found, throw an error
+      if (!booking) {
+        throw new NotFoundError("預約");
+      }
+
+      // Transaction 1: Insert a new row for review and return the review id
+      const reviewId = (
+        await txn
+          .insert({
+            booking_reference_no: bookingReference,
+            rating: data.rating,
+            review: data.review,
+            is_anonymous: data.is_anonymous,
+            is_hide_from_public: data.is_hide_from_public,
+            is_complaint: data.is_complaint,
+          })
+          .into("review")
+          .returning("id")
+      )[0].id;
+
+      // Transaction 2: Update booking table 's has_reviewed column to true
+      await txn("booking").update({ has_reviewed: true }).where("reference_no", bookingReference);
+
+      // Transaction 3: if there is image -> insert new row with the review id returned above
+      if (data.images.length > 0) {
+        const reviewPhotos = data.images.map((image) => ({
+          review_id: reviewId,
+          photo: image,
+        }));
+
+        await txn.insert(reviewPhotos).into("review_photo");
+      }
+
+      // Transaction 3: if it is complaint, insert new row in booking_complaint
+      if (data.is_complaint) {
+        await txn
+          .insert({
+            review_id: reviewId,
+            status: "open",
+          })
+          .into("booking_complaint");
+      }
+
+      // Transaction 4: if complaint, change the booking table to true
+      if (data.is_complaint) {
+        await txn("booking").update("is_complaint", true).where("reference_no", bookingReference);
+      }
+
+      await txn.commit();
+      return { success: true };
+    } catch (error) {
+      console.log(error);
       await txn.rollback(); // Rollback in case of an error
       return handleError(error, "server") as ActionResponse;
     }
