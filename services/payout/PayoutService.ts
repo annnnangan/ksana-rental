@@ -10,11 +10,7 @@ export class PayoutService {
   async getTotalPayoutAmount(payoutStartDate: string, payoutEndDate: string) {
     const total_completed_booking_amount = (
       await this.knex
-        .select(
-          this.knex.raw(
-            `COALESCE(CAST(SUM(booking.price) AS INTEGER),0) AS total_completed_booking_amount`
-          )
-        )
+        .select(this.knex.raw(`COALESCE(CAST(SUM(booking.price) AS INTEGER),0) AS total_completed_booking_amount`))
         .from("booking")
         .whereBetween("date", [payoutStartDate, payoutEndDate])
         .andWhere({ status: "confirmed", is_complaint: false })
@@ -23,26 +19,16 @@ export class PayoutService {
     const dispute_transaction = (
       await this.knex
         .select(
-          this.knex.raw(
-            `COALESCE(CAST(SUM(booking.price) AS INTEGER),0) AS total_dispute_amount`
-          ),
-          this.knex.raw(
-            `COALESCE(CAST(SUM(booking_complaint.refund_amount) AS INTEGER),0) AS total_refund_amount`
-          )
+          this.knex.raw(`COALESCE(CAST(SUM(booking.price) AS INTEGER),0) AS total_dispute_amount`),
+          this.knex.raw(`COALESCE(CAST(SUM(booking_complaint.refund_amount) AS INTEGER),0) AS total_refund_amount`)
         )
         .from("booking_complaint")
         .leftJoin("booking", "booking_complaint.booking_id", "booking.id")
         .where({ "booking_complaint.status": "resolved" })
-        .whereBetween("booking_complaint.resolved_at", [
-          payoutStartDate,
-          payoutEndDate,
-        ])
+        .whereBetween("booking_complaint.resolved_at", [payoutStartDate, payoutEndDate])
     )[0];
 
-    const total_payout_amount =
-      total_completed_booking_amount.total_completed_booking_amount +
-      dispute_transaction.total_dispute_amount -
-      dispute_transaction.total_refund_amount;
+    const total_payout_amount = total_completed_booking_amount.total_completed_booking_amount + dispute_transaction.total_dispute_amount - dispute_transaction.total_refund_amount;
 
     return {
       success: true,
@@ -54,17 +40,10 @@ export class PayoutService {
     };
   }
 
-  async getStudioPayoutOverview(
-    payoutStartDate: string,
-    payoutEndDate: string,
-    slug?: string | undefined,
-    payoutMethod?: PayoutMethod | undefined,
-    status?: PayoutStatus | undefined
-  ) {
+  async getStudioPayoutOverview(payoutStartDate: string, payoutEndDate: string, slug?: string | undefined, payoutMethod?: PayoutMethod | undefined, status?: PayoutStatus | undefined) {
     if (slug) {
       // Validate if the studio exists by slug
-      const validationResponse =
-        await validateStudioService.validateIsStudioExistBySlug(slug);
+      const validationResponse = await validateStudioService.validateIsStudioExistBySlug(slug);
 
       if (!validationResponse.success) {
         // Return error immediately if the studio doesn't exist
@@ -136,14 +115,7 @@ export class PayoutService {
   `;
 
     // Parameters for SQL query
-    const params = [
-      payoutStartDate,
-      payoutEndDate,
-      payoutStartDate,
-      payoutEndDate,
-      payoutStartDate,
-      payoutEndDate,
-    ];
+    const params = [payoutStartDate, payoutEndDate, payoutStartDate, payoutEndDate, payoutStartDate, payoutEndDate];
 
     // Add WHERE condition for slug if it's provided
     if (slug) {
@@ -169,28 +141,15 @@ export class PayoutService {
     const result = await this.knex.raw(mainQuery, params);
 
     // Calculate total_payout_amount for each studio
-    const payoutData = result.rows.map(
-      (studio: {
-        total_completed_booking_amount: number;
-        total_dispute_amount: number;
-        total_refund_amount: number;
-      }) => {
-        const {
-          total_completed_booking_amount,
-          total_dispute_amount,
-          total_refund_amount,
-        } = studio;
-        const total_payout_amount =
-          total_completed_booking_amount +
-          total_dispute_amount -
-          total_refund_amount;
+    const payoutData = result.rows.map((studio: { total_completed_booking_amount: number; total_dispute_amount: number; total_refund_amount: number }) => {
+      const { total_completed_booking_amount, total_dispute_amount, total_refund_amount } = studio;
+      const total_payout_amount = total_completed_booking_amount + total_dispute_amount - total_refund_amount;
 
-        return {
-          ...studio,
-          total_payout_amount,
-        };
-      }
-    );
+      return {
+        ...studio,
+        total_payout_amount,
+      };
+    });
 
     return {
       success: true,
@@ -198,15 +157,10 @@ export class PayoutService {
     };
   }
 
-  async getStudioPayoutProof(
-    payoutStartDate: string,
-    payoutEndDate: string,
-    slug: string
-  ) {
+  async getStudioPayoutProof(payoutStartDate: string, payoutEndDate: string, slug: string) {
     if (slug) {
       // Validate if the studio exists by slug
-      const validationResponse =
-        await validateStudioService.validateIsStudioExistBySlug(slug);
+      const validationResponse = await validateStudioService.validateIsStudioExistBySlug(slug);
 
       if (!validationResponse.success) {
         // Return error immediately if the studio doesn't exist
@@ -220,11 +174,7 @@ export class PayoutService {
     const proof_image_urls = (
       await this.knex
         .select("studio.id", "studio.slug")
-        .select(
-          this.knex.raw(
-            "array_agg(payout_proof.proof_image_url) as proof_image_urls"
-          )
-        )
+        .select(this.knex.raw("array_agg(payout_proof.proof_image_url) as proof_image_urls"))
         .from("payout_proof")
         .leftJoin("payout", "payout_proof.payout_id", "payout.id")
         .leftJoin("studio", "payout.studio_id", "studio.id")
@@ -239,11 +189,7 @@ export class PayoutService {
     return { success: true, data: proof_image_urls };
   }
 
-  async getStudioCompletedBookingList(
-    payoutStartDate: string,
-    payoutEndDate: string,
-    slug: string
-  ) {
+  async getStudioCompletedBookingList(payoutStartDate: string, payoutEndDate: string, slug: string) {
     const completed_booking_list = await this.knex
       .select(
         "booking.reference_no AS booking_reference_no",
@@ -267,11 +213,7 @@ export class PayoutService {
     };
   }
 
-  async getStudioDisputeTransactionList(
-    payoutStartDate: string,
-    payoutEndDate: string,
-    slug: string
-  ) {
+  async getStudioDisputeTransactionList(payoutStartDate: string, payoutEndDate: string, slug: string) {
     const dispute_booking_list = await this.knex
       .select(
         "booking.reference_no AS booking_reference_no",
@@ -279,9 +221,7 @@ export class PayoutService {
         "booking.price AS booking_price",
         "booking.is_complaint",
         "booking_complaint.status AS complaint_status",
-        knex.raw(
-          "TO_CHAR(booking_complaint.resolved_at, 'YYYY-MM-DD') AS complaint_resolved_at"
-        ),
+        knex.raw("TO_CHAR(booking_complaint.resolved_at, 'YYYY-MM-DD') AS complaint_resolved_at"),
         "booking_complaint.is_refund",
         "booking_complaint.refund_method",
         "booking_complaint.refund_amount"
@@ -289,10 +229,7 @@ export class PayoutService {
       .from("booking_complaint")
       .leftJoin("booking", "booking_complaint.booking_id", "booking.id")
       .leftJoin("studio", "booking.studio_id", "studio.id")
-      .whereBetween("booking_complaint.resolved_at", [
-        payoutStartDate,
-        payoutEndDate,
-      ])
+      .whereBetween("booking_complaint.resolved_at", [payoutStartDate, payoutEndDate])
       .andWhere({
         "studio.slug": slug,
         "booking_complaint.status": "resolved",
@@ -305,19 +242,7 @@ export class PayoutService {
   }
 
   async createPayoutRecord(data: PayoutCompleteRecordType) {
-    const {
-      slug,
-      method,
-      account_name,
-      account_number,
-      payoutStartDate,
-      payoutEndDate,
-      total_payout_amount,
-      completed_booking_amount,
-      dispute_amount,
-      refund_amount,
-      remarks,
-    } = data;
+    const { slug, method, account_name, account_number, payoutStartDate, payoutEndDate, total_payout_amount, completed_booking_amount, dispute_amount, refund_amount, remarks } = data;
     //return studio id by studio slug
 
     const studioIdResponse = await studioService.getStudioIdBySlug(slug);
@@ -345,8 +270,6 @@ export class PayoutService {
       })
       .into("payout")
       .returning("id");
-
-    console.log("hello2");
 
     console.log(insertedData);
     const payout_id = insertedData[0].id;

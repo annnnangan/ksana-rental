@@ -2,7 +2,7 @@ import { onBoardingRequiredSteps } from "@/lib/constants/studio-details";
 import handleError from "@/lib/handlers/error";
 import { ForbiddenError, NotFoundError, UnauthorizedError } from "@/lib/http-errors";
 import { findAreaByDistrictValue } from "@/lib/utils/areas-districts-converter";
-import { convertTimeToString } from "@/lib/utils/date-time/date-time-utils";
+import { convertTimeToString } from "@/lib/utils/date-time/format-time-utils";
 import { DateSpecificHourSchemaFormData } from "@/lib/validations/zod-schema/studio/studio-manage-schema";
 import {
   BasicInfoFormData,
@@ -18,43 +18,10 @@ import { knex } from "@/services/knex";
 import { Knex } from "knex";
 import { StudioStatus } from "../model";
 import { validateStudioService } from "./ValidateStudio";
+import { paginationService } from "../PaginationService";
 
 export class StudioService {
   constructor(private knex: Knex) {}
-
-  async getStudioBasicInfo(slug: string | null, status: StudioStatus[] | null) {
-    if (slug) {
-      // Validate if the studio exists by slug
-      const validationResponse = await validateStudioService.validateIsStudioExistBySlug(slug);
-
-      if (!validationResponse.success) {
-        // Return error immediately if the studio doesn't exist
-        return {
-          success: false,
-          error: validationResponse.error,
-        };
-      }
-    }
-
-    const mainQuery = this.knex.select("id", "name", "slug", "cover_photo", "logo", "district").from("studio");
-
-    // Add status filter if provided
-    if (status) {
-      mainQuery.whereIn("status", status);
-    }
-
-    // Add slug filter if provided and valid
-    if (slug) {
-      mainQuery.where({ slug });
-    }
-
-    const studios = await mainQuery;
-
-    return {
-      success: true,
-      data: studios,
-    };
-  }
 
   async getStudioIdBySlug(slug: string) {
     const studio_id = (await this.knex.select("id").from("studio").where({ slug }))[0]?.id;
@@ -80,6 +47,64 @@ export class StudioService {
       success: true,
       data: studios,
     };
+  }
+
+  /* ---------------------------------- Get Studio Basic Information ---------------------------------- */
+  /**
+   * Get either one studio by slug or
+   * Get all studio by studio status
+   * @returns name, slug, logo, cover_photo, district, address, min_price, number_of_review, number-of_completed_booking, rating
+   */
+  async getStudioBasicInfo({ slug, status, page = 1, limit = 5 }: { slug?: string; status?: StudioStatus; page: number; limit: number }) {
+    try {
+      if (slug) {
+        // Validate if the studio exists by slug
+        const validationResponse = await validateStudioService.validateIsStudioExistBySlug(slug);
+
+        if (!validationResponse.success) {
+          return validationResponse;
+        }
+      }
+
+      const mainQuery = this.knex
+        .select(
+          "studio.name",
+          "studio.slug",
+          "studio.cover_photo",
+          "studio.logo",
+          "studio.district",
+          "studio.address",
+          this.knex.raw(`CAST(AVG(review.rating) AS DECIMAL) AS rating`),
+          this.knex.raw(
+            `CAST(COUNT(DISTINCT CASE WHEN booking.status = 'confirmed' AND booking.date::DATE + booking.end_time::INTERVAL < NOW() THEN booking.id END) AS INTEGER) AS number_of_completed_booking`
+          ),
+          this.knex.raw(`CAST(COUNT(DISTINCT review.id) AS INTEGER) AS number_of_review`),
+          this.knex.raw(`CAST(MIN(studio_price.price) AS INTEGER) AS min_price`)
+        )
+        .leftJoin("booking", "studio.id", "booking.studio_id")
+        .leftJoin("review", "booking.reference_no", "review.booking_reference_no")
+        .leftJoin("studio_price", "studio.id", "studio_price.studio_id")
+        .from("studio")
+        .groupBy("studio.id");
+
+      let studios;
+
+      if (status) {
+        studios = await paginationService.paginateQuery(mainQuery.where("studio.status", status), page, limit);
+      }
+
+      if (slug) {
+        studios = await mainQuery.where("studio.slug", slug);
+      }
+
+      return {
+        success: true,
+        data: studios,
+      };
+    } catch (error) {
+      console.dir(error);
+      return handleError(error, "server") as ActionResponse;
+    }
   }
 
   /* ---------------------------------- Get Onboarding Step Status ---------------------------------- */

@@ -3,7 +3,7 @@ import handleError from "@/lib/handlers/error";
 import { ValidationError } from "@/lib/http-errors";
 import { auth } from "@/lib/next-auth-config/auth";
 import { StudioDoorPasswordSchema } from "@/lib/validations/zod-schema/booking-schema";
-import { bookingService } from "@/services/BookingService";
+import { bookingService } from "@/services/booking/BookingService";
 import { studioCreateService } from "@/services/StudioCreateService";
 import { NextRequest, NextResponse } from "next/server";
 

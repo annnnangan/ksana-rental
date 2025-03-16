@@ -1,4 +1,5 @@
-import { convertTimeToString, formatDate } from "@/lib/utils/date-time/date-time-utils";
+import { convertTimeToString } from "@/lib/utils/date-time/format-time-utils";
+import { formatDate } from "@/lib/utils/date-time/format-date-utils";
 import { TZDate } from "@date-fns/tz";
 import { differenceInMinutes, parse } from "date-fns";
 

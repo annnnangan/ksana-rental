@@ -4,8 +4,61 @@ import handleError from "@/lib/handlers/error";
 import { ForbiddenError, NotFoundError, UnauthorizedError, ValidationError } from "@/lib/http-errors";
 import { auth } from "@/lib/next-auth-config/auth";
 import { validateCancelBookingAvailability, validateCanLeaveBookingReview } from "@/lib/utils/date-time/manage-bookings-validation";
+import { BookingFormData } from "@/lib/validations/zod-schema/booking-schema";
 import { reviewBookingSchema, reviewFormData } from "@/lib/validations/zod-schema/review-booking-schema";
-import { bookingService } from "@/services/BookingService";
+import { bookingService } from "@/services/booking/BookingService";
+
+export const createPendingForPaymentBooking = async (data: BookingFormData) => {
+  try {
+    const session = await auth();
+    if (!session?.user.id) {
+      throw new UnauthorizedError("請先登入後才可處理。");
+    }
+
+    const userId = session?.user?.id;
+
+    //Create a pending for payment booking
+    const result = await bookingService.createPendingForPaymentBooking(data, userId);
+
+    if (!result?.success) {
+      return result as ErrorResponse;
+    }
+
+    return { success: true, data: result.data };
+  } catch (error) {
+    return handleError(error, "server") as ActionResponse;
+  }
+};
+
+export const createConfirmedForFreeBooking = async (data: BookingFormData) => {
+  try {
+    const session = await auth();
+    if (!session?.user.id) {
+      throw new UnauthorizedError("請先登入後才可處理。");
+    }
+
+    const userId = session?.user?.id;
+
+    //Create a pending for payment booking
+    const pendingPaymentResult = await bookingService.createPendingForPaymentBooking(data, userId);
+
+    if (!pendingPaymentResult?.success) {
+      return pendingPaymentResult as ErrorResponse;
+    }
+
+    const confirmedBookingResult = await bookingService.updateBookingStatusToConfirmed(pendingPaymentResult.data.reference_no, userId);
+
+    console.log("confirmedBookingResult", confirmedBookingResult);
+
+    if (!confirmedBookingResult?.success) {
+      return confirmedBookingResult as ErrorResponse;
+    }
+
+    return { success: true, data: pendingPaymentResult.data };
+  } catch (error) {
+    return handleError(error, "server") as ActionResponse;
+  }
+};
 
 export const cancelBooking = async ({ bookingReferenceNo, role, studioId }: { bookingReferenceNo: string; role: "user" | "studio"; studioId?: string }) => {
   try {

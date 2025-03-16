@@ -21,7 +21,8 @@ import { ArrowUpDown, ArrowDown, ArrowUp, ChevronRight, ChevronLeft } from "luci
 import { useState } from "react";
 import { Button } from "@/components/shadcn/button";
 import Filter from "../../react-table/Filter";
-import { convertTimeToString, formatDate } from "@/lib/utils/date-time/date-time-utils";
+import { convertTimeToString } from "@/lib/utils/date-time/format-time-utils";
+import { formatDate } from "@/lib/utils/date-time/format-date-utils";
 import BookingDetailsModal from "../BookingDetailsModal";
 
 export interface StudioBookingRecord {

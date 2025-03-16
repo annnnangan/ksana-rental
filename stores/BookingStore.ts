@@ -1,49 +1,27 @@
-import { Tbooking } from "@/lib/validations/zod-schema/booking-schema";
+import { BookingDateTimeSelectFormData } from "@/lib/validations/zod-schema/booking-schema";
 import { create } from "zustand";
 
 interface BookingStore {
-  bookingInfo: Tbooking;
-  setBookingTime: (startTime: string) => void;
-  resetBookingTime: () => void;
-  setBookingDate: (date: Date) => void;
-  setBookingPrice: (price: number) => void;
-  resetBookingPrice: () => void;
-  setStudio: (studio: string) => void;
-  setRemarks: (remarks: string) => void;
-  setWhatsapp: (whatsapp: string) => void;
+  bookingInfo: BookingDateTimeSelectFormData;
+  setBookingInfo: (updatedInfo: Partial<BookingDateTimeSelectFormData>) => void;
 }
 
 const useBookingStore = create<BookingStore>((set) => ({
   bookingInfo: {
-    startTime: "",
     date: new Date(),
+    startTime: "",
+    studioSlug: "",
+    studioName: "",
+    studioLogo: "",
+    studioAddress: "",
     price: 0,
-    studio: "",
-    remarks: "",
-    whatsapp: "",
+    usedCredit: 0,
+    paidAmount: 0,
+    isUsedCredit: false,
   },
-  setBookingTime: (startTime) => set((store) => ({ bookingInfo: { ...store.bookingInfo, startTime } })),
-  resetBookingTime: () =>
+  setBookingInfo: (updatedInfo) =>
     set((store) => ({
-      bookingInfo: { ...store.bookingInfo, startTime: "" },
-    })),
-  setBookingDate: (date) => set((store) => ({ bookingInfo: { ...store.bookingInfo, date } })),
-  setBookingPrice: (price) => set((store) => ({ bookingInfo: { ...store.bookingInfo, price } })),
-  resetBookingPrice: () =>
-    set((store) => ({
-      bookingInfo: { ...store.bookingInfo, bookingPrice: 0 },
-    })),
-  setStudio: (studio) =>
-    set((store) => ({
-      bookingInfo: { ...store.bookingInfo, studio },
-    })),
-  setRemarks: (remarks) =>
-    set((store) => ({
-      bookingInfo: { ...store.bookingInfo, remarks },
-    })),
-  setWhatsapp: (whatsapp) =>
-    set((store) => ({
-      bookingInfo: { ...store.bookingInfo, whatsapp },
+      bookingInfo: { ...store.bookingInfo, ...updatedInfo },
     })),
 }));
 

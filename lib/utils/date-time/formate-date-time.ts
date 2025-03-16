@@ -1,3 +1,5 @@
+import { isBefore, setHours, setMinutes, setSeconds } from "date-fns";
+
 export function formatDateSpecificHours(data: any[]) {
   const groupedData: Record<string, any[]> = {};
 
@@ -16,4 +18,36 @@ export function formatDateSpecificHours(data: any[]) {
     date,
     timeslots,
   }));
+}
+
+//accept Date or string (2025-03-16)
+export function isPastDateTime(date: Date | string, time: string) {
+  // Split the start time into hours, minutes, and seconds
+  const [hours, minutes, seconds] = time.split(":").map(Number);
+
+  // Combine selected date with start time
+  const selectedDateTime = setSeconds(setMinutes(setHours(date, hours), minutes), seconds ?? 0);
+
+  // Get the current date-time in UTC+8 (HKT)
+  const todayDate = new Date();
+  const hktOffset = 8 * 60; // Offset for Hong Kong Time (HKT = UTC+8)
+  const todayDateHKT = new Date(todayDate.getTime() + hktOffset * 60 * 1000);
+
+  // Validate if selected date and time are in the past
+  return isBefore(selectedDateTime, todayDate);
+}
+
+//accept Date or string (2025-03-16)
+export function isPastDate(date: Date | string) {
+  // Get the current date
+  const today = new Date();
+  // Set the time of today's date to midnight (start of the day)
+  today.setHours(0, 0, 0, 0);
+
+  // Set the time of the selected date to midnight (start of the day)
+  const normalizedSelectedDate = new Date(date);
+  normalizedSelectedDate.setHours(0, 0, 0, 0);
+
+  // Compare the dates
+  return normalizedSelectedDate < today;
 }

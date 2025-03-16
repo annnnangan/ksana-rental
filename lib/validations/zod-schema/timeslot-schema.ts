@@ -1,6 +1,6 @@
 import * as z from "zod";
 
-const fromTimeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
+export const fromTimeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
 const toTimeRegex = /^([01]\d|2[0-4]):([0-5]\d)$/;
 
 const priceTypes = ["peak", "non-peak"] as const;
