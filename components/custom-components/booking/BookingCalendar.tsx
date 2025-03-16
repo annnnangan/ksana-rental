@@ -24,10 +24,9 @@ import { PriceType } from "@/services/model";
 import useBookingStore from "@/stores/BookingStore";
 import SectionFallback from "../SectionFallback";
 
-const availableCredit = 50;
-
 const BookingCalendar = ({
   bookingStudioBasicInfo,
+  availableCredit,
 }: {
   bookingStudioBasicInfo: {
     name: string;
@@ -41,6 +40,7 @@ const BookingCalendar = ({
     number_of_completed_booking: number;
     rating: number;
   };
+  availableCredit: number;
 }) => {
   const router = useRouter();
 

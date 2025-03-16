@@ -287,7 +287,7 @@ export class BookingService {
   }
 
   // 3. Update booking status to confirmed and insert stripe payment id when payment success
-  async updateBookingStatusToConfirmed(bookingReference: string, userId: string, stripePaymentId: string) {
+  async updateBookingStatusToConfirmed(bookingReference: string, userId: string, stripePaymentId?: string) {
     try {
       // Validate if this booking reference number belong to the user
       const validateIsBookingBelongUserResult = await validateBookingService.validateIsBookingBelongUser(bookingReference, userId);
@@ -312,8 +312,18 @@ export class BookingService {
         throw new ForbiddenError("此預約已失效/已完成，請重新預約。");
       }
 
-      // Update the stripe payment id and booking status to confirmed when payment is success
-      await knex("booking").where({ reference_no: bookingReference, user_id: userId }).update({ stripe_payment_id: stripePaymentId, status: "confirmed" });
+      const bookingPrice = (await this.knex("booking").select("credit_redeem_payment", "actual_payment").where({ reference_no: bookingReference, user_id: userId }))[0];
+
+      if (bookingPrice.actual_payment === 0) {
+        await this.knex("booking").where({ reference_no: bookingReference, user_id: userId }).update({ status: "confirmed" });
+      } else {
+        // Update the stripe payment id and booking status to confirmed when payment is success
+        await this.knex("booking").where({ reference_no: bookingReference, user_id: userId }).update({ stripe_payment_id: stripePaymentId, status: "confirmed" });
+      }
+
+      const availableCreditAmount = (await this.knex("users").where({ id: userId }).select("credit_amount"))[0].credit_amount;
+      const updatedCreditAmount = availableCreditAmount - bookingPrice.credit_redeem_payment;
+      await this.knex("users").where({ id: userId }).update({ credit_amount: updatedCreditAmount });
 
       return {
         success: true,

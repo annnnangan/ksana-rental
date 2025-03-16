@@ -17,7 +17,7 @@ import { useEffect, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 
-import { createPendingForPaymentBooking } from "@/actions/booking";
+import { createConfirmedForFreeBooking, createPendingForPaymentBooking } from "@/actions/booking";
 import { Textarea } from "@/components/shadcn/textarea";
 import { useSessionUser } from "@/hooks/use-session-user";
 
@@ -25,6 +25,7 @@ import { formatDate } from "@/lib/utils/date-time/format-date-utils";
 import { BookingFormData, BookingSchema } from "@/lib/validations/zod-schema/booking-schema";
 import useBookingStore from "@/stores/BookingStore";
 import { calculateBookingEndTime } from "@/lib/utils/date-time/format-time-utils";
+import { useQueryClient } from "@tanstack/react-query";
 
 const BookingConfirmationPage = () => {
   const user = useSessionUser();
@@ -35,6 +36,8 @@ const BookingConfirmationPage = () => {
   const {
     bookingInfo: { date, startTime, studioSlug, studioName, studioAddress, studioLogo, price, usedCredit, paidAmount, isUsedCredit },
   } = useBookingStore();
+
+  const queryClient = useQueryClient();
 
   const form = useForm<BookingFormData>({
     resolver: zodResolver(BookingSchema),
@@ -89,21 +92,39 @@ const BookingConfirmationPage = () => {
     });
   }, [date, startTime, studioSlug, studioName, studioAddress, studioLogo, price, usedCredit, paidAmount, isUsedCredit]);
 
-  const handleSubmit = async (data: BookingFormData) => {
+  const handleSubmit = async (formData: BookingFormData) => {
     startTransition(() => {
-      createPendingForPaymentBooking(data).then((data) => {
-        if (!data.success) {
-          //@ts-ignore
-          toast(data?.error?.message, {
-            position: "top-right",
-            type: "error",
-            autoClose: 1000,
-          });
-          router.push(`/booking?slug=${studioSlug}`);
-        } else {
-          router.push(`/booking/payment?booking=${data.data.reference_no}`);
-        }
-      });
+      if (formData.paidAmount > 0) {
+        createPendingForPaymentBooking(formData).then((data) => {
+          if (!data.success) {
+            //@ts-ignore
+            toast(data?.error?.message, {
+              position: "top-right",
+              type: "error",
+              autoClose: 1000,
+            });
+            router.push(`/booking?slug=${studioSlug}`);
+          } else {
+            router.push(`/booking/payment?booking=${data.data.reference_no}`);
+          }
+        });
+      } else {
+        createConfirmedForFreeBooking(formData).then((data) => {
+          if (!data.success) {
+            //@ts-ignore
+            toast(data?.error?.message, {
+              position: "top-right",
+              type: "error",
+              autoClose: 1000,
+            });
+            router.push(`/booking?slug=${studioSlug}`);
+          } else {
+            router.push(`/booking/success?booking=${data.data.reference_no}`);
+          }
+        });
+      }
+
+      queryClient.invalidateQueries({ queryKey: ["timeslots", studioSlug, formatDate(date)] });
     });
   };
 

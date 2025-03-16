@@ -30,22 +30,31 @@ export const createPendingForPaymentBooking = async (data: BookingFormData) => {
   }
 };
 
-export const updateBookingStatus = async (data: BookingFormData) => {
+export const createConfirmedForFreeBooking = async (data: BookingFormData) => {
   try {
     const session = await auth();
     if (!session?.user.id) {
       throw new UnauthorizedError("請先登入後才可處理。");
     }
 
-    //TODO - Check if the timeslot is available for booking
+    const userId = session?.user?.id;
 
-    //TODO - Create a pending for payment booking
+    //Create a pending for payment booking
+    const pendingPaymentResult = await bookingService.createPendingForPaymentBooking(data, userId);
 
-    // if (!result?.success) {
-    //   return result;
-    // }
+    if (!pendingPaymentResult?.success) {
+      return pendingPaymentResult as ErrorResponse;
+    }
 
-    return { success: true };
+    const confirmedBookingResult = await bookingService.updateBookingStatusToConfirmed(pendingPaymentResult.data.reference_no, userId);
+
+    console.log("confirmedBookingResult", confirmedBookingResult);
+
+    if (!confirmedBookingResult?.success) {
+      return confirmedBookingResult as ErrorResponse;
+    }
+
+    return { success: true, data: pendingPaymentResult.data };
   } catch (error) {
     return handleError(error, "server") as ActionResponse;
   }

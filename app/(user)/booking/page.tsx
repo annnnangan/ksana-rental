@@ -3,6 +3,7 @@ import SectionTitle from "@/components/custom-components/studio-details/SectionT
 import ToastMessageWithRedirect from "@/components/custom-components/ToastMessageWithRedirect";
 import { auth } from "@/lib/next-auth-config/auth";
 import { studioService } from "@/services/studio/StudioService";
+import { userService } from "@/services/user/UserService";
 
 import React from "react";
 
@@ -30,10 +31,12 @@ const BookingPage = async ({ searchParams }: { searchParams: Promise<{ [key: str
     return <ToastMessageWithRedirect type={"error"} message={bookingStudioBasicInfoResult?.error.message} redirectPath={"/"} />;
   }
 
+  const userAvailableCredit = (await userService.getUserCredit(session?.user?.id)).data.credit_amount || 0;
+
   return (
     <>
       <SectionTitle>選擇預約日期及時間</SectionTitle>
-      <BookingCalendar bookingStudioBasicInfo={bookingStudioBasicInfo} />
+      <BookingCalendar bookingStudioBasicInfo={bookingStudioBasicInfo} availableCredit={userAvailableCredit} />
     </>
   );
 };
