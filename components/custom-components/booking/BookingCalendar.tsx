@@ -132,7 +132,7 @@ const BookingCalendar = ({
       <div className="grid lg:grid-cols-4 gap-5">
         <div className="lg:col-span-3">
           <div className="space-y-6">
-            <div className="flex flex-col space-y-5 md:flex-row md:justify-center md:space-x-12 bg-gray-50 py-5 px-4 rounded-xl shadow">
+            <div className="flex flex-col space-y-5 md:grid md:grid-cols-3 md:space-x-10 bg-gray-50 py-5 px-10 rounded-xl shadow">
               <div className="flex flex-col items-center space-y-2">
                 {errors?.date && <ErrorMessage>{errors?.date?.message}</ErrorMessage>}
                 <Calendar
@@ -147,7 +147,7 @@ const BookingCalendar = ({
                   toMonth={endMonth}
                 />
               </div>
-              <div className="space-y-7">
+              <div className="space-y-7 col-span-2">
                 <div className="flex md:flex-row items-start flex-wrap">
                   {priceType.map((type) => (
                     <div key={type.label} className="flex justify-center items-center me-4">
@@ -158,8 +158,8 @@ const BookingCalendar = ({
                 </div>
                 <div className="space-y-2">
                   {errors?.startTime && <ErrorMessage>{errors?.startTime?.message}</ErrorMessage>}
-                  <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-                    {isLoadingTimeslots && Array.from({ length: 5 }, (_, i) => <Timeslot isLoading={true} key={i} />)}
+                  <div className="grid grid-cols-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                    {isLoadingTimeslots && Array.from({ length: 15 }, (_, i) => <Timeslot isLoading={true} key={i} />)}
 
                     {!isLoadingTimeslots &&
                       //@ts-ignore

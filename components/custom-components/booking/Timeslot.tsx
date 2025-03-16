@@ -40,7 +40,7 @@ const Timeslot = ({ isBooked, priceType, startTime, isSelected, onSelect, isLoad
   return (
     <>
       {isLoading ? (
-        <Skeleton className="rounded-xl h-9 w-full md:w-[90px]" />
+        <Skeleton className="rounded-xl h-9 w-full" />
       ) : (
         <Button variant={isSelected ? "default" : "outline"} disabled={isBooked} className={buttonClass} onClick={onSelect} type="button">
           <span className={dotClass}></span>
