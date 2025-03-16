@@ -17,7 +17,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 
-import { calculateBookingEndTime } from "@/lib/utils/date-time/formate-time-utils";
+import { calculateBookingEndTime } from "@/lib/utils/date-time/format-time-utils";
 import { formatDate } from "@/lib/utils/date-time/format-date-utils";
 import { BookingDateTimeSelectFormData, BookingDateTimeSelectSchema } from "@/lib/validations/zod-schema/booking-schema";
 import { PriceType } from "@/services/model";

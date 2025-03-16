@@ -13,7 +13,7 @@ export function formatDate(date: Date | string) {
 }
 
 //Get day of week in English by date
-export function getDayOfWeekInEnglishByDate(date: Date) {
+export function getDayOfWeekInEnglishByDate(date: Date | string) {
   const dateInHKT = formatDate(date);
   return dayOfWeekList[Number(getDay(dateInHKT))];
 }

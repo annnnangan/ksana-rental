@@ -2,12 +2,9 @@
 import { Button } from "@/components/shadcn/button";
 import { Calendar } from "@/components/shadcn/calendar";
 import { Label } from "@/components/shadcn/label";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/shadcn/popover";
-import { formatDate } from "@/lib/utils/date-time/date-time-utils";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/shadcn/popover";
+import { formatDate } from "@/lib/utils/date-time/format-date-utils";
+
 import { CalendarIcon, ChevronDown, ChevronUp } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -19,11 +16,7 @@ interface Props {
 const DatePicker = ({ updateQueryString }: Props) => {
   const searchParams = useSearchParams();
 
-  const [date, setDate] = useState<Date | undefined>(
-    searchParams.get("date") !== null
-      ? new Date(searchParams.get("date")!)
-      : undefined
-  );
+  const [date, setDate] = useState<Date | undefined>(searchParams.get("date") !== null ? new Date(searchParams.get("date")!) : undefined);
 
   const [startMonth, setStartMonth] = useState<Date>();
   const [endMonth, setEndMonth] = useState<Date>();
@@ -48,25 +41,14 @@ const DatePicker = ({ updateQueryString }: Props) => {
       </Label>
       <Popover>
         <PopoverTrigger asChild>
-          <Button
-            variant={"outline"}
-            className="w-full justify-start text-left font-normal focus:outline-none focus:ring-1 focus:ring-ring hover:bg-transparent"
-          >
+          <Button variant={"outline"} className="w-full justify-start text-left font-normal focus:outline-none focus:ring-1 focus:ring-ring hover:bg-transparent">
             <CalendarIcon className=" text-gray-500" />
             {date ? formatDate(date) : <span>選擇日期</span>}
             <ChevronDown className="h-4 w-4 text-gray-500" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
-          <Calendar
-            mode="single"
-            selected={date}
-            onSelect={(day) => handleChange(day ?? new Date())}
-            initialFocus
-            disabled={{ before: new Date() }}
-            fromMonth={startMonth}
-            toMonth={endMonth}
-          />
+          <Calendar mode="single" selected={date} onSelect={(day) => handleChange(day ?? new Date())} initialFocus disabled={{ before: new Date() }} fromMonth={startMonth} toMonth={endMonth} />
         </PopoverContent>
       </Popover>
     </div>

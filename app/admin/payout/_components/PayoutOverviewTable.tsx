@@ -1,7 +1,7 @@
 import ToastMessageWithRedirect from "@/components/custom-components/ToastMessageWithRedirect";
 import { Button } from "@/components/shadcn/button";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/shadcn/table";
-import { formatDate, getLastMonday } from "@/lib/utils/date-time/date-time-utils";
+
 import { fetchWithBaseUrl } from "@/lib/utils/fetch-with-base-url";
 import { PayoutMethod, PayoutStatus } from "@/services/model";
 import { startOfWeek, subDays } from "date-fns";
@@ -9,6 +9,7 @@ import { ArrowUpIcon, HandCoins } from "lucide-react";
 import Link from "next/link";
 import PayoutStatusBadge from "./PayoutStatusBadge";
 import { payoutMethodMap } from "@/lib/constants/studio-details";
+import { formatDate } from "@/lib/utils/date-time/format-date-utils";
 
 export interface PayoutQuery {
   startDate: string;

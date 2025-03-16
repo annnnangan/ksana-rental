@@ -2,7 +2,7 @@ import handleError from "@/lib/handlers/error";
 import { ForbiddenError, UnauthorizedError } from "@/lib/http-errors";
 import { sessionUser } from "@/lib/next-auth-config/session-user";
 import { isPastDate, isPastDateTime } from "@/lib/utils/date-time/formate-date-time";
-import { convertIntegerToStringTime, getHourFromTime } from "@/lib/utils/date-time/formate-time-utils";
+import { convertIntegerToStringTime, getHourFromTime } from "@/lib/utils/date-time/format-time-utils";
 import { bookingService } from "@/services/booking/BookingService";
 
 import { NextRequest, NextResponse } from "next/server";

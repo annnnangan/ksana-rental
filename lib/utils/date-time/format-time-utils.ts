@@ -1,3 +1,5 @@
+import { isAfter, isBefore, isWithinInterval, parse } from "date-fns";
+
 /* -------------------------- 🕚 Time Format Utils -------------------------- */
 
 //Frontend to Backend - Get "00:00:00" from "00:00" or "0"
@@ -37,4 +39,23 @@ export function getHourFromTime(time: string, isEndTime: boolean) {
 export function calculateBookingEndTime(startTime: string) {
   const bookingDurationInHour = 1;
   return convertIntegerToStringTime(parseInt(startTime.split(":")[0]) + bookingDurationInHour);
+}
+
+export function isTimeInRange(bookingTime: string, timeRanges: any[]) {
+  // Parse the target time as a Date object (use today’s date to create a valid Date)
+  const targetDate = parse(bookingTime, "HH:mm:ss", new Date());
+
+  return timeRanges.some(({ open_time, end_time }) => {
+    // Parse open and end times
+    const openDate = parse(open_time, "HH:mm:ss", new Date());
+    const endDate = parse(end_time, "HH:mm:ss", new Date());
+
+    // Check if the target time is within the range
+    if (isBefore(openDate, endDate)) {
+      return isWithinInterval(targetDate, { start: openDate, end: endDate });
+    } else {
+      // Handle the case when the range spans over midnight
+      return isAfter(targetDate, openDate) || isBefore(targetDate, endDate);
+    }
+  });
 }

@@ -6,9 +6,10 @@ import SectionTitle from "@/components/custom-components/studio-details/SectionT
 import ToastMessageWithRedirect from "@/components/custom-components/ToastMessageWithRedirect";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/shadcn/tabs";
 import { sessionUser } from "@/lib/next-auth-config/session-user";
-import { convertTimeToString, formatDate } from "@/lib/utils/date-time/date-time-utils";
 import { studioService } from "@/services/studio/StudioService";
 import { BusinessHoursAndPriceFormData } from "@/lib/validations/zod-schema/studio/studio-step-schema";
+import { formatDate } from "@/lib/utils/date-time/format-date-utils";
+import { convertTimeToString } from "@/lib/utils/date-time/format-time-utils";
 
 const BusinessHourAndPricePage = async ({ params }: { params: Promise<{ id: string }> }) => {
   //Get Studio ID from URL

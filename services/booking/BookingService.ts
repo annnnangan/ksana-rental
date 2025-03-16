@@ -3,15 +3,14 @@ import { knex } from "@/services/knex";
 
 import handleError from "@/lib/handlers/error";
 import { ForbiddenError, NotFoundError, RequestError, UnauthorizedError } from "@/lib/http-errors";
+import { getDayOfWeekInEnglishByDate } from "@/lib/utils/date-time/format-date-utils";
+import { isPastDateTime } from "@/lib/utils/date-time/formate-date-time";
+import { calculateBookingEndTime, convertStringToTime, getHourFromTime } from "@/lib/utils/date-time/format-time-utils";
 import { reviewFormData } from "@/lib/validations/zod-schema/review-booking-schema";
 import { Knex } from "knex";
 import { validateStudioService } from "../studio/ValidateStudio";
 import { bookingStatusService } from "./BookingStatusService";
 import { validateBookingService } from "./ValidateBookingService";
-import { getDay } from "date-fns";
-import { calculateBookingEndTime, convertStringToTime, getHourFromTime } from "@/lib/utils/date-time/formate-time-utils";
-import { formatDate, getDayOfWeekInEnglishByDate } from "@/lib/utils/date-time/format-date-utils";
-import { isPastDateTime } from "@/lib/utils/date-time/formate-date-time";
 
 export class BookingService {
   constructor(private knex: Knex) {}

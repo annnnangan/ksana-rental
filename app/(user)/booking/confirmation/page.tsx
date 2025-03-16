@@ -24,7 +24,7 @@ import { useSessionUser } from "@/hooks/use-session-user";
 import { formatDate } from "@/lib/utils/date-time/format-date-utils";
 import { BookingFormData, BookingSchema } from "@/lib/validations/zod-schema/booking-schema";
 import useBookingStore from "@/stores/BookingStore";
-import { calculateBookingEndTime } from "@/lib/utils/date-time/formate-time-utils";
+import { calculateBookingEndTime } from "@/lib/utils/date-time/format-time-utils";
 
 const BookingConfirmationPage = () => {
   const user = useSessionUser();

@@ -2,7 +2,7 @@ import { onBoardingRequiredSteps } from "@/lib/constants/studio-details";
 import handleError from "@/lib/handlers/error";
 import { ForbiddenError, NotFoundError, UnauthorizedError } from "@/lib/http-errors";
 import { findAreaByDistrictValue } from "@/lib/utils/areas-districts-converter";
-import { convertTimeToString } from "@/lib/utils/date-time/formate-time-utils";
+import { convertTimeToString } from "@/lib/utils/date-time/format-time-utils";
 import { DateSpecificHourSchemaFormData } from "@/lib/validations/zod-schema/studio/studio-manage-schema";
 import {
   BasicInfoFormData,

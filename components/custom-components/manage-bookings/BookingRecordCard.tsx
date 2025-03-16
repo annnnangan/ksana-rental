@@ -5,7 +5,7 @@ import { Building2, Calendar, MapPinHouse } from "lucide-react";
 import { Tooltip } from "react-tooltip";
 import AvatarWithFallback from "../AvatarWithFallback";
 
-import { convertTimeToString } from "@/lib/utils/date-time/formate-time-utils";
+import { convertTimeToString } from "@/lib/utils/date-time/format-time-utils";
 import { validateDoorPasswordAvailability } from "@/lib/utils/date-time/manage-bookings-validation";
 import Link from "next/link";
 import { useEffect, useState } from "react";

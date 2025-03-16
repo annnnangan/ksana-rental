@@ -6,7 +6,7 @@ import Image from "next/image";
 import ToastMessageWithRedirect from "@/components/custom-components/ToastMessageWithRedirect";
 import { bookingService } from "@/services/booking/BookingService";
 import { GENERAL_ERROR_MESSAGE } from "@/lib/constants/error-message";
-import { convertTimeToString } from "@/lib/utils/date-time/formate-time-utils";
+import { convertTimeToString } from "@/lib/utils/date-time/format-time-utils";
 
 const BookingSuccessPage = async ({ searchParams }: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) => {
   // Check

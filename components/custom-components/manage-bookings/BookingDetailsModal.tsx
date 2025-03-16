@@ -2,7 +2,7 @@ import { Button } from "@/components/shadcn/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/shadcn/dialog";
 
 import { cancelBooking } from "@/actions/booking";
-import { convertTimeToString, formatDate } from "@/lib/utils/date-time/date-time-utils";
+import { convertTimeToString } from "@/lib/utils/date-time/format-time-utils";
 import { validateCancelBookingAvailability, validateCanLeaveBookingReview } from "@/lib/utils/date-time/manage-bookings-validation";
 import { Building2, Calendar, EllipsisVertical, HandCoins, Hash, MapPinHouse, Phone } from "lucide-react";
 import Link from "next/link";
@@ -12,6 +12,7 @@ import { toast } from "react-toastify";
 import { UserBookingRecord } from "./BookingRecordCard";
 import ReviewBookingModal from "./ReviewBookingModal";
 import { StudioBookingRecord } from "./studio/BookingTable";
+import { formatDate } from "@/lib/utils/date-time/format-date-utils";
 
 interface BaseProps {
   isOpen: boolean;
