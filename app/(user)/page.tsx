@@ -1,7 +1,7 @@
 import SlideArrowButton from "@/components/animata/button/slide-arrow-button";
 import FeatureCardSwiper from "@/components/custom-components/homepage/FeatureCardSwiper";
 import { Card, CardContent, CardHeader } from "@/components/shadcn/card";
-import { Calendar, Clock5 } from "lucide-react";
+import { Calendar, CalendarCheck2, Clock5, UserRoundSearch } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -9,6 +9,9 @@ import { Be_Vietnam_Pro } from "next/font/google";
 import BookingInstructionSection from "@/components/custom-components/homepage/BookingInstructionSection";
 import JoinUsBannerSection from "@/components/custom-components/homepage/JoinUsBannerSection";
 import StudiosSection from "@/components/custom-components/homepage/StudiosSection";
+import NavBar from "@/components/custom-components/layout/main-nav-bar/NavBar";
+import LinkButton from "@/components/animata/button/link-button";
+import Footer from "@/components/custom-components/layout/MainFooter";
 
 const VietnamProFont = Be_Vietnam_Pro({
   subsets: ["latin"],
@@ -21,101 +24,80 @@ export default function Home() {
       studio_slug: "soul-yogi-studio",
       studio_name: "Soul Yogi Studio",
       rating: "5",
-      cover_photo:
-        "https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/seed-photo/soul-yogi/soul-yogi-cover.jpg",
+      cover_photo: "https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/seed-photo/soul-yogi/soul-yogi-cover.jpg",
     },
     {
       studio_slug: "zen-oasis",
       studio_name: "Zen Oasis",
       rating: "5",
-      cover_photo:
-        "https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/seed-photo/zen-oasis/zen-oasis-cover.jpg",
+      cover_photo: "https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/seed-photo/zen-oasis/zen-oasis-cover.jpg",
     },
     {
       studio_slug: "larana-yoga",
       studio_name: "Larana Yoga",
       rating: "5",
-      cover_photo:
-        "https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/seed-photo/larana/larana-cover.jpg",
+      cover_photo: "https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/seed-photo/larana/larana-cover.jpg",
     },
   ];
   return (
-    <div className="container mx-auto px-2 py-5 md:px-4 lg:px-6">
-      <div className="flex mb-5 flex-col  md:flex-row md:justify-between">
-        <h1
-          className={`w-full mb-5 md:mb-0 md:w-1/2 text-6xl ${VietnamProFont.className}`}
-        >
-          <span>Discover your</span>
-          <br />
-          <span>inner peace</span>
-        </h1>
-        {/* featured studios */}
-        <div className="w-full md:w-1/2">
-          <FeatureCardSwiper slideItems={featured_studios} />
-        </div>
-      </div>
-      <div className="relative">
-        {/* Hero banner */}
-        <div className="relative h-96 rounded-2xl overflow-hidden">
-          <Image
-            src="/home-cover.png"
-            alt="cover image"
-            className="object-cover object-center"
-            fill
-            sizes="w-auto"
-          />
-        </div>
-
-        {/* CTA button on banner */}
-        <div className="absolute bottom-0 left-0 ms-5 lg:ms-10 mb-8">
-          <Link href="/explore-studios">
-            <SlideArrowButton
-              primaryColor="hsl(var(--primary))"
-              className="mt-5"
-            >
-              立即預約
-            </SlideArrowButton>
-          </Link>
-        </div>
-        {/* booking reminder card */}
-        <div className="absolute top-0 right-0 mt-2 me-3">
-          <Link href="/bookings" className="">
-            <Card className="w-[150px] relative rounded-md border-0 shadow-2xl hover:animate-tiltShake transition">
-              <CardHeader className="p-1">
-                <div className="relative aspect-video rounded-md overflow-hidden">
-                  <Image
-                    src="/home-cover.png"
-                    alt="cover image"
-                    className="w-full h-full object-cover object-center"
-                    fill
-                    sizes="(min-width: 1540px) 724px, (min-width: 1280px) 596px, (min-width: 1040px) 468px, (min-width: 780px) 340px, 276px"
-                  />
-                </div>
-              </CardHeader>
-              <CardContent className="px-3 pt-2 pb-4">
-                <p className="font-bold text-sm">Soul Yogi Studio</p>
-                <div className="flex gap-1 flex-wrap mt-1">
-                  <p className="text-[10px] text-gray-500 flex gap-1 items-center">
-                    <Calendar size={14} />
-                    2025-01-20
-                  </p>
-                  <p className="text-[10px] text-gray-500 flex gap-1 items-center">
-                    <Clock5 size={14} />
-                    11:00 - 12:00
-                  </p>
-                </div>
-              </CardContent>
-              <div className="rounded-2xl absolute top-0 left-0 ms-2 mt-3 bg-white text-[8px] px-2 py-1">
-                Next Booking
+    <div className="">
+      <div className="flex flex-col pb-5 min-h-[500px] bg-[url(/yoga-image-assets/karolina-grabowska-GkXJisd5W1M-unsplash-m.jpg)] bg-cover bg-center">
+        <NavBar />
+        <div className="container mx-auto flex flex-col grow px-2 md:px-0">
+          {/* Text */}
+          <div className="text-white grow mt-7">
+            <div className="flex items-center gap-3">
+              <h1 className={`text-6xl ${VietnamProFont.className} drop-shadow-xl`}>Find Your</h1>
+              <div className="relative w-28 h-12 rounded-full overflow-hidden shadow-2xl">
+                <Image src="/yoga-image-assets/getty-images-zFgdwsNh3Q4-unsplash.jpg" alt="cover image" className="object-cover object-bottom" fill sizes="w-auto" />
               </div>
-            </Card>
-          </Link>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className="relative w-28 h-12 rounded-full overflow-hidden shadow-2xl">
+                <Image src="/yoga-image-assets/stephanie-greene-1aB-1s4BIEo-unsplash.jpg" alt="cover image" className="object-cover object-bottom" fill sizes="w-auto" />
+              </div>
+
+              <h2 className={`text-6xl ${VietnamProFont.className} drop-shadow-xl`}>Inner Peace</h2>
+            </div>
+          </div>
+
+          {/* Recommend Studio Swiper */}
+          <div className="flex justify-end">
+            <div className="w-full md:w-[500px]">
+              <FeatureCardSwiper slideItems={featured_studios} />
+            </div>
+          </div>
         </div>
       </div>
 
-      <StudiosSection />
-      <BookingInstructionSection />
-      <JoinUsBannerSection />
+      {/* <StudiosSection /> */}
+
+      <div className="container mx-auto px-2 md:px-0">
+        <BookingInstructionSection />
+        <div className="my-10 bg-[url(/yoga-image-assets/join-us-background.png)] bg-cover bg-left-top h-[300px] rounded-lg flex items-center justify-end p-5">
+          <div className="w-1/2 bg-white bg-opacity-80 p-5 rounded-lg">
+            {/* Takes half of the container */}
+            <h2 className="text-2xl font-bold">Join Us</h2>
+            <p className="text-sm">成為我們的場地提供者</p>
+            <div className="flex items-center gap-2 mt-2">
+              <div className="rounded-full bg-white w-8 h-8 flex justify-center items-center">
+                <CalendarCheck2 size={20} color="#01a2c7" />
+              </div>
+              <p className="text-sm">輕鬆管理所有場地預約</p>
+            </div>
+            <div className="flex items-center gap-2 mt-2">
+              <div className="rounded-full bg-white w-8 h-8 flex justify-center items-center">
+                <UserRoundSearch size={20} color="#01a2c7" />
+              </div>
+              <p className="text-sm">尋找更多顧客</p>
+            </div>
+
+            <LinkButton href="/auth/register?redirect=/studio-owner/dashboard">加入我們</LinkButton>
+          </div>
+        </div>
+      </div>
+      <Footer />
     </div>
   );
 }
