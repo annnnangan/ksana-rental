@@ -5,19 +5,14 @@ import { allStudiosService } from "@/services/AllStudiosService";
 import StudioCardSwiper from "../studio/StudioCardSwiper";
 import ToastMessageWithRedirect from "../ToastMessageWithRedirect";
 import ButtonLink from "../buttons/ButtonLink";
+import { studioService } from "@/services/studio/StudioService";
 
-const StudiosSection = async () => {
+const HomepageStudioSection = async () => {
   let studioListData: studioCardInfo[] = [];
 
-  try {
-    const studioList = await allStudiosService.getStudios();
-    if (studioList.success) {
-      studioListData = studioList.data;
-    }
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "系統發生未預期錯誤，請重試。";
-    return <ToastMessageWithRedirect type={"error"} message={errorMessage} redirectPath={"/"} />;
-  }
+  const studioListResult = await studioService.getStudioBasicInfo({ status: "active", page: 1, limit: 10 });
+  studioListData = studioListResult.success && studioListResult.data;
+
   return (
     <div className="my-10 flex flex-col items-center">
       <h2 className="text-2xl font-bold text-center mb-5">尋找場地</h2>
@@ -33,4 +28,4 @@ const StudiosSection = async () => {
   );
 };
 
-export default StudiosSection;
+export default HomepageStudioSection;

@@ -12,6 +12,7 @@ import StudiosSection from "@/components/custom-components/homepage/StudiosSecti
 import NavBar from "@/components/custom-components/layout/main-nav-bar/NavBar";
 import LinkButton from "@/components/animata/button/link-button";
 import Footer from "@/components/custom-components/layout/MainFooter";
+import HomepageStudioSection from "@/components/custom-components/homepage/StudiosSection";
 
 const VietnamProFont = Be_Vietnam_Pro({
   subsets: ["latin"],
@@ -43,6 +44,7 @@ export default function Home() {
     <div className="">
       <div className="flex flex-col pb-5 min-h-[500px] bg-[url(/yoga-image-assets/karolina-grabowska-GkXJisd5W1M-unsplash-m.jpg)] bg-cover bg-center">
         <NavBar />
+        {/* Hero Section */}
         <div className="container mx-auto flex flex-col grow px-2 md:px-0">
           {/* Text */}
           <div className="text-white grow mt-7">
@@ -71,9 +73,8 @@ export default function Home() {
         </div>
       </div>
 
-      {/* <StudiosSection /> */}
-
       <div className="container mx-auto px-2 md:px-0">
+        <HomepageStudioSection />
         <BookingInstructionSection />
         <div className="my-10 bg-[url(/yoga-image-assets/join-us-background.png)] bg-cover bg-left-top h-[300px] rounded-lg flex items-center justify-end p-5">
           <div className="w-1/2 bg-white bg-opacity-80 p-5 rounded-lg">

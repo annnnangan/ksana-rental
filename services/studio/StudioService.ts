@@ -85,7 +85,8 @@ export class StudioService {
         .leftJoin("review", "booking.reference_no", "review.booking_reference_no")
         .leftJoin("studio_price", "studio.id", "studio_price.studio_id")
         .from("studio")
-        .groupBy("studio.id");
+        .groupBy("studio.id")
+        .orderBy("rating", "desc");
 
       let studios;
 
