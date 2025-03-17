@@ -32,22 +32,16 @@ const FeatureCardSwiper = ({ slideItems }: Props) => {
   return (
     <>
       <div className="flex justify-between">
-        <p className="text-xs flex items-center gap-1">
+        <p className="text-xs flex items-center gap-1 text-white drop-shadow-xl font-bold">
           <ThumbsUp size={12} />
           推薦場地
         </p>
         {/* Swiper Buttons */}
         <div className="flex space-x-1 mb-2 justify-end">
-          <Button
-            onClick={() => swiperRef.current?.slidePrev()}
-            className="rounded-full p-0 h-5 w-5"
-          >
+          <Button onClick={() => swiperRef.current?.slidePrev()} className="rounded-full p-0 h-5 w-5">
             <ArrowBigLeft />
           </Button>
-          <Button
-            onClick={() => swiperRef.current?.slideNext()}
-            className="rounded-full p-0 h-5 w-5 "
-          >
+          <Button onClick={() => swiperRef.current?.slideNext()} className="rounded-full p-0 h-5 w-5 ">
             <ArrowBigRight />
           </Button>
         </div>
@@ -66,12 +60,7 @@ const FeatureCardSwiper = ({ slideItems }: Props) => {
       >
         {slideItems.map((item) => (
           <SwiperSlide key={item.studio_slug}>
-            <FeatureCard
-              studio_name={item.studio_name}
-              studio_slug={item.studio_slug}
-              cover_image={item.cover_photo}
-              rating={item.rating}
-            />
+            <FeatureCard studio_name={item.studio_name} studio_slug={item.studio_slug} cover_image={item.cover_photo} rating={item.rating} />
           </SwiperSlide>
         ))}
       </Swiper>
