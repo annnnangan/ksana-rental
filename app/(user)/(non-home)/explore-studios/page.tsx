@@ -1,34 +1,50 @@
-import { allStudiosService } from "@/services/AllStudiosService";
-
-import ToastMessageWithRedirect from "@/components/custom-components/ToastMessageWithRedirect";
-import StudioList, { studioCardInfo } from "@/components/custom-components/studio/StudioList";
-import SearchFilter from "./_component/Search";
+import StudioCard from "@/components/custom-components/studio/StudioCard";
+import FilterGroup from "../../../../components/custom-components/filters/FilterGroup";
+import PaginationWrapper from "@/components/custom-components/PaginationWrapper";
 
 export interface StudioQuery {
   location: string;
   date: string;
   startTime: string;
   endTime: string;
+  page: string;
 }
 
-const ExploreStudiosPage = async () => {
+interface studioCardInfo {
+  name: string;
+  slug: string;
+  cover_photo: string;
+  logo: string;
+  district: string;
+  rating: number;
+  number_of_review: number;
+  number_of_completed_booking: number;
+  min_price: number;
+}
+
+interface Props {
+  searchParams: StudioQuery;
+}
+
+const ExploreStudiosPage = async (props: Props) => {
+  const searchParams = await props.searchParams;
+
+  console.log(searchParams);
+
   let studioListData: studioCardInfo[] = [];
 
-  try {
-    const studioList = await allStudiosService.getStudios();
-    if (studioList.success) {
-      studioListData = studioList.data;
-    }
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "系統發生未預期錯誤，請重試。";
-    return <ToastMessageWithRedirect type={"error"} message={errorMessage} redirectPath={"/"} />;
-  }
+  const currentPage = Number(searchParams["page"]);
 
   return (
-    <>
-      <SearchFilter />
-      <StudioList studioList={studioListData} />
-    </>
+    <div className="flex flex-col">
+      <FilterGroup />
+      <div className="flex flex-wrap -mx-3">
+        {studioListData.map((studio) => (
+          <StudioCard studio={studio} key={studio.slug} />
+        ))}
+      </div>
+      <PaginationWrapper currentPage={currentPage} itemCount={100} pageSize={10} />
+    </div>
   );
 };
 

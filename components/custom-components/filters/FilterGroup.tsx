@@ -3,13 +3,13 @@ import { useRouter, useSearchParams } from "next/navigation";
 import DatePicker from "./DatePicker";
 import LocationPicker from "./LocationPicker";
 import TimePicker from "./TimePicker";
-import { StudioQuery } from "../page";
+import { StudioQuery } from "../../../app/(user)/(non-home)/explore-studios/page";
 
 interface Props {
   isHideEndTime?: boolean;
 }
 
-const SearchFilter = ({ isHideEndTime = false }: Props) => {
+const FilterGroup = ({ isHideEndTime = false }: Props) => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -59,4 +59,4 @@ const SearchFilter = ({ isHideEndTime = false }: Props) => {
   );
 };
 
-export default SearchFilter;
+export default FilterGroup;

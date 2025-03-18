@@ -1,4 +1,4 @@
-import SearchFilter from "@/app/(user)/(non-home)/explore-studios/_component/Search";
+import SearchFilter from "@/components/custom-components/filters/FilterGroup";
 import { studioCardInfo } from "@/components/custom-components/studio/StudioList";
 import { allStudiosService } from "@/services/AllStudiosService";
 
