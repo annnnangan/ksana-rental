@@ -27,16 +27,10 @@ const StudioCardSwiper = ({ slideItems }: Props) => {
     <>
       {/* Swiper Buttons */}
       <div className="flex space-x-1 mb-2 justify-end">
-        <Button
-          onClick={() => swiperRef.current?.slidePrev()}
-          className="rounded-full p-0 h-5 w-5"
-        >
+        <Button onClick={() => swiperRef.current?.slidePrev()} className="rounded-full p-0 h-5 w-5">
           <ArrowBigLeft />
         </Button>
-        <Button
-          onClick={() => swiperRef.current?.slideNext()}
-          className="rounded-full p-0 h-5 w-5 "
-        >
+        <Button onClick={() => swiperRef.current?.slideNext()} className="rounded-full p-0 h-5 w-5 ">
           <ArrowBigRight />
         </Button>
       </div>
@@ -53,7 +47,7 @@ const StudioCardSwiper = ({ slideItems }: Props) => {
           1024: { slidesPerView: 3.2 }, // Desktops
         }}
       >
-        {slideItems.map((item) => (
+        {slideItems.studios.map((item) => (
           <SwiperSlide key={item.slug}>
             <StudioCard studio={item} />
           </SwiperSlide>

@@ -42,5 +42,23 @@ exports.seed = async function (knex) {
       password: "$2a$10$IK0Ps09yk93ZUikTkJPH9.ArJhUazOsoarU9hN3DyVAVdwTt40TPe",
       email_verified: new Date(),
     },
+    {
+      name: "Mama Chan",
+      email: "mamachan@test.com",
+      password: "$2a$10$IK0Ps09yk93ZUikTkJPH9.ArJhUazOsoarU9hN3DyVAVdwTt40TPe",
+      email_verified: new Date(),
+    },
+    {
+      name: "Apple Fung",
+      email: "applefung@test.com",
+      password: "$2a$10$IK0Ps09yk93ZUikTkJPH9.ArJhUazOsoarU9hN3DyVAVdwTt40TPe",
+      email_verified: new Date(),
+    },
+    {
+      name: "Lo Lo",
+      email: "lolo@test.com",
+      password: "$2a$10$IK0Ps09yk93ZUikTkJPH9.ArJhUazOsoarU9hN3DyVAVdwTt40TPe",
+      email_verified: new Date(),
+    },
   ]);
 };

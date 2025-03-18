@@ -1,12 +1,6 @@
 "use client";
 import { Label } from "@/components/shadcn/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/shadcn/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/shadcn/select";
 import { Clock5 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
@@ -34,23 +28,14 @@ const TimePicker = ({ updateQueryString, isHideEndTime = false }: Props) => {
   const validateTimeParams = (type: string) => {
     const timeRange = type === "startTime" ? startTimeOptions : endTimeOptions;
 
-    if (
-      searchParams.get("startTime") &&
-      searchParams.get("endTime") &&
-      searchParams.get("endTime")! < searchParams.get("startTime")! &&
-      type === "endTime"
-    ) {
+    if (searchParams.get("startTime") && searchParams.get("endTime") && searchParams.get("endTime")! < searchParams.get("startTime")! && type === "endTime") {
       return "";
     } else {
-      return timeRange.includes(searchParams.get(type) + ":00")
-        ? searchParams.get(type) + ":00"
-        : "";
+      return timeRange.includes(searchParams.get(type) + ":00") ? searchParams.get(type) + ":00" : "";
     }
   };
 
-  const [startTime, setStartTime] = useState<string>(
-    validateTimeParams("startTime")
-  );
+  const [startTime, setStartTime] = useState<string>(validateTimeParams("startTime"));
   const [endTime, setEndTime] = useState<string>(validateTimeParams("endTime"));
 
   // Dynamically filter end time options based on selected start time
@@ -67,21 +52,14 @@ const TimePicker = ({ updateQueryString, isHideEndTime = false }: Props) => {
       setStartTime(value);
 
       // Reset endTime if it's invalid
-      if (
-        endTime &&
-        parseInt(endTime.split(":")[0], 10) <= parseInt(value.split(":")[0], 10)
-      ) {
+      if (endTime && parseInt(endTime.split(":")[0], 10) <= parseInt(value.split(":")[0], 10)) {
         setEndTime("");
       }
     } else if (type === "endTime") {
       setEndTime(value);
 
       // Ensure endTime is not before startTime
-      if (
-        startTime &&
-        parseInt(value.split(":")[0], 10) <=
-          parseInt(startTime.split(":")[0], 10)
-      ) {
+      if (startTime && parseInt(value.split(":")[0], 10) <= parseInt(startTime.split(":")[0], 10)) {
         setEndTime(""); // Reset if invalid
       }
     }
@@ -89,59 +67,49 @@ const TimePicker = ({ updateQueryString, isHideEndTime = false }: Props) => {
   };
 
   return (
-    <div className="flex flex-wrap gap-5">
-      <div className="flex flex-col">
-        <Label htmlFor="startTime" className="text-[11px] text-gray-400">
-          選擇開始時間
-        </Label>
-        {/* Start Time Picker */}
-        <Select
-          defaultValue={validateTimeParams("startTime")}
-          onValueChange={(value) => handleTimeChange("startTime", value)}
-        >
-          <SelectTrigger className="w-full">
-            <div className="flex items-center gap-2">
-              <Clock5 size={16} className="text-gray-500" />
-              <SelectValue placeholder="選擇開始時間" />
-            </div>
-          </SelectTrigger>
-          <SelectContent>
-            {startTimeOptions.map((time) => (
-              <SelectItem key={time} value={time}>
-                {time}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {!isHideEndTime && (
-        <div className="flex flex-col">
-          <Label htmlFor="endTime" className="text-[11px] text-gray-400">
-            選擇完結時間
-          </Label>
-          {/* End Time Picker */}
-          <Select
-            defaultValue={validateTimeParams("endTime")}
-            onValueChange={(value) => handleTimeChange("endTime", value)}
-            disabled={!startTime}
-          >
+    <div>
+      <div className="flex flex-col flex-wrap">
+        <p className="text-[11px] text-gray-400">選擇時間範圍：平台將為你尋找在時間範圍內至少有 1 小時空檔的場地。</p>
+        <div className="flex space-x-3">
+          {/* Start Time Picker */}
+          <Select defaultValue={validateTimeParams("startTime")} onValueChange={(value) => handleTimeChange("startTime", value)}>
             <SelectTrigger className="w-full">
               <div className="flex items-center gap-2">
                 <Clock5 size={16} className="text-gray-500" />
-                <SelectValue placeholder="選擇完結時間" />
+                <SelectValue placeholder="選擇開始時間" />
               </div>
             </SelectTrigger>
             <SelectContent>
-              {filteredEndOptions.map((time) => (
+              {startTimeOptions.map((time) => (
                 <SelectItem key={time} value={time}>
                   {time}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
+
+          {!isHideEndTime && (
+            <>
+              {/* End Time Picker */}
+              <Select defaultValue={validateTimeParams("endTime")} onValueChange={(value) => handleTimeChange("endTime", value)} disabled={!startTime}>
+                <SelectTrigger className="w-full">
+                  <div className="flex items-center gap-2">
+                    <Clock5 size={16} className="text-gray-500" />
+                    <SelectValue placeholder="選擇完結時間" />
+                  </div>
+                </SelectTrigger>
+                <SelectContent>
+                  {filteredEndOptions.map((time) => (
+                    <SelectItem key={time} value={time}>
+                      {time}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 };

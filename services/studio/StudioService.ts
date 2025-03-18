@@ -55,18 +55,18 @@ export class StudioService {
    * Get all studio by studio status
    * @returns name, slug, logo, cover_photo, district, address, min_price, number_of_review, number-of_completed_booking, rating
    */
-  async getStudioBasicInfo({ slug, status, page = 1, limit = 5 }: { slug?: string; status?: StudioStatus; page: number; limit: number }) {
+  async getStudioBasicInfo({ slug, status, page = 1, limit = 5, district }: { slug?: string; status?: StudioStatus; page?: number; limit?: number; district?: string }) {
     try {
       if (slug) {
         // Validate if the studio exists by slug
         const validationResponse = await validateStudioService.validateIsStudioExistBySlug(slug);
 
         if (!validationResponse.success) {
-          return validationResponse;
+          throw new NotFoundError("場地");
         }
       }
 
-      const mainQuery = this.knex
+      let mainQuery = this.knex
         .select(
           "studio.name",
           "studio.slug",
@@ -88,19 +88,39 @@ export class StudioService {
         .groupBy("studio.id")
         .orderBy("rating", "desc");
 
-      let studios;
-
       if (status) {
-        studios = await paginationService.paginateQuery(mainQuery.where("studio.status", status), page, limit);
+        mainQuery = mainQuery.where("studio.status", status);
+      }
+      if (slug) {
+        mainQuery = mainQuery.where("studio.slug", slug);
+      }
+      if (district) {
+        mainQuery = mainQuery.where("studio.district", district);
       }
 
-      if (slug) {
-        studios = await mainQuery.where("studio.slug", slug);
-      }
+      // Apply pagination
+      const studios = await paginationService.paginateQuery(mainQuery, page, limit);
+
+      const countQuery = this.knex("studio")
+        .count("studio.id AS totalCount")
+        .where(function () {
+          if (status) {
+            this.where("studio.status", status);
+          }
+          if (slug) {
+            this.where("studio.slug", slug);
+          }
+          if (district) {
+            this.where("studio.district", district);
+          }
+        });
+
+      const totalCountResult = await countQuery;
+      const totalCount = totalCountResult[0].totalCount;
 
       return {
         success: true,
-        data: studios,
+        data: { studios, totalCount },
       };
     } catch (error) {
       console.dir(error);
