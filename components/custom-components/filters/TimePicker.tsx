@@ -69,11 +69,11 @@ const TimePicker = ({ updateQueryString, isHideEndTime = false }: Props) => {
   return (
     <div>
       <div className="flex flex-col flex-wrap">
-        <p className="text-[11px] text-gray-400">選擇時間範圍：平台將為你尋找在時間範圍內至少有 1 小時空檔的場地。</p>
+        <p className="text-xs rounded-sm mb-1">為你尋找在範圍內有 1 小時空檔的場地:</p>
         <div className="flex space-x-3">
           {/* Start Time Picker */}
           <Select defaultValue={validateTimeParams("startTime")} onValueChange={(value) => handleTimeChange("startTime", value)}>
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-full bg-white">
               <div className="flex items-center gap-2">
                 <Clock5 size={16} className="text-gray-500" />
                 <SelectValue placeholder="選擇開始時間" />
@@ -92,7 +92,7 @@ const TimePicker = ({ updateQueryString, isHideEndTime = false }: Props) => {
             <>
               {/* End Time Picker */}
               <Select defaultValue={validateTimeParams("endTime")} onValueChange={(value) => handleTimeChange("endTime", value)} disabled={!startTime}>
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full bg-white">
                   <div className="flex items-center gap-2">
                     <Clock5 size={16} className="text-gray-500" />
                     <SelectValue placeholder="選擇完結時間" />

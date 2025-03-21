@@ -15,7 +15,7 @@ import "swiper/css/pagination";
 import { Button } from "@/components/shadcn/button";
 import { FreeMode, Pagination } from "swiper/modules";
 import StudioCard from "./StudioCard";
-import { studioCardInfo } from "./StudioList";
+import { studioCardInfo } from "@/app/(user)/explore-studios/page";
 
 interface Props {
   slideItems: studioCardInfo[];
@@ -42,14 +42,16 @@ const StudioCardSwiper = ({ slideItems }: Props) => {
         spaceBetween={10}
         className="h-full"
         breakpoints={{
-          320: { slidesPerView: 2.2 }, // Mobile (small screens)
+          320: { slidesPerView: 1.5 }, // Mobile
           640: { slidesPerView: 2.2 }, // Tablets
           1024: { slidesPerView: 3.2 }, // Desktops
         }}
       >
-        {slideItems.studios.map((item) => (
+        {slideItems?.map((item) => (
           <SwiperSlide key={item.slug}>
-            <StudioCard studio={item} />
+            <div className="px-1 py-4">
+              <StudioCard studio={item} />
+            </div>
           </SwiperSlide>
         ))}
       </Swiper>

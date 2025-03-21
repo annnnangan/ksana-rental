@@ -55,7 +55,7 @@ export class StudioService {
    * Get all studio by studio status
    * @returns name, slug, logo, cover_photo, district, address, min_price, number_of_review, number-of_completed_booking, rating
    */
-  async getStudioBasicInfo({ slug, status, page = 1, limit = 5, district }: { slug?: string; status?: StudioStatus; page?: number; limit?: number; district?: string }) {
+  async getStudioBasicInfo({ slug, status, page = 1, limit = 5, district, equipment }: { slug?: string; status?: StudioStatus; page?: number; limit?: number; district?: string; equipment?: string }) {
     try {
       if (slug) {
         // Validate if the studio exists by slug
@@ -66,6 +66,7 @@ export class StudioService {
         }
       }
 
+      /* ---------------------------- Main Query for the Studio Details ---------------------------- */
       let mainQuery = this.knex
         .select(
           "studio.name",
@@ -84,10 +85,13 @@ export class StudioService {
         .leftJoin("booking", "studio.id", "booking.studio_id")
         .leftJoin("review", "booking.reference_no", "review.booking_reference_no")
         .leftJoin("studio_price", "studio.id", "studio_price.studio_id")
+        .leftJoin("studio_equipment", "studio.id", "studio_equipment.studio_id")
+        .leftJoin("equipment", "studio_equipment.equipment_id", "equipment.id")
         .from("studio")
         .groupBy("studio.id")
         .orderBy("rating", "desc");
 
+      /* ---------------------------- Apply Filter ---------------------------- */
       if (status) {
         mainQuery = mainQuery.where("studio.status", status);
       }
@@ -98,23 +102,29 @@ export class StudioService {
         mainQuery = mainQuery.where("studio.district", district);
       }
 
-      // Apply pagination
+      if (equipment && equipment.length > 0) {
+        mainQuery = mainQuery.whereIn("equipment.equipment", equipment.split(",")).havingRaw("COUNT(DISTINCT studio_equipment.equipment_id) = ?", [equipment.split(",").length]); // Ensure the studio has all selected equipment
+      }
+
+      /* ---------------------------- Apply pagination ---------------------------- */
       const studios = await paginationService.paginateQuery(mainQuery, page, limit);
 
+      /* ---------------------------- Calculate the total amount of results ---------------------------- */
       const countQuery = this.knex("studio")
-        .count("studio.id AS totalCount")
+        .countDistinct("studio.id AS totalCount")
+        .leftJoin("studio_equipment", "studio.id", "studio_equipment.studio_id")
+        .leftJoin("equipment", "studio_equipment.equipment_id", "equipment.id")
         .where(function () {
-          if (status) {
-            this.where("studio.status", status);
-          }
-          if (slug) {
-            this.where("studio.slug", slug);
-          }
-          if (district) {
-            this.where("studio.district", district);
-          }
+          if (status) this.where("studio.status", status);
+          if (slug) this.where("studio.slug", slug);
+          if (district) this.where("studio.district", district);
         });
 
+      if (equipment && equipment.length > 0) {
+        countQuery
+          .whereIn("equipment.equipment", equipment.split(",")) // Filter by equipment names
+          .havingRaw("COUNT(DISTINCT studio_equipment.equipment_id) = ?", [equipment.split(",").length]); // Ensure studio has all selected equipment
+      }
       const totalCountResult = await countQuery;
       const totalCount = totalCountResult[0].totalCount;
 

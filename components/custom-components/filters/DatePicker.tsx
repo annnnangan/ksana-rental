@@ -1,8 +1,10 @@
 "use client";
 import { Button } from "@/components/shadcn/button";
 import { Calendar } from "@/components/shadcn/calendar";
+import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/shadcn/dropdown-menu";
 import { Label } from "@/components/shadcn/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/shadcn/popover";
+import { equipmentMap } from "@/lib/constants/studio-details";
 import { formatDate } from "@/lib/utils/date-time/format-date-utils";
 
 import { CalendarIcon, ChevronDown, ChevronUp } from "lucide-react";
@@ -29,28 +31,31 @@ const DatePicker = ({ updateQueryString }: Props) => {
     setEndMonth(new Date(today.getFullYear(), today.getMonth() + 2, 0)); // Last day of two months later
   }, []);
 
-  const handleChange = (day: Date) => {
-    setDate(day);
-    updateQueryString("date", formatDate(day));
+  const handleChange = (day: Date | undefined) => {
+    if (day === undefined) {
+      setDate(undefined);
+      updateQueryString("date", "");
+    } else {
+      setDate(day);
+      updateQueryString("date", formatDate(day));
+    }
   };
 
   return (
     <div className="flex flex-col">
-      <Label htmlFor="date" className="text-[11px] text-gray-400">
-        選擇日期
-      </Label>
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button variant={"outline"} className="w-full justify-start text-left font-normal focus:outline-none focus:ring-1 focus:ring-ring hover:bg-transparent">
+      <p className="text-xs rounded-sm mb-1">預約日期:</p>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant={"outline"} className="w-full justify-start text-left font-normal focus:outline-none focus:ring-1 focus:ring-ring">
             <CalendarIcon className=" text-gray-500" />
             {date ? formatDate(date) : <span>選擇日期</span>}
-            <ChevronDown className="h-4 w-4 text-gray-500" />
+            <ChevronDown className="h-4 w-4 text-gray-500 ms-auto" />
           </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
-          <Calendar mode="single" selected={date} onSelect={(day) => handleChange(day ?? new Date())} initialFocus disabled={{ before: new Date() }} fromMonth={startMonth} toMonth={endMonth} />
-        </PopoverContent>
-      </Popover>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-full" align="start">
+          <Calendar mode="single" selected={date} onSelect={(day) => handleChange(day)} initialFocus disabled={{ before: new Date() }} fromMonth={startMonth} toMonth={endMonth} />
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 };
