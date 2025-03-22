@@ -10,7 +10,11 @@ const StudioSort = () => {
 
   function handleChange(selectedItem: string): void {
     const params = new URLSearchParams(searchParams.toString()); // Convert to a mutable object
-    params.set("orderBy", selectedItem);
+    if (selectedItem === "rating-high-to-low") {
+      params.delete("orderBy");
+    } else {
+      params.set("orderBy", selectedItem);
+    }
 
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
   }

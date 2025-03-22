@@ -2,7 +2,7 @@ import { onBoardingRequiredSteps } from "@/lib/constants/studio-details";
 import handleError from "@/lib/handlers/error";
 import { ForbiddenError, NotFoundError, UnauthorizedError } from "@/lib/http-errors";
 import { findAreaByDistrictValue } from "@/lib/utils/areas-districts-converter";
-import { convertTimeToString } from "@/lib/utils/date-time/format-time-utils";
+import { convertStringToTime, convertTimeToString } from "@/lib/utils/date-time/format-time-utils";
 import { DateSpecificHourSchemaFormData } from "@/lib/validations/zod-schema/studio/studio-manage-schema";
 import {
   BasicInfoFormData,
@@ -19,6 +19,7 @@ import { Knex } from "knex";
 import { StudioStatus } from "../model";
 import { validateStudioService } from "./ValidateStudio";
 import { paginationService } from "../PaginationService";
+import { getDayOfWeekInEnglishByDate } from "@/lib/utils/date-time/format-date-utils";
 
 export class StudioService {
   constructor(private knex: Knex) {}
@@ -63,6 +64,9 @@ export class StudioService {
     district,
     equipment,
     orderBy,
+    date,
+    startTime,
+    endTime,
   }: {
     slug?: string;
     status?: StudioStatus;
@@ -71,6 +75,9 @@ export class StudioService {
     district?: string;
     equipment?: string;
     orderBy?: string;
+    date: string;
+    startTime: string;
+    endTime: string;
   }) {
     try {
       if (slug) {
@@ -163,7 +170,8 @@ export class StudioService {
           .havingRaw("COUNT(DISTINCT studio_equipment.equipment_id) = ?", [equipment.split(",").length]); // Ensure studio has all selected equipment
       }
       const totalCountResult = await countQuery;
-      const totalCount = totalCountResult[0].totalCount ?? 0;
+
+      const totalCount = totalCountResult[0]?.totalCount ?? 0;
 
       return {
         success: true,

@@ -17,7 +17,7 @@ const userLayout = ({ children }: { children: React.ReactNode }) => {
       </div>
 
       <div className="container mx-auto px-4 mb-5 md:mb-8">
-        <div className="space-y-3 flex flex-col">
+        <div className="space-y-5 flex flex-col">
           <FilterGroup />
           <div className="ms-auto">
             <StudioSort />
