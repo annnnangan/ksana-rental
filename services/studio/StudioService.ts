@@ -55,7 +55,23 @@ export class StudioService {
    * Get all studio by studio status
    * @returns name, slug, logo, cover_photo, district, address, min_price, number_of_review, number-of_completed_booking, rating
    */
-  async getStudioBasicInfo({ slug, status, page = 1, limit = 5, district, equipment }: { slug?: string; status?: StudioStatus; page?: number; limit?: number; district?: string; equipment?: string }) {
+  async getStudioBasicInfo({
+    slug,
+    status,
+    page = 1,
+    limit = 5,
+    district,
+    equipment,
+    orderBy,
+  }: {
+    slug?: string;
+    status?: StudioStatus;
+    page?: number;
+    limit?: number;
+    district?: string;
+    equipment?: string;
+    orderBy?: string;
+  }) {
     try {
       if (slug) {
         // Validate if the studio exists by slug
@@ -88,8 +104,7 @@ export class StudioService {
         .leftJoin("studio_equipment", "studio.id", "studio_equipment.studio_id")
         .leftJoin("equipment", "studio_equipment.equipment_id", "equipment.id")
         .from("studio")
-        .groupBy("studio.id")
-        .orderBy("rating", "desc");
+        .groupBy("studio.id");
 
       /* ---------------------------- Apply Filter ---------------------------- */
       if (status) {
@@ -104,6 +119,28 @@ export class StudioService {
 
       if (equipment && equipment.length > 0) {
         mainQuery = mainQuery.whereIn("equipment.equipment", equipment.split(",")).havingRaw("COUNT(DISTINCT studio_equipment.equipment_id) = ?", [equipment.split(",").length]); // Ensure the studio has all selected equipment
+      }
+
+      /* ---------------------------- Apply OrderBy ---------------------------- */
+      if (orderBy) {
+        switch (orderBy) {
+          case "rating-high-to-low":
+            mainQuery = mainQuery.orderBy("rating", "desc");
+            break;
+          case "completed-booking-high-to-low":
+            mainQuery = mainQuery.orderBy("number_of_completed_booking", "desc");
+            break;
+          case "min-price-low-to-high":
+            mainQuery = mainQuery.orderBy("min_price", "asc");
+            break;
+          case "min-price-high-to-low":
+            mainQuery = mainQuery.orderBy("min_price", "desc");
+            break;
+          default:
+            mainQuery = mainQuery.orderBy("rating", "desc");
+        }
+      } else {
+        mainQuery = mainQuery.orderBy("rating", "desc");
       }
 
       /* ---------------------------- Apply pagination ---------------------------- */
@@ -126,7 +163,7 @@ export class StudioService {
           .havingRaw("COUNT(DISTINCT studio_equipment.equipment_id) = ?", [equipment.split(",").length]); // Ensure studio has all selected equipment
       }
       const totalCountResult = await countQuery;
-      const totalCount = totalCountResult[0].totalCount;
+      const totalCount = totalCountResult[0].totalCount ?? 0;
 
       return {
         success: true,

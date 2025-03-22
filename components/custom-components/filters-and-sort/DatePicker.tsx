@@ -1,21 +1,15 @@
 "use client";
 import { Button } from "@/components/shadcn/button";
 import { Calendar } from "@/components/shadcn/calendar";
-import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/shadcn/dropdown-menu";
-import { Label } from "@/components/shadcn/label";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/shadcn/popover";
-import { equipmentMap } from "@/lib/constants/studio-details";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/shadcn/dropdown-menu";
 import { formatDate } from "@/lib/utils/date-time/format-date-utils";
 
-import { CalendarIcon, ChevronDown, ChevronUp } from "lucide-react";
-import { useSearchParams } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import { CalendarIcon, ChevronDown } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
-interface Props {
-  updateQueryString: (type: string, value: string) => void;
-}
-
-const DatePicker = ({ updateQueryString }: Props) => {
+const DatePicker = () => {
+  const router = useRouter();
   const searchParams = useSearchParams();
 
   const [date, setDate] = useState<Date | undefined>(searchParams.get("date") !== null ? new Date(searchParams.get("date")!) : undefined);
@@ -31,14 +25,25 @@ const DatePicker = ({ updateQueryString }: Props) => {
     setEndMonth(new Date(today.getFullYear(), today.getMonth() + 2, 0)); // Last day of two months later
   }, []);
 
+  useEffect(() => {
+    const newDate = searchParams.get("date") !== null ? new Date(searchParams.get("date")!) : undefined;
+    setDate(newDate);
+  }, [searchParams]);
+
   const handleChange = (day: Date | undefined) => {
+    const params = new URLSearchParams(searchParams);
     if (day === undefined) {
       setDate(undefined);
-      updateQueryString("date", "");
+      params.delete("date");
     } else {
       setDate(day);
-      updateQueryString("date", formatDate(day));
+      params.set("date", formatDate(day));
     }
+
+    params.delete("page");
+
+    const query = params.size ? "?" + params.toString() : "";
+    router.push("/explore-studios" + query);
   };
 
   return (

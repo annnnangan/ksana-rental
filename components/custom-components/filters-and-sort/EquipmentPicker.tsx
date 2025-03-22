@@ -4,33 +4,42 @@ import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMe
 import { equipmentMap } from "@/lib/constants/studio-details";
 import { ChevronDown } from "lucide-react";
 import { useDebounceCallback } from "usehooks-ts";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 interface Props {
   isModal: boolean;
-  updateQueryString: (type: string, value: string) => void;
 }
 
-const EquipmentPicker = ({ isModal, updateQueryString }: Props) => {
+const EquipmentPicker = ({ isModal }: Props) => {
+  const router = useRouter();
   const searchParams = useSearchParams();
   //@ts-ignore
   const [selectedEquipment, setSelectedEquipment] = useState<string[] | []>(searchParams.get("equipment") ? searchParams.get("equipment")?.split(",") : []);
   //@ts-ignore
   const [debouncedSelectedEquipment, setDebouncedSelectedEquipment] = useState<string[] | []>(searchParams.get("equipment") ? searchParams.get("equipment")?.split(",") : []);
 
+  useEffect(() => {
+    const newEquipment = searchParams.get("equipment") ? searchParams.get("equipment")?.split(",") : [];
+    //@ts-ignore
+    setSelectedEquipment(newEquipment);
+  }, [searchParams]);
+
   const debounced = useDebounceCallback(setDebouncedSelectedEquipment, 2000);
 
   useEffect(() => {
+    const params = new URLSearchParams(searchParams);
     if (debouncedSelectedEquipment.length > 0) {
-      updateQueryString("equipment", debouncedSelectedEquipment.join(","));
+      params.set("equipment", debouncedSelectedEquipment.join(","));
     } else {
-      updateQueryString("equipment", "");
+      params.delete("equipment");
     }
+    params.delete("page");
+    const query = params.size ? "?" + params.toString() : "";
+    router.push("/explore-studios" + query);
   }, [debouncedSelectedEquipment]);
 
   const handleSelectEquipment = (selectedItem: string, value: string) => {
     const updatedSelection = selectedEquipment?.some((selected) => selected === value) ? selectedEquipment.filter((item) => item !== value) : [...selectedEquipment, value];
-
     setSelectedEquipment(updatedSelection);
     debounced(updatedSelection);
   };

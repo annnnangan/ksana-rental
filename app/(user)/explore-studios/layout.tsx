@@ -1,4 +1,5 @@
-import FilterGroup from "@/components/custom-components/filters/FilterGroup";
+import FilterGroup from "@/components/custom-components/filters-and-sort/FilterGroup";
+import StudioSort from "@/components/custom-components/filters-and-sort/StudioSort";
 import NavBar from "@/components/custom-components/layout/main-nav-bar/NavBar";
 import Footer from "@/components/custom-components/layout/MainFooter";
 import React from "react";
@@ -15,9 +16,12 @@ const userLayout = ({ children }: { children: React.ReactNode }) => {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 md:px-2">
-        <div className="mb-5 md:mb-8">
+      <div className="container mx-auto px-4 mb-5 md:mb-8">
+        <div className="space-y-3 flex flex-col">
           <FilterGroup />
+          <div className="ms-auto">
+            <StudioSort />
+          </div>
         </div>
 
         <main className="flex-grow">{children}</main>

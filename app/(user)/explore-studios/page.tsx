@@ -11,6 +11,7 @@ export interface StudioQuery {
   endTime: string;
   page?: string;
   equipment: string;
+  orderBy?: string;
 }
 
 export interface studioCardInfo {
@@ -34,10 +35,11 @@ const ExploreStudiosPage = async (props: Props) => {
   const currentPage = Number(searchParams["page"]) || 1;
   const districts = searchParams["location"];
   const equipment = searchParams["equipment"];
+  const orderBy = searchParams["orderBy"];
 
   const pageSize = 8;
 
-  const studioListResult = await studioService.getStudioBasicInfo({ status: "active", page: currentPage, limit: pageSize, district: districts, equipment: equipment });
+  const studioListResult = await studioService.getStudioBasicInfo({ status: "active", page: currentPage, limit: pageSize, district: districts, equipment: equipment, orderBy: orderBy });
   const studioListData: studioCardInfo[] = (studioListResult.success && studioListResult?.data?.studios) || [];
 
   return (

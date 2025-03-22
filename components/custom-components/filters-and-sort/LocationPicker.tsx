@@ -3,14 +3,11 @@ import { Label } from "@/components/shadcn/label";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/shadcn/select";
 import { districts } from "@/services/model";
 import { MapPin } from "lucide-react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
-interface Props {
-  updateQueryString: (type: string, value: string) => void;
-}
-
-const LocationPicker = ({ updateQueryString }: Props) => {
+const LocationPicker = () => {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const [selectedLocation, setSelectedLocation] = useState<string>(searchParams.get("location") || "");
 
@@ -21,7 +18,15 @@ const LocationPicker = ({ updateQueryString }: Props) => {
 
   const handleChange = (location: string) => {
     setSelectedLocation(location); // Update local state
-    updateQueryString("location", location); // Update URL query string
+    const params = new URLSearchParams(searchParams);
+    if (location === "all") {
+      params.delete("location");
+    } else {
+      params.set("location", location);
+    }
+    params.delete("page");
+    const query = params.size ? "?" + params.toString() : "";
+    router.push("/explore-studios" + query);
   };
 
   return (
