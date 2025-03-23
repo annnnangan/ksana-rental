@@ -57,7 +57,7 @@ const UserPagesLayout = ({ children }: { children: React.ReactNode }) => {
       if (date) params.append("date", date);
       if (startTime) params.append("startTime", startTime);
 
-      const queryString = params.toString(); // Generates the query string
+      const queryString = params.toString();
       const url = `/api/studios${queryString ? `?${queryString}` : ""}`;
 
       const response = await fetch(url);
