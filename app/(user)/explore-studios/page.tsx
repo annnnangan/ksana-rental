@@ -38,9 +38,8 @@ const ExploreStudiosPage = async (props: Props) => {
   const orderBy = searchParams["orderBy"];
   const date = searchParams["date"];
   const startTime = searchParams["startTime"];
-  const endTime = searchParams["endTime"];
 
-  const pageSize = 20;
+  const pageSize = 8;
 
   const studioListResult = await studioService.getStudioBasicInfo({
     status: "active",
