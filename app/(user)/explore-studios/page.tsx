@@ -1,3 +1,4 @@
+import StudioCardLoadingSkeleton from "@/components/custom-components/loading/StudioCardLoadingSkeleton";
 import PaginationWrapper from "@/components/custom-components/PaginationWrapper";
 import SectionFallback from "@/components/custom-components/SectionFallback";
 import StudioCard from "@/components/custom-components/studio/StudioCard";

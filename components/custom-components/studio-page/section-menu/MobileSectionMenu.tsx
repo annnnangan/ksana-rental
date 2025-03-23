@@ -66,7 +66,7 @@ const MobileSectionMenu = () => {
   };
 
   return (
-    <div className="sticky top-0 z-50 w-full md:hidden mt-5">
+    <div className="sticky top-0 z-10 w-full md:hidden mt-5">
       <Select value={activeSection} onValueChange={handleSelectChange}>
         <SelectTrigger className="w-full bg-white bg-opacity-95 font-bold shadow-lg text-center py-6 justify-start gap-3 relative">
           <SelectValue placeholder="Select a section" />

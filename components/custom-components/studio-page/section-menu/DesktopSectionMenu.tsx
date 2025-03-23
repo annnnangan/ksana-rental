@@ -30,15 +30,11 @@ export const sectionItemList = [
 
 const DesktopSectionMenu = () => {
   return (
-    <div className="border py-2 px-3 mt-5 rounded-md sticky top-0 bg-white z-50 hidden md:flex">
+    <div className="border py-2 px-3 mt-5 rounded-md sticky top-0 bg-white z-10 hidden md:flex">
       <ul className="flex gap-3 md:gap-5">
         {sectionItemList.map((item) => (
           <li key={item.sectionId}>
-            <Button
-              type="button"
-              variant={"link"}
-              className="text-sm md:text-md p-0"
-            >
+            <Button type="button" variant={"link"} className="text-sm md:text-md p-0">
               <Link href={`#${item.sectionId}`}>{item.title}</Link>
             </Button>
           </li>
