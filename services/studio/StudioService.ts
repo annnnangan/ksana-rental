@@ -66,7 +66,6 @@ export class StudioService {
     orderBy,
     date,
     startTime,
-    endTime,
   }: {
     slug?: string;
     status?: StudioStatus;
@@ -77,7 +76,6 @@ export class StudioService {
     orderBy?: string;
     date: string;
     startTime: string;
-    endTime: string;
   }) {
     try {
       if (slug) {
@@ -89,6 +87,8 @@ export class StudioService {
         }
       }
 
+      let countQuery;
+
       /* ---------------------------- Main Query for the Studio Details ---------------------------- */
       let mainQuery = this.knex
         .select(
@@ -98,7 +98,7 @@ export class StudioService {
           "studio.logo",
           "studio.district",
           "studio.address",
-          this.knex.raw(`CAST(AVG(review.rating) AS DECIMAL) AS rating`),
+          this.knex.raw(`COALESCE(CAST(AVG(review.rating) AS DECIMAL), 0) AS rating`),
           this.knex.raw(
             `CAST(COUNT(DISTINCT CASE WHEN booking.status = 'confirmed' AND booking.date::DATE + booking.end_time::INTERVAL < NOW() THEN booking.id END) AS INTEGER) AS number_of_completed_booking`
           ),
@@ -114,6 +114,80 @@ export class StudioService {
         .groupBy("studio.id");
 
       /* ---------------------------- Apply Filter ---------------------------- */
+      if (date && startTime) {
+        const formattedStartTime = convertStringToTime(Number(startTime));
+        const endTime = convertStringToTime(Number(startTime) + 1);
+
+        // Step 1: Subquery to get available studios (either specific hours or business hours)
+        const availabilitySubquery = this.knex
+          .select("studio_id")
+          .from("studio_date_specific_hour")
+          .where("studio_date_specific_hour.date", date)
+          .andWhere("studio_date_specific_hour.from", "<=", formattedStartTime)
+          .andWhere("studio_date_specific_hour.to", ">=", endTime)
+          .union(function () {
+            this.select("studio_id")
+              .from("studio_business_hour")
+              .where("studio_business_hour.day_of_week", getDayOfWeekInEnglishByDate(date))
+              .andWhere("studio_business_hour.from", "<=", formattedStartTime)
+              .andWhere("studio_business_hour.to", ">=", endTime)
+              .whereNotExists(function () {
+                // Ensure studio doesn't have a specific entry (business_hour applies only if no specific hour is set)
+                this.select("id").from("studio_date_specific_hour").whereRaw("studio_date_specific_hour.studio_id = studio_business_hour.studio_id").andWhere("studio_date_specific_hour.date", date);
+              });
+          });
+
+        // Step 2: Apply filters AFTER determining available studios
+        mainQuery = mainQuery
+          .whereIn("studio.id", availabilitySubquery)
+          .whereNotExists(function () {
+            this.select("booking.id")
+              .from("booking")
+              .where("booking.studio_id", knex.ref("studio.id"))
+              .andWhere("booking.date", date)
+              .andWhere("booking.start_time", formattedStartTime)
+              .andWhere(function () {
+                this.where("booking.status", "confirmed").orWhere(function () {
+                  this.where("booking.status", "pending for payment").andWhereRaw("booking.created_at >= NOW() - INTERVAL '15 minutes'");
+                });
+              });
+          })
+          .modify((query) => {
+            if (status) query.where("studio.status", status);
+            if (slug) query.where("studio.slug", slug);
+            if (district) query.where("studio.district", district);
+            if (equipment && equipment.length > 0) {
+              query.whereIn("equipment.equipment", equipment.split(",")).havingRaw("COUNT(DISTINCT studio_equipment.equipment_id) = ?", [equipment.split(",").length]);
+            }
+          });
+
+        // Step 3: Create count query
+        countQuery = this.knex("studio")
+          .countDistinct("studio.id AS totalCount")
+          .leftJoin("studio_equipment", "studio.id", "studio_equipment.studio_id")
+          .leftJoin("equipment", "studio_equipment.equipment_id", "equipment.id")
+          .whereIn("studio.id", availabilitySubquery) // Apply the same availability filter
+          .whereNotExists(function () {
+            this.select("booking.id")
+              .from("booking")
+              .where("booking.studio_id", knex.ref("studio.id"))
+              .andWhere("booking.date", date)
+              .andWhere("booking.start_time", formattedStartTime)
+              .andWhere(function () {
+                this.where("booking.status", "confirmed").orWhere(function () {
+                  this.where("booking.status", "pending for payment").andWhereRaw("booking.created_at >= NOW() - INTERVAL '15 minutes'");
+                });
+              });
+          })
+          .modify((query) => {
+            if (status) query.where("studio.status", status);
+            if (slug) query.where("studio.slug", slug);
+            if (district) query.where("studio.district", district);
+            if (equipment && equipment.length > 0) {
+              query.whereIn("equipment.equipment", equipment.split(",")).havingRaw("COUNT(DISTINCT studio_equipment.equipment_id) = ?", [equipment.split(",").length]);
+            }
+          });
+      }
       if (status) {
         mainQuery = mainQuery.where("studio.status", status);
       }
@@ -123,7 +197,6 @@ export class StudioService {
       if (district) {
         mainQuery = mainQuery.where("studio.district", district);
       }
-
       if (equipment && equipment.length > 0) {
         mainQuery = mainQuery.whereIn("equipment.equipment", equipment.split(",")).havingRaw("COUNT(DISTINCT studio_equipment.equipment_id) = ?", [equipment.split(",").length]); // Ensure the studio has all selected equipment
       }
@@ -154,21 +227,25 @@ export class StudioService {
       const studios = await paginationService.paginateQuery(mainQuery, page, limit);
 
       /* ---------------------------- Calculate the total amount of results ---------------------------- */
-      const countQuery = this.knex("studio")
-        .countDistinct("studio.id AS totalCount")
-        .leftJoin("studio_equipment", "studio.id", "studio_equipment.studio_id")
-        .leftJoin("equipment", "studio_equipment.equipment_id", "equipment.id")
-        .where(function () {
-          if (status) this.where("studio.status", status);
-          if (slug) this.where("studio.slug", slug);
-          if (district) this.where("studio.district", district);
-        });
 
-      if (equipment && equipment.length > 0) {
-        countQuery
-          .whereIn("equipment.equipment", equipment.split(",")) // Filter by equipment names
-          .havingRaw("COUNT(DISTINCT studio_equipment.equipment_id) = ?", [equipment.split(",").length]); // Ensure studio has all selected equipment
+      if (!date) {
+        countQuery = this.knex("studio")
+          .countDistinct("studio.id AS totalCount")
+          .leftJoin("studio_equipment", "studio.id", "studio_equipment.studio_id")
+          .leftJoin("equipment", "studio_equipment.equipment_id", "equipment.id")
+          .where(function () {
+            if (status) this.where("studio.status", status);
+            if (slug) this.where("studio.slug", slug);
+            if (district) this.where("studio.district", district);
+          });
+
+        if (equipment && equipment.length > 0) {
+          countQuery
+            .whereIn("equipment.equipment", equipment.split(",")) // Filter by equipment names
+            .havingRaw("COUNT(DISTINCT studio_equipment.equipment_id) = ?", [equipment.split(",").length]); // Ensure studio has all selected equipment
+        }
       }
+
       const totalCountResult = await countQuery;
 
       const totalCount = totalCountResult[0]?.totalCount ?? 0;

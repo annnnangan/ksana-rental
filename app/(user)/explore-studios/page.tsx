@@ -40,7 +40,7 @@ const ExploreStudiosPage = async (props: Props) => {
   const startTime = searchParams["startTime"];
   const endTime = searchParams["endTime"];
 
-  const pageSize = 8;
+  const pageSize = 20;
 
   const studioListResult = await studioService.getStudioBasicInfo({
     status: "active",
@@ -51,7 +51,6 @@ const ExploreStudiosPage = async (props: Props) => {
     orderBy: orderBy,
     date: date,
     startTime: startTime,
-    endTime: endTime,
   });
   const studioListData: studioCardInfo[] = (studioListResult.success && studioListResult?.data?.studios) || [];
 
