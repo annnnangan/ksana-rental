@@ -1,10 +1,10 @@
+import { studioCardInfo } from "@/app/(user)/explore-studios/page";
 import StudioLocation from "@/components/custom-components/studio/StudioLocation";
 import StudioLogo from "@/components/custom-components/studio/StudioLogo";
 import StudioRating from "@/components/custom-components/studio/StudioRating";
 import { Bookmark } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { studioCardInfo } from "./StudioList";
 
 interface Props {
   studio: studioCardInfo;
@@ -12,10 +12,7 @@ interface Props {
 
 const StudioCard = ({ studio }: Props) => {
   return (
-    <Link
-      href={`/studio/${studio.slug}`}
-      className="group px-3 pb-10 w-full md:1/2 lg:w-1/3 xl:w-1/4"
-    >
+    <Link href={`/studio/${studio.slug}`} className="group w-full">
       <div>
         <div className="relative rounded-md overflow-hidden shadow">
           {/* Cover Image */}
@@ -52,11 +49,7 @@ const StudioCard = ({ studio }: Props) => {
               {/* Location */}
               <StudioLocation district={studio.district} />
               {/* Rate */}
-              <StudioRating
-                rating={studio.rating}
-                numberOfReview={studio.number_of_review}
-                numberOfCompletedBooking={studio.number_of_completed_booking}
-              />
+              <StudioRating rating={studio.rating} numberOfReview={studio.number_of_review} numberOfCompletedBooking={studio.number_of_completed_booking} />
             </div>
 
             <p>HK${studio.min_price} 起</p>

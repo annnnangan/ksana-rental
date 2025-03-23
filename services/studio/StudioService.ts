@@ -2,7 +2,7 @@ import { onBoardingRequiredSteps } from "@/lib/constants/studio-details";
 import handleError from "@/lib/handlers/error";
 import { ForbiddenError, NotFoundError, UnauthorizedError } from "@/lib/http-errors";
 import { findAreaByDistrictValue } from "@/lib/utils/areas-districts-converter";
-import { convertTimeToString } from "@/lib/utils/date-time/format-time-utils";
+import { convertStringToTime, convertTimeToString } from "@/lib/utils/date-time/format-time-utils";
 import { DateSpecificHourSchemaFormData } from "@/lib/validations/zod-schema/studio/studio-manage-schema";
 import {
   BasicInfoFormData,
@@ -19,6 +19,7 @@ import { Knex } from "knex";
 import { StudioStatus } from "../model";
 import { validateStudioService } from "./ValidateStudio";
 import { paginationService } from "../PaginationService";
+import { getDayOfWeekInEnglishByDate } from "@/lib/utils/date-time/format-date-utils";
 
 export class StudioService {
   constructor(private knex: Knex) {}
@@ -55,18 +56,41 @@ export class StudioService {
    * Get all studio by studio status
    * @returns name, slug, logo, cover_photo, district, address, min_price, number_of_review, number-of_completed_booking, rating
    */
-  async getStudioBasicInfo({ slug, status, page = 1, limit = 5 }: { slug?: string; status?: StudioStatus; page: number; limit: number }) {
+  async getStudioBasicInfo({
+    slug,
+    status,
+    page = 1,
+    limit = 5,
+    district,
+    equipment,
+    orderBy,
+    date,
+    startTime,
+  }: {
+    slug?: string;
+    status?: StudioStatus;
+    page?: number;
+    limit?: number;
+    district?: string;
+    equipment?: string;
+    orderBy?: string;
+    date: string;
+    startTime: string;
+  }) {
     try {
       if (slug) {
         // Validate if the studio exists by slug
         const validationResponse = await validateStudioService.validateIsStudioExistBySlug(slug);
 
         if (!validationResponse.success) {
-          return validationResponse;
+          throw new NotFoundError("場地");
         }
       }
 
-      const mainQuery = this.knex
+      let countQuery;
+
+      /* ---------------------------- Main Query for the Studio Details ---------------------------- */
+      let mainQuery = this.knex
         .select(
           "studio.name",
           "studio.slug",
@@ -74,7 +98,7 @@ export class StudioService {
           "studio.logo",
           "studio.district",
           "studio.address",
-          this.knex.raw(`CAST(AVG(review.rating) AS DECIMAL) AS rating`),
+          this.knex.raw(`COALESCE(CAST(AVG(review.rating) AS DECIMAL), 0) AS rating`),
           this.knex.raw(
             `CAST(COUNT(DISTINCT CASE WHEN booking.status = 'confirmed' AND booking.date::DATE + booking.end_time::INTERVAL < NOW() THEN booking.id END) AS INTEGER) AS number_of_completed_booking`
           ),
@@ -84,23 +108,151 @@ export class StudioService {
         .leftJoin("booking", "studio.id", "booking.studio_id")
         .leftJoin("review", "booking.reference_no", "review.booking_reference_no")
         .leftJoin("studio_price", "studio.id", "studio_price.studio_id")
+        .leftJoin("studio_equipment", "studio.id", "studio_equipment.studio_id")
+        .leftJoin("equipment", "studio_equipment.equipment_id", "equipment.id")
         .from("studio")
-        .groupBy("studio.id")
-        .orderBy("rating", "desc");
+        .groupBy("studio.id");
 
-      let studios;
+      /* ---------------------------- Apply Filter ---------------------------- */
+      if (date && startTime) {
+        const formattedStartTime = convertStringToTime(Number(startTime));
+        const endTime = convertStringToTime(Number(startTime) + 1);
 
+        // Step 1: Subquery to get available studios (either specific hours or business hours)
+        const availabilitySubquery = this.knex
+          .select("studio_id")
+          .from("studio_date_specific_hour")
+          .where("studio_date_specific_hour.date", date)
+          .andWhere("studio_date_specific_hour.from", "<=", formattedStartTime)
+          .andWhere("studio_date_specific_hour.to", ">=", endTime)
+          .union(function () {
+            this.select("studio_id")
+              .from("studio_business_hour")
+              .where("studio_business_hour.day_of_week", getDayOfWeekInEnglishByDate(date))
+              .andWhere("studio_business_hour.from", "<=", formattedStartTime)
+              .andWhere("studio_business_hour.to", ">=", endTime)
+              .whereNotExists(function () {
+                // Ensure studio doesn't have a specific entry (business_hour applies only if no specific hour is set)
+                this.select("id").from("studio_date_specific_hour").whereRaw("studio_date_specific_hour.studio_id = studio_business_hour.studio_id").andWhere("studio_date_specific_hour.date", date);
+              });
+          });
+
+        // Step 2: Apply filters AFTER determining available studios
+        mainQuery = mainQuery
+          .whereIn("studio.id", availabilitySubquery)
+          .whereNotExists(function () {
+            this.select("booking.id")
+              .from("booking")
+              .where("booking.studio_id", knex.ref("studio.id"))
+              .andWhere("booking.date", date)
+              .andWhere("booking.start_time", formattedStartTime)
+              .andWhere(function () {
+                this.where("booking.status", "confirmed").orWhere(function () {
+                  this.where("booking.status", "pending for payment").andWhereRaw("booking.created_at >= NOW() - INTERVAL '15 minutes'");
+                });
+              });
+          })
+          .modify((query) => {
+            if (status) query.where("studio.status", status);
+            if (slug) query.where("studio.slug", slug);
+            if (district) query.where("studio.district", district);
+            if (equipment && equipment.length > 0) {
+              query.whereIn("equipment.equipment", equipment.split(",")).havingRaw("COUNT(DISTINCT studio_equipment.equipment_id) = ?", [equipment.split(",").length]);
+            }
+          });
+
+        // Step 3: Create count query
+        countQuery = this.knex("studio")
+          .countDistinct("studio.id AS totalCount")
+          .leftJoin("studio_equipment", "studio.id", "studio_equipment.studio_id")
+          .leftJoin("equipment", "studio_equipment.equipment_id", "equipment.id")
+          .whereIn("studio.id", availabilitySubquery) // Apply the same availability filter
+          .whereNotExists(function () {
+            this.select("booking.id")
+              .from("booking")
+              .where("booking.studio_id", knex.ref("studio.id"))
+              .andWhere("booking.date", date)
+              .andWhere("booking.start_time", formattedStartTime)
+              .andWhere(function () {
+                this.where("booking.status", "confirmed").orWhere(function () {
+                  this.where("booking.status", "pending for payment").andWhereRaw("booking.created_at >= NOW() - INTERVAL '15 minutes'");
+                });
+              });
+          })
+          .modify((query) => {
+            if (status) query.where("studio.status", status);
+            if (slug) query.where("studio.slug", slug);
+            if (district) query.where("studio.district", district);
+            if (equipment && equipment.length > 0) {
+              query.whereIn("equipment.equipment", equipment.split(",")).havingRaw("COUNT(DISTINCT studio_equipment.equipment_id) = ?", [equipment.split(",").length]);
+            }
+          });
+      }
       if (status) {
-        studios = await paginationService.paginateQuery(mainQuery.where("studio.status", status), page, limit);
+        mainQuery = mainQuery.where("studio.status", status);
+      }
+      if (slug) {
+        mainQuery = mainQuery.where("studio.slug", slug);
+      }
+      if (district) {
+        mainQuery = mainQuery.where("studio.district", district);
+      }
+      if (equipment && equipment.length > 0) {
+        mainQuery = mainQuery.whereIn("equipment.equipment", equipment.split(",")).havingRaw("COUNT(DISTINCT studio_equipment.equipment_id) = ?", [equipment.split(",").length]); // Ensure the studio has all selected equipment
       }
 
-      if (slug) {
-        studios = await mainQuery.where("studio.slug", slug);
+      /* ---------------------------- Apply OrderBy ---------------------------- */
+      if (orderBy) {
+        switch (orderBy) {
+          case "rating-high-to-low":
+            mainQuery = mainQuery.orderBy("rating", "desc");
+            break;
+          case "completed-booking-high-to-low":
+            mainQuery = mainQuery.orderBy("number_of_completed_booking", "desc");
+            break;
+          case "min-price-low-to-high":
+            mainQuery = mainQuery.orderBy("min_price", "asc");
+            break;
+          case "min-price-high-to-low":
+            mainQuery = mainQuery.orderBy("min_price", "desc");
+            break;
+          default:
+            mainQuery = mainQuery.orderBy("rating", "desc");
+        }
+      } else {
+        mainQuery = mainQuery.orderBy("rating", "desc");
       }
+
+      /* ---------------------------- Apply pagination ---------------------------- */
+      const studios = await paginationService.paginateQuery(mainQuery, page, limit);
+
+      /* ---------------------------- Calculate the total amount of results ---------------------------- */
+
+      if (!date) {
+        countQuery = this.knex("studio")
+          .countDistinct("studio.id AS totalCount")
+          .leftJoin("studio_equipment", "studio.id", "studio_equipment.studio_id")
+          .leftJoin("equipment", "studio_equipment.equipment_id", "equipment.id")
+          .where(function () {
+            if (status) this.where("studio.status", status);
+            if (slug) this.where("studio.slug", slug);
+            if (district) this.where("studio.district", district);
+          });
+
+        if (equipment && equipment.length > 0) {
+          countQuery
+            .whereIn("equipment.equipment", equipment.split(",")) // Filter by equipment names
+            .havingRaw("COUNT(DISTINCT studio_equipment.equipment_id) = ?", [equipment.split(",").length]); // Ensure studio has all selected equipment
+        }
+      }
+
+      const totalCountResult = await countQuery;
+
+      const totalCount = totalCountResult[0]?.totalCount ?? 0;
 
       return {
         success: true,
-        data: studios,
+        data: { studios, totalCount },
       };
     } catch (error) {
       console.dir(error);
