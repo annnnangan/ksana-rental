@@ -74,8 +74,8 @@ export class StudioService {
     district?: string;
     equipment?: string;
     orderBy?: string;
-    date: string;
-    startTime: string;
+    date?: string;
+    startTime?: string;
   }) {
     try {
       if (slug) {

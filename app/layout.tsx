@@ -4,6 +4,7 @@ import { Noto_Sans_TC } from "next/font/google";
 import { ToastContainer } from "react-toastify";
 import "./globals.css";
 import QueryClientProvider from "./QueryClientProvider";
+import { CopilotKit } from "@copilotkit/react-core";
 
 const notoSansTC = Noto_Sans_TC({
   subsets: ["latin"], // Include subsets as per your use case
@@ -26,7 +27,7 @@ export default function RootLayout({
       <body className={`${notoSansTC.className} antialiased`}>
         <QueryClientProvider>
           <SessionProvider>
-            {children}
+            <CopilotKit runtimeUrl="/api/copilotkit">{children}</CopilotKit>
             <ToastContainer />
           </SessionProvider>
         </QueryClientProvider>

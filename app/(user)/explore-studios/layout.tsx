@@ -4,7 +4,7 @@ import NavBar from "@/components/custom-components/layout/main-nav-bar/NavBar";
 import Footer from "@/components/custom-components/layout/MainFooter";
 import React from "react";
 
-const userLayout = ({ children }: { children: React.ReactNode }) => {
+const ExploreStudiosLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="flex flex-col">
       <div className="h-[250px] md:h-[300px] bg-[url(/yoga-image-assets/karolina-grabowska-0kAUvX5OvEY-unsplash.jpg)] bg-cover bg-center mb-6">
@@ -31,4 +31,4 @@ const userLayout = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-export default userLayout;
+export default ExploreStudiosLayout;
