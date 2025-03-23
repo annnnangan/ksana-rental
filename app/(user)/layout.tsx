@@ -4,10 +4,54 @@ import StudioCard from "@/components/custom-components/studio/StudioCard";
 import { equipmentMap } from "@/lib/constants/studio-details";
 import { districts } from "@/services/model";
 import { useCopilotAction, useCopilotReadable } from "@copilotkit/react-core";
-import { CopilotPopup } from "@copilotkit/react-ui";
-import "@copilotkit/react-ui/styles.css";
-import React from "react";
+import { ButtonProps, CopilotKitCSSProperties, CopilotPopup, HeaderProps, useChatContext } from "@copilotkit/react-ui";
+import React, { useState } from "react";
 import { studioCardInfo } from "./explore-studios/page";
+
+function Header({}: HeaderProps) {
+  const { setOpen, icons, labels } = useChatContext();
+
+  return (
+    <div className="flex justify-between items-center p-4 bg-primary text-white rounded-t-xl">
+      <div className="text-lg">{labels.title}</div>
+      <div className="w-24 flex justify-end">
+        <button onClick={() => setOpen(false)} aria-label="Close">
+          {icons.headerCloseIcon}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function Button({}: ButtonProps) {
+  const { open, setOpen } = useChatContext();
+  const [showMessage, setShowMessage] = useState(false);
+
+  const handleHover = () => {
+    setShowMessage(true);
+    setTimeout(() => {
+      setShowMessage(false);
+    }, 2000); // Hide after 2 seconds
+  };
+
+  return (
+    <div className="relative" onMouseEnter={handleHover}>
+      {/* Bot Message */}
+      {showMessage && (
+        <div className="absolute -top-24 -left-8 opacity-100 transition-opacity duration-500">
+          <img src="/assets/bot-message.svg" />
+        </div>
+      )}
+
+      {/* Chatbot Button */}
+      <div onClick={() => setOpen(!open)} className="w-[75px] h-[75px] shadow-2xl rounded-full bg-brand-400 text-white flex justify-center transition-transform transform hover:scale-110">
+        <button className={`${open ? "open" : ""} p-3`} aria-label={open ? "Close Chat" : "Open Chat"}>
+          <img src="/assets/bot.png" />
+        </button>
+      </div>
+    </div>
+  );
+}
 
 const UserPagesLayout = ({ children }: { children: React.ReactNode }) => {
   //Pass in district information for AI to reference
@@ -83,6 +127,7 @@ const UserPagesLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <>
       <main>{children}</main>
+
       <CopilotPopup
         instructions={
           "You are assisting the user to search for suitable yoga studio in this website as best as you can. Answer in the best way possible given the data you have in English or Traditional Chinese. Please do not use simplified chinese"
@@ -91,6 +136,8 @@ const UserPagesLayout = ({ children }: { children: React.ReactNode }) => {
           title: "Ksana小幫手",
           initial: "你好！你想尋找什麼瑜珈場地？",
         }}
+        Header={Header}
+        Button={Button}
       />
     </>
   );

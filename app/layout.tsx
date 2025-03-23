@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { SessionProvider } from "next-auth/react";
 import { Noto_Sans_TC } from "next/font/google";
 import { ToastContainer } from "react-toastify";
-import "./globals.css";
 import QueryClientProvider from "./QueryClientProvider";
 import { CopilotKit } from "@copilotkit/react-core";
+import "./globals.css";
 
 const notoSansTC = Noto_Sans_TC({
   subsets: ["latin"], // Include subsets as per your use case
