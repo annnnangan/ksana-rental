@@ -98,6 +98,8 @@ export class StudioService {
           "studio.logo",
           "studio.district",
           "studio.address",
+          "studio.description",
+          "studio.phone",
           this.knex.raw(`COALESCE(CAST(AVG(review.rating) AS DECIMAL), 0) AS rating`),
           this.knex.raw(
             `CAST(COUNT(DISTINCT CASE WHEN booking.status = 'confirmed' AND booking.date::DATE + booking.end_time::INTERVAL < NOW() THEN booking.id END) AS INTEGER) AS number_of_completed_booking`
@@ -582,9 +584,14 @@ export class StudioService {
     }
   }
 
-  async getPriceByStudioId(studioId: string) {
+  async getPrice({ studioId, studioSlug }: { studioId?: string; studioSlug?: string }) {
     try {
-      const result = await this.knex.select("price_type", "price").from("studio_price").where({ studio_id: studioId });
+      let result;
+      if (studioSlug) {
+        result = await this.knex.select("price_type", "price").from("studio_price").innerJoin("studio", "studio_price.studio_id", "studio.id").where({ "studio.slug": studioSlug });
+      } else {
+        result = await this.knex.select("price_type", "price").from("studio_price").where({ studio_id: studioId });
+      }
 
       if (result.length == 0 || !result) {
         throw new NotFoundError("價錢");
@@ -645,9 +652,20 @@ export class StudioService {
     }
   }
 
-  async getEquipment(studioId: string) {
+  async getEquipment({ studioId, studioSlug }: { studioId?: string; studioSlug?: string }) {
     try {
-      const result = await this.knex.select("equipment.equipment").from("studio_equipment").leftJoin("equipment", "studio_equipment.equipment_id", "equipment.id").where({ studio_id: studioId });
+      let result = [];
+      //if studio slug is input, then get the studio id first
+      if (studioSlug) {
+        result = await this.knex
+          .select("equipment.equipment")
+          .from("studio_equipment")
+          .leftJoin("equipment", "studio_equipment.equipment_id", "equipment.id")
+          .leftJoin("studio", "studio_equipment.studio_id", "studio.id")
+          .where({ "studio.slug": studioSlug });
+      } else {
+        result = await this.knex.select("equipment.equipment").from("studio_equipment").leftJoin("equipment", "studio_equipment.equipment_id", "equipment.id").where({ studio_id: studioId });
+      }
 
       let equipmentArray = [];
       if (result.length > 0) {
@@ -664,9 +682,18 @@ export class StudioService {
     }
   }
   /* ----------------------------------- Handle Gallery ----------------------------------- */
-  async getGallery(studioId: string) {
+  async getGallery({ studioId, studioSlug }: { studioId?: string; studioSlug?: string }) {
     try {
-      const result = await this.knex.select("photo").from("studio_photo").where({ studio_id: studioId });
+      if (!studioId && !studioSlug) {
+        throw new NotFoundError("Either studioId or studioSlug must be provided.");
+      }
+
+      let result;
+      if (studioSlug) {
+        result = await this.knex.select("photo").from("studio_photo").leftJoin("studio", "studio_photo.studio_id", "studio.id").where({ "studio.slug": studioSlug });
+      } else {
+        result = await this.knex.select("photo").from("studio_photo").where({ studio_id: studioId });
+      }
 
       let galleryArray = [];
       if (result.length > 0) {
@@ -771,9 +798,15 @@ export class StudioService {
   }
 
   /* ----------------------------------- Handle Social Media ----------------------------------- */
-  async getSocial(studioId: string) {
+  async getSocial({ studioId, studioSlug }: { studioId?: string; studioSlug?: string }) {
     try {
-      const result = await this.knex.select("type", "contact").from("studio_social").where({ studio_id: studioId });
+      let result;
+
+      if (studioSlug) {
+        result = await this.knex.select("type", "contact").from("studio_social").leftJoin("studio", "studio_social.studio_id", "studio.id").where({ "studio.slug": studioSlug });
+      } else {
+        result = await this.knex.select("type", "contact").from("studio_social").where({ studio_id: studioId });
+      }
 
       let socialList;
 

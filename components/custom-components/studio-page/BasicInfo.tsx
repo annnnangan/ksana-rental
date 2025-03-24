@@ -4,13 +4,13 @@ import StudioLogo from "@/components/custom-components/studio/StudioLogo";
 import StudioRating from "@/components/custom-components/studio/StudioRating";
 import { Bookmark, Phone } from "lucide-react";
 
-type BasicStudioInfo = Pick<StudioInfo, "name" | "logo" | "district" | "contact" | "rating" | "number_of_review" | "number_of_completed_booking">;
+type BasicStudioInfo = Pick<StudioInfo, "name" | "logo" | "district" | "phone" | "rating" | "number_of_review" | "number_of_completed_booking">;
 
 interface Props {
   basicInfo: BasicStudioInfo;
 }
 
-const BasicInfo = ({ basicInfo: { name, logo, district, contact, rating, number_of_review, number_of_completed_booking } }: Props) => {
+const BasicInfo = ({ basicInfo: { name, logo, district, phone, rating, number_of_review, number_of_completed_booking } }: Props) => {
   return (
     <section className="flex justify-between gap-x-2 mt-5">
       <div className="flex justify-center items-center gap-4 flex-wrap">
@@ -23,10 +23,13 @@ const BasicInfo = ({ basicInfo: { name, logo, district, contact, rating, number_
             <StudioLocation district={district} />
             {/* Rate */}
             <StudioRating rating={rating} numberOfReview={number_of_review} numberOfCompletedBooking={number_of_completed_booking} />
-            {/* Contact */}
+            {/* phone */}
             <div className="flex items-center">
               <Phone size={14} className="me-1" fill="#01a2c7" strokeWidth={0} />
-              <p className="text-sm me-2">{contact}</p>
+
+              <a className="text-sm me-2" href={`tel:${phone}`}>
+                {phone}
+              </a>
             </div>
           </div>
         </div>

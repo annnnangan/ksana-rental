@@ -23,7 +23,7 @@ const BusinessHourAndPricePage = async ({ params }: { params: Promise<{ id: stri
   const [dateSpecificHourListResponse, businessHoursListResponse, priceListResponse] = await Promise.all([
     studioService.getAllDateSpecificHourByStudioId(studioId),
     studioService.getBusinessHoursByStudioId(studioId),
-    studioService.getPriceByStudioId(studioId),
+    studioService.getPrice({ studioId: studioId }),
   ]);
 
   if (!dateSpecificHourListResponse.success || !businessHoursListResponse.success || !priceListResponse.success) {

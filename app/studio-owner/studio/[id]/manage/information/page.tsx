@@ -43,13 +43,13 @@ const StudioInformationPage = async (props: Props) => {
       case "basic-info":
         return studioService.getBasicInfoFormData(studioId);
       case "equipment":
-        return studioService.getEquipment(studioId);
+        return studioService.getEquipment({ studioId: studioId });
       case "gallery":
-        return studioService.getGallery(studioId);
+        return studioService.getGallery({ studioId: studioId });
       case "door-password":
         return studioService.getDoorPassword(studioId);
       case "social":
-        return studioService.getSocial(studioId);
+        return studioService.getSocial({ studioId: studioId });
       case "payout-info":
         return studioService.getPayoutInfo(studioId);
       default:

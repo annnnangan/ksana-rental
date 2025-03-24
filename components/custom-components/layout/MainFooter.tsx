@@ -31,16 +31,10 @@ const Footer = () => {
             <Link href="/faq" className="text-white hover:text-brand-600">
               常見問題
             </Link>
-            <Link
-              href="/terms-and-conditions"
-              className="text-white hover:text-brand-600"
-            >
+            <Link href="/terms-and-conditions" className="text-white hover:text-brand-600">
               條款與細則
             </Link>
-            <Link
-              href="/auth/register?redirect=/studio-owner/dashboard"
-              className="text-white hover:text-brand-600"
-            >
+            <Link href="/auth/register?redirect=/studio-owner/dashboard" className="text-white hover:text-brand-600">
               建立場地
             </Link>
           </div>
@@ -49,36 +43,18 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold text-brand-500">追蹤我們</h3>
             <div className="flex space-x-3 mt-2">
-              <a
-                href="https://www.facebook.com"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer">
                 <div className="flex items-center gap-2">
                   <div className="rounded-full bg-brand-50 p-2 w-fit">
-                    <Image
-                      src="social/facebook.svg"
-                      alt="Facebook"
-                      width={20}
-                      height={20}
-                    />
+                    <Image src="/social/facebook.svg" alt="Facebook" width={20} height={20} />
                   </div>
                 </div>
               </a>
 
-              <a
-                href="https://www.instagram.com"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer">
                 <div className="flex items-center gap-2">
                   <div className="rounded-full bg-brand-50 p-2 w-fit">
-                    <Image
-                      src="social/instagram.svg"
-                      alt="Instagram"
-                      width={20}
-                      height={20}
-                    />
+                    <Image src="/social/instagram.svg" alt="Instagram" width={20} height={20} />
                   </div>
                 </div>
               </a>
@@ -87,9 +63,7 @@ const Footer = () => {
         </div>
 
         {/* Bottom Section */}
-        <div className="border-t border-gray-700 mt-6 pt-4 text-center text-sm text-gray-400">
-          &copy; {new Date().getFullYear()} Ksana. All rights reserved.
-        </div>
+        <div className="border-t border-gray-700 mt-6 pt-4 text-center text-sm text-gray-400">&copy; {new Date().getFullYear()} Ksana. All rights reserved.</div>
       </div>
     </footer>
   );
