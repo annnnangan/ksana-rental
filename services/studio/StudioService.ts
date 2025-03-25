@@ -262,6 +262,89 @@ export class StudioService {
     }
   }
 
+  /* ---------------------------------- Get Studio Rating and Review ---------------------------------- */
+  async getStudioRatingOverview(studioSlug: string) {
+    try {
+      let ratingBreakdown: {
+        [key: number]: { count: number };
+      } = { 1: { count: 0 }, 2: { count: 0 }, 3: { count: 0 }, 4: { count: 0 }, 5: { count: 0 } };
+
+      const ratingBreakdownResult = await this.knex
+        .select("rating")
+        .count("rating")
+        .from("review")
+        .leftJoin("booking", "review.booking_reference_no", "booking.reference_no")
+        .leftJoin("studio", "booking.studio_id", "studio.id")
+        .groupBy("rating")
+        .where("studio.slug", studioSlug);
+
+      const rating = (
+        await this.knex
+          .select(this.knex.raw(`COALESCE(CAST(AVG(review.rating) AS DECIMAL), 0) AS rating`))
+          .from("review")
+          .leftJoin("booking", "review.booking_reference_no", "booking.reference_no")
+          .leftJoin("studio", "booking.studio_id", "studio.id")
+          .where("studio.slug", studioSlug)
+      )[0];
+
+      // Exclude is_hide_from_public comment
+      const publicReviewAmount = (
+        await this.knex
+          .count("review.id")
+          .from("review")
+          .leftJoin("booking", "review.booking_reference_no", "booking.reference_no")
+          .leftJoin("studio", "booking.studio_id", "studio.id")
+          .where({ "studio.slug": studioSlug, "review.is_hide_from_public": false })
+      )[0];
+
+      ratingBreakdownResult.map(({ rating, count }: { rating: number; count: number }) => {
+        ratingBreakdown[rating] = { count: Number(count) };
+      });
+
+      return {
+        success: true,
+        data: { rating: rating, review_amount: publicReviewAmount, rating_breakdown: ratingBreakdown },
+      };
+    } catch (error) {
+      console.dir(error);
+      return handleError(error, "server") as ActionResponse;
+    }
+  }
+
+  async getStudioReview(studioSlug: string, page = 1, limit = 5) {
+    try {
+      const mainQuery = this.knex
+        .select(
+          "users.name",
+          "users.image",
+          "review.rating",
+          "review.review",
+          "review.created_at",
+          "review.is_anonymous",
+          this.knex.raw("COALESCE(json_agg(review_photo.photo) FILTER (WHERE review_photo.photo IS NOT NULL), '[]') AS photos")
+        )
+        .from("review")
+        .leftJoin("booking", "review.booking_reference_no", "booking.reference_no")
+        .leftJoin("studio", "booking.studio_id", "studio.id")
+        .leftJoin("users", "booking.user_id", "users.id")
+        .leftJoin("review_photo", "review.id", "review_photo.review_id")
+        .where({ "studio.slug": studioSlug, "review.is_hide_from_public": false })
+        .groupBy("review.id", "users.name", "users.image", "review.rating", "review.review", "review.created_at", "review.is_anonymous")
+        .orderBy("review.created_at", "desc");
+
+      /* ---------------------------- Apply pagination ---------------------------- */
+      const result = await paginationService.paginateQuery(mainQuery, page, limit);
+
+      return {
+        success: true,
+        data: result,
+      };
+    } catch (error) {
+      console.dir(error);
+      return handleError(error, "server") as ActionResponse;
+    }
+  }
+
   /* ---------------------------------- Get Onboarding Step Status ---------------------------------- */
   async getOnboardingStepStatus(studioId: string) {
     try {

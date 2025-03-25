@@ -1,7 +1,9 @@
+"use client";
 import { Star } from "lucide-react";
 import Section from "../Section";
 import RatingBreakdown from "./RatingBreakdown";
 import ReviewCard from "./ReviewCard";
+import PaginationWrapper from "@/components/custom-components/PaginationWrapper";
 
 export interface ReviewUserProfile {
   name: string;
@@ -116,6 +118,10 @@ const ReviewSection = () => {
         {reviews.review_list.map((review) => (
           <ReviewCard key={review.review_details.review_id} review={review} />
         ))}
+      </div>
+
+      <div className="mt-8">
+        <PaginationWrapper currentPage={1} itemCount={50} pageSize={5} />
       </div>
     </Section>
   );

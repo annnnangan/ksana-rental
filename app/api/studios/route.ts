@@ -7,6 +7,8 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const selectedDistrict = searchParams.get("district") || "";
     const selectedEquipment = searchParams.get("equipment") || "";
+    const selectedDate = searchParams.get("date") || "";
+    const selectedStartTime = searchParams.get("startTime") || "";
 
     const result = await studioService.getStudioBasicInfo({
       status: "active",
@@ -14,6 +16,8 @@ export async function GET(request: NextRequest) {
       limit: 5,
       district: selectedDistrict,
       equipment: selectedEquipment,
+      date: selectedDate,
+      startTime: selectedStartTime,
     });
 
     return NextResponse.json({ success: true, data: result }, { status: 201 });
