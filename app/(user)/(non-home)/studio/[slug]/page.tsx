@@ -41,16 +41,18 @@ const StudioPage = async ({ params }: { params: Promise<{ slug: string }> }) => 
   let studioEquipment;
   let studioSocial;
   let studioPice;
+  let studioRatingOverview;
 
   try {
-    const [basicInfoResult, galleryResult, equipmentResult, priceResult, socialResult] = await Promise.all([
+    const [basicInfoResult, galleryResult, equipmentResult, priceResult, socialResult, ratingOverviewResult] = await Promise.all([
       studioService.getStudioBasicInfo({ slug: slug }),
       studioService.getGallery({ studioSlug: slug }),
       studioService.getEquipment({ studioSlug: slug }),
       studioService.getPrice({ studioSlug: slug }),
       studioService.getSocial({ studioSlug: slug }),
+      studioService.getStudioRatingOverview(slug),
     ]);
-    if (!basicInfoResult.success || !galleryResult.success || !equipmentResult.success || !priceResult.success || !socialResult.success) {
+    if (!basicInfoResult.success || !galleryResult.success || !equipmentResult.success || !priceResult.success || !socialResult.success || !ratingOverviewResult.success) {
       throw new Error(GENERAL_ERROR_MESSAGE);
     } else {
       studioBasicInfo = basicInfoResult?.data?.studios[0];
@@ -58,6 +60,7 @@ const StudioPage = async ({ params }: { params: Promise<{ slug: string }> }) => 
       studioEquipment = equipmentResult.data;
       studioSocial = socialResult.data;
       studioPice = priceResult.data;
+      studioRatingOverview = ratingOverviewResult.data;
     }
   } catch {
     return <ToastMessageWithRedirect type={"error"} message={GENERAL_ERROR_MESSAGE} redirectPath={"/explore-studios"} />;
@@ -76,7 +79,7 @@ const StudioPage = async ({ params }: { params: Promise<{ slug: string }> }) => 
           <PriceSection priceList={studioPice} />
           <LocationSection address={studioBasicInfo.address} />
           <SocialMediaSection socialMediaList={studioSocial} />
-          <ReviewSection />
+          <ReviewSection ratingOverview={studioRatingOverview!} studioSlug={slug} />
         </div>
         <div className="mt-5 hidden md:block md:basis-2/6 lg:basis-1/4">
           <SideSection peakHourPrice={studioPice.peak} nonPeakHourPrice={studioPice["non-peak"]} />

@@ -8,10 +8,10 @@ import { studioCreateService } from "@/services/StudioCreateService";
 import { NextRequest, NextResponse } from "next/server";
 
 //GET Door Password
-export async function GET(request: NextRequest, props: { params: Promise<{ id: string }> }) {
+export async function GET(request: NextRequest, props: { params: Promise<{ idOrSlug: string }> }) {
   try {
     const params = await props.params;
-    const studioId = params.id;
+    const studioId = params.idOrSlug;
     const session = await auth();
 
     const searchParams = request.nextUrl.searchParams;

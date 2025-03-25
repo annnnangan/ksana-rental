@@ -25,7 +25,7 @@ const sectionItemList = [
     sectionId: "social-media",
   },
   {
-    title: "評論",
+    title: "評價",
     sectionId: "reviews",
   },
 ];
