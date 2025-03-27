@@ -98,20 +98,22 @@ export class StudioService {
           "studio.logo",
           "studio.district",
           "studio.address",
-          this.knex.raw(`COALESCE(CAST(AVG(review.rating) AS DECIMAL), 0) AS rating`),
+          "studio.description",
+          "studio.phone",
+          this.knex.raw(`COALESCE(AVG(review.rating), 0) AS rating`),
           this.knex.raw(
             `CAST(COUNT(DISTINCT CASE WHEN booking.status = 'confirmed' AND booking.date::DATE + booking.end_time::INTERVAL < NOW() THEN booking.id END) AS INTEGER) AS number_of_completed_booking`
           ),
           this.knex.raw(`CAST(COUNT(DISTINCT review.id) AS INTEGER) AS number_of_review`),
           this.knex.raw(`CAST(MIN(studio_price.price) AS INTEGER) AS min_price`)
         )
+        .from("studio")
         .leftJoin("booking", "studio.id", "booking.studio_id")
         .leftJoin("review", "booking.reference_no", "review.booking_reference_no")
         .leftJoin("studio_price", "studio.id", "studio_price.studio_id")
         .leftJoin("studio_equipment", "studio.id", "studio_equipment.studio_id")
         .leftJoin("equipment", "studio_equipment.equipment_id", "equipment.id")
-        .from("studio")
-        .groupBy("studio.id");
+        .groupBy("studio.id", "studio.name", "studio.slug", "studio.logo", "studio.district", "studio.address", "studio.description", "studio.phone");
 
       /* ---------------------------- Apply Filter ---------------------------- */
       if (date && startTime) {
@@ -204,9 +206,6 @@ export class StudioService {
       /* ---------------------------- Apply OrderBy ---------------------------- */
       if (orderBy) {
         switch (orderBy) {
-          case "rating-high-to-low":
-            mainQuery = mainQuery.orderBy("rating", "desc");
-            break;
           case "completed-booking-high-to-low":
             mainQuery = mainQuery.orderBy("number_of_completed_booking", "desc");
             break;
@@ -217,10 +216,10 @@ export class StudioService {
             mainQuery = mainQuery.orderBy("min_price", "desc");
             break;
           default:
-            mainQuery = mainQuery.orderBy("rating", "desc");
+            mainQuery = mainQuery.orderBy("number_of_completed_booking", "desc");
         }
       } else {
-        mainQuery = mainQuery.orderBy("rating", "desc");
+        mainQuery = mainQuery.orderBy("number_of_completed_booking", "desc");
       }
 
       /* ---------------------------- Apply pagination ---------------------------- */
@@ -253,6 +252,120 @@ export class StudioService {
       return {
         success: true,
         data: { studios, totalCount },
+      };
+    } catch (error) {
+      console.dir(error);
+      return handleError(error, "server") as ActionResponse;
+    }
+  }
+
+  /* ---------------------------------- Get Studio Rating and Review ---------------------------------- */
+  async getStudioRatingOverview(studioSlug: string) {
+    try {
+      let ratingBreakdown: {
+        [key: number]: { count: number };
+      } = { 5: { count: 0 }, 4: { count: 0 }, 3: { count: 0 }, 2: { count: 0 }, 1: { count: 0 } };
+
+      const ratingBreakdownResult = await this.knex
+        .select("rating")
+        .count("rating")
+        .from("review")
+        .leftJoin("booking", "review.booking_reference_no", "booking.reference_no")
+        .leftJoin("studio", "booking.studio_id", "studio.id")
+        .groupBy("rating")
+        .where("studio.slug", studioSlug);
+
+      const rating = (
+        await this.knex
+          .select(this.knex.raw(`COALESCE(CAST(AVG(review.rating) AS DECIMAL), 0) AS rating`))
+          .from("review")
+          .leftJoin("booking", "review.booking_reference_no", "booking.reference_no")
+          .leftJoin("studio", "booking.studio_id", "studio.id")
+          .where("studio.slug", studioSlug)
+      )[0];
+
+      const publicReviewAmount = (
+        await this.knex
+          .count("review.id")
+          .from("review")
+          .leftJoin("booking", "review.booking_reference_no", "booking.reference_no")
+          .leftJoin("studio", "booking.studio_id", "studio.id")
+          .where({ "studio.slug": studioSlug })
+      )[0];
+
+      ratingBreakdownResult.map(({ rating, count }: { rating: number; count: number }) => {
+        ratingBreakdown[rating] = { count: Number(count) };
+      });
+
+      return {
+        success: true,
+        //@ts-ignore
+        data: { rating: Number(rating.rating), review_amount: Number(publicReviewAmount.count), rating_breakdown: ratingBreakdown },
+      };
+    } catch (error) {
+      console.dir(error);
+      return handleError(error, "server") as ActionResponse;
+    }
+  }
+
+  async getStudioReview(studioSlug: string, page = 1, limit = 5) {
+    try {
+      const mainQuery = this.knex
+        .select(
+          "users.name as username",
+          "users.image as user_icon",
+          "review.rating",
+          "review.id",
+          "review.review",
+          "review.created_at",
+          "review.is_anonymous",
+          this.knex.raw("COALESCE(json_agg(review_photo.photo) FILTER (WHERE review_photo.photo IS NOT NULL), '[]') AS photos")
+        )
+        .from("review")
+        .leftJoin("booking", "review.booking_reference_no", "booking.reference_no")
+        .leftJoin("studio", "booking.studio_id", "studio.id")
+        .leftJoin("users", "booking.user_id", "users.id")
+        .leftJoin("review_photo", "review.id", "review_photo.review_id")
+        .where({ "studio.slug": studioSlug })
+        .groupBy("review.id", "users.name", "users.image", "review.rating", "review.review", "review.created_at", "review.is_anonymous")
+        .orderBy("review.created_at", "desc");
+
+      /* ---------------------------- Apply pagination ---------------------------- */
+      const result = await paginationService.paginateQuery(mainQuery, page, limit);
+
+      const count = (
+        await this.knex
+          .count("review.id")
+          .from("review")
+          .leftJoin("booking", "review.booking_reference_no", "booking.reference_no")
+          .leftJoin("studio", "booking.studio_id", "studio.id")
+          .groupBy("studio.id")
+          .where({ "studio.slug": studioSlug })
+      )[0];
+
+      let formatResult = [];
+      let formatCount = 0;
+
+      if (result.length > 0) {
+        console.log("hello");
+        //@ts-ignore
+        formatResult = result.map((review) => {
+          if (review.is_anonymous) {
+            review.username = "Ksana User";
+          }
+
+          return review;
+        });
+      }
+
+      if (count) {
+        //@ts-ignore
+        formatCount = count.count;
+      }
+
+      return {
+        success: true,
+        data: { reviews: formatResult, total_count: Number(formatCount) },
       };
     } catch (error) {
       console.dir(error);
@@ -582,9 +695,14 @@ export class StudioService {
     }
   }
 
-  async getPriceByStudioId(studioId: string) {
+  async getPrice({ studioId, studioSlug }: { studioId?: string; studioSlug?: string }) {
     try {
-      const result = await this.knex.select("price_type", "price").from("studio_price").where({ studio_id: studioId });
+      let result;
+      if (studioSlug) {
+        result = await this.knex.select("price_type", "price").from("studio_price").innerJoin("studio", "studio_price.studio_id", "studio.id").where({ "studio.slug": studioSlug });
+      } else {
+        result = await this.knex.select("price_type", "price").from("studio_price").where({ studio_id: studioId });
+      }
 
       if (result.length == 0 || !result) {
         throw new NotFoundError("價錢");
@@ -645,9 +763,20 @@ export class StudioService {
     }
   }
 
-  async getEquipment(studioId: string) {
+  async getEquipment({ studioId, studioSlug }: { studioId?: string; studioSlug?: string }) {
     try {
-      const result = await this.knex.select("equipment.equipment").from("studio_equipment").leftJoin("equipment", "studio_equipment.equipment_id", "equipment.id").where({ studio_id: studioId });
+      let result = [];
+      //if studio slug is input, then get the studio id first
+      if (studioSlug) {
+        result = await this.knex
+          .select("equipment.equipment")
+          .from("studio_equipment")
+          .leftJoin("equipment", "studio_equipment.equipment_id", "equipment.id")
+          .leftJoin("studio", "studio_equipment.studio_id", "studio.id")
+          .where({ "studio.slug": studioSlug });
+      } else {
+        result = await this.knex.select("equipment.equipment").from("studio_equipment").leftJoin("equipment", "studio_equipment.equipment_id", "equipment.id").where({ studio_id: studioId });
+      }
 
       let equipmentArray = [];
       if (result.length > 0) {
@@ -664,9 +793,18 @@ export class StudioService {
     }
   }
   /* ----------------------------------- Handle Gallery ----------------------------------- */
-  async getGallery(studioId: string) {
+  async getGallery({ studioId, studioSlug }: { studioId?: string; studioSlug?: string }) {
     try {
-      const result = await this.knex.select("photo").from("studio_photo").where({ studio_id: studioId });
+      if (!studioId && !studioSlug) {
+        throw new NotFoundError("Either studioId or studioSlug must be provided.");
+      }
+
+      let result;
+      if (studioSlug) {
+        result = await this.knex.select("photo").from("studio_photo").leftJoin("studio", "studio_photo.studio_id", "studio.id").where({ "studio.slug": studioSlug });
+      } else {
+        result = await this.knex.select("photo").from("studio_photo").where({ studio_id: studioId });
+      }
 
       let galleryArray = [];
       if (result.length > 0) {
@@ -771,9 +909,15 @@ export class StudioService {
   }
 
   /* ----------------------------------- Handle Social Media ----------------------------------- */
-  async getSocial(studioId: string) {
+  async getSocial({ studioId, studioSlug }: { studioId?: string; studioSlug?: string }) {
     try {
-      const result = await this.knex.select("type", "contact").from("studio_social").where({ studio_id: studioId });
+      let result;
+
+      if (studioSlug) {
+        result = await this.knex.select("type", "contact").from("studio_social").leftJoin("studio", "studio_social.studio_id", "studio.id").where({ "studio.slug": studioSlug });
+      } else {
+        result = await this.knex.select("type", "contact").from("studio_social").where({ studio_id: studioId });
+      }
 
       let socialList;
 

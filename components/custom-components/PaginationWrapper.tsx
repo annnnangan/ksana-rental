@@ -7,15 +7,23 @@ interface Props {
   itemCount: number;
   pageSize: number;
   currentPage: number;
+  useQueryString: boolean;
+  setCurrentPage?: (page: number) => void;
 }
-const PaginationWrapper = ({ itemCount, pageSize, currentPage }: Props) => {
+const PaginationWrapper = ({ itemCount, pageSize, currentPage, useQueryString = true, setCurrentPage }: Props) => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const changePage = (page: number) => {
-    const params = new URLSearchParams(searchParams);
-    params.set("page", page.toString());
-    router.push("?" + params.toString());
+    if (useQueryString) {
+      const params = new URLSearchParams(searchParams);
+      params.set("page", page.toString());
+      router.push("?" + params.toString());
+    } else {
+      if (setCurrentPage) {
+        setCurrentPage(page);
+      }
+    }
   };
 
   const totalPages = Math.ceil(itemCount / pageSize);

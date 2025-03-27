@@ -70,7 +70,9 @@ const ExploreStudiosPage = async (props: Props) => {
       )}
 
       <div className="mt-8">
-        {Number(studioListResult?.data?.totalCount) > pageSize && <PaginationWrapper currentPage={currentPage} itemCount={Number(studioListResult?.data?.totalCount) || 0} pageSize={pageSize} />}
+        {Number(studioListResult?.data?.totalCount) > pageSize && (
+          <PaginationWrapper currentPage={currentPage} itemCount={Number(studioListResult?.data?.totalCount) || 0} pageSize={pageSize} useQueryString={true} />
+        )}
       </div>
     </>
   );

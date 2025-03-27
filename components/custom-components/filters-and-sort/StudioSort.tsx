@@ -10,7 +10,7 @@ const StudioSort = () => {
 
   function handleChange(selectedItem: string): void {
     const params = new URLSearchParams(searchParams.toString()); // Convert to a mutable object
-    if (selectedItem === "rating-high-to-low") {
+    if (selectedItem === "completed-booking-high-to-low") {
       params.delete("orderBy");
     } else {
       params.set("orderBy", selectedItem);
@@ -22,12 +22,11 @@ const StudioSort = () => {
   return (
     <div className="flex items-center">
       <p className="text-gray-500">排序：</p>
-      <Select onValueChange={handleChange} value={searchParams.get("orderBy") || "rating-high-to-low"}>
+      <Select onValueChange={handleChange} value={searchParams.get("orderBy") || "completed-booking-high-to-low"}>
         <SelectTrigger className="w-[200px]">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="rating-high-to-low">評價最高至低</SelectItem>
           <SelectItem value="completed-booking-high-to-low">完成預約數量最高至低</SelectItem>
           <SelectItem value="min-price-low-to-high">價錢最低至最高</SelectItem>
           <SelectItem value="min-price-high-to-low">價錢最高至最低</SelectItem>

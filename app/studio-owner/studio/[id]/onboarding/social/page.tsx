@@ -5,7 +5,7 @@ import { studioService } from "@/services/studio/StudioService";
 const SocialPage = async ({ params }: { params: Promise<{ id: string }> }) => {
   const studioId = (await params).id;
 
-  const formDataResponse = await studioService.getSocial(studioId);
+  const formDataResponse = await studioService.getSocial({ studioId: studioId });
 
   if (!formDataResponse.success) {
     return;

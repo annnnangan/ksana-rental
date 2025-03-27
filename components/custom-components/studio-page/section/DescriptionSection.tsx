@@ -8,7 +8,7 @@ interface Props {
 const DescriptionSection = ({ description }: Props) => {
   return (
     <Section title={"關於場地"}>
-      {description.split("\n").map((line, index) => (
+      {description?.split("\n").map((line, index) => (
         <React.Fragment key={index}>
           {line}
           <br />

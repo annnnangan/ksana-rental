@@ -3,12 +3,12 @@
 import React, { useState } from "react";
 
 import ReviewImageModal from "./ReviewImageModal";
-import { ReviewUserProfile } from "./ReviewSection";
+
 import StudioImage from "@/components/custom-components/studio/StudioImage";
 
 interface Props {
   imageList: string[];
-  userProfile: ReviewUserProfile;
+  userProfile: { icon: string; name: string };
 }
 
 const ReviewImages = ({ imageList, userProfile }: Props) => {
@@ -25,20 +25,10 @@ const ReviewImages = ({ imageList, userProfile }: Props) => {
   return (
     <>
       {imageList.map((image) => (
-        <StudioImage
-          imageUrl={image}
-          key={image}
-          ratio="aspect-square"
-          onClick={openReviewImageModal}
-        />
+        <StudioImage imageUrl={image} key={image} ratio="aspect-square" onClick={openReviewImageModal} />
       ))}
 
-      <ReviewImageModal
-        isOpen={isOpenReviewImageModal}
-        onCloseModal={closeReviewImageModal}
-        images={imageList}
-        userProfile={userProfile}
-      />
+      <ReviewImageModal isOpen={isOpenReviewImageModal} onCloseModal={closeReviewImageModal} images={imageList} userProfile={userProfile} />
     </>
   );
 };

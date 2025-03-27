@@ -5,7 +5,7 @@ import EquipmentForm from "@/components/custom-components/studio-details/Equipme
 const EquipmentPage = async ({ params }: { params: Promise<{ id: string }> }) => {
   const studioId = (await params).id;
 
-  const formDataResponse = await studioService.getEquipment(studioId);
+  const formDataResponse = await studioService.getEquipment({ studioId: studioId });
 
   if (!formDataResponse.success) {
     return;

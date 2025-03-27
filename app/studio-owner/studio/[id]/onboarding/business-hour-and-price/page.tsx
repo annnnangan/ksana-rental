@@ -8,7 +8,7 @@ import { studioService } from "@/services/studio/StudioService";
 const BusinessHourAndPricePage = async ({ params }: { params: Promise<{ id: string }> }) => {
   const studioId = (await params).id;
 
-  const [businessHoursListResponse, priceListResponse] = await Promise.all([studioService.getBusinessHoursByStudioId(studioId), studioService.getPriceByStudioId(studioId)]);
+  const [businessHoursListResponse, priceListResponse] = await Promise.all([studioService.getBusinessHoursByStudioId(studioId), studioService.getPrice({ studioId: studioId })]);
 
   let businessHoursAndPriceValue: BusinessHoursAndPriceFormData | undefined = undefined;
 

@@ -4,7 +4,7 @@ import { StudioPayoutSchema } from "@/lib/validations/zod-schema/booking-schema"
 import { studioCreateService } from "@/services/StudioCreateService";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function PUT(request: NextRequest, props: { params: Promise<{ id: number }> }) {
+export async function PUT(request: NextRequest, props: { params: Promise<{ idOrSlug: number }> }) {
   try {
     const params = await props.params;
     const body = await request.json();
@@ -14,7 +14,7 @@ export async function PUT(request: NextRequest, props: { params: Promise<{ id: n
     }
 
     const userId = 1;
-    const response = await studioCreateService.savePayoutDetail(Number(params.id), userId, body.data);
+    const response = await studioCreateService.savePayoutDetail(Number(params.idOrSlug), userId, body.data);
 
     if (response.success) {
       return NextResponse.json({ success: true }, { status: 201 });

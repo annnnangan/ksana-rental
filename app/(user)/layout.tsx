@@ -130,7 +130,7 @@ const UserPagesLayout = ({ children }: { children: React.ReactNode }) => {
 
       <CopilotPopup
         instructions={
-          "You are assisting the user to search for suitable yoga studio in this website as best as you can. Answer in the best way possible given the data you have in English or Traditional Chinese. Please do not use simplified chinese"
+          "You are assisting the user to search for suitable yoga studio in this website as best as you can. Answer in the best way possible given the data you have in Traditional Chinese. Please do not use Simplified Chinese. Please don't provide any URL to the user."
         }
         labels={{
           title: "Ksana小幫手",
