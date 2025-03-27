@@ -1,4 +1,4 @@
-import { StudioInfo } from "@/app/(user)/(non-home)/studio/[slug]/page";
+import { StudioInfo } from "@/app/(user)/(group)/studio/[slug]/page";
 import StudioLocation from "@/components/custom-components/studio/StudioLocation";
 import StudioLogo from "@/components/custom-components/studio/StudioLogo";
 import StudioRating from "@/components/custom-components/studio/StudioRating";
