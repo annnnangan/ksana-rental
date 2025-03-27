@@ -229,20 +229,28 @@ export class StudioService {
 
       if (!date) {
         countQuery = this.knex("studio")
-          .countDistinct("studio.id AS totalCount")
           .leftJoin("studio_equipment", "studio.id", "studio_equipment.studio_id")
           .leftJoin("equipment", "studio_equipment.equipment_id", "equipment.id")
           .where(function () {
             if (status) this.where("studio.status", status);
             if (slug) this.where("studio.slug", slug);
             if (district) this.where("studio.district", district);
-          });
+          })
+          .modify((query) => {
+            if (equipment && equipment.length > 0) {
+              const equipmentArray = equipment.split(","); // Convert string to array
+              query
+                .whereIn("equipment.equipment", equipmentArray) // Filter equipment
+                .groupBy("studio.id") // Group by studio
+                .havingRaw("COUNT(DISTINCT studio_equipment.equipment_id) = ?", [equipmentArray.length]);
+            }
+          })
+          .select("studio.id"); // Select only studio.id
 
-        if (equipment && equipment.length > 0) {
-          countQuery
-            .whereIn("equipment.equipment", equipment.split(",")) // Filter by equipment names
-            .havingRaw("COUNT(DISTINCT studio_equipment.equipment_id) = ?", [equipment.split(",").length]); // Ensure studio has all selected equipment
-        }
+        // Ensure count query is correctly formed
+        countQuery = this.knex
+          .from(countQuery.as("filtered_studios")) // Use subquery properly
+          .countDistinct("id AS totalCount"); // Count the unique studio IDs
       }
 
       const totalCountResult = await countQuery;
@@ -347,11 +355,11 @@ export class StudioService {
       let formatCount = 0;
 
       if (result.length > 0) {
-        console.log("hello");
         //@ts-ignore
         formatResult = result.map((review) => {
           if (review.is_anonymous) {
             review.username = "Ksana User";
+            review.user_icon = "";
           }
 
           return review;

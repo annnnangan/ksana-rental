@@ -3,56 +3,100 @@
  * @returns { Promise<void> }
  */
 exports.seed = async function (knex) {
+  let payoutDetailsList = [];
+
+  [1, 2, 3].map((studio) =>
+    payoutDetailsList.push({
+      studio_id: studio,
+      method: "fps",
+      account_name: "Ngan Tai Man",
+      account_number: "98765432",
+    })
+  );
+
+  [4, 5].map((studio) =>
+    payoutDetailsList.push({
+      studio_id: studio,
+      method: "fps",
+      account_name: "Chan Ma Lai",
+      account_number: "96124536",
+    })
+  );
+
+  [6].map((studio) =>
+    payoutDetailsList.push({
+      studio_id: studio,
+      method: "bank-transfer",
+      account_name: "Lam Shu Hua",
+      account_number: "012-324-242242-25325",
+    })
+  );
+
+  [7, 8].map((studio) =>
+    payoutDetailsList.push({
+      studio_id: studio,
+      method: "bank-transfer",
+      account_name: "Or Chi Lo",
+      account_number: "012-125-874566-23053",
+    })
+  );
+
+  [9, 10].map((studio) =>
+    payoutDetailsList.push({
+      studio_id: studio,
+      method: "bank-transfer",
+      account_name: "Ma Ming Tai",
+      account_number: "012-125-874566-23053",
+    })
+  );
+
+  [11, 12].map((studio) =>
+    payoutDetailsList.push({
+      studio_id: studio,
+      method: "payme",
+      account_name: "Fa Lam",
+      account_number: "65431234",
+    })
+  );
+
+  [13].map((studio) =>
+    payoutDetailsList.push({
+      studio_id: studio,
+      method: "payme",
+      account_name: "Mama Chan",
+      account_number: "54321234",
+    })
+  );
+
+  [14, 15].map((studio) =>
+    payoutDetailsList.push({
+      studio_id: studio,
+      method: "payme",
+      account_name: "Apple Fung",
+      account_number: "57892345",
+    })
+  );
+
+  [16, 17].map((studio) =>
+    payoutDetailsList.push({
+      studio_id: studio,
+      method: "fps",
+      account_name: "Lo Ka Lo",
+      account_number: "56149875",
+    })
+  );
+
+  [18, 19].map((studio) =>
+    payoutDetailsList.push({
+      studio_id: studio,
+      method: "payme",
+      account_name: "Jason Wong",
+      account_number: "98451236",
+    })
+  );
+
+  const userOnePayoutDetail = {};
   // Deletes ALL existing entries
   await knex("studio_payout_detail").del();
-  await knex("studio_payout_detail").insert([
-    {
-      studio_id: 1,
-      method: "fps",
-      account_name: "Chan Tai Man",
-      account_number: "98765432",
-    },
-    {
-      studio_id: 2,
-      method: "fps",
-      account_name: "Man Tai",
-      account_number: "98352643",
-    },
-    {
-      studio_id: 3,
-      method: "bank-transfer",
-      account_name: "Ng Tai Wai",
-      account_number: "012-324-242242-25325",
-    },
-    {
-      studio_id: 4,
-      method: "bank-transfer",
-      account_name: "Wong Mei",
-      account_number: "012-324-2434242-223425",
-    },
-    {
-      studio_id: 5,
-      method: "payme",
-      account_name: "Sze Ching",
-      account_number: "87651234",
-    },
-    {
-      studio_id: 6,
-      method: "payme",
-      account_name: "Cheng Man",
-      account_number: "94532738",
-    },
-    {
-      studio_id: 7,
-      method: "payme",
-      account_name: "Lo Hoi Sim",
-      account_number: "54638142",
-    },
-    {
-      studio_id: 8,
-      method: "fps",
-      account_name: "Lo Sum",
-      account_number: "175893025",
-    },
-  ]);
+  await knex("studio_payout_detail").insert(payoutDetailsList);
 };

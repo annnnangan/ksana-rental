@@ -25,7 +25,7 @@ const BookingPage = async ({ searchParams }: { searchParams: Promise<{ [key: str
   const bookingStudioBasicInfoResult = await studioService.getStudioBasicInfo({ slug: studioSlug });
 
   if (bookingStudioBasicInfoResult.success) {
-    bookingStudioBasicInfo = bookingStudioBasicInfoResult.data[0];
+    bookingStudioBasicInfo = bookingStudioBasicInfoResult.data?.studios[0];
   } else {
     // @ts-ignore
     return <ToastMessageWithRedirect type={"error"} message={bookingStudioBasicInfoResult?.error.message} redirectPath={"/"} />;

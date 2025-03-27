@@ -7,11 +7,7 @@ const tableName = "booking";
 exports.up = async function (knex) {
   await knex.schema.createTable(tableName, (table) => {
     table.increments();
-    table
-      .text("reference_no")
-      .notNullable()
-      .unique()
-      .defaultTo(knex.raw("nanoid('')"));
+    table.text("reference_no").notNullable().unique().defaultTo(knex.raw("nanoid('')"));
     table.uuid("user_id").unsigned();
     table.foreign("user_id").references("users.id");
     table.integer("studio_id").unsigned();
@@ -25,15 +21,7 @@ exports.up = async function (knex) {
     table.text("stripe_payment_id");
     table.text("whatsapp").notNullable();
     table.text("remarks");
-    table.boolean("is_accept_tnc").defaultTo(false).notNullable();
-    table
-      .enu("status", [
-        "confirmed",
-        "canceled",
-        "pending for payment",
-        "expired",
-      ])
-      .notNullable();
+    table.enu("status", ["confirmed", "canceled", "pending for payment", "expired"]).notNullable();
     table.boolean("is_complaint").defaultTo(false).notNullable();
     table.boolean("has_reviewed").defaultTo(false).notNullable();
     table.timestamps(false, true);

@@ -13,9 +13,7 @@ exports.up = async function (knex) {
     table.text("cover_photo");
     table.text("name");
     table.text("slug");
-    table
-      .enu("status", ["active", "suspend", "draft", "reviewing", "closed"])
-      .notNullable();
+    table.enu("status", ["active", "suspend", "draft", "reviewing", "closed"]).notNullable();
     table.text("phone");
     table.boolean("is_approved").notNullable();
     table.enu("area", ["hong-kong", "kowloon", "new-territories"]);
@@ -41,7 +39,6 @@ exports.up = async function (knex) {
     ]);
     table.text("address");
     table.text("description");
-    table.boolean("is_reveal_door_password");
     table.text("door_password");
     table.timestamps(false, true);
   });
