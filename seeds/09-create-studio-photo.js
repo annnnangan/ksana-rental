@@ -83,7 +83,7 @@ exports.seed = async function (knex) {
     // Peaceful Stretch
     ...Array.from({ length: 6 }, (_, i) => ({
       studio_id: 19,
-      photo: `https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/seed-photo/peaceful-stretch/peaceful-stretch-gallery-${i + 1}.jpg`,
+      photo: `https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/seed-photo/peaceful-stretch-studio/peaceful-stretch-studio-gallery-${i + 1}.jpg`,
     })),
     // Rediant Yoga Hub
     ...Array.from({ length: 6 }, (_, i) => ({

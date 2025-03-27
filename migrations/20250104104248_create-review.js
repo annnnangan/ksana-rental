@@ -12,7 +12,6 @@ exports.up = async function (knex) {
     table.integer("rating").notNullable().checkBetween([1, 5]);
     table.text("review");
     table.boolean("is_anonymous").defaultTo(false).notNullable();
-    table.boolean("is_hide_from_public").defaultTo(false).notNullable();
     table.boolean("is_complaint").defaultTo(false).notNullable();
     table.timestamps(false, true);
   });
