@@ -592,7 +592,6 @@ export class BookingService {
             rating: data.rating,
             review: data.review,
             is_anonymous: data.is_anonymous,
-            is_hide_from_public: data.is_hide_from_public,
             is_complaint: data.is_complaint,
           })
           .into("review")

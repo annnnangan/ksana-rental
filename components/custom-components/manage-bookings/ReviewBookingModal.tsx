@@ -10,23 +10,25 @@ import ImagesGridPreview from "../ImagesGridPreview";
 import { Rating } from "@smastrom/react-rating";
 import "@smastrom/react-rating/style.css";
 
-import { convertTimeToString, formatDate } from "@/lib/utils/date-time/date-time-utils";
 import { reviewBookingSchema, reviewFormData } from "@/lib/validations/zod-schema/review-booking-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 
 import { useTransition } from "react";
-import { BookingRecord } from "./BookingRecordCard";
+
 import { addUploadTimestampToFile, generateAWSImageUrls } from "@/lib/utils/s3-upload/s3-image-upload-utils";
 import { reviewBooking } from "@/actions/booking";
 import { toast } from "react-toastify";
 import SubmitButton from "../buttons/SubmitButton";
 import { useRouter } from "next/navigation";
+import { formatDate } from "@/lib/utils/date-time/format-date-utils";
+import { convertTimeToString } from "@/lib/utils/date-time/format-time-utils";
+import { UserBookingRecord } from "./BookingRecordCard";
 
 interface Props {
   isOpen: boolean;
   setOpenModal: (open: boolean) => void;
-  bookingRecord: BookingRecord;
+  bookingRecord: UserBookingRecord;
 }
 
 const ReviewBookingModal = ({ isOpen, setOpenModal, bookingRecord }: Props) => {
@@ -47,7 +49,6 @@ const ReviewBookingModal = ({ isOpen, setOpenModal, bookingRecord }: Props) => {
       rating: 1,
       review: "",
       is_anonymous: false,
-      is_hide_from_public: false,
       is_complaint: false,
       images: [],
     },
@@ -168,15 +169,7 @@ const ReviewBookingModal = ({ isOpen, setOpenModal, bookingRecord }: Props) => {
             {imagesList.length > 0 && (
               <div className="mt-5 mb-20">
                 <Label className="font-bold mb-1">圖片預覽</Label>
-                <ImagesGridPreview
-                  images={imagesList}
-                  removeImage={handleImageRemove}
-                  imageAlt={"Rating image"}
-                  allowDeleteImage={isSubmitting ? false : true}
-                  gridCol={2}
-                  gridColSpan={"col-span-1"}
-                  objectFit="object-contain"
-                />
+                <ImagesGridPreview images={imagesList} removeImage={handleImageRemove} imageAlt={"Rating image"} allowDeleteImage={isSubmitting ? false : true} objectFit="object-contain" />
               </div>
             )}
           </div>
@@ -190,16 +183,6 @@ const ReviewBookingModal = ({ isOpen, setOpenModal, bookingRecord }: Props) => {
                 <Label>
                   <Checkbox checked={field.value} onCheckedChange={field.onChange} />
                   是否匿名評論？
-                </Label>
-              )}
-            />
-            <Controller
-              name="is_hide_from_public"
-              control={control}
-              render={({ field }) => (
-                <Label>
-                  <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-                  是否隱藏評論？
                 </Label>
               )}
             />
