@@ -12,25 +12,12 @@ interface Props {
 
 const StudioCard = ({ studio }: Props) => {
   return (
-    <Link href={`/studio/${studio.slug}`} className="group w-full">
+    <Link href={`/studio/${studio.slug}`} className="group w-full h-full">
       <div>
         <div className="relative rounded-md overflow-hidden shadow">
           {/* Cover Image */}
           <div className="aspect-[3/1] bg-neutral-200 mb-1 overflow-hidden">
-            <Image
-              alt={`${studio.name} cover image`}
-              width={500}
-              height={500}
-              src={studio.cover_photo}
-              className="w-full h-full object-cover object-center transition-transform duration-300 group-hover:scale-110"
-            />
-          </div>
-
-          {/* Bookmark Icon */}
-          <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <button className="p-2 bg-white rounded-full shadow-md">
-              <Bookmark className="text-gray-700" size={14} />
-            </button>
+            <Image alt={`${studio.name} cover image`} width={500} height={500} src={studio.cover_photo} className="w-full h-full object-cover object-center transition-transform duration-300" />
           </div>
 
           {/* Logo */}
