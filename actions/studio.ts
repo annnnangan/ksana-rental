@@ -24,6 +24,8 @@ import {
 } from "@/lib/validations/zod-schema/studio/studio-step-schema";
 
 import { studioService } from "@/services/studio/StudioService";
+import { validateStudioService } from "@/services/studio/ValidateStudio";
+import { userService } from "@/services/user/UserService";
 
 export const saveDateSpecificHour = async (data: DateSpecificHourSchemaFormData, studioId: string) => {
   try {
@@ -322,6 +324,48 @@ export const completeOnboardingApplication = async (data: OnboardingTermsFormDat
 
     if (!result.success) {
       return result;
+    }
+
+    return { success: true };
+  } catch (error) {
+    return handleError(error, "server") as ActionResponse;
+  }
+};
+
+export const bookmarkStudio = async (studioSlug: string) => {
+  try {
+    //validate if user has logged in
+    const session = await auth();
+    if (!session?.user.id) {
+      throw new UnauthorizedError("請先登入後才可處理。");
+    }
+
+    //check if studio slug exist
+    const isStudioExist = await validateStudioService.validateIsStudioExistBySlug(studioSlug);
+
+    if (isStudioExist.success) {
+      await userService.bookmarkStudio(session.user.id, studioSlug);
+    }
+
+    return { success: true };
+  } catch (error) {
+    return handleError(error, "server") as ActionResponse;
+  }
+};
+
+export const removeBookmarkStudio = async (studioSlug: string) => {
+  try {
+    //validate if user has logged in
+    const session = await auth();
+    if (!session?.user.id) {
+      throw new UnauthorizedError("請先登入後才可處理。");
+    }
+
+    //check if studio slug exist
+    const isStudioExist = await validateStudioService.validateIsStudioExistBySlug(studioSlug);
+
+    if (isStudioExist.success) {
+      await userService.removeBookmarkStudio(session.user.id, studioSlug);
     }
 
     return { success: true };

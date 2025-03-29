@@ -21,7 +21,6 @@ interface Props {
 
 const tabListMap = [
   { name: "即將開始", query: "confirmed" },
-  { name: "等待付款", query: "pending-for-payment" },
   { name: "已完成", query: "completed" },
   { name: "已取消/已失效", query: "canceled-and-expired" },
 ];

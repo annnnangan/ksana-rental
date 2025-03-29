@@ -1,15 +1,18 @@
 import type { Metadata } from "next";
+import "./globals.css";
 import { SessionProvider } from "next-auth/react";
 import { Noto_Sans_TC } from "next/font/google";
 import { ToastContainer } from "react-toastify";
 import QueryClientProvider from "./QueryClientProvider";
+
 import { CopilotKit } from "@copilotkit/react-core";
-import "./globals.css";
+import "@copilotkit/react-ui/styles.css";
 
 const notoSansTC = Noto_Sans_TC({
   subsets: ["latin"], // Include subsets as per your use case
   weight: ["400", "700"], // Add weights you need
   display: "swap", // Optional for performance
+  preload: true,
 });
 
 export const metadata: Metadata = {

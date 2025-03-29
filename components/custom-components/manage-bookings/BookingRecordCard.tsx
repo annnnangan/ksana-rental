@@ -6,7 +6,7 @@ import { Tooltip } from "react-tooltip";
 import AvatarWithFallback from "../AvatarWithFallback";
 
 import { convertTimeToString } from "@/lib/utils/date-time/format-time-utils";
-import { validateDoorPasswordAvailability } from "@/lib/utils/date-time/manage-bookings-validation";
+import { validateCanLeaveBookingReview, validateDoorPasswordAvailability } from "@/lib/utils/date-time/manage-bookings-validation";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import StudioPasswordModal from "./StudioPasswordModal";
@@ -37,11 +37,11 @@ interface Props {
 }
 
 const BookingRecordCard = ({ bookingRecord }: Props) => {
-  //Open modal
+  // Open modal
   const [isOpenDetailModal, setOpenDetailModal] = useState(false);
   const [isOpenPasswordModal, setOpenPasswordModal] = useState(false);
 
-  //Password
+  // Studio Door Password
   const [isPasswordAvailable, setPasswordAvailable] = useState(false);
   const [doorPassword, setDoorPassword] = useState(null);
   const [doorPasswordError, setDoorPasswordError] = useState("");

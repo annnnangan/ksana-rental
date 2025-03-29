@@ -6,6 +6,8 @@ import { auth } from "@/lib/next-auth-config/auth";
 import { userService } from "@/services/user/UserService";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import SectionFallback from "@/components/custom-components/SectionFallback";
+import { CalendarClock } from "lucide-react";
 
 interface SearchQuery {
   tab: string;
@@ -20,33 +22,19 @@ const ManageBookingsPage = async (props: Props) => {
 
   const bookingStatus = searchParams["tab"];
 
-  const allowedStatuses = [
-    "confirmed",
-    "pending-for-payment",
-    "completed",
-    "canceled-and-expired",
-  ];
+  const allowedStatuses = ["confirmed", "completed", "canceled-and-expired"];
 
   if (!allowedStatuses.includes(bookingStatus)) {
     redirect("/manage-bookings?tab=confirmed");
   }
 
   const session = await auth();
-  if (!session?.user.id)
-    return (
-      <ToastMessageWithRedirect
-        type={"error"}
-        message={"登入後才可查詢預約"}
-        redirectPath={"/auth/login"}
-      />
-    );
+  if (!session?.user.id) return <ToastMessageWithRedirect type={"error"} message={"登入後才可查詢預約"} redirectPath={"/auth/login"} />;
 
-  const bookingRecords =
-    (await userService.getBookingsByUserId(session?.user.id, bookingStatus))
-      ?.data || [];
+  const bookingRecords = (await userService.getBookingsByUserId(session?.user.id, bookingStatus))?.data || [];
 
   return (
-    <div className="">
+    <div>
       <h1 className="text-primary text-2xl font-bold mb-5">我的預約</h1>
       <Tabs defaultValue={bookingStatus}>
         <TabsList className="bg-primary gap-2 overflow-x-auto mb-5">
@@ -58,16 +46,6 @@ const ManageBookingsPage = async (props: Props) => {
               className="p-2"
             >
               已預約
-            </Link>
-          </TabsTrigger>
-          <TabsTrigger value="pending-for-payment" className="text-white p-0">
-            <Link
-              href={{
-                query: { tab: "pending-for-payment" },
-              }}
-              className="p-2"
-            >
-              等待付款
             </Link>
           </TabsTrigger>
           <TabsTrigger value="completed" className="text-white p-0">
@@ -92,14 +70,12 @@ const ManageBookingsPage = async (props: Props) => {
           </TabsTrigger>
         </TabsList>
       </Tabs>
-      {bookingRecords.length == 0 && <p> -- 沒有記錄 --</p>}
-      {bookingRecords.length > 0 &&
-        bookingRecords.map((item) => (
-          <BookingRecordCard
-            bookingRecord={item}
-            key={item.booking_reference_no}
-          />
-        ))}
+      {bookingRecords.length == 0 && (
+        <div className="mt-5">
+          <SectionFallback icon={CalendarClock} fallbackText={"未有記錄"} />
+        </div>
+      )}
+      {bookingRecords.length > 0 && bookingRecords.map((item) => <BookingRecordCard bookingRecord={item} key={item.booking_reference_no} />)}
     </div>
   );
 };

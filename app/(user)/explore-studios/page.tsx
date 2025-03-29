@@ -1,4 +1,3 @@
-import StudioCardLoadingSkeleton from "@/components/custom-components/loading/StudioCardLoadingSkeleton";
 import PaginationWrapper from "@/components/custom-components/PaginationWrapper";
 import SectionFallback from "@/components/custom-components/SectionFallback";
 import StudioCard from "@/components/custom-components/studio/StudioCard";
@@ -64,7 +63,7 @@ const ExploreStudiosPage = async (props: Props) => {
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {studioListData.map((studio) => (
-            <StudioCard studio={studio} key={studio.slug} />
+            <StudioCard studio={studio} key={studio.slug} bookmarkRouterRefresh={false} />
           ))}
         </div>
       )}

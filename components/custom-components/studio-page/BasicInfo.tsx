@@ -1,24 +1,29 @@
-import { StudioInfo } from "@/app/(user)/(non-home)/studio/[slug]/page";
+import { StudioInfo } from "@/app/(user)/(group)/studio/[slug]/page";
 import StudioLocation from "@/components/custom-components/studio/StudioLocation";
 import StudioLogo from "@/components/custom-components/studio/StudioLogo";
 import StudioRating from "@/components/custom-components/studio/StudioRating";
-import { Bookmark, Phone } from "lucide-react";
+import { Phone } from "lucide-react";
 
-type BasicStudioInfo = Pick<StudioInfo, "name" | "logo" | "district" | "phone" | "rating" | "number_of_review" | "number_of_completed_booking">;
+import BookmarkButton from "./BookmarkButton";
+
+type BasicStudioInfo = Pick<StudioInfo, "slug" | "name" | "logo" | "district" | "phone" | "rating" | "number_of_review" | "number_of_completed_booking">;
 
 interface Props {
   basicInfo: BasicStudioInfo;
 }
 
-const BasicInfo = ({ basicInfo: { name, logo, district, phone, rating, number_of_review, number_of_completed_booking } }: Props) => {
+const BasicInfo = ({ basicInfo: { slug, name, logo, district, phone, rating, number_of_review, number_of_completed_booking } }: Props) => {
   return (
-    <section className="flex justify-between gap-x-2 mt-5">
-      <div className="flex justify-center items-center gap-4 flex-wrap">
+    <section className="mt-5">
+      <div className="flex justify-end">
+        <BookmarkButton studioSlug={slug} />
+      </div>
+      <div className="flex items-center flex-col md:flex-row md:justify-start gap-4 -mt-4">
         <StudioLogo logo={logo} size="md" />
-        <div>
+        <div className="flex flex-col items-center md:items-start">
           <h2 className="text-lg font-bold">{name}</h2>
 
-          <div className="mb-2">
+          <div className="mb-2 flex flex-col items-center md:items-start">
             {/* Location */}
             <StudioLocation district={district} />
             {/* Rate */}
@@ -33,11 +38,6 @@ const BasicInfo = ({ basicInfo: { name, logo, district, phone, rating, number_of
             </div>
           </div>
         </div>
-      </div>
-      <div>
-        <button className="p-2 bg-white rounded-full shadow-lg">
-          <Bookmark className="text-gray-700" size={16} />
-        </button>
       </div>
     </section>
   );

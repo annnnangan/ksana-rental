@@ -159,7 +159,7 @@ const BookingDetailsModal = ({ isOpen, setOpenModal, bookingRecord, role }: Prop
                 HKD$ {bookingRecord.price}{" "}
                 {role === "user" && (
                   <>
-                    (實付: HKD$ {bookingRecord.actual_payment} ) (已兌換積分: {bookingRecord.credit_redeem_payment})
+                    (實付: HKD$ {bookingRecord.actual_payment} ) (使用積分: {bookingRecord.credit_redeem_payment})
                   </>
                 )}
               </li>
