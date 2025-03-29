@@ -1,6 +1,6 @@
 import { studioService } from "@/services/studio/StudioService";
 import ButtonLink from "../buttons/ButtonLink";
-import StudioCardSwiper from "../studio/StudioCardSwiper";
+import StudioCardSwiper from "./StudioCardSwiper";
 import { studioCardInfo } from "@/app/(user)/explore-studios/page";
 
 const HomepageStudioSection = async () => {

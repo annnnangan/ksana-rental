@@ -4,7 +4,6 @@ import { NavMain } from "@/components/custom-components/layout/backend-panel-nav
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/shadcn/breadcrumb";
 import { Separator } from "@/components/shadcn/separator";
 import { Sidebar, SidebarContent, SidebarInset, SidebarProvider, SidebarRail, SidebarTrigger } from "@/components/shadcn/sidebar";
-import { useQuery } from "@tanstack/react-query";
 import { CalendarCheck, CircleChevronLeft, CircleGauge, Contact, Dumbbell, HandCoins, House, ImageUp, KeyRound } from "lucide-react";
 
 import Link from "next/link";
