@@ -1,4 +1,4 @@
-<img alt="ksana-rental-homepage" src="https://firebasestorage.googleapis.com/v0/b/testing-c9537.appspot.com/o/Ksana-rental%2Fcover.png?alt=media&token=c568b795-d056-4099-bf44-e71fbea6aac1">
+<p align="center"><img src="https://firebasestorage.googleapis.com/v0/b/testing-c9537.appspot.com/o/Ksana-rental%2Fcover.png?alt=media&token=35c95920-87ce-4357-8fed-c481f5a6b255"/></p>
 
 ## Features
 ### Rental User
