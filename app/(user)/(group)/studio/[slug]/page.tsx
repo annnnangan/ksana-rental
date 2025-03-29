@@ -16,6 +16,7 @@ import { studioService } from "@/services/studio/StudioService";
 import { validateStudioService } from "@/services/studio/ValidateStudio";
 
 export interface StudioInfo {
+  slug: string;
   name: string;
   logo: string;
   district: string;

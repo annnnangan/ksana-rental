@@ -2,22 +2,34 @@ import { studioCardInfo } from "@/app/(user)/explore-studios/page";
 import StudioLocation from "@/components/custom-components/studio/StudioLocation";
 import StudioLogo from "@/components/custom-components/studio/StudioLogo";
 import StudioRating from "@/components/custom-components/studio/StudioRating";
-import { Bookmark } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import BookmarkButton from "../studio-page/BookmarkButton";
 
 interface Props {
   studio: studioCardInfo;
+  bookmarkRouterRefresh: boolean;
 }
 
-const StudioCard = ({ studio }: Props) => {
+const StudioCard = ({ studio, bookmarkRouterRefresh = false }: Props) => {
   return (
-    <Link href={`/studio/${studio.slug}`} className="group w-full h-full">
-      <div>
+    <div>
+      <Link href={`/studio/${studio.slug}`} className="group px-3 pb-10 w-full md:1/2 lg:w-1/3 xl:w-1/4">
         <div className="relative rounded-md overflow-hidden shadow">
           {/* Cover Image */}
           <div className="aspect-[3/1] bg-neutral-200 mb-1 overflow-hidden">
-            <Image alt={`${studio.name} cover image`} width={500} height={500} src={studio.cover_photo} className="w-full h-full object-cover object-center transition-transform duration-300" />
+            <Image
+              alt={`${studio.name} cover image`}
+              width={500}
+              height={500}
+              src={studio.cover_photo}
+              className="w-full h-full object-cover object-center transition-transform duration-300 group-hover:scale-110"
+            />
+          </div>
+
+          {/* Bookmark Icon */}
+          <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <BookmarkButton studioSlug={studio.slug} needRouterRefresh={bookmarkRouterRefresh} />
           </div>
 
           {/* Logo */}
@@ -42,8 +54,8 @@ const StudioCard = ({ studio }: Props) => {
             <p>HK${studio.min_price} 起</p>
           </div>
         </div>
-      </div>
-    </Link>
+      </Link>
+    </div>
   );
 };
 

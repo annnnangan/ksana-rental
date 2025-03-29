@@ -2,11 +2,7 @@ import type { Config } from "tailwindcss";
 
 export default {
   darkMode: ["class"],
-  content: [
-    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./app/**/*.{js,ts,jsx,tsx,mdx}",
-  ],
+  content: ["./pages/**/*.{js,ts,jsx,tsx,mdx}", "./components/**/*.{js,ts,jsx,tsx,mdx}", "./app/**/*.{js,ts,jsx,tsx,mdx}"],
   theme: {
     extend: {
       colors: {
@@ -96,10 +92,18 @@ export default {
           },
         },
         tiltShake: {
-          "0%, 100%": { transform: "rotate(0deg)" },
-          "25%": { transform: "rotate(-5deg)" },
-          "50%": { transform: "rotate(5deg)" },
-          "75%": { transform: "rotate(-5deg)" },
+          "0%, 100%": {
+            transform: "rotate(0deg)",
+          },
+          "25%": {
+            transform: "rotate(-5deg)",
+          },
+          "50%": {
+            transform: "rotate(5deg)",
+          },
+          "75%": {
+            transform: "rotate(-5deg)",
+          },
         },
       },
       animation: {
@@ -107,10 +111,6 @@ export default {
         "accordion-up": "accordion-up 0.2s ease-out",
         tiltShake: "tiltShake 1s ease-out",
       },
-      backgroundImage: {
-        "join-us": "url('/join-us-background.png')",
-      },
     },
   },
-  plugins: [require("tailwindcss-animate")],
 } satisfies Config;

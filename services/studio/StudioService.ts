@@ -1,7 +1,8 @@
 import { onBoardingRequiredSteps } from "@/lib/constants/studio-details";
 import handleError from "@/lib/handlers/error";
-import { ForbiddenError, NotFoundError, UnauthorizedError } from "@/lib/http-errors";
+import { ForbiddenError, NotFoundError } from "@/lib/http-errors";
 import { findAreaByDistrictValue } from "@/lib/utils/areas-districts-converter";
+import { getDayOfWeekInEnglishByDate } from "@/lib/utils/date-time/format-date-utils";
 import { convertStringToTime, convertTimeToString } from "@/lib/utils/date-time/format-time-utils";
 import { DateSpecificHourSchemaFormData } from "@/lib/validations/zod-schema/studio/studio-manage-schema";
 import {
@@ -17,9 +18,8 @@ import {
 import { knex } from "@/services/knex";
 import { Knex } from "knex";
 import { StudioStatus } from "../model";
-import { validateStudioService } from "./ValidateStudio";
 import { paginationService } from "../PaginationService";
-import { getDayOfWeekInEnglishByDate } from "@/lib/utils/date-time/format-date-utils";
+import { validateStudioService } from "./ValidateStudio";
 
 export class StudioService {
   constructor(private knex: Knex) {}
@@ -355,7 +355,7 @@ export class StudioService {
       let formatCount = 0;
 
       if (result.length > 0) {
-        //@ts-ignore
+        //@ts-expect-error expected
         formatResult = result.map((review) => {
           if (review.is_anonymous) {
             review.username = "Ksana User";
@@ -367,7 +367,7 @@ export class StudioService {
       }
 
       if (count) {
-        //@ts-ignore
+        //@ts-expect-error expected
         formatCount = count.count;
       }
 
