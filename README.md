@@ -1,36 +1,37 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<img alt="ksana-rental-homepage" src="https://firebasestorage.googleapis.com/v0/b/testing-c9537.appspot.com/o/Ksana-rental%2Fcover.png?alt=media&token=c568b795-d056-4099-bf44-e71fbea6aac1">
 
-## Getting Started
+## Features
+### Rental User
+<details><summary>☑️ Search for yoga studios with criteria using the AI chatbot built with CopilotKit</summary>
+</details>
 
-First, run the development server:
+<details><summary>☑️ Search different yoga studios based on district, available date and time and equipment</summary>
+</details>
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+<details><summary>☑️ Check yoga studio's availability </summary>
+</details>
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+<details><summary>☑️ Pay and book different yoga studio </summary>
+</details>
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+<details><summary>☑️ Manage booking (view studio's door password 2 hours before the booking, cancel booking 24 hours before, leave review after booking) </summary>
+</details>
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## Learn More
+### Studio Owner
+<details><summary>☑️ Seamlessly switching between rental user and studio owner </summary>
+</details>
 
-To learn more about Next.js, take a look at the following resources:
+<details><summary>☑️ Easy to onboard and manage multiple yoga studios under one user account</summary>
+</details>
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+<details><summary>☑️ Set regular business hour and specific date business hour to define the studio availability</summary>
+</details>
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Admin
 
-## Deploy on Vercel
+<details><summary>☑️ Approve studio creation by studio owner</summary>
+</details>
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+<details><summary>☑️ Manage weekly payout to studios</summary>
+</details>
