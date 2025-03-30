@@ -2,7 +2,7 @@ import { Card } from "@/components/shadcn/card";
 import { Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import StudioLocation from "../studio/StudioLocation";
+import StudioLocation from "./StudioLocation";
 
 interface Props {
   studio_name: string;
@@ -11,12 +11,7 @@ interface Props {
   rating: string;
 }
 
-const FeatureCard = ({
-  studio_name,
-  studio_slug,
-  cover_image,
-  rating,
-}: Props) => {
+const StudioMiniCard = ({ studio_name, studio_slug, cover_image, rating }: Props) => {
   return (
     <Link href={`/studio/${studio_slug}`}>
       <Card className="flex rounded-md border-0 h-20 gap-2 p-1 bg-gray-100">
@@ -33,18 +28,10 @@ const FeatureCard = ({
         <div className="flex flex-col">
           <div className="flex items-center">
             <Star size={10} className="me-1" fill="#01a2c7" strokeWidth={0} />
-            <p className="text-[10px]">
-              {rating !== null
-                ? (Math.round(Number(rating) * 10) / 10).toFixed(1)
-                : "--"}
-            </p>
+            <p className="text-[10px]">{rating !== null ? (Math.round(Number(rating) * 10) / 10).toFixed(1) : "--"}</p>
           </div>
 
-          <StudioLocation
-            district="kwai-tsing"
-            iconSize={10}
-            textSize="text-[10px]"
-          />
+          <StudioLocation district="kwai-tsing" iconSize={10} textSize="text-[10px]" />
 
           <p className="text-[11px] font-bold mt-auto">{studio_name}</p>
         </div>
@@ -53,4 +40,4 @@ const FeatureCard = ({
   );
 };
 
-export default FeatureCard;
+export default StudioMiniCard;

@@ -14,7 +14,7 @@ import "swiper/css/pagination";
 // import required modules
 import { Button } from "@/components/shadcn/button";
 import { FreeMode, Pagination } from "swiper/modules";
-import FeatureCard from "./FeatureCard";
+import StudioMiniCard from "../studio/StudioMiniCard";
 
 interface FeatureCardProps {
   studio_name: string;
@@ -60,7 +60,7 @@ const FeatureCardSwiper = ({ slideItems }: Props) => {
       >
         {slideItems.map((item) => (
           <SwiperSlide key={item.studio_slug}>
-            <FeatureCard studio_name={item.studio_name} studio_slug={item.studio_slug} cover_image={item.cover_photo} rating={item.rating} />
+            <StudioMiniCard studio_name={item.studio_name} studio_slug={item.studio_slug} cover_image={item.cover_photo} rating={item.rating} />
           </SwiperSlide>
         ))}
       </Swiper>

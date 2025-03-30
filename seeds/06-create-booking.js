@@ -34,6 +34,7 @@ exports.seed = async function (knex) {
       is_complaint: false,
       has_reviewed: true,
       stripe_payment_id: "pi_3QOf4WE9TWOIiP7J007pRGwF",
+      created_at: new Date("2024-11-30"),
     },
     {
       user_id: userIdList[11],
@@ -50,6 +51,7 @@ exports.seed = async function (knex) {
       is_complaint: false,
       has_reviewed: true,
       stripe_payment_id: "pi_3QOf4WE9TWOIiP7J007pRGwF",
+      created_at: new Date("2024-11-30"),
     },
     {
       user_id: userIdList[12],
@@ -66,6 +68,7 @@ exports.seed = async function (knex) {
       is_complaint: false,
       has_reviewed: true,
       stripe_payment_id: "pi_3QOf4WE9TWOIiP7J007pRGwF",
+      created_at: new Date("2024-11-30"),
     },
     {
       user_id: userIdList[13],
@@ -82,6 +85,7 @@ exports.seed = async function (knex) {
       is_complaint: false,
       has_reviewed: true,
       stripe_payment_id: "pi_3QOf4WE9TWOIiP7J007pRGwF",
+      created_at: new Date("2024-12-23"),
     },
     {
       user_id: userIdList[18],
@@ -98,6 +102,7 @@ exports.seed = async function (knex) {
       is_complaint: true,
       has_reviewed: true,
       stripe_payment_id: "pi_3QOf4WE9TWOIiP7J007pRGwF",
+      created_at: new Date("2024-12-23"),
     },
     {
       user_id: userIdList[15],
@@ -114,6 +119,7 @@ exports.seed = async function (knex) {
       is_complaint: false,
       has_reviewed: true,
       stripe_payment_id: "pi_3QOf4WE9TWOIiP7J007pRGwF",
+      created_at: new Date("2024-12-23"),
     },
     {
       user_id: userIdList[14],
@@ -130,6 +136,7 @@ exports.seed = async function (knex) {
       is_complaint: false,
       has_reviewed: true,
       stripe_payment_id: "pi_3QOf4WE9TWOIiP7J007pRGwF",
+      created_at: new Date("2025-01-04"),
     },
     {
       user_id: userIdList[16],
@@ -146,6 +153,7 @@ exports.seed = async function (knex) {
       is_complaint: false,
       has_reviewed: true,
       stripe_payment_id: "pi_3QOf4WE9TWOIiP7J007pRGwF",
+      created_at: new Date("2025-01-04"),
     },
     {
       user_id: userIdList[15],
@@ -162,6 +170,7 @@ exports.seed = async function (knex) {
       is_complaint: false,
       has_reviewed: true,
       stripe_payment_id: "pi_3QOf4WE9TWOIiP7J007pRGwF",
+      created_at: new Date("2025-01-04"),
     },
     {
       user_id: userIdList[17],
@@ -178,6 +187,7 @@ exports.seed = async function (knex) {
       is_complaint: false,
       has_reviewed: true,
       stripe_payment_id: "pi_3QOf4WE9TWOIiP7J007pRGwF",
+      created_at: new Date("2025-01-04"),
     },
     {
       user_id: userIdList[18],
@@ -194,6 +204,7 @@ exports.seed = async function (knex) {
       is_complaint: false,
       has_reviewed: true,
       stripe_payment_id: "pi_3QOf4WE9TWOIiP7J007pRGwF",
+      created_at: new Date("2025-01-04"),
     },
     {
       user_id: userIdList[10],
@@ -210,6 +221,7 @@ exports.seed = async function (knex) {
       is_complaint: true,
       has_reviewed: true,
       stripe_payment_id: "pi_3QOf4WE9TWOIiP7J007pRGwF",
+      created_at: new Date("2024-12-04"),
     },
     {
       user_id: userIdList[11],
@@ -226,6 +238,7 @@ exports.seed = async function (knex) {
       is_complaint: false,
       has_reviewed: false,
       stripe_payment_id: "pi_3QOf4WE9TWOIiP7J007pRGwF",
+      created_at: new Date("2024-12-04"),
     },
     {
       user_id: userIdList[13],
@@ -242,6 +255,7 @@ exports.seed = async function (knex) {
       is_complaint: false,
       has_reviewed: true,
       stripe_payment_id: "pi_3QOf4WE9TWOIiP7J007pRGwF",
+      created_at: new Date("2025-01-20"),
     },
     {
       user_id: userIdList[15],
@@ -258,6 +272,7 @@ exports.seed = async function (knex) {
       is_complaint: true,
       has_reviewed: true,
       stripe_payment_id: "pi_3QOf4WE9TWOIiP7J007pRGwF",
+      created_at: new Date("2025-01-20"),
     },
     {
       user_id: userIdList[18],
@@ -274,6 +289,7 @@ exports.seed = async function (knex) {
       is_complaint: false,
       has_reviewed: true,
       stripe_payment_id: "pi_3QOf4WE9TWOIiP7J007pRGwF",
+      created_at: new Date("2025-01-20"),
     },
   ]);
 };
