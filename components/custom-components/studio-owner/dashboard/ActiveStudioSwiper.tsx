@@ -17,8 +17,8 @@ import { FreeMode, Pagination } from "swiper/modules";
 import StudioMiniCard from "../../studio/StudioMiniCard";
 
 interface FeatureCardProps {
-  studio_name: string;
-  studio_slug: string;
+  name: string;
+  slug: string;
   cover_photo: string;
   rating: string;
 }
@@ -73,8 +73,8 @@ const ActiveStudioSwiper = ({ slideItems }: Props) => {
         }}
       >
         {slideItems.map((item) => (
-          <SwiperSlide key={item.studio_slug}>
-            <StudioMiniCard studio_name={item.studio_name} studio_slug={item.studio_slug} cover_image={item.cover_photo} rating={item.rating} />
+          <SwiperSlide key={item.name}>
+            <StudioMiniCard studio_name={item.name} studio_slug={item.slug} cover_image={item.cover_photo} rating={item.rating} />
           </SwiperSlide>
         ))}
       </Swiper>
