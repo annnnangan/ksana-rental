@@ -33,8 +33,8 @@ const navItems: NavItems = {
       icon: House,
     },
     {
-      title: "場主細則",
-      url: "/studio-owner/guidelines",
+      title: "幫助中心",
+      url: "/studio-owner/helps",
       icon: NotepadText,
     },
   ],

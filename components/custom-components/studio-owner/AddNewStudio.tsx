@@ -19,9 +19,10 @@ import { toast } from "react-toastify";
 
 interface Props {
   hasCreatedStudio: boolean;
+  isDashboard?: boolean;
 }
 
-const AddNewStudio = ({ hasCreatedStudio }: Props) => {
+const AddNewStudio = ({ hasCreatedStudio, isDashboard }: Props) => {
   const user = useSessionUser();
   /* ------------------------- React Hook Form ------------------------ */
   const form = useForm({
@@ -38,6 +39,7 @@ const AddNewStudio = ({ hasCreatedStudio }: Props) => {
   const handleSubmit = async (data: StudioNameFormData) => {
     // Update Database
     startTransition(() => {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
       createNewDraftStudio(data, user?.id!).then((data) => {
         if (!data.success) {
           toast("無法建立場地。", {
@@ -66,7 +68,7 @@ const AddNewStudio = ({ hasCreatedStudio }: Props) => {
         </DialogTrigger>
       )}
 
-      {!hasCreatedStudio && (
+      {!hasCreatedStudio && !isDashboard && (
         <div className="flex justify-center items-center">
           <DialogTrigger asChild>
             <div className="flex flex-col items-center cursor-pointer">
@@ -75,6 +77,14 @@ const AddNewStudio = ({ hasCreatedStudio }: Props) => {
             </div>
           </DialogTrigger>
         </div>
+      )}
+
+      {!hasCreatedStudio && isDashboard && (
+        <DialogTrigger asChild>
+          <SlideArrowButton primaryColor="hsl(var(--primary))" className="mt-5">
+            開始建立
+          </SlideArrowButton>
+        </DialogTrigger>
       )}
 
       <DialogContent>

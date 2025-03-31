@@ -1,6 +1,16 @@
 import { PayoutMethod } from "@/services/model";
 
 export const onBoardingRequiredSteps = ["basic-info", "business-hour-and-price", "equipment", "gallery", "door-password", "social", "payout-info"];
+export const onBoardingStepsMap = [
+  { label: "基本資料", value: "basic-info" },
+  { label: "營業時間及價格", value: "business-hour-and-price" },
+  { label: "設備", value: "equipment" },
+  { label: "場地照片", value: "gallery" },
+  { label: "大門密碼", value: "door-password" },
+  { label: "社交媒體", value: "social" },
+  { label: "收款資料", value: "payout-info" },
+  { label: "確認申請", value: "confirmation" },
+];
 
 export const equipmentMap: { label: string; value: string }[] = [
   {
