@@ -293,22 +293,18 @@ export class DashboardService {
   async getRevenueBreakdownByStudio({ timeframe, dateType, userId }: { timeframe: string; dateType: "created_at" | "booking_date"; userId: string }) {
     try {
       let startDate;
-      let monthsBack;
 
       const dateTypeField = dateType === "booking_date" ? "date" : "created_at";
 
       if (timeframe === "last-12-months") {
         // Include this month and go back 12 months from the current date
         startDate = knex.raw("DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '12 months'");
-        monthsBack = 12;
       } else if (timeframe === "last-6-months") {
         // Include this month and go back 6 months from the current date
         startDate = knex.raw("DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '6 months'");
-        monthsBack = 6;
       } else if (timeframe === "this-month") {
         // Just this month
         startDate = knex.raw("DATE_TRUNC('month', CURRENT_DATE)");
-        monthsBack = 1;
       } else {
         throw new Error("Invalid timeframe");
       }
