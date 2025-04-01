@@ -8,7 +8,7 @@ const LogoutButton = () => {
     await signOut();
   };
   return (
-    <Button variant="link" onClick={handleLogout} className="p-0 text-black" type="button">
+    <Button variant="ghost" onClick={handleLogout} className="p-0 h-5 text-black" type="button">
       <LogOut />
       Log out
     </Button>

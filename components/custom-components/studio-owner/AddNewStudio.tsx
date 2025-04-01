@@ -16,6 +16,7 @@ import { useForm } from "react-hook-form";
 import { createNewDraftStudio } from "@/actions/studio";
 import { useSessionUser } from "@/hooks/use-session-user";
 import { toast } from "react-toastify";
+import { useSession } from "next-auth/react";
 
 interface Props {
   hasCreatedStudio: boolean;
@@ -40,7 +41,7 @@ const AddNewStudio = ({ hasCreatedStudio, isDashboard }: Props) => {
     // Update Database
     startTransition(() => {
       // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-      createNewDraftStudio(data, user?.id!).then((data) => {
+      createNewDraftStudio(data).then((data) => {
         if (!data.success) {
           toast("無法建立場地。", {
             position: "top-right",
@@ -58,7 +59,7 @@ const AddNewStudio = ({ hasCreatedStudio, isDashboard }: Props) => {
   return (
     <Dialog>
       {hasCreatedStudio && (
-        <DialogTrigger className="px-3 pb-10 w-full min-h-[250px] lg:min-h-[300px] lg:w-1/2 xl:w-1/3">
+        <DialogTrigger className="px-3 pb-10 w-full min-h-[250px] lg:min-h-[300px]">
           <div className="border-2 h-full rounded-sm bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer">
             <div className="flex gap-x-1 justify-center items-center h-full">
               <CirclePlus size={20} className="text-primary" />
@@ -69,10 +70,10 @@ const AddNewStudio = ({ hasCreatedStudio, isDashboard }: Props) => {
       )}
 
       {!hasCreatedStudio && !isDashboard && (
-        <div className="flex justify-center items-center">
+        <div className="flex justify-center items-center mt-20">
           <DialogTrigger asChild>
             <div className="flex flex-col items-center cursor-pointer">
-              <Image src="/yoga-cartoon/yoga-girl-doing-anjaneyasana-pose.png" alt="yoga image" width="300" height="300" />
+              <Image src="/yoga-cartoon/yoga-girl-doing-anjaneyasana-pose.png" alt="yoga image" width="200" height="200" />
               <SlideArrowButton primaryColor="hsl(var(--primary))">建立你的第一個場地</SlideArrowButton>
             </div>
           </DialogTrigger>

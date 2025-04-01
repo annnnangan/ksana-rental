@@ -9,6 +9,7 @@ import { NavUserMenu } from "./NavUser";
 import { useSessionUser } from "@/hooks/use-session-user";
 import { signOut } from "next-auth/react";
 import Link from "next/link";
+import LogoutButton from "../main-nav-bar/LogoutButton";
 
 interface NavItem {
   title: string;
@@ -43,10 +44,6 @@ const navItems: NavItems = {
 export function StudioOwnerPanelNavBar() {
   const user = useSessionUser();
 
-  const handleLogout = async () => {
-    await signOut();
-  };
-
   return (
     <Sidebar collapsible="icon">
       <SidebarContent className="mt-4">
@@ -65,9 +62,8 @@ export function StudioOwnerPanelNavBar() {
               </DropdownMenuItem>
             </Link>
 
-            <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
-              <LogOut />
-              Log out
+            <DropdownMenuItem>
+              <LogoutButton />
             </DropdownMenuItem>
           </NavUserMenu>
         </SidebarFooter>

@@ -8,7 +8,7 @@ exports.up = async function (knex) {
   await knex.schema.createTable(tableName, (table) => {
     table.increments();
     table.integer("studio_id").unsigned();
-    table.foreign("studio_id").references("studio.id");
+    table.foreign("studio_id").references("studio.id").onDelete("CASCADE");
     table.enu("day_of_week", ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]).notNullable();
     table.boolean("is_closed").notNullable().defaultTo(false);
     table.time("from");

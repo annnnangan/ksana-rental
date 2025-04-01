@@ -4,6 +4,7 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/shad
 import { GENERAL_ERROR_MESSAGE } from "@/lib/constants/error-message";
 import { sessionUser } from "@/lib/next-auth-config/session-user";
 import { studioOwnerService } from "@/services/studio/StudioOwnerService";
+import { validateStudioService } from "@/services/studio/ValidateStudio";
 
 export type Params = Promise<{ id: string }>;
 
@@ -21,7 +22,7 @@ export default async function Layout({ children, params }: Props) {
   }
 
   // Check if the studio id belong to the user
-  const isStudioBelongUserResponse = await studioOwnerService.validateIsStudioBelongToUser(user?.id, currentStudioId);
+  const isStudioBelongUserResponse = await validateStudioService.validateIsStudioBelongToUser(user?.id, currentStudioId);
 
   if (!isStudioBelongUserResponse.success) {
     return <ToastMessageWithRedirect type="error" message={isStudioBelongUserResponse?.error?.message || GENERAL_ERROR_MESSAGE} redirectPath="/" />;

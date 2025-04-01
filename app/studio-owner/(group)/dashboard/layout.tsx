@@ -43,7 +43,7 @@ const layout = async ({
   return (
     <>
       <h1 className="text-primary text-2xl font-bold mb-5">儀表板</h1>
-      <div className="space-y-10">
+      <div className="space-y-10 mb-5">
         {draftCount > 0 && DraftStudioStepTracker}
         {draftCount > 0 && activeCount === 0 && HelpsArticle}
 

@@ -8,7 +8,7 @@ exports.up = async function (knex) {
   await knex.schema.createTable(tableName, (table) => {
     table.increments();
     table.integer("studio_id").unsigned();
-    table.foreign("studio_id").references("studio.id");
+    table.foreign("studio_id").references("studio.id").onDelete("CASCADE");
     table.enu("price_type", ["peak", "non-peak"]).notNullable();
     table.integer("price").checkPositive().notNullable();
     table.timestamps(false, true);

@@ -27,6 +27,74 @@ import { studioService } from "@/services/studio/StudioService";
 import { validateStudioService } from "@/services/studio/ValidateStudio";
 import { userService } from "@/services/user/UserService";
 
+/* --------------------------- Draft Studio --------------------------- */
+export const createNewDraftStudio = async (data: StudioNameFormData) => {
+  try {
+    /* --------------------- Validate if user has logged in --------------------- */
+    const session = await auth();
+
+    if (!session?.user.id) {
+      throw new UnauthorizedError("請先登入後才可處理。");
+    }
+
+    const userId = session.user.id;
+
+    /* --------------------- Zod Safe Parse --------------------- */
+    const validateFields = StudioNameSchema.safeParse(data);
+
+    if (!validateFields.success) {
+      throw new ValidationError(validateFields.error.flatten().fieldErrors);
+    }
+
+    const result = await studioService.createNewDraftStudio(data, userId);
+
+    if (!result.success) {
+      return result;
+    }
+
+    return { success: true, data: result.data };
+  } catch (error) {
+    return handleError(error, "server") as ActionResponse;
+  }
+};
+
+export const removeDraftStudio = async (studioId: string) => {
+  try {
+    /* --------------------- Validate if user has logged in --------------------- */
+    const session = await auth();
+    if (!session?.user.id) {
+      throw new UnauthorizedError("請先登入後才可處理。");
+    }
+
+    const userId = session.user.id;
+
+    // check if the studio belong to user
+    const isStudioBelongUser = await validateStudioService.validateIsStudioBelongToUser(userId, studioId);
+
+    if (!isStudioBelongUser.success) {
+      throw new UnauthorizedError("無法刪除場地");
+    }
+
+    // check if the studio is in draft status, or else cannot delete
+    const isDraftStudio = await validateStudioService.validateStudioStatus("draft", userId, studioId);
+
+    if (!isDraftStudio.success) {
+      throw new UnauthorizedError("無法刪除營運行中場地");
+    }
+    // delete the studio
+    const result = await studioService.deleteDraftStudio(studioId, userId);
+
+    if (!result.success) {
+      return { success: false, error: { message: "無法刪除場地" } };
+    }
+
+    return { success: true, data: "" };
+  } catch (error) {
+    return handleError(error, "server") as ActionResponse;
+  }
+};
+
+/* --------------------------- Studio Information --------------------------- */
 export const saveDateSpecificHour = async (data: DateSpecificHourSchemaFormData, studioId: string) => {
   try {
     //validate if user has logged in
@@ -74,33 +142,6 @@ export const deleteDateSpecificHour = async (date: string, studioId: string) => 
     }
 
     return { success: true };
-  } catch (error) {
-    return handleError(error, "server") as ActionResponse;
-  }
-};
-
-export const createNewDraftStudio = async (data: StudioNameFormData, userId: string) => {
-  try {
-    /* --------------------- Validate if user has logged in --------------------- */
-    const session = await auth();
-    if (!session?.user.id) {
-      throw new UnauthorizedError("請先登入後才可處理。");
-    }
-
-    /* --------------------- Zod Safe Parse --------------------- */
-    const validateFields = StudioNameSchema.safeParse(data);
-
-    if (!validateFields.success) {
-      throw new ValidationError(validateFields.error.flatten().fieldErrors);
-    }
-
-    const result = await studioService.createNewDraftStudio(data, userId);
-
-    if (!result.success) {
-      return result;
-    }
-
-    return { success: true, data: result.data };
   } catch (error) {
     return handleError(error, "server") as ActionResponse;
   }
@@ -332,6 +373,7 @@ export const completeOnboardingApplication = async (data: OnboardingTermsFormDat
   }
 };
 
+/* --------------------------- Bookmark --------------------------- */
 export const bookmarkStudio = async (studioSlug: string) => {
   try {
     //validate if user has logged in
