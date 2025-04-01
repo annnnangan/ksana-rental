@@ -5,7 +5,7 @@ import StepIntro from "../StepIntro";
 const GalleryPage = async ({ params }: { params: Promise<{ id: string }> }) => {
   const studioId = (await params).id;
 
-  const formDataResponse = await studioService.getGallery(studioId);
+  const formDataResponse = await studioService.getGallery({ studioId: studioId });
 
   if (!formDataResponse.success) {
     return;

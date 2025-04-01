@@ -23,7 +23,7 @@ const DeleteConfirmationModal = ({ children, isOpenModal, isDeleting, setOpenMod
           <DialogTitle>你確定要刪除嗎？</DialogTitle>
           <DialogDescription></DialogDescription>
         </DialogHeader>
-        <div className="px-5 pb-8">
+        <div className="px-5 pb-8 text-center">
           {children}
           <div className="flex items-center gap-3 mt-5">
             <Button type="submit" variant="destructive" className={`mt-5 px-1 w-1/2`} disabled={isDeleting} onClick={handleDeleteItem}>

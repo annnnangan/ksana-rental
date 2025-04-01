@@ -8,7 +8,7 @@ exports.up = async function (knex) {
   await knex.schema.createTable(tableName, (table) => {
     table.increments();
     table.integer("studio_id").unsigned();
-    table.foreign("studio_id").references("studio.id");
+    table.foreign("studio_id").references("studio.id").onDelete("CASCADE");
     table.integer("equipment_id").unsigned();
     table.foreign("equipment_id").references("equipment.id");
     table.timestamps(false, true);

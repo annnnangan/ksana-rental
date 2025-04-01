@@ -28,12 +28,12 @@ export default function RootLayout({
   return (
     <html lang="zh-HK" className="scroll-smooth">
       <body className={`${notoSansTC.className} antialiased`}>
-        <QueryClientProvider>
-          <SessionProvider>
+        <SessionProvider>
+          <QueryClientProvider>
             <CopilotKit runtimeUrl="/api/copilotkit">{children}</CopilotKit>
             <ToastContainer />
-          </SessionProvider>
-        </QueryClientProvider>
+          </QueryClientProvider>
+        </SessionProvider>
       </body>
     </html>
   );

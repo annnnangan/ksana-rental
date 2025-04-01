@@ -8,11 +8,12 @@ interface Props {
   children: React.ReactNode;
   className?: string;
   variant?: "link" | "default" | "destructive" | "outline" | "secondary" | "ghost";
+  size?: "lg" | "sm";
 }
 
-const ButtonLink = ({ href, children, className, variant = "link" }: Props) => {
+const ButtonLink = ({ href, children, className, variant = "link", size }: Props) => {
   return (
-    <Button variant={variant} type="button" className={className}>
+    <Button variant={variant} type="button" className={className} size={size}>
       <Link href={href}>{children}</Link>
     </Button>
   );

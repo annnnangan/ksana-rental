@@ -8,7 +8,7 @@ exports.up = async function (knex) {
   await knex.schema.createTable(tableName, (table) => {
     table.increments();
     table.integer("studio_id").unsigned();
-    table.foreign("studio_id").references("studio.id");
+    table.foreign("studio_id").references("studio.id").onDelete("CASCADE");
     table.enu("method", ["fps", "payme", "bank-transfer"]).notNullable();
     table.text("account_name").notNullable();
     table.text("account_number").notNullable();

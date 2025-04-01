@@ -6,7 +6,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider>
       <StudioOwnerPanelNavBar />
-      <main className="p-5 lg:p-10 w-full">
+      <main className="px-5 lg:px-10 w-full">
         <SidebarInset>
           <SidebarTrigger />
           {children}

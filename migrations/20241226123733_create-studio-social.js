@@ -8,7 +8,7 @@ exports.up = async function (knex) {
   await knex.schema.createTable(tableName, (table) => {
     table.increments();
     table.integer("studio_id").unsigned();
-    table.foreign("studio_id").references("studio.id");
+    table.foreign("studio_id").references("studio.id").onDelete("CASCADE");
     table.enu("type", ["website", "instagram", "facebook", "youtube"]);
     table.text("contact");
     table.timestamps(false, true);

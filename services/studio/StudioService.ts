@@ -1,6 +1,6 @@
 import { onBoardingRequiredSteps } from "@/lib/constants/studio-details";
 import handleError from "@/lib/handlers/error";
-import { ForbiddenError, NotFoundError } from "@/lib/http-errors";
+import { ForbiddenError, NotFoundError, UnauthorizedError } from "@/lib/http-errors";
 import { findAreaByDistrictValue } from "@/lib/utils/areas-districts-converter";
 import { getDayOfWeekInEnglishByDate } from "@/lib/utils/date-time/format-date-utils";
 import { convertStringToTime, convertTimeToString } from "@/lib/utils/date-time/format-time-utils";
@@ -426,6 +426,25 @@ export class StudioService {
         success: true,
         data: insertedData[0],
       };
+    } catch (error) {
+      await txn.rollback();
+      console.dir(error);
+      return handleError(error, "server") as ActionResponse;
+    }
+  }
+
+  async deleteDraftStudio(studioId: string, userId: string) {
+    const txn = await this.knex.transaction();
+    try {
+      const isStudioBelongUser = await validateStudioService.validateIsStudioBelongToUser(userId, studioId);
+
+      if (!isStudioBelongUser.success) {
+        throw new UnauthorizedError("場地不存在");
+      }
+
+      await this.knex("studio").where({ user_id: userId, id: studioId }).del();
+
+      return { success: true, data: "" };
     } catch (error) {
       await txn.rollback();
       console.dir(error);
