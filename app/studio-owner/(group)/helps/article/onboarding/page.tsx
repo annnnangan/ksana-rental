@@ -21,7 +21,17 @@ const page = () => {
         <Accordion type="multiple">
           <AccordionItem value="item-1">
             <AccordionTrigger className="font-bold">📍 1. 在 「所有場地」，選擇 「新增場地」，填寫場地名稱</AccordionTrigger>
-            <AccordionContent>Yes. It adheres to the WAI-ARIA design pattern.</AccordionContent>
+            <AccordionContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                <div className="col-span-2">請填寫你的場地名稱</div>
+
+                <div className="h-auto w-48">
+                  <Zoom>
+                    <img src={"/onboarding-steps/name.png"} alt={"step name screenshot"} className="object-cover h-auto" />
+                  </Zoom>
+                </div>
+              </div>
+            </AccordionContent>
           </AccordionItem>
           <AccordionItem value="item-2">
             <AccordionTrigger className="font-bold">📍 2. 填寫場地基本資料</AccordionTrigger>

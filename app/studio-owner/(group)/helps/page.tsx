@@ -11,7 +11,7 @@ const articles = [
   {
     image: "/yoga-image-assets/getty-images-zFgdwsNh3Q4-unsplash.jpg",
     title: "如何更新場地可預約時間？",
-    href: "/studio-owner/helps/article/manage-bookings",
+    href: "/studio-owner/helps/article/update-availability",
   },
   {
     image: "/yoga-image-assets/luna-active-fitness-iEpsg6OzyXw-unsplash.jpg",
