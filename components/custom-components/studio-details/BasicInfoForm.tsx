@@ -74,7 +74,7 @@ const BasicInfoForm = ({ isOnboardingStep, studioId, defaultValues }: Props) => 
         try {
           const response = await fetch(`/api/studio/check-slug-unique?slug=${debounceSlug}`);
           const result = await response.json();
-          setCheckSlugUniqueMessage(result?.error?.message || "此網站別名未被使用。");
+          setCheckSlugUniqueMessage(result?.error?.message || "可使用此網站別名。");
           if (result.success) setUniqueSlug(true);
         } catch {
           setCheckSlugUniqueMessage("無法識別此網站別名。");
@@ -289,7 +289,7 @@ const BasicInfoForm = ({ isOnboardingStep, studioId, defaultValues }: Props) => 
               {!isOnboardingStep && <FormDescription>建立場地後無法修改，如需修改，請聯絡管理員。</FormDescription>}
               {isCheckingSlugUnique && <Loader2 className="animate-spin h-3 w-3" />}
               {!isCheckingSlugUnique && checkSlugUniqueMessage && (
-                <p className={`text-sm ${checkSlugUniqueMessage === "此網站別名未被使用。" ? "text-green-500" : "text-red-500"}`}>{checkSlugUniqueMessage}</p>
+                <p className={`text-sm ${checkSlugUniqueMessage === "可使用此網站別名。" ? "text-green-500" : "text-red-500"}`}>{checkSlugUniqueMessage}</p>
               )}
               <FormMessage />
             </FormItem>

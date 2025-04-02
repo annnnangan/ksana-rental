@@ -5,17 +5,17 @@ const articles = [
   {
     image: "/yoga-image-assets/getty-images-jvT7HHaN-eg-unsplash.jpg",
     title: "如何開始建立第一個Studio？",
-    href: "/studio-owner/helps/onboarding",
+    href: "/studio-owner/helps/article/onboarding",
   },
   {
     image: "/yoga-image-assets/luna-active-fitness-iEpsg6OzyXw-unsplash.jpg",
     title: "如何在Ksana管理你的預約？",
-    href: "/studio-owner/helps/manage-bookings",
+    href: "/studio-owner/helps/article/manage-bookings",
   },
   {
     image: "/yoga-image-assets/getty-images-QhivR4cdUf0-unsplash.jpg",
     title: "如何收取你的租金？",
-    href: "/studio-owner/helps/payout",
+    href: "/studio-owner/helps/article/payout",
   },
 ];
 
