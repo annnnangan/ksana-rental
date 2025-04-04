@@ -1,3 +1,4 @@
+"use client";
 import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/shadcn/sidebar";
 import { Check, LucideIcon } from "lucide-react";
 import Link from "next/link";
@@ -26,7 +27,7 @@ export function NavMain({
         <SidebarMenu>
           {items?.map((item) => (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton asChild isActive={item.url === currentPath} className="text-xl h-full [&>svg]:size-6">
+              <SidebarMenuButton asChild isActive={item.url === currentPath} className="h-full [&>svg]:size-4">
                 <Link href={item.url} className="h-full">
                   {showTick ? (
                     <div className="bg-green-500 rounded-full">

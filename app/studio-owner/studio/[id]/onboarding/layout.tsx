@@ -1,9 +1,8 @@
 "use client";
 
-import { NavMain } from "@/components/custom-components/layout/backend-panel-nav-bar/NavMain";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/shadcn/breadcrumb";
 import { Separator } from "@/components/shadcn/separator";
-import { Sidebar, SidebarContent, SidebarInset, SidebarProvider, SidebarRail, SidebarTrigger } from "@/components/shadcn/sidebar";
+import { Sidebar, SidebarContent, SidebarInset, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarRail, SidebarTrigger } from "@/components/shadcn/sidebar";
 import { CalendarCheck, CircleChevronLeft, CircleGauge, Contact, Dumbbell, HandCoins, House, ImageUp, KeyRound } from "lucide-react";
 
 import Link from "next/link";
@@ -64,9 +63,18 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     <SidebarProvider>
       <Sidebar collapsible="icon">
         <SidebarContent className="mt-4">
-          {navItems.map((item) => (
-            <NavMain key={item.title} items={[item]} />
-          ))}
+          <SidebarMenu>
+            {navItems?.map((item) => (
+              <SidebarMenuItem key={item.title}>
+                <SidebarMenuButton asChild isActive={item.url === pathname} className="h-full [&>svg]:size-4">
+                  <Link href={item.url} className="h-full">
+                    <item.icon />
+                    {item.title}
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
         </SidebarContent>
         <SidebarRail />
       </Sidebar>
