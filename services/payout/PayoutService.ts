@@ -221,55 +221,67 @@ export class PayoutService {
   }
 
   async getStudioCompletedBookingList(payoutStartDate: string, payoutEndDate: string, slug: string) {
-    const completed_booking_list = await this.knex
-      .select(
-        "booking.reference_no AS booking_reference_no",
-        knex.raw("TO_CHAR(booking.date, 'YYYY-MM-DD') AS booking_date"),
-        "booking.price AS booking_price",
-        "booking.status AS booking_status",
-        "booking.is_complaint"
-      )
-      .from("booking")
-      .leftJoin("studio", "booking.studio_id", "studio.id")
-      .whereBetween("booking.date", [payoutStartDate, payoutEndDate])
-      .andWhere({
-        "booking.status": "confirmed",
-        "booking.is_complaint": false,
-        "studio.slug": slug,
-      })
-      .orderBy("booking.date");
-    return {
-      success: true,
-      data: completed_booking_list,
-    };
+    try {
+      const completed_booking_list = await this.knex
+        .select(
+          "booking.reference_no AS booking_reference_no",
+          knex.raw("TO_CHAR(booking.date, 'YYYY-MM-DD') AS booking_date"),
+          "booking.price AS booking_price",
+          "booking.status AS booking_status",
+          "booking.is_complaint"
+        )
+        .from("booking")
+        .leftJoin("studio", "booking.studio_id", "studio.id")
+        .whereBetween("booking.date", [payoutStartDate, payoutEndDate])
+        .andWhere({
+          "booking.status": "confirmed",
+          "booking.is_complaint": false,
+          "studio.slug": slug,
+        })
+        .orderBy("booking.date");
+
+      return {
+        success: true,
+        data: completed_booking_list,
+      };
+    } catch (error) {
+      console.dir(error);
+      return handleError(error, "server") as ActionResponse;
+    }
   }
 
   async getStudioDisputeTransactionList(payoutStartDate: string, payoutEndDate: string, slug: string) {
-    const dispute_booking_list = await this.knex
-      .select(
-        "booking.reference_no AS booking_reference_no",
-        knex.raw("TO_CHAR(booking.date, 'YYYY-MM-DD') AS booking_date"),
-        "booking.price AS booking_price",
-        "booking.is_complaint",
-        "booking_complaint.status AS complaint_status",
-        knex.raw("TO_CHAR(booking_complaint.resolved_at, 'YYYY-MM-DD') AS complaint_resolved_at"),
-        "booking_complaint.is_refund",
-        "booking_complaint.refund_method",
-        "booking_complaint.refund_amount"
-      )
-      .from("booking_complaint")
-      .leftJoin("booking", "booking_complaint.booking_id", "booking.id")
-      .leftJoin("studio", "booking.studio_id", "studio.id")
-      .whereBetween("booking_complaint.resolved_at", [payoutStartDate, payoutEndDate])
-      .andWhere({
-        "studio.slug": slug,
-        "booking_complaint.status": "resolved",
-      })
-      .orderBy("booking.date");
-    return {
-      success: true,
-      data: dispute_booking_list,
-    };
+    try {
+      const dispute_booking_list = await this.knex
+        .select(
+          "booking.reference_no AS booking_reference_no",
+          knex.raw("TO_CHAR(booking.date, 'YYYY-MM-DD') AS booking_date"),
+          "booking.price AS booking_price",
+          "booking.is_complaint",
+          "booking_complaint.status AS complaint_status",
+          knex.raw("TO_CHAR(booking_complaint.resolved_at, 'YYYY-MM-DD') AS complaint_resolved_at"),
+          "booking_complaint.is_refund",
+          "booking_complaint.refund_method",
+          "booking_complaint.refund_amount"
+        )
+        .from("booking_complaint")
+        .leftJoin("review", "booking_complaint.review_id", "review.id")
+        .leftJoin("booking", "review.booking_reference_no", "booking.reference_no")
+        .leftJoin("studio", "booking.studio_id", "studio.id")
+        .whereBetween("booking_complaint.resolved_at", [payoutStartDate, payoutEndDate])
+        .andWhere({
+          "studio.slug": slug,
+          "booking_complaint.status": "resolved",
+        })
+        .orderBy("booking.date");
+      return {
+        success: true,
+        data: dispute_booking_list,
+      };
+    } catch (error) {
+      console.dir(error);
+      return handleError(error, "server") as ActionResponse;
+    }
   }
 
   async createPayoutRecord(proofImages: string[], payoutInformation: PayoutCompleteRecordType) {

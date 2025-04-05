@@ -73,30 +73,3 @@ export async function GET(request: NextRequest) {
     return handleError(error, "api") as APIErrorResponse;
   }
 }
-
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-
-    //validate if the payout range is correct
-    const payoutDateValidationResponse = validatePayoutDates(body.payoutStartDate, body.payoutEndDate);
-
-    if (!payoutDateValidationResponse.success) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: { message: payoutDateValidationResponse.error?.message },
-        },
-        { status: 422 }
-      );
-    }
-
-    const response = await payoutService.createPayoutRecord(body as PayoutCompleteRecordType);
-
-    if (!response.success) return NextResponse.json({ success: false, error: { message: response.error?.message } }, { status: response.errorStatus });
-
-    return NextResponse.json({ success: true, data: response.data }, { status: 201 });
-  } catch (error) {
-    return NextResponse.json({ success: false, error: { message: "系統出現錯誤。" } }, { status: 500 });
-  }
-}
