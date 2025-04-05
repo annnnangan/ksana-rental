@@ -2,7 +2,7 @@ import { DayBusinessHour, daysOfWeek, daysOfWeekType, Price } from "@/services/m
 
 import BusinessHourAndPrice from "@/components/custom-components/studio-details/BusinessHourAndPriceForm";
 import DateSpecificHour from "@/components/custom-components/studio-details/DateSpecificHour";
-import SectionTitle from "@/components/custom-components/studio-details/SectionTitle";
+import SectionTitle from "@/components/custom-components/common/SectionTitle";
 import ToastMessageWithRedirect from "@/components/custom-components/ToastMessageWithRedirect";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/shadcn/tabs";
 import { sessionUser } from "@/lib/next-auth-config/session-user";

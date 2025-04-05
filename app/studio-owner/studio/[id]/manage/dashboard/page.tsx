@@ -1,4 +1,4 @@
-import SectionTitle from "@/components/custom-components/studio-details/SectionTitle";
+import SectionTitle from "@/components/custom-components/common/SectionTitle";
 import React from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/shadcn/card";
 import { Badge } from "@/components/shadcn/badge";

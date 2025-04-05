@@ -203,13 +203,12 @@ export class PayoutService {
         default:
           queryBuilder.orderBy("studio_id", direction);
       }
+      // Total count of all satisfied result for frontend pagination
+      //@ts-ignore
+      const totalCount = (await queryBuilder.clone().clearSelect().clearOrder().count("* as totalCount"))[0]?.totalCount;
 
       // Apply Pagination
       const result = await paginationService.paginateQuery(queryBuilder, page, limit);
-
-      // Total count of all satisfied result for frontend pagination
-      //@ts-ignore
-      const totalCount = (await queryBuilder.clone().clearSelect().clearOrder().count("* as totalCount"))[0]?.totalCount || 0;
 
       return {
         success: true,

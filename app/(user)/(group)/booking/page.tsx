@@ -1,5 +1,5 @@
 import BookingCalendar from "@/components/custom-components/booking/BookingCalendar";
-import SectionTitle from "@/components/custom-components/studio-details/SectionTitle";
+import SectionTitle from "@/components/custom-components/common/SectionTitle";
 import ToastMessageWithRedirect from "@/components/custom-components/ToastMessageWithRedirect";
 import { auth } from "@/lib/next-auth-config/auth";
 import { studioService } from "@/services/studio/StudioService";

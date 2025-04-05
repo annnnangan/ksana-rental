@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/next-auth-config/auth";
 import { bookingService } from "@/services/booking/BookingService";
 import ResponsiveTab from "@/components/custom-components/layout/ResponsiveTab";
-import SectionTitle from "@/components/custom-components/studio-details/SectionTitle";
+import SectionTitle from "@/components/custom-components/common/SectionTitle";
 import BookingTable from "@/components/custom-components/manage-bookings/studio/BookingTable";
 
 interface SearchQuery {

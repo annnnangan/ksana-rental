@@ -1,7 +1,7 @@
 "use client";
 import AvatarWithFallback from "@/components/custom-components/AvatarWithFallback";
 import SubmitButton from "@/components/custom-components/buttons/SubmitButton";
-import SectionTitle from "@/components/custom-components/studio-details/SectionTitle";
+import SectionTitle from "@/components/custom-components/common/SectionTitle";
 import { Button } from "@/components/shadcn/button";
 import { Checkbox } from "@/components/shadcn/checkbox";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/shadcn/dialog";
