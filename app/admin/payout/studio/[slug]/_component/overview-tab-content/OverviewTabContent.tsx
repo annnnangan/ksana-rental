@@ -1,5 +1,5 @@
 "use client";
-import PayoutStatusBadge from "@/app/admin/payout/_components/PayoutStatusBadge";
+import PayoutStatusBadge from "@/components/custom-components/payout/PayoutStatusBadge";
 import ImagesGridPreview from "@/components/custom-components/ImagesGridPreview";
 import { StudioPayoutOverviewData } from "../../page";
 import ProofUploadAndPreview from "./ProofUploadAndPreview";

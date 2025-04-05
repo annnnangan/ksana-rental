@@ -5,19 +5,8 @@ import { Check, ChevronsUpDown } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 
 import { Button } from "@/components/shadcn/button";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/shadcn/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/shadcn/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/shadcn/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/shadcn/popover";
 import { cn } from "@/lib/utils/tailwind-utils";
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -29,18 +18,13 @@ const StudioFilterDropdown = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  if (isLoading) return null;
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className="w-[200px] justify-between"
-        >
-          {value
-            ? studios?.find((studio) => studio.slug === value)?.name
-            : "Studio Name"}
+        <Button variant="outline" role="combobox" aria-expanded={open} className="w-[200px] justify-between">
+          {value ? studios?.find((studio) => studio.slug === value)?.name : "Studio Name"}
           <ChevronsUpDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -57,9 +41,7 @@ const StudioFilterDropdown = () => {
                   onSelect={(currentValue: React.SetStateAction<string>) => {
                     setValue(currentValue === value ? "" : currentValue);
                     setOpen(false);
-                    const currentParams = new URLSearchParams(
-                      searchParams?.toString() || ""
-                    );
+                    const currentParams = new URLSearchParams(searchParams?.toString() || "");
 
                     currentParams.set("studio", currentValue as string);
                     if (currentValue === value) currentParams.delete("studio");
@@ -67,12 +49,7 @@ const StudioFilterDropdown = () => {
                   }}
                 >
                   {studio.name}
-                  <Check
-                    className={cn(
-                      "ml-auto",
-                      value === studio.slug ? "opacity-100" : "opacity-0"
-                    )}
-                  />
+                  <Check className={cn("ml-auto", value === studio.slug ? "opacity-100" : "opacity-0")} />
                 </CommandItem>
               ))}
             </CommandGroup>
@@ -90,9 +67,9 @@ const useStudios = () =>
   useQuery({
     queryKey: ["studios"],
     queryFn: async () => {
-      const res = await fetch(`/api/studio`);
+      const res = await fetch(`/api/studios/name`);
       const result = await res.json();
-      return result.data as { name: string; slug: string }[];
+      return result.data.data as { name: string; slug: string }[];
     },
     staleTime: 3 * 24 * 60 * 60 * 1000,
   });

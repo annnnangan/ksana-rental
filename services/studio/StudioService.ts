@@ -42,12 +42,17 @@ export class StudioService {
   }
 
   async getAllStudiosName() {
-    const studios = await this.knex.select("name", "slug").from("studio").orderBy("name");
+    try {
+      const studios = await this.knex.select("name", "slug").from("studio").orderBy("name");
 
-    return {
-      success: true,
-      data: studios,
-    };
+      return {
+        success: true,
+        data: studios,
+      };
+    } catch (error) {
+      console.dir(error);
+      return handleError(error, "server") as ActionResponse;
+    }
   }
 
   /* ---------------------------------- Get Studio Basic Information ---------------------------------- */

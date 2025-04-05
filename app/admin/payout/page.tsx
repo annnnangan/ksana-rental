@@ -1,9 +1,10 @@
+import DateFilter from "@/components/custom-components/filters-and-sort/payout/DateFilter";
+import PayoutMethodFilter from "@/components/custom-components/filters-and-sort/payout/PayoutMethodFilter";
+import StatusFilter from "@/components/custom-components/filters-and-sort/payout/StatusFilter";
+import StudioFilter from "@/components/custom-components/filters-and-sort/payout/StudioFilter";
+import PayoutOverviewTable, { PayoutQuery } from "@/components/custom-components/payout/PayoutOverviewTable";
 import { PayoutMethod, PayoutStatus } from "@/services/model";
 import { startOfWeek, subDays } from "date-fns";
-import PayoutFilters from "./_components/PayoutFilters";
-import PayoutOverviewTable, {
-  PayoutQuery,
-} from "./_components/PayoutOverviewTable";
 
 export interface StudiosPayoutList {
   studio_id: number;
@@ -25,29 +26,19 @@ interface Props {
 
 const PayoutPage = async (props: Props) => {
   const searchParams = await props.searchParams;
-
-  const defaultStartDate = subDays(
-    startOfWeek(new Date(), { weekStartsOn: 1 }),
-    14
-  );
-
-  const defaultEndDate = subDays(
-    startOfWeek(new Date(), { weekStartsOn: 1 }),
-    8
-  );
+  const defaultStartDate = subDays(startOfWeek(new Date(), { weekStartsOn: 1 }), 14);
+  const defaultEndDate = subDays(startOfWeek(new Date(), { weekStartsOn: 1 }), 8);
 
   return (
     <div className="flex flex-col gap-10">
-      <PayoutFilters
-        defaultStartDate={defaultStartDate}
-        defaultEndDate={defaultEndDate}
-      />
+      <div className="flex flex-wrap gap-x-8 gap-y-2 mt-5">
+        <DateFilter defaultStartDate={defaultStartDate} defaultEndDate={defaultEndDate} />
+        <StudioFilter />
+        <StatusFilter />
+        <PayoutMethodFilter />
+      </div>
 
-      <PayoutOverviewTable
-        searchParams={searchParams}
-        defaultStartDate={defaultStartDate}
-        defaultEndDate={defaultEndDate}
-      />
+      <PayoutOverviewTable searchParams={searchParams} defaultStartDate={defaultStartDate} defaultEndDate={defaultEndDate} />
     </div>
   );
 };

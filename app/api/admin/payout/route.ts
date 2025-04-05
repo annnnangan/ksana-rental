@@ -1,3 +1,5 @@
+import handleError from "@/lib/handlers/error";
+import { ForbiddenError } from "@/lib/http-errors";
 import { validatePayoutDates } from "@/lib/utils/date-time/payout-date-validation";
 import { PayoutMethod, PayoutStatus } from "@/services/model";
 import { payoutService } from "@/services/payout/PayoutService";
@@ -9,81 +11,67 @@ function isValidDate(dateString: string) {
   return isValid(parsedDate) && /^\d{4}-\d{2}-\d{2}$/.test(dateString);
 }
 
-//Get Payout Overview Data
+//Get Payout Data
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const payoutStartDate = searchParams.get("startDate");
     const payoutEndDate = searchParams.get("endDate");
-    const payoutStatus = searchParams.get("payoutStatus") as PayoutStatus;
-    const payoutMethod = searchParams.get("payoutMethod") as PayoutMethod;
-    const studio = searchParams.get("studio");
+    const studio = searchParams.get("studio") || undefined;
+    const page = Number(searchParams.get("page")) || 1;
+    const limit = Number(searchParams.get("limit")) || 10;
 
-    //Validate if all date parameter is presented
-    if (!payoutStartDate || !payoutEndDate)
-      return NextResponse.json(
-        {
-          success: false,
-          error: { message: "Missing payout start or end date." },
-        },
-        { status: 422 }
-      );
+    const payoutMethod = ["fps", "payme", "bank-transfer"].includes(searchParams.get("payoutMethod") || "undefined") ? searchParams.get("payoutMethod") : undefined;
+    const payoutStatus = ["pending", "complete"].includes(searchParams.get("payoutStatus") || "undefined") ? searchParams.get("payoutStatus") : undefined;
+    const orderBy = ["studioId", "studioName", "payoutStatus", "payoutMethod", "payoutAmount", "payoutAction"].includes(searchParams.get("orderBy") || "undefined")
+      ? searchParams.get("orderBy")
+      : "studioId";
+    const orderDirection = ["asc", "desc"].includes(searchParams.get("orderDirection") || "undefined") ? searchParams.get("orderDirection") : "asc";
 
-    //Validate date format
-    if (!isValidDate(payoutStartDate) || !isValidDate(payoutEndDate))
-      return NextResponse.json(
-        { success: false, message: "Invalid date format." },
-        { status: 422 }
-      );
-
-    //Validate if it is a valid date range
-    //todo - start date = monday
-    //todo - end date = sunday and the difference between should be 6
-    if (
-      getDay(new Date(payoutStartDate)) !== 1 ||
-      getDay(new Date(payoutEndDate)) !== 0 ||
-      differenceInDays(new Date(payoutEndDate), new Date(payoutStartDate)) !== 6
-    ) {
-      return NextResponse.json(
-        { success: false, error: { message: "Invalid payout date range." } },
-        { status: 422 }
-      );
+    // 🔍 Validate if all date parameter is presented
+    if (!payoutStartDate || !payoutEndDate) {
+      throw new ForbiddenError("Missing payout date range.");
     }
 
-    const totalPayoutAmountResponse = await payoutService.getTotalPayoutAmount(
+    // 🔍 Validate date format
+    if (!isValidDate(payoutStartDate) || !isValidDate(payoutEndDate)) {
+      throw new ForbiddenError("Invalid payout date.");
+    }
+
+    // 🔍 Validate if it is a valid date range
+    if (getDay(new Date(payoutStartDate)) !== 1 || getDay(new Date(payoutEndDate)) !== 0 || differenceInDays(new Date(payoutEndDate), new Date(payoutStartDate)) !== 6) {
+      console.log("hello");
+      throw new ForbiddenError("Invalid payout date range.");
+    }
+
+    const totalPayoutResponse = await payoutService.getWeeklyTotalPayout({ payoutStartDate, payoutEndDate });
+
+    const studioPayoutResponse = await payoutService.getWeeklyStudioPayout({
       payoutStartDate,
-      payoutEndDate
-    );
+      payoutEndDate,
+      slug: studio,
+      payoutMethod: payoutMethod || undefined,
+      status: payoutStatus || undefined,
+      orderBy: orderBy || "studioId",
+      orderDirection: orderDirection || "asc",
+      page: page,
+      limit: limit,
+    });
 
-    const allStudiosPayoutOverviewDataResponse =
-      await payoutService.getStudioPayoutOverview(
-        payoutStartDate,
-        payoutEndDate,
-        studio || undefined, // No slug for all studios
-        payoutMethod || undefined, // Pass payoutMethod if provided
-        payoutStatus || undefined // Pass payoutStatus if provided
-      );
-
-    if (
-      totalPayoutAmountResponse.success &&
-      allStudiosPayoutOverviewDataResponse.success
-    ) {
+    if (totalPayoutResponse.success && studioPayoutResponse.success) {
       return NextResponse.json(
         {
           success: true,
           data: {
-            ...totalPayoutAmountResponse.data,
-            studios_payout_list: allStudiosPayoutOverviewDataResponse.data,
+            totalPayout: totalPayoutResponse.data,
+            studioPayoutList: studioPayoutResponse.data,
           },
         },
         { status: 201 }
       );
     }
   } catch (error) {
-    return NextResponse.json(
-      { success: false, error: { message: "系統出現錯誤。" } },
-      { status: 500 }
-    );
+    return handleError(error, "api") as APIErrorResponse;
   }
 }
 
@@ -92,10 +80,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     //validate if the payout range is correct
-    const payoutDateValidationResponse = validatePayoutDates(
-      body.payoutStartDate,
-      body.payoutEndDate
-    );
+    const payoutDateValidationResponse = validatePayoutDates(body.payoutStartDate, body.payoutEndDate);
 
     if (!payoutDateValidationResponse.success) {
       return NextResponse.json(
@@ -107,24 +92,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const response = await payoutService.createPayoutRecord(
-      body as PayoutCompleteRecordType
-    );
+    const response = await payoutService.createPayoutRecord(body as PayoutCompleteRecordType);
 
-    if (!response.success)
-      return NextResponse.json(
-        { success: false, error: { message: response.error?.message } },
-        { status: response.errorStatus }
-      );
+    if (!response.success) return NextResponse.json({ success: false, error: { message: response.error?.message } }, { status: response.errorStatus });
 
-    return NextResponse.json(
-      { success: true, data: response.data },
-      { status: 201 }
-    );
+    return NextResponse.json({ success: true, data: response.data }, { status: 201 });
   } catch (error) {
-    return NextResponse.json(
-      { success: false, error: { message: "系統出現錯誤。" } },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: { message: "系統出現錯誤。" } }, { status: 500 });
   }
 }

@@ -3,58 +3,77 @@ import { Knex } from "knex";
 import { validateStudioService } from "../studio/ValidateStudio";
 import { PayoutMethod, PayoutStatus } from "../model";
 import { studioService } from "../studio/StudioService";
+import handleError from "@/lib/handlers/error";
+import { paginationService } from "../PaginationService";
 
 export class PayoutService {
   constructor(private knex: Knex) {}
 
-  async getTotalPayoutAmount(payoutStartDate: string, payoutEndDate: string) {
-    const total_completed_booking_amount = (
-      await this.knex
-        .select(this.knex.raw(`COALESCE(CAST(SUM(booking.price) AS INTEGER),0) AS total_completed_booking_amount`))
-        .from("booking")
-        .whereBetween("date", [payoutStartDate, payoutEndDate])
-        .andWhere({ status: "confirmed", is_complaint: false })
-    )[0];
+  /**
+   * @returns total_payout_amount = total_completed_booking_amount + total_dispute_amount - total_refund_amount
+   */
+  async getWeeklyTotalPayout({ payoutStartDate, payoutEndDate }: { payoutStartDate: string; payoutEndDate: string }) {
+    try {
+      const total_completed_booking_amount = (
+        await this.knex
+          .select(this.knex.raw(`COALESCE(CAST(SUM(booking.price) AS INTEGER),0) AS total_completed_booking_amount`))
+          .from("booking")
+          .whereBetween("date", [payoutStartDate, payoutEndDate])
+          .andWhere({ status: "confirmed", is_complaint: false })
+      )[0];
 
-    const dispute_transaction = (
-      await this.knex
-        .select(
-          this.knex.raw(`COALESCE(CAST(SUM(booking.price) AS INTEGER),0) AS total_dispute_amount`),
-          this.knex.raw(`COALESCE(CAST(SUM(booking_complaint.refund_amount) AS INTEGER),0) AS total_refund_amount`)
-        )
-        .from("booking_complaint")
-        .leftJoin("booking", "booking_complaint.booking_id", "booking.id")
-        .where({ "booking_complaint.status": "resolved" })
-        .whereBetween("booking_complaint.resolved_at", [payoutStartDate, payoutEndDate])
-    )[0];
+      const dispute_transaction = (
+        await this.knex
+          .select(
+            this.knex.raw(`COALESCE(CAST(SUM(booking.price) AS INTEGER),0) AS total_dispute_amount`),
+            this.knex.raw(`COALESCE(CAST(SUM(booking_complaint.refund_amount) AS INTEGER),0) AS total_refund_amount`)
+          )
+          .from("booking_complaint")
+          .leftJoin("review", "booking_complaint.review_id", "review.id")
+          .leftJoin("booking", "review.booking_reference_no", "booking.reference_no")
+          .where({ "booking_complaint.status": "resolved" })
+          .whereBetween("booking_complaint.resolved_at", [payoutStartDate, payoutEndDate])
+      )[0];
 
-    const total_payout_amount = total_completed_booking_amount.total_completed_booking_amount + dispute_transaction.total_dispute_amount - dispute_transaction.total_refund_amount;
+      const total_payout_amount = total_completed_booking_amount.total_completed_booking_amount + dispute_transaction.total_dispute_amount - dispute_transaction.total_refund_amount;
 
-    return {
-      success: true,
-      data: {
-        ...total_completed_booking_amount,
-        ...dispute_transaction,
-        total_payout_amount,
-      },
-    };
+      return {
+        success: true,
+        data: {
+          ...total_completed_booking_amount,
+          ...dispute_transaction,
+          total_payout_amount,
+        },
+      };
+    } catch (error) {
+      console.dir(error);
+      return handleError(error, "server") as ActionResponse;
+    }
   }
 
-  async getStudioPayoutOverview(payoutStartDate: string, payoutEndDate: string, slug?: string | undefined, payoutMethod?: PayoutMethod | undefined, status?: PayoutStatus | undefined) {
-    if (slug) {
-      // Validate if the studio exists by slug
-      const validationResponse = await validateStudioService.validateIsStudioExistBySlug(slug);
-
-      if (!validationResponse.success) {
-        // Return error immediately if the studio doesn't exist
-        return {
-          success: false,
-          error: { message: validationResponse?.error?.message },
-        };
-      }
-    }
-
-    let mainQuery = `
+  async getWeeklyStudioPayout({
+    payoutStartDate,
+    payoutEndDate,
+    slug,
+    payoutMethod,
+    status,
+    orderBy,
+    orderDirection,
+    page = 1,
+    limit = 10,
+  }: {
+    payoutStartDate: string;
+    payoutEndDate: string;
+    slug?: string;
+    payoutMethod?: string;
+    status?: string;
+    orderBy: string;
+    orderDirection: string;
+    page: number;
+    limit: number;
+  }) {
+    try {
+      let mainQuery = `
     WITH completed_booking AS (
       SELECT studio_id,
               SUM(booking.price) AS total_completed_booking_amount
@@ -70,13 +89,14 @@ export class PayoutService {
               SUM(booking.price) AS total_dispute_amount,
               SUM(booking_complaint.refund_amount) AS total_refund_amount
       FROM booking_complaint
-      LEFT JOIN booking ON booking_complaint.booking_id = booking.id
+      LEFT JOIN review ON booking_complaint.review_id = review.id
+      LEFT JOIN booking ON review.booking_reference_no = booking.reference_no
       WHERE booking_complaint.status = 'resolved'
           AND booking_complaint.resolved_at BETWEEN ? AND ?
       GROUP BY booking.studio_id
     ),
 
-    specific_payout AS (
+    payout_status AS (
       SELECT 
           id,
           studio_id, 
@@ -91,13 +111,17 @@ export class PayoutService {
         studio.logo AS studio_logo,
         studio.phone AS studio_contact,
         users.email AS studio_email,
-        COALESCE(specific_payout.status, 'pending') AS payout_status,
+        COALESCE(payout_status.status, 'pending') AS payout_status,
         studio_payout_detail.method AS payout_method,
         studio_payout_detail.account_number AS payout_account_number,
         studio_payout_detail.account_name AS payout_account_name,
         COALESCE(CAST(completed_booking.total_completed_booking_amount AS INTEGER), 0) AS total_completed_booking_amount,
         COALESCE(CAST(dispute_transaction.total_dispute_amount AS INTEGER), 0) AS total_dispute_amount,
-        COALESCE(CAST(dispute_transaction.total_refund_amount AS INTEGER), 0) AS total_refund_amount
+        COALESCE(CAST(dispute_transaction.total_refund_amount AS INTEGER), 0) AS total_refund_amount,
+        (COALESCE(CAST(completed_booking.total_completed_booking_amount AS INTEGER), 0) + 
+         COALESCE(CAST(dispute_transaction.total_dispute_amount AS INTEGER), 0) - 
+         COALESCE(CAST(dispute_transaction.total_refund_amount AS INTEGER), 0)
+        ) AS total_payout_amount
     FROM completed_booking
         FULL OUTER JOIN dispute_transaction
         ON completed_booking.studio_id = dispute_transaction.studio_id
@@ -107,54 +131,79 @@ export class PayoutService {
     LEFT JOIN studio_payout_detail
         ON completed_booking.studio_id = studio_payout_detail.studio_id
         OR dispute_transaction.studio_id = studio_payout_detail.studio_id
-    LEFT JOIN specific_payout
-        ON completed_booking.studio_id = specific_payout.studio_id
-        OR dispute_transaction.studio_id = specific_payout.studio_id
+    LEFT JOIN payout_status
+        ON completed_booking.studio_id = payout_status.studio_id
+        OR dispute_transaction.studio_id = payout_status.studio_id
     LEFT JOIN users
         ON studio.user_id = users.id
   `;
 
-    // Parameters for SQL query
-    const params = [payoutStartDate, payoutEndDate, payoutStartDate, payoutEndDate, payoutStartDate, payoutEndDate];
+      // Parameters for SQL query
+      const params = [payoutStartDate, payoutEndDate, payoutStartDate, payoutEndDate, payoutStartDate, payoutEndDate];
 
-    // Add WHERE condition for slug if it's provided
-    if (slug) {
-      mainQuery += ` WHERE studio.slug = ?`;
-      params.push(slug);
-    }
+      // Add WHERE condition for slug if it's provided
+      if (slug) {
+        mainQuery += ` WHERE studio.slug = ?`;
+        params.push(slug);
+      }
 
-    // Add condition for payoutMethod if provided
-    if (payoutMethod) {
-      mainQuery += slug ? ` AND` : ` WHERE`;
-      mainQuery += ` studio_payout_detail.method = ?`;
-      params.push(payoutMethod);
-    }
+      // Add WHERE condition for payoutMethod if provided
+      if (payoutMethod) {
+        mainQuery += slug ? ` AND` : ` WHERE`;
+        mainQuery += ` studio_payout_detail.method = ?`;
+        params.push(payoutMethod);
+      }
 
-    // Add condition for payoutStatus if provided
-    if (status) {
-      mainQuery += slug || payoutMethod ? ` AND` : ` WHERE`;
-      mainQuery += ` COALESCE(specific_payout.status, 'pending') = ?`;
-      params.push(status);
-    }
+      // Add condition for payoutStatus if provided
+      if (status) {
+        mainQuery += slug || payoutMethod ? ` AND` : ` WHERE`;
+        mainQuery += ` COALESCE(payout_status.status, 'pending') = ?`;
+        params.push(status);
+      }
 
-    // Execute the query
-    const result = await this.knex.raw(mainQuery, params);
+      // Validate orderDirection
+      const direction = orderDirection && orderDirection.toUpperCase() === "DESC" ? "DESC" : "ASC";
 
-    // Calculate total_payout_amount for each studio
-    const payoutData = result.rows.map((studio: { total_completed_booking_amount: number; total_dispute_amount: number; total_refund_amount: number }) => {
-      const { total_completed_booking_amount, total_dispute_amount, total_refund_amount } = studio;
-      const total_payout_amount = total_completed_booking_amount + total_dispute_amount - total_refund_amount;
+      // Completed Raw SQL Query
+      const rawMainQuery = this.knex.raw(mainQuery, params).toString();
+      const queryBuilder = this.knex.select("*").fromRaw(`(${rawMainQuery}) as subquery`);
+
+      // Order By
+      switch (orderBy) {
+        case "studioId":
+          queryBuilder.orderBy("studio_id", direction);
+          break;
+        case "studioName":
+          queryBuilder.orderBy("studio_name", direction);
+          break;
+        case "payoutStatus":
+          queryBuilder.orderBy("payout_status", direction);
+          break;
+        case "payoutMethod":
+          queryBuilder.orderBy("payout_method", direction);
+          break;
+        case "payoutAmount":
+          queryBuilder.orderBy("total_payout_amount", direction);
+          break;
+        default:
+          queryBuilder.orderBy("studio_id", direction);
+      }
+
+      // Apply Pagination
+      const result = await paginationService.paginateQuery(queryBuilder, page, limit);
+
+      // Total count of all satisfied result for frontend pagination
+      //@ts-ignore
+      const totalCount = (await queryBuilder.clone().clearSelect().clearOrder().count("* as totalCount"))[0]?.totalCount || 0;
 
       return {
-        ...studio,
-        total_payout_amount,
+        success: true,
+        data: { totalCount: Number(totalCount), payoutList: result },
       };
-    });
-
-    return {
-      success: true,
-      data: payoutData,
-    };
+    } catch (error) {
+      console.dir(error);
+      return handleError(error, "server") as ActionResponse;
+    }
   }
 
   async getStudioPayoutProof(payoutStartDate: string, payoutEndDate: string, slug: string) {
