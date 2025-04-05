@@ -1,78 +1,47 @@
-"use client";
-// import { NavBar } from "@/components/custom-components/layout/side-bar/NavBar";
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/shadcn/sidebar";
+import { AdminPanelNavItems } from "@/components/custom-components/layout/backend-panel-nav-bar/nav-items/AdminPanelNavItems";
+import { NavUserMenu } from "@/components/custom-components/layout/backend-panel-nav-bar/NavUser";
+import LogoutButton from "@/components/custom-components/layout/main-nav-bar/LogoutButton";
+import ToastMessageWithRedirect from "@/components/custom-components/ToastMessageWithRedirect";
+import { DropdownMenuItem } from "@/components/shadcn/dropdown-menu";
 
-import { CircleGauge, ClipboardMinus, Contact, FileClock, Flag, HandCoins, House, Landmark, Settings2 } from "lucide-react";
+import { Sidebar, SidebarContent, SidebarFooter, SidebarInset, SidebarProvider, SidebarRail, SidebarTrigger } from "@/components/shadcn/sidebar";
+import { auth } from "@/lib/next-auth-config/auth";
 
-const userData = {
-  name: "shadcn",
-  email: "m@example.com",
-  avatar: "/avatars/shadcn.jpg",
-};
+import { Calendar1 } from "lucide-react";
+import Link from "next/link";
 
-const navItems = {
-  Core: [
-    {
-      title: "Dashboard",
-      url: "/admin/dashboard",
-      icon: CircleGauge,
-    },
-    {
-      title: "Report",
-      url: "/admin/report",
-      icon: ClipboardMinus,
-    },
-    {
-      title: "Settings",
-      url: "/studio-owner/settings",
-      icon: Settings2,
-    },
-  ],
-  Finance: [
-    {
-      title: "Payout",
-      url: "/admin/payout",
-      icon: HandCoins,
-    },
-    {
-      title: "Booking Transactions",
-      url: "/admin/booking-transactions",
-      icon: Landmark,
-    },
-    {
-      title: "Payout History",
-      url: "/admin/payout-history",
-      icon: FileClock,
-    },
-  ],
-  "User and Studio Management": [
-    {
-      title: "Complaint",
-      url: "/admin/complaint",
-      icon: Flag,
-    },
-
-    {
-      title: "Studios",
-      url: "/admin/studios",
-      icon: House,
-    },
-    {
-      title: "Users",
-      url: "/admin/users",
-      icon: Contact,
-    },
-  ],
-};
-
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default async function Layout({ children }: { children: React.ReactNode }) {
+  const session = await auth();
+  if (!session) return <ToastMessageWithRedirect type={"error"} message={"請先登入"} redirectPath={"/auth/login"} />;
+  if (session && session.user.role === "user") return <ToastMessageWithRedirect type={"error"} message={"你沒有此權限"} redirectPath={"/"} />;
   return (
     <SidebarProvider>
-      <NavBar user={userData} navItems={navItems} />
-      <SidebarInset className="md:-mx-5">
-        <SidebarTrigger className="-ml-1" />
-        {children}
-      </SidebarInset>
+      <Sidebar collapsible="icon">
+        <SidebarContent className="mt-4">
+          <AdminPanelNavItems />
+        </SidebarContent>
+        <SidebarRail />
+        <SidebarFooter className="mb-4">
+          <NavUserMenu userName={session.user.name!} userEmail={session.user.email!} userImage={session.user.image || ""}>
+            <DropdownMenuItem className="cursor-pointer">
+              <Link href="/" className="flex items-center gap-1 w-full">
+                <Calendar1 size={20} />
+                切換回租場模式
+              </Link>
+            </DropdownMenuItem>
+
+            <DropdownMenuItem>
+              <LogoutButton />
+            </DropdownMenuItem>
+          </NavUserMenu>
+        </SidebarFooter>
+      </Sidebar>
+      <main className="px-5 w-full">
+        <SidebarInset>
+          <SidebarTrigger />
+          {children}
+        </SidebarInset>
+      </main>
     </SidebarProvider>
   );
 }

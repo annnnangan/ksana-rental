@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Step 3: Return the S3 file URL
-    const uploadedImageUrl = signedURL.split("?")[0];
+    const uploadedImageUrl = uploadResponse.url.split("?")[0];
 
     return NextResponse.json({
       success: true,

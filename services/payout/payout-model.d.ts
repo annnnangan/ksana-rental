@@ -1,6 +1,7 @@
 type PayoutCompleteRecordType = {
   payoutStartDate: string;
   payoutEndDate: string;
+  studio_id: string;
   slug: string;
   method: string;
   account_name: string;

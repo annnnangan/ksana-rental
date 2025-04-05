@@ -12,21 +12,13 @@ function isValidDate(dateString: string) {
 }
 
 //Get Payout Data
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest, props: { params: Promise<{ slug: string }> }) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const payoutStartDate = searchParams.get("startDate");
     const payoutEndDate = searchParams.get("endDate");
-    const studio = searchParams.get("slug") || undefined;
-    const page = Number(searchParams.get("page")) || 1;
-    const limit = Number(searchParams.get("limit")) || 10;
-
-    const payoutMethod = ["fps", "payme", "bank-transfer"].includes(searchParams.get("payoutMethod") || "undefined") ? searchParams.get("payoutMethod") : undefined;
-    const payoutStatus = ["pending", "complete"].includes(searchParams.get("payoutStatus") || "undefined") ? searchParams.get("payoutStatus") : undefined;
-    const orderBy = ["studioId", "studioName", "payoutStatus", "payoutMethod", "payoutAmount", "payoutAction"].includes(searchParams.get("orderBy") || "undefined")
-      ? searchParams.get("orderBy")
-      : "studioId";
-    const orderDirection = ["asc", "desc"].includes(searchParams.get("orderDirection") || "undefined") ? searchParams.get("orderDirection") : "asc";
+    const params = await props.params;
+    const studioSlug = params.slug;
 
     // 🔍 Validate if all date parameter is presented
     if (!payoutStartDate || !payoutEndDate) {
@@ -43,27 +35,18 @@ export async function GET(request: NextRequest) {
       throw new ForbiddenError("Invalid payout date range.");
     }
 
-    const totalPayoutResponse = await payoutService.getWeeklyTotalPayout({ payoutStartDate, payoutEndDate });
+    const [completedBookingListResponse, disputeTransactionListResponse] = await Promise.all([
+      payoutService.getStudioCompletedBookingList(payoutStartDate, payoutEndDate, studioSlug),
+      payoutService.getStudioDisputeTransactionList(payoutStartDate, payoutEndDate, studioSlug),
+    ]);
 
-    const studioPayoutResponse = await payoutService.getWeeklyStudiosPayout({
-      payoutStartDate,
-      payoutEndDate,
-      slug: studio,
-      payoutMethod: payoutMethod || undefined,
-      status: payoutStatus || undefined,
-      orderBy: orderBy || "studioId",
-      orderDirection: orderDirection || "asc",
-      page: page,
-      limit: limit,
-    });
-
-    if (totalPayoutResponse.success && studioPayoutResponse.success) {
+    if (completedBookingListResponse.success && disputeTransactionListResponse.success) {
       return NextResponse.json(
         {
           success: true,
           data: {
-            totalPayout: totalPayoutResponse.data,
-            studioPayoutList: studioPayoutResponse.data,
+            completedBookingList: completedBookingListResponse.data,
+            disputeTransactionList: disputeTransactionListResponse.data,
           },
         },
         { status: 201 }

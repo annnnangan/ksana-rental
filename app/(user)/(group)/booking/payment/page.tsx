@@ -7,7 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 import CheckoutForm from "@/components/custom-components/booking/CheckoutForm";
 import LoadingSpinner from "@/components/custom-components/loading/LoadingSpinner";
-import SectionTitle from "@/components/custom-components/studio-details/SectionTitle";
+import SectionTitle from "@/components/custom-components/common/SectionTitle";
 import { useSessionUser } from "@/hooks/use-session-user";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";

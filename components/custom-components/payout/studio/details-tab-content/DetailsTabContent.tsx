@@ -1,33 +1,20 @@
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/shadcn/accordion";
-import {
-  Params,
-  StudioPayoutOverviewData,
-  StudioPayoutQuery,
-} from "../../page";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/shadcn/accordion";
+
 import PayoutBreakdownTable from "./PayoutBreakdownTable";
 import TotalPayoutAmountCard from "./TotalPayoutAmountCard";
 import { getStudioPayoutBreakdownData } from "@/app/_actions/payout/actions";
 import ToastMessageWithRedirect from "@/components/custom-components/ToastMessageWithRedirect";
+import { StudioPayoutOverviewData } from "@/app/admin/payout/studio/[slug]/page";
+import { Params } from "next/dist/server/request/params";
 
 // Convert `keyof` to string explicitly
-type DisputeTableKeys = Exclude<keyof typeof DISPUTE_TABLE_COLUMNS, "index"> &
-  string;
-type BookingTableKeys = Exclude<keyof typeof BOOKING_TABLE_COLUMNS, "index"> &
-  string;
+type DisputeTableKeys = Exclude<keyof typeof DISPUTE_TABLE_COLUMNS, "index"> & string;
+type BookingTableKeys = Exclude<keyof typeof BOOKING_TABLE_COLUMNS, "index"> & string;
 
 // Example: Props using the extracted keys
 export interface PayoutBreakdownData {
-  dispute_transaction_list: Array<
-    Record<DisputeTableKeys, string | boolean | number>
-  >;
-  completed_booking_list: Array<
-    Record<BookingTableKeys, string | boolean | number>
-  >;
+  dispute_transaction_list: Array<Record<DisputeTableKeys, string | boolean | number>>;
+  completed_booking_list: Array<Record<BookingTableKeys, string | boolean | number>>;
 }
 
 interface Props {
@@ -36,40 +23,14 @@ interface Props {
   params: Params;
 }
 
-const DetailsTabContent = async ({
-  payoutOverview: {
-    total_completed_booking_amount,
-    total_dispute_amount,
-    total_refund_amount,
-    total_payout_amount,
-  },
-  searchParams,
-  params,
-}: Props) => {
-  const response = await getStudioPayoutBreakdownData(
-    (
-      await searchParams
-    ).startDate,
-    (
-      await searchParams
-    ).endDate,
-    (
-      await params
-    ).slug
-  );
+const DetailsTabContent = async ({ payoutOverview: { total_completed_booking_amount, total_dispute_amount, total_refund_amount, total_payout_amount }, searchParams, params }: Props) => {
+  const response = await getStudioPayoutBreakdownData((await searchParams).startDate, (await searchParams).endDate, (await params).slug);
 
   if (!response.success) {
-    return (
-      <ToastMessageWithRedirect
-        type={"error"}
-        message={response.error.message}
-        redirectPath={"/admin/payout"}
-      />
-    );
+    return <ToastMessageWithRedirect type={"error"} message={response.error.message} redirectPath={"/admin/payout"} />;
   }
 
-  const breakdownDataList: PayoutBreakdownData =
-    response.success && (response.data as PayoutBreakdownData);
+  const breakdownDataList: PayoutBreakdownData = response.success && (response.data as PayoutBreakdownData);
 
   return (
     <div className="flex flex-wrap xl:flex-nowrap gap-5">
@@ -90,26 +51,16 @@ const DetailsTabContent = async ({
 
           <Accordion type="multiple">
             <AccordionItem value="item-1" className="border-0">
-              <AccordionTrigger className="font-bold">
-                Completed Booking
-              </AccordionTrigger>
+              <AccordionTrigger className="font-bold">Completed Booking</AccordionTrigger>
               <AccordionContent>
-                <PayoutBreakdownTable
-                  columns={BOOKING_TABLE_COLUMNS}
-                  values={breakdownDataList.completed_booking_list}
-                />
+                <PayoutBreakdownTable columns={BOOKING_TABLE_COLUMNS} values={breakdownDataList.completed_booking_list} />
               </AccordionContent>
             </AccordionItem>
 
             <AccordionItem value="item-2" className="border-0">
-              <AccordionTrigger className="font-bold">
-                Dispute Transactions
-              </AccordionTrigger>
+              <AccordionTrigger className="font-bold">Dispute Transactions</AccordionTrigger>
               <AccordionContent>
-                <PayoutBreakdownTable
-                  columns={DISPUTE_TABLE_COLUMNS}
-                  values={breakdownDataList.dispute_transaction_list}
-                />
+                <PayoutBreakdownTable columns={DISPUTE_TABLE_COLUMNS} values={breakdownDataList.dispute_transaction_list} />
               </AccordionContent>
             </AccordionItem>
           </Accordion>

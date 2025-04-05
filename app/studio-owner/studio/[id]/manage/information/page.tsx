@@ -5,7 +5,7 @@ import DoorPasswordForm from "@/components/custom-components/studio-details/Door
 import EquipmentForm from "@/components/custom-components/studio-details/EquipmentForm";
 import GalleryForm from "@/components/custom-components/studio-details/GalleryForm";
 import PayoutForm from "@/components/custom-components/studio-details/PayoutForm";
-import SectionTitle from "@/components/custom-components/studio-details/SectionTitle";
+import SectionTitle from "@/components/custom-components/common/SectionTitle";
 import SocialForm from "@/components/custom-components/studio-details/SocialForm";
 import { studioService, StudioService } from "@/services/studio/StudioService";
 import { Suspense } from "react";
