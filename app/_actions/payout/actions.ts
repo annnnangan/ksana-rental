@@ -6,11 +6,7 @@ import { validatePayoutDates } from "@/lib/utils/date-time/payout-date-validatio
 import { payoutService } from "@/services/payout/PayoutService";
 
 // Main function to fetch studio payout overview data
-export const getStudioPayoutOverviewData = async (
-  payoutStartDate: string,
-  payoutEndDate: string,
-  slug: string
-): Promise<ActionDataResponse<StudioPayoutOverviewData>> => {
+export const getStudioPayoutOverviewData = async (payoutStartDate: string, payoutEndDate: string, slug: string): Promise<ActionDataResponse<StudioPayoutOverviewData>> => {
   // Validate payout dates
   const validateDate = validatePayoutDates(payoutStartDate, payoutEndDate);
 
@@ -19,26 +15,15 @@ export const getStudioPayoutOverviewData = async (
   }
 
   // Fetch data from the service
-  const allStudiosPayoutOverviewDataResponse =
-    await payoutService.getStudioPayoutOverview(
-      payoutStartDate,
-      payoutEndDate,
-      slug
-    );
+  const allStudiosPayoutOverviewDataResponse = await payoutService.getStudioPayoutOverview(payoutStartDate, payoutEndDate, slug);
 
-  const payoutProofImagesResponse = await payoutService.getStudioPayoutProof(
-    payoutStartDate,
-    payoutEndDate,
-    slug
-  );
+  const payoutProofImagesResponse = await payoutService.getStudioPayoutProof(payoutStartDate, payoutEndDate, slug);
 
   if (!allStudiosPayoutOverviewDataResponse.success) {
     return {
       success: false,
       error: {
-        message:
-          allStudiosPayoutOverviewDataResponse?.error?.message ||
-          "系統出現錯誤。",
+        message: allStudiosPayoutOverviewDataResponse?.error?.message || "系統出現錯誤。",
       },
     };
   }
@@ -63,11 +48,7 @@ export const getStudioPayoutOverviewData = async (
   };
 };
 
-export const getStudioPayoutBreakdownData = async (
-  payoutStartDate: string,
-  payoutEndDate: string,
-  slug: string
-): Promise<ActionDataResponse<PayoutBreakdownData>> => {
+export const getStudioPayoutBreakdownData = async (payoutStartDate: string, payoutEndDate: string, slug: string): Promise<ActionDataResponse<PayoutBreakdownData>> => {
   // Validate payout dates
   const validateDate = validatePayoutDates(payoutStartDate, payoutEndDate);
 
@@ -76,19 +57,9 @@ export const getStudioPayoutBreakdownData = async (
   }
 
   // Fetch data from the service
-  const completedBookingResponse =
-    await payoutService.getStudioCompletedBookingList(
-      payoutStartDate,
-      payoutEndDate,
-      slug
-    );
+  const completedBookingResponse = await payoutService.getStudioCompletedBookingList(payoutStartDate, payoutEndDate, slug);
 
-  const disputeTransactionResponse =
-    await payoutService.getStudioDisputeTransactionList(
-      payoutStartDate,
-      payoutEndDate,
-      slug
-    );
+  const disputeTransactionResponse = await payoutService.getStudioDisputeTransactionList(payoutStartDate, payoutEndDate, slug);
 
   return {
     success: true,

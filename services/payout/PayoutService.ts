@@ -51,7 +51,7 @@ export class PayoutService {
     }
   }
 
-  async getWeeklyStudioPayout({
+  async getWeeklyStudiosPayout({
     payoutStartDate,
     payoutEndDate,
     slug,
@@ -103,6 +103,17 @@ export class PayoutService {
           status
       FROM payout
       WHERE start_date = ? and end_date = ?
+    ),
+
+    payout_proof_images AS (
+     SELECT 
+          payout.studio_id, 
+          array_agg(payout_proof.proof_image_url) as payout_proof_image_urls
+      FROM payout_proof
+      LEFT JOIN payout
+        ON payout_proof.payout_id = payout.id
+      WHERE payout.start_date = ? and payout.end_date = ?
+      GROUP BY payout.studio_id
     )
 
     SELECT studio.id AS studio_id,
@@ -112,6 +123,7 @@ export class PayoutService {
         studio.phone AS studio_contact,
         users.email AS studio_email,
         COALESCE(payout_status.status, 'pending') AS payout_status,
+        payout_proof_images.payout_proof_image_urls,
         studio_payout_detail.method AS payout_method,
         studio_payout_detail.account_number AS payout_account_number,
         studio_payout_detail.account_name AS payout_account_name,
@@ -136,10 +148,13 @@ export class PayoutService {
         OR dispute_transaction.studio_id = payout_status.studio_id
     LEFT JOIN users
         ON studio.user_id = users.id
+    LEFT JOIN payout_proof_images
+        ON completed_booking.studio_id = payout_proof_images.studio_id
+        OR dispute_transaction.studio_id = payout_proof_images.studio_id
   `;
 
       // Parameters for SQL query
-      const params = [payoutStartDate, payoutEndDate, payoutStartDate, payoutEndDate, payoutStartDate, payoutEndDate];
+      const params = [payoutStartDate, payoutEndDate, payoutStartDate, payoutEndDate, payoutStartDate, payoutEndDate, payoutStartDate, payoutEndDate];
 
       // Add WHERE condition for slug if it's provided
       if (slug) {
@@ -206,38 +221,6 @@ export class PayoutService {
     }
   }
 
-  async getStudioPayoutProof(payoutStartDate: string, payoutEndDate: string, slug: string) {
-    if (slug) {
-      // Validate if the studio exists by slug
-      const validationResponse = await validateStudioService.validateIsStudioExistBySlug(slug);
-
-      if (!validationResponse.success) {
-        // Return error immediately if the studio doesn't exist
-        return {
-          success: false,
-          error: { message: validationResponse?.error?.message },
-        };
-      }
-    }
-
-    const proof_image_urls = (
-      await this.knex
-        .select("studio.id", "studio.slug")
-        .select(this.knex.raw("array_agg(payout_proof.proof_image_url) as proof_image_urls"))
-        .from("payout_proof")
-        .leftJoin("payout", "payout_proof.payout_id", "payout.id")
-        .leftJoin("studio", "payout.studio_id", "studio.id")
-        .where({
-          "payout.start_date": payoutStartDate,
-          "payout.end_date": payoutEndDate,
-          "studio.slug": slug,
-        })
-        .groupBy("studio.id", "studio.slug")
-    )[0];
-
-    return { success: true, data: proof_image_urls };
-  }
-
   async getStudioCompletedBookingList(payoutStartDate: string, payoutEndDate: string, slug: string) {
     const completed_booking_list = await this.knex
       .select(
@@ -290,62 +273,44 @@ export class PayoutService {
     };
   }
 
-  async createPayoutRecord(data: PayoutCompleteRecordType) {
-    const { slug, method, account_name, account_number, payoutStartDate, payoutEndDate, total_payout_amount, completed_booking_amount, dispute_amount, refund_amount, remarks } = data;
-    //return studio id by studio slug
+  async createPayoutRecord(proofImages: string[], payoutInformation: PayoutCompleteRecordType) {
+    const txn = await this.knex.transaction();
+    try {
+      const { studio_id, method, account_name, account_number, payoutStartDate, payoutEndDate, total_payout_amount, completed_booking_amount, dispute_amount, refund_amount } = payoutInformation;
 
-    const studioIdResponse = await studioService.getStudioIdBySlug(slug);
+      const insertedPayoutRecord = await txn("payout")
+        .insert({
+          studio_id,
+          method,
+          account_name,
+          account_number,
+          status: "complete",
+          start_date: payoutStartDate,
+          end_date: payoutEndDate,
+          total_payout_amount,
+          completed_booking_amount,
+          dispute_amount,
+          refund_amount,
+        })
+        .returning("id");
 
-    if (!studioIdResponse.success) {
-      return studioIdResponse;
+      await txn("payout_proof").insert(
+        proofImages.map((imageUrl) => ({
+          payout_id: insertedPayoutRecord[0].id,
+          proof_image_url: imageUrl,
+        }))
+      );
+
+      await txn.commit();
+
+      return {
+        success: true,
+      };
+    } catch (error) {
+      await txn.rollback();
+      console.dir(error);
+      return handleError(error, "server") as ActionResponse;
     }
-
-    const studio_id = studioIdResponse.data;
-
-    const insertedData = await this.knex
-      .insert({
-        studio_id,
-        method,
-        account_name,
-        account_number,
-        status: "complete",
-        start_date: payoutStartDate,
-        end_date: payoutEndDate,
-        total_payout_amount,
-        completed_booking_amount,
-        dispute_amount,
-        refund_amount,
-        remarks,
-      })
-      .into("payout")
-      .returning("id");
-
-    console.log(insertedData);
-    const payout_id = insertedData[0].id;
-
-    return {
-      success: true,
-      data: { payout_id, studio_id },
-    };
-  }
-
-  async createPayoutProofRecord(data: PayoutProofRecordType) {
-    const { payout_id, proof_image_url } = data;
-
-    const insertedData = await this.knex
-      .insert({
-        payout_id,
-        proof_image_url,
-      })
-      .into("payout_proof")
-      .returning("id");
-
-    const payout_proof_id = insertedData;
-
-    return {
-      success: true,
-      data: { payout_proof_id },
-    };
   }
 }
 

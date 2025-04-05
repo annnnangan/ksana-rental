@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const payoutStartDate = searchParams.get("startDate");
     const payoutEndDate = searchParams.get("endDate");
-    const studio = searchParams.get("studio") || undefined;
+    const studio = searchParams.get("slug") || undefined;
     const page = Number(searchParams.get("page")) || 1;
     const limit = Number(searchParams.get("limit")) || 10;
 
@@ -40,13 +40,12 @@ export async function GET(request: NextRequest) {
 
     // 🔍 Validate if it is a valid date range
     if (getDay(new Date(payoutStartDate)) !== 1 || getDay(new Date(payoutEndDate)) !== 0 || differenceInDays(new Date(payoutEndDate), new Date(payoutStartDate)) !== 6) {
-      console.log("hello");
       throw new ForbiddenError("Invalid payout date range.");
     }
 
     const totalPayoutResponse = await payoutService.getWeeklyTotalPayout({ payoutStartDate, payoutEndDate });
 
-    const studioPayoutResponse = await payoutService.getWeeklyStudioPayout({
+    const studioPayoutResponse = await payoutService.getWeeklyStudiosPayout({
       payoutStartDate,
       payoutEndDate,
       slug: studio,

@@ -3,15 +3,14 @@ import { Button } from "@/components/shadcn/button";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/shadcn/table";
 
 import { Skeleton } from "@/components/shadcn/skeleton";
+import usePayout from "@/hooks/react-query/usePayout";
 import { payoutMethodMap } from "@/lib/constants/studio-details";
 import { formatDate } from "@/lib/utils/date-time/format-date-utils";
 import { PayoutMethod, PayoutStatus } from "@/services/model";
-import { useQuery } from "@tanstack/react-query";
 import { ArrowUpIcon, HandCoins, Search } from "lucide-react";
 import Link from "next/link";
 import SectionFallback from "../SectionFallback";
 import PayoutStatusBadge from "./PayoutStatusBadge";
-import { toast } from "react-toastify";
 
 export interface PayoutQuery {
   startDate: string;
@@ -54,7 +53,7 @@ const PayoutOverviewTable = ({ searchParams, defaultStartDate, defaultEndDate }:
   const orderBy = ["studioId", "studioName", "payoutStatus", "payoutMethod", "payoutAmount", "payoutAction"].includes(searchParams.orderBy) ? searchParams.orderBy : "studioId";
   const orderDirection = ["asc", "desc"].includes(searchParams.orderDirection) ? searchParams.orderDirection : "asc";
 
-  const { data: weeklyPayoutData, isLoading, isError, error } = usePayout(payoutStartDate, payoutEndDate, page, limit, orderBy, orderDirection, studio, payoutMethod, payoutStatus);
+  const { data: weeklyPayoutData, isLoading, isError, error } = usePayout(payoutStartDate, payoutEndDate, page, limit, studio, orderBy, orderDirection, payoutMethod, payoutStatus);
 
   if (isLoading) {
     return (
@@ -147,31 +146,3 @@ const PayoutOverviewTable = ({ searchParams, defaultStartDate, defaultEndDate }:
 };
 
 export default PayoutOverviewTable;
-// React Query
-const usePayout = (startDate: string, endDate: string, page: number, limit: number, orderBy: string, orderDirection: string, studio?: string, payoutMethod?: string, payoutStatus?: string) => {
-  return useQuery({
-    queryKey: ["payout", startDate, endDate, page, limit, orderBy, orderDirection, studio, payoutMethod, payoutStatus],
-    queryFn: async () => {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      const params = new URLSearchParams({
-        ...(startDate && { startDate }),
-        ...(endDate && { endDate }),
-        ...(studio && { studio }),
-        ...(payoutMethod && { payoutMethod }),
-        ...(payoutStatus && { payoutStatus }),
-        ...(orderBy && { orderBy }),
-        ...(orderDirection && { orderDirection }),
-        page: page.toString(),
-        limit: limit.toString(),
-      });
-
-      const res = await fetch(`/api/admin/payout?${params.toString()}`);
-
-      const result = await res.json();
-
-      return result.data;
-    },
-    staleTime: 5 * 60 * 1000,
-    enabled: !!startDate && !!endDate, // optionally wait until required params are set
-  });
-};
