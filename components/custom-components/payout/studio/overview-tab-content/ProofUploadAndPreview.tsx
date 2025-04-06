@@ -10,7 +10,7 @@ import { toast } from "react-toastify";
 import SubmitButton from "@/components/custom-components/buttons/SubmitButton";
 import { StudioPayoutOverviewData } from "@/app/admin/payout/studio/[slug]/page";
 import { generateAWSImageUrls } from "@/lib/utils/s3-upload/s3-image-upload-utils";
-import { confirmStudioPayout } from "@/actions/payout";
+import { confirmStudioPayout } from "@/actions/admin";
 import { useQueryClient } from "@tanstack/react-query";
 
 const addUploadTimestampToFile = (file: File, index: number) => {

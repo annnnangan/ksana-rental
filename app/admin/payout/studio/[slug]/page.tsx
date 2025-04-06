@@ -53,7 +53,6 @@ const page = () => {
   const { data: payoutDetails, isLoading: isLoadingPayoutDetails, isError: isPayoutDetailsError } = usePayoutDetails(payoutStartDate, payoutEndDate, studio);
 
   const payoutOverview = payoutOverviewData && payoutOverviewData?.studioPayoutList?.payoutList?.[0];
-  console.log(payoutDetails);
 
   return (
     <div className="my-8">

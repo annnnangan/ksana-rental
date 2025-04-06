@@ -193,7 +193,6 @@ export default function TicketTable({ data }: Props) {
                 key={row.id}
                 className="cursor-pointer hover:bg-gray-100"
                 onClick={() => {
-                  console.log(row.original);
                   setSelectedBooking(row.original as StudioBookingRecord);
                   setOpenDetailModal(true);
                 }}

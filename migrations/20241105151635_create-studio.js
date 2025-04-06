@@ -16,6 +16,7 @@ exports.up = async function (knex) {
     table.enu("status", ["active", "suspend", "draft", "reviewing", "closed"]).notNullable();
     table.text("phone");
     table.boolean("is_approved").notNullable();
+    table.timestamp("approved_at");
     table.enu("area", ["hong-kong", "kowloon", "new-territories"]);
     table.enu("district", [
       "central-and-western",

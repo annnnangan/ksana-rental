@@ -12,13 +12,21 @@ interface tabList {
 interface Props {
   activeTab: string;
   tabListMap: tabList[];
+  useQueryString?: boolean;
+  setActiveTab?: (tab: string) => void;
 }
 
-const ResponsiveTab = ({ activeTab, tabListMap }: Props) => {
+const ResponsiveTab = ({ activeTab, tabListMap, useQueryString = true, setActiveTab }: Props) => {
   const router = useRouter();
 
   const handleTabChange = (tab: string) => {
-    router.push(`?tab=${tab}`, { scroll: false });
+    if (useQueryString) {
+      router.push(`?tab=${tab}`, { scroll: false });
+    } else {
+      if (setActiveTab) {
+        setActiveTab(tab);
+      }
+    }
   };
 
   return (
@@ -26,7 +34,7 @@ const ResponsiveTab = ({ activeTab, tabListMap }: Props) => {
       {/* Desktop Tabs */}
       <div className="hidden md:block">
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className={`flex`}>
             {tabListMap.map((tab) => (
               <TabsTrigger key={tab.query} value={tab.query}>
                 {tab.name}

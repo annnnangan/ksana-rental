@@ -55,6 +55,20 @@ export class StudioService {
     }
   }
 
+  async getStudioStatus(studioId: string) {
+    try {
+      const status = (await this.knex.select("status").from("studio").where({ id: studioId }))[0].status;
+
+      return {
+        success: true,
+        data: status,
+      };
+    } catch (error) {
+      console.dir(error);
+      return handleError(error, "server") as ActionResponse;
+    }
+  }
+
   /* ---------------------------------- Get Studio Basic Information ---------------------------------- */
   /**
    * Get either one studio by slug or
@@ -1066,7 +1080,7 @@ export class StudioService {
       const checkHasAllSteps = onBoardingRequiredSteps.every((step) => completedOnboardingSteps.some((obj) => obj.step === step));
 
       if (checkHasAllSteps) {
-        await txn("studio_onboarding_step").insert({ studio_id: studioId, step: "confirmation", is_complete: true });
+        await txn("studio_onboarding_step").update({ is_complete: true }).where({ studio_id: studioId, step: "confirmation" });
         await txn("studio").update({ status: "reviewing" }).where({ id: studioId });
       } else {
         throw new ForbiddenError("未完成所有步驟，無法送出申請。");
