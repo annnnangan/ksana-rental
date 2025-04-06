@@ -323,6 +323,64 @@ export class PayoutService {
       return handleError(error, "server") as ActionResponse;
     }
   }
+
+  async getTotalPayoutList() {
+    try {
+      let mainQuery = `
+        WITH weeks AS (
+          SELECT
+            generate_series(
+              DATE '2024-12-02',
+              date_trunc('week', now()) - interval '7 days',
+              interval '1 week'
+            ) AS payout_start_date
+        ),
+        week_ranges AS (
+          SELECT
+            payout_start_date,
+            payout_start_date + interval '6 days' AS payout_end_date
+          FROM weeks
+        ),
+        payout_aggregated AS (
+          SELECT
+            start_date AS payout_start_date,
+            end_date AS payout_end_date,
+            SUM(completed_booking_amount) AS total_completed_booking_amount,
+            SUM(refund_amount) AS total_refund_amount,
+            SUM(total_payout_amount) AS total_payout_amount
+          FROM payout
+          GROUP BY start_date, end_date
+        )
+        SELECT
+          TO_CHAR(week_ranges.payout_start_date, 'YYYY-MM-DD') AS payout_start_date,
+          TO_CHAR(week_ranges.payout_end_date, 'YYYY-MM-DD') AS payout_end_date,
+          COALESCE(CAST(payout_aggregated.total_completed_booking_amount AS INTEGER), 0) AS total_completed_booking_amount,
+          COALESCE(CAST(payout_aggregated.total_refund_amount AS INTEGER), 0) AS total_refund_amount,
+          COALESCE(CAST(payout_aggregated.total_payout_amount AS INTEGER), 0) AS total_payout_amount
+        FROM week_ranges
+        LEFT JOIN payout_aggregated
+          ON week_ranges.payout_start_date = payout_aggregated.payout_start_date
+          AND week_ranges.payout_end_date = payout_aggregated.payout_end_date
+        ORDER BY week_ranges.payout_start_date DESC
+      `;
+
+      const rawMainQuery = this.knex.raw(mainQuery).toString();
+      const queryBuilder = this.knex.select("*").fromRaw(`(${rawMainQuery}) as subquery`);
+
+      // Count total weeks (before pagination)
+      const totalCountResult = await queryBuilder.clone().clearSelect().count("* as totalCount");
+      //@ts-ignore
+      const totalCount = Number(totalCountResult[0]?.totalCount || 0);
+
+      // Apply pagination for the actual data
+      const result = await queryBuilder;
+
+      return { success: true, data: { totalCount: totalCount, payoutList: result } };
+    } catch (error) {
+      console.dir(error);
+      return handleError(error, "server") as ActionResponse;
+    }
+  }
 }
 
 export const payoutService = new PayoutService(knex);
