@@ -5,86 +5,26 @@
 exports.seed = async function (knex) {
   // Deletes ALL existing entries
   await knex("studio_onboarding_step").del();
-  await knex("studio_onboarding_step").insert([
-    {
-      studio_id: 1,
-      step: "basic-info",
-      is_complete: true,
-    },
-    {
-      studio_id: 1,
-      step: "business-hour-and-price",
-      is_complete: true,
-    },
-    {
-      studio_id: 1,
-      step: "equipment",
-      is_complete: true,
-    },
-    {
-      studio_id: 1,
-      step: "gallery",
-      is_complete: true,
-    },
-    {
-      studio_id: 1,
-      step: "door-password",
-      is_complete: true,
-    },
-    {
-      studio_id: 1,
-      step: "social",
-      is_complete: true,
-    },
-    {
-      studio_id: 1,
-      step: "payout-info",
-      is_complete: true,
-    },
-    {
-      studio_id: 1,
-      step: "confirmation",
-      is_complete: true,
-    },
-    {
-      studio_id: 2,
-      step: "basic-info",
-      is_complete: false,
-    },
-    {
-      studio_id: 2,
-      step: "business-hour-and-price",
-      is_complete: false,
-    },
-    {
-      studio_id: 2,
-      step: "equipment",
-      is_complete: false,
-    },
-    {
-      studio_id: 2,
-      step: "gallery",
-      is_complete: false,
-    },
-    {
-      studio_id: 2,
-      step: "door-password",
-      is_complete: false,
-    },
-    {
-      studio_id: 2,
-      step: "social",
-      is_complete: false,
-    },
-    {
-      studio_id: 2,
-      step: "payout-info",
-      is_complete: false,
-    },
-    {
-      studio_id: 2,
-      step: "confirmation",
-      is_complete: false,
-    },
-  ]);
+
+  const studios = await knex("studio").select("id");
+
+  if (studios.length === 0) {
+    console.error("No users found! Ensure you have studios in the database.");
+    return;
+  }
+  const steps = ["basic-info", "business-hour-and-price", "equipment", "gallery", "door-password", "social", "payout-info", "confirmation"];
+
+  let insertList = [];
+
+  for (let studio_id = 1; studio_id <= studios.length; studio_id++) {
+    steps.forEach((step) => {
+      insertList.push({
+        studio_id,
+        step,
+        is_complete: true,
+      });
+    });
+  }
+
+  await knex("studio_onboarding_step").insert(insertList);
 };

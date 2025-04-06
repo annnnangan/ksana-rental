@@ -13,11 +13,11 @@ import {
   SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, Search } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { DataTablePagination } from "../common/DataTablePagination";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import SectionFallback from "../SectionFallback";
 
 const AdminStudiosTable = ({ data }: { data: { studio_id: string; studio_name: string; studio_slug: string; request_review_date: string }[] }) => {
   const router = useRouter();
@@ -33,7 +33,9 @@ const AdminStudiosTable = ({ data }: { data: { studio_id: string; studio_name: s
   const columnHeadersArrayMap = [
     { label: "Id", columnName: "studio_id" },
     { label: "Name", columnName: "studio_name" },
+    { label: "Status", columnName: "status" },
     { label: "Request Review Date", columnName: "request_review_date" },
+    { label: "Approved Date", columnName: "approved_date" },
   ];
 
   const columnHelper = createColumnHelper();
@@ -64,11 +66,8 @@ const AdminStudiosTable = ({ data }: { data: { studio_id: string; studio_name: s
         cell: ({ getValue }) => {
           // presentational
           const value = getValue();
-          if (columnName === "total_payout_amount" || columnName === "total_refund_amount" || columnName === "total_completed_booking_amount") {
-            return new Intl.NumberFormat("en-US", {
-              style: "currency",
-              currency: "HKD",
-            }).format(value);
+          if (columnName === "approved_date" && value === null) {
+            return "N/A";
           }
           return value;
         },
@@ -119,6 +118,13 @@ const AdminStudiosTable = ({ data }: { data: { studio_id: string; studio_name: s
                 ))}
               </TableRow>
             ))}
+            {data.length == 0 && (
+              <TableRow>
+                <TableCell colSpan={5}>
+                  <SectionFallback icon={Search} fallbackText={"未有場地資料"} />
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
         <DataTablePagination table={table} />
