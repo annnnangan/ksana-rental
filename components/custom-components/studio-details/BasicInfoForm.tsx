@@ -24,6 +24,7 @@ import { generateAWSImageUrls } from "@/lib/utils/s3-upload/s3-image-upload-util
 import { maxCoverImageSize, maxLogoImageSize } from "@/lib/validations/file";
 import { BasicInfoFormData, BasicInfoSchema } from "@/lib/validations/zod-schema/studio/studio-step-schema";
 import { districts } from "@/services/model";
+import { useSessionUser } from "@/hooks/use-session-user";
 
 interface Props {
   defaultValues: BasicInfoFormData;
@@ -43,6 +44,7 @@ const emptyDefaultValues = {
 };
 
 const BasicInfoForm = ({ isOnboardingStep, studioId, defaultValues }: Props) => {
+  const user = useSessionUser();
   /* ------------------------- React Hook Form ------------------------ */
   const form = useForm({
     resolver: zodResolver(BasicInfoSchema),
@@ -251,7 +253,14 @@ const BasicInfoForm = ({ isOnboardingStep, studioId, defaultValues }: Props) => 
                 場地名稱
               </FormLabel>
               <FormControl>
-                <Input type="text" id="studioName" className={`form-input text-sm ${!isOnboardingStep ? "bg-gray-200" : ""}`} placeholder="請輸入場地名稱" {...field} disabled={!isOnboardingStep} />
+                <Input
+                  type="text"
+                  id="studioName"
+                  className={`form-input text-sm ${!isOnboardingStep && user?.role !== "admin" ? "bg-gray-200" : ""}`}
+                  placeholder="請輸入場地名稱"
+                  {...field}
+                  disabled={!isOnboardingStep && user?.role !== "admin"}
+                />
               </FormControl>
               {!isOnboardingStep && <FormDescription>建立場地後無法修改，如需修改，請聯絡管理員。</FormDescription>}
               <FormMessage />
@@ -276,9 +285,9 @@ const BasicInfoForm = ({ isOnboardingStep, studioId, defaultValues }: Props) => 
                     type="text"
                     id="studioSlug"
                     placeholder="請填寫場地網站別名。"
-                    className={`pl-[120px] text-sm ${!isOnboardingStep ? "bg-gray-200" : ""}`}
+                    className={`pl-[120px] text-sm ${!isOnboardingStep && user?.role !== "admin" ? "bg-gray-200" : ""}`}
                     {...field}
-                    disabled={!isOnboardingStep}
+                    disabled={!isOnboardingStep && user?.role !== "admin"}
                     onChange={(e) => {
                       field.onChange(e);
                       debounced(e.target.value);

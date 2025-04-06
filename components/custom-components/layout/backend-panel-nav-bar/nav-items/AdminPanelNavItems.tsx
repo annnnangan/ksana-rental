@@ -6,47 +6,42 @@ const navItems: NavItems = {
   Core: [
     {
       title: "Dashboard",
-      url: "dashboard",
+      url: "/admin/dashboard",
       icon: CircleGauge,
     },
     {
       title: "Report",
-      url: "report",
+      url: "/admin/report",
       icon: ClipboardMinus,
     },
     {
       title: "Settings",
-      url: "settings",
+      url: "/admin/settings",
       icon: Settings2,
     },
   ],
   Finance: [
     {
       title: "Payout",
-      url: "payout",
+      url: "/admin/payout",
       icon: HandCoins,
     },
     {
-      title: "Booking Transactions",
-      url: "booking-transactions",
-      icon: Landmark,
-    },
-    {
       title: "Payout History",
-      url: "payout-history",
+      url: "/admin/payout-history",
       icon: FileClock,
     },
   ],
   "User and Studio Management": [
     {
       title: "Complaint",
-      url: "complaint",
+      url: "/admin/complaint",
       icon: Flag,
     },
 
     {
       title: "Studios",
-      url: "/admin/studios",
+      url: "/admin/studio",
       icon: House,
     },
     {

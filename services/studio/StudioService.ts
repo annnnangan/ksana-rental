@@ -55,6 +55,20 @@ export class StudioService {
     }
   }
 
+  async getStudioStatus(studioId: string) {
+    try {
+      const status = (await this.knex.select("status").from("studio").where({ id: studioId }))[0].status;
+
+      return {
+        success: true,
+        data: status,
+      };
+    } catch (error) {
+      console.dir(error);
+      return handleError(error, "server") as ActionResponse;
+    }
+  }
+
   /* ---------------------------------- Get Studio Basic Information ---------------------------------- */
   /**
    * Get either one studio by slug or
