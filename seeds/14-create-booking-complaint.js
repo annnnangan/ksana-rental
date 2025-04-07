@@ -9,7 +9,7 @@ exports.seed = async function (knex) {
   await knex(tableName).del();
   await knex(tableName).insert([
     {
-      review_id: 3,
+      review_id: 15,
       status: "in-progress",
       resolved_at: null,
       is_refund: null,
@@ -18,7 +18,7 @@ exports.seed = async function (knex) {
       remarks: null,
     },
     {
-      review_id: 4,
+      review_id: 12,
       status: "resolved",
       resolved_at: new Date("2025-01-09"),
       is_refund: true,
