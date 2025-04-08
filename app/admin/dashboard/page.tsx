@@ -17,9 +17,7 @@ const page = () => {
   const searchParams = useSearchParams();
   const dateRangeParam = searchParams.get("dateRange") || "last-6-months";
   const { data, isLoading, isError } = useAdminDashboard(dateRangeParam);
-  if (!isLoading) {
-    console.log(data?.top5BookingStudio);
-  }
+
   return (
     <div>
       <SectionTitle textColor="text-primary">Dashboard</SectionTitle>
