@@ -6,14 +6,20 @@ import SectionTitle from "@/components/custom-components/common/SectionTitle";
 import ReportDateRangePicker from "@/components/custom-components/filters-and-sort/ReportDateRangePicker";
 import SectionFallback from "@/components/custom-components/SectionFallback";
 import StudioMiniCard from "@/components/custom-components/studio/StudioMiniCard";
+import ToastMessageWithRedirect from "@/components/custom-components/ToastMessageWithRedirect";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/shadcn/card";
 import { Skeleton } from "@/components/shadcn/skeleton";
 import useAdminDashboard from "@/hooks/react-query/useAdminDashboard";
+import { useSessionUser } from "@/hooks/use-session-user";
 import { House } from "lucide-react";
 
 import { useSearchParams } from "next/navigation";
 
 const page = () => {
+  const user = useSessionUser();
+  if (user?.role !== "admin") {
+    return <ToastMessageWithRedirect type={"error"} message={"你沒有此權限。"} redirectPath={"/"} />;
+  }
   const searchParams = useSearchParams();
   const dateRangeParam = searchParams.get("dateRange") || "last-6-months";
   const { data, isLoading, isError } = useAdminDashboard(dateRangeParam);
