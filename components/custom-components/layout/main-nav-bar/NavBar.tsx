@@ -83,13 +83,25 @@ const NavBar = async () => {
                         我的收藏
                       </Link>
                     </MenubarItem>
+
                     <MenubarItem>
                       <Link href="/account-settings" className="w-full">
                         帳號管理
                       </Link>
                     </MenubarItem>
+                    {session?.user?.role === "admin" && (
+                      <>
+                        <MenubarSeparator />
+                        <MenubarItem>
+                          <Link href="/admin/dashboard" className="w-full">
+                            管理員後台
+                          </Link>
+                        </MenubarItem>
+                        <MenubarSeparator />
+                      </>
+                    )}
                     <MenubarItem>
-                      <LogoutButton />
+                      <LogoutButton direction="justify-start" />
                     </MenubarItem>
                   </MenubarContent>
                 </MenubarMenu>
@@ -142,6 +154,7 @@ const NavBar = async () => {
 
               {session?.user && (
                 <>
+                  <div className="border border-top border-gray-100"></div>
                   <ButtonLink href={"/manage-bookings"} className="w-full text-md">
                     我的預約
                   </ButtonLink>
@@ -150,24 +163,44 @@ const NavBar = async () => {
                     我的收藏
                   </ButtonLink>
 
-                  <ButtonLink href={"/bookmarks"} className="w-full text-md">
+                  <ButtonLink href={"/account-settings"} className="w-full text-md">
                     帳號管理
                   </ButtonLink>
+
                   {studioCount === 0 && (
-                    <ButtonLink href={"/studio-owner/studios"} className="w-full text-md">
-                      建立你的第一個場地
-                    </ButtonLink>
+                    <>
+                      <div className="border border-top border-gray-100"></div>
+                      <ButtonLink href={"/studio-owner/studios"} className="w-full text-md">
+                        建立你的第一個場地
+                      </ButtonLink>
+                    </>
                   )}
                   {studioCount > 0 && (
-                    <ButtonLink href={"/studio-owner/dashboard"} className="w-full text-md">
-                      切換為場主模式
-                    </ButtonLink>
+                    <>
+                      <div className="border border-top border-gray-100"></div>
+                      <ButtonLink href={"/studio-owner/dashboard"} className="w-full text-md">
+                        切換為場主模式
+                      </ButtonLink>
+                    </>
+                  )}
+
+                  {session?.user?.role === "admin" && (
+                    <>
+                      <ButtonLink href={"/admin/dashboard"} className="w-full text-md">
+                        管理員後台
+                      </ButtonLink>
+                    </>
                   )}
                 </>
               )}
-            </div>
 
-            {session?.user && <LogoutButton />}
+              {session?.user && (
+                <>
+                  <div className="border border-top border-gray-100"></div>
+                  <LogoutButton />
+                </>
+              )}
+            </div>
           </SheetHeader>
         </SheetContent>
       </Sheet>
