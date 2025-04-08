@@ -26,7 +26,7 @@ export function SidebarNavItems({ navItems }: { navItems: NavItems }) {
             <SidebarMenu>
               {navItems[section]?.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={item.url === currentPath.split("/")[2]} className="h-full [&>svg]:size-4">
+                  <SidebarMenuButton asChild isActive={item.url === currentPath} className="h-full [&>svg]:size-4">
                     <Link href={item.url} className="h-full">
                       <item.icon />
                       {item.title}

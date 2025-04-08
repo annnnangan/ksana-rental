@@ -1,77 +1,35 @@
+"use client";
 import { ByMonthBarChart } from "@/components/custom-components/charts/ByMonthBarChart";
 import { ByMonthLineChart } from "@/components/custom-components/charts/ByMonthLineChart";
 import ScoreCard from "@/components/custom-components/charts/ScoreCard";
 import SectionTitle from "@/components/custom-components/common/SectionTitle";
 import ReportDateRangePicker from "@/components/custom-components/filters-and-sort/ReportDateRangePicker";
+import SectionFallback from "@/components/custom-components/SectionFallback";
 import StudioMiniCard from "@/components/custom-components/studio/StudioMiniCard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/shadcn/card";
-import React from "react";
+import { Skeleton } from "@/components/shadcn/skeleton";
+import useAdminDashboard from "@/hooks/react-query/useAdminDashboard";
+import { House } from "lucide-react";
 
-const registerData = [
-  {
-    month: "Jan",
-    total: 20,
-  },
-  { month: "Feb", total: 20 },
-  { month: "Mar", total: 30 },
-  {
-    month: "Jan",
-    total: 20,
-  },
-  { month: "Feb", total: 20 },
-  { month: "Mar", total: 30 },
-  {
-    month: "Jan",
-    total: 20,
-  },
-  { month: "Feb", total: 20 },
-  { month: "Mar", total: 30 },
-  {
-    month: "Jan",
-    total: 20,
-  },
-  { month: "Feb", total: 20 },
-  { month: "Mar", total: 30 },
-];
-
-const bookingData = [
-  {
-    month: "Jan",
-    total: 20,
-  },
-  { month: "Feb", total: 20 },
-  { month: "Mar", total: 30 },
-  {
-    month: "Jan",
-    total: 20,
-  },
-  { month: "Feb", total: 20 },
-  { month: "Mar", total: 30 },
-  {
-    month: "Jan",
-    total: 20,
-  },
-  { month: "Feb", total: 20 },
-  { month: "Mar", total: 30 },
-  {
-    month: "Jan",
-    total: 20,
-  },
-  { month: "Feb", total: 20 },
-  { month: "Mar", total: 30 },
-];
+import { useSearchParams } from "next/navigation";
 
 const page = () => {
+  const searchParams = useSearchParams();
+  const dateRangeParam = searchParams.get("dateRange") || "last-6-months";
+  const { data, isLoading, isError } = useAdminDashboard(dateRangeParam);
+  if (!isLoading) {
+    console.log(data?.top5BookingStudio);
+  }
   return (
     <div>
       <SectionTitle textColor="text-primary">Dashboard</SectionTitle>
       <ReportDateRangePicker parentPagePath={"/admin/dashboard"} />
+
       <div className="grid grid-cols-3 md:grid-cols-5 gap-4 mb-5">
-        <ScoreCard metricName={"Users"} value={50} toolTipContent={<p>網站註冊人數</p>} />
-        <ScoreCard metricName={"Users"} value={50} toolTipContent={<p>網站註冊人數</p>} />
-        <ScoreCard metricName={"Users"} value={50} toolTipContent={<p>網站註冊人數</p>} />
-        <ScoreCard metricName={"Users"} value={50} toolTipContent={<p>網站註冊人數</p>} />
-        <ScoreCard metricName={"Users"} value={50} toolTipContent={<p>網站註冊人數</p>} />
+        <ScoreCard metricName={"Users"} value={data?.userCount?.total} toolTipContent={<p>Website registration total amount</p>} isLoading={isLoading} />
+        <ScoreCard metricName={"Bookings"} value={data?.bookingCount?.total} toolTipContent={<p>Booking total amount</p>} isLoading={isLoading} />
+        <ScoreCard metricName={"Studios"} value={data?.activeStudioCount?.total} toolTipContent={<p>Active studio total amount</p>} isLoading={isLoading} />
+        <ScoreCard metricName={"Booking Revenue"} value={data?.bookingRevenue?.total} toolTipContent={<p>Booking revenue total amount</p>} isLoading={isLoading} isRevenue={true} />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
@@ -80,8 +38,8 @@ const page = () => {
             <CardTitle className="text-sm md:text-base text-primary">Users</CardTitle>
             <CardDescription></CardDescription>
           </CardHeader>
-          <CardContent className="pt-2 md:pt-1 pb-0 px-3 space-y-5">
-            <ByMonthBarChart chartData={registerData} label={"註冊人數"} />
+          <CardContent className="pt-2 md:pt-1 pb-3 px-3 space-y-5">
+            <ByMonthBarChart chartData={data?.userCount?.monthBreakdown} label={"Users"} isLoading={isLoading} />
           </CardContent>
         </Card>
 
@@ -90,8 +48,8 @@ const page = () => {
             <CardTitle className="text-sm md:text-base text-primary">Bookings</CardTitle>
             <CardDescription></CardDescription>
           </CardHeader>
-          <CardContent className="pt-2 md:pt-1 pb-0 px-3 space-y-5">
-            <ByMonthLineChart chartData={bookingData} label={"預約數量"} />
+          <CardContent className="pt-2 md:pt-1 pb-3 px-3 space-y-5">
+            <ByMonthLineChart chartData={data?.bookingCount?.monthBreakdown} label={"Bookings"} isLoading={isLoading} />
           </CardContent>
         </Card>
 
@@ -101,81 +59,28 @@ const page = () => {
             <CardDescription></CardDescription>
           </CardHeader>
           <CardContent className="pt-2 md:pt-1 px-3 space-y-5">
-            <div className="flex flex-col">
-              <div className="flex gap-2">
-                <p className="text-xl font-bold">1</p>
-                <div className="w-[250px]">
-                  <StudioMiniCard
-                    studio_name={"Soul Yogi Studio"}
-                    studio_slug={"hi"}
-                    cover_image={"https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/seed-photo/soul-yogi/soul-yogi-cover.jpg"}
-                    rating={""}
-                  />
+            {isLoading &&
+              Array.from({ length: 5 }, (_, index) => (
+                <div key={index}>
+                  <Skeleton className="h-20 w-full mt-2" />
                 </div>
+              ))}
 
-                <p className="text-sm">預約數量: 50</p>
-              </div>
-            </div>
-            <div className="flex flex-col">
-              <div className="flex gap-2">
-                <p className="text-xl font-bold">1</p>
-                <div className="w-[250px]">
-                  <StudioMiniCard
-                    studio_name={"Soul Yogi Studio"}
-                    studio_slug={"hi"}
-                    cover_image={"https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/seed-photo/soul-yogi/soul-yogi-cover.jpg"}
-                    rating={""}
-                  />
+            {data?.top5BookingStudio.length > 0 &&
+              data?.top5BookingStudio?.map((studio: { id: string; name: string; slug: string; cover_photo: string; rating: string; total: string }, index: number) => (
+                <div className="flex flex-col" key={studio.id}>
+                  <div className="flex gap-2">
+                    <p className="text-xl font-bold">{index + 1}</p>
+                    <div className="w-[250px]">
+                      <StudioMiniCard studio_name={studio.name} studio_slug={studio.slug} cover_image={studio.cover_photo} rating={studio.rating} />
+                    </div>
+
+                    <p className="text-sm">預約數量: {studio.total}</p>
+                  </div>
                 </div>
+              ))}
 
-                <p className="text-sm">預約數量: 50</p>
-              </div>
-            </div>
-            <div className="flex flex-col">
-              <div className="flex gap-2">
-                <p className="text-xl font-bold">1</p>
-                <div className="w-[250px]">
-                  <StudioMiniCard
-                    studio_name={"Soul Yogi Studio"}
-                    studio_slug={"hi"}
-                    cover_image={"https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/seed-photo/soul-yogi/soul-yogi-cover.jpg"}
-                    rating={""}
-                  />
-                </div>
-
-                <p className="text-sm">預約數量: 50</p>
-              </div>
-            </div>
-            <div className="flex flex-col">
-              <div className="flex gap-2">
-                <p className="text-xl font-bold">1</p>
-                <div className="w-[250px]">
-                  <StudioMiniCard
-                    studio_name={"Soul Yogi Studio"}
-                    studio_slug={"hi"}
-                    cover_image={"https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/seed-photo/soul-yogi/soul-yogi-cover.jpg"}
-                    rating={""}
-                  />
-                </div>
-
-                <p className="text-sm">預約數量: 50</p>
-              </div>
-            </div>
-            <div className="flex flex-col">
-              <div className="flex gap-2">
-                <p className="text-xl font-bold">1</p>
-                <div className="w-[250px]">
-                  <StudioMiniCard
-                    studio_name={"Soul Yogi Studio"}
-                    studio_slug={"hi"}
-                    cover_image={"https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/seed-photo/soul-yogi/soul-yogi-cover.jpg"}
-                    rating={""}
-                  />
-                </div>
-
-                <p className="text-sm">預約數量: 50</p>
-              </div>
-            </div>
+            {data?.top5BookingStudio.length === 0 && <SectionFallback icon={House} fallbackText={"此時間段沒有預約"} textSize="text-sm" />}
           </CardContent>
         </Card>
       </div>
