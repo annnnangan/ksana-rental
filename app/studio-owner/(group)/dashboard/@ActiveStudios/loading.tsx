@@ -1,4 +1,4 @@
-import { Skeleton } from "@radix-ui/themes";
+import { Skeleton } from "@/components/shadcn/skeleton";
 import React from "react";
 
 const loading = () => {
