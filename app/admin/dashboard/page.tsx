@@ -15,14 +15,19 @@ import { House } from "lucide-react";
 
 import { useSearchParams } from "next/navigation";
 
-const page = () => {
+const AdminDashboardPage = () => {
   const user = useSessionUser();
+  const searchParams = useSearchParams();
+  const dateRangeParam = searchParams.get("dateRange") || "last-6-months";
+  const isAdmin = user?.role === "admin";
+
+  const { data, isLoading } = useAdminDashboard(dateRangeParam, {
+    enabled: isAdmin,
+  });
+
   if (user?.role !== "admin") {
     return <ToastMessageWithRedirect type={"error"} message={"你沒有此權限。"} redirectPath={"/"} />;
   }
-  const searchParams = useSearchParams();
-  const dateRangeParam = searchParams.get("dateRange") || "last-6-months";
-  const { data, isLoading, isError } = useAdminDashboard(dateRangeParam);
 
   return (
     <div>
@@ -92,4 +97,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default AdminDashboardPage;

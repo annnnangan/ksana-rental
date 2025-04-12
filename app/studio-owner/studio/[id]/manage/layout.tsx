@@ -72,7 +72,7 @@ export default async function Layout({ children, params }: Props) {
               </Link>
 
               <DropdownMenuItem>
-                <LogoutButton />
+                <LogoutButton direction="justify-start" />
               </DropdownMenuItem>
             </NavUserMenu>
           </SidebarFooter>

@@ -31,7 +31,7 @@ export default async function Layout({ children }: { children: React.ReactNode }
             </DropdownMenuItem>
 
             <DropdownMenuItem>
-              <LogoutButton />
+              <LogoutButton direction="justify-start" />
             </DropdownMenuItem>
           </NavUserMenu>
         </SidebarFooter>

@@ -17,6 +17,14 @@ export interface NavItems {
 export function SidebarNavItems({ navItems }: { navItems: NavItems }) {
   const currentPath = usePathname();
 
+  let activePath;
+
+  if (currentPath.includes("/studio-owner/studio/")) {
+    activePath = currentPath.split("/")[currentPath.split("/").length - 1];
+  } else {
+    activePath = currentPath;
+  }
+
   return (
     <>
       {Object.keys(navItems).map((section: string) => (
@@ -26,7 +34,7 @@ export function SidebarNavItems({ navItems }: { navItems: NavItems }) {
             <SidebarMenu>
               {navItems[section]?.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={item.url === currentPath} className="h-full [&>svg]:size-4">
+                  <SidebarMenuButton asChild isActive={item.url === activePath} className="h-full [&>svg]:size-4">
                     <Link href={item.url} className="h-full">
                       <item.icon />
                       {item.title}
