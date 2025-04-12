@@ -11,13 +11,13 @@ const page = async (props: Props) => {
   const user = await sessionUser();
   const searchParams = await props.searchParams;
   const selectedDateRange = searchParams["dateRange"] || "last-6-months";
-  const result = await dashboardService.getMonthlyRevenue({ timeframe: selectedDateRange, dateType: "booking_date", userId: user?.id! });
-  const data: { totalRevenue: number; monthBreakdown: { month: string; total: number }[] } = result.data!;
+  const result = await dashboardService.getStudioExpectedRevenue({ timeframe: selectedDateRange, dateType: "booking_date", userId: user?.id! });
+  const data: { total: number; monthBreakdown: { month: string; total: number }[] } = result.data!;
 
   return (
     <>
       <div className="flex items-center justify-between flex-wrap gap-4">
-        <p className="text-3xl md:text-4xl font-bold">HKD ${data.totalRevenue}</p>
+        <p className="text-3xl md:text-4xl font-bold">HKD ${data.total}</p>
       </div>
       <div>{result.success && <ByMonthLineChart chartData={data?.monthBreakdown} label={"預期收入"} />}</div>
     </>

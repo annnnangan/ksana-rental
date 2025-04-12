@@ -1,15 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
 
-const useAdminDashboard = (timeframe: string, options = {}) => {
+const useStudioDashboard = (studioId: string, timeframe: string, options = {}) => {
   return useQuery({
-    queryKey: ["dashboard", "admin", timeframe],
+    queryKey: ["dashboard", "studio", studioId, timeframe],
     queryFn: async () => {
       await new Promise((resolve) => setTimeout(resolve, 500));
-      const res = await fetch(`/api/admin/dashboard?dateRange=${timeframe ?? "last-6-months"}`);
+
+      const res = await fetch(`/api/studio/${studioId}/dashboard?dateRange=${timeframe ?? "last-6-months"}`);
 
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.message || "Failed to fetch data.");
+        throw new Error(errorData.message || "無法取得資料");
       }
       const result = await res.json();
       return result.data;
@@ -19,4 +20,4 @@ const useAdminDashboard = (timeframe: string, options = {}) => {
   });
 };
 
-export default useAdminDashboard;
+export default useStudioDashboard;
