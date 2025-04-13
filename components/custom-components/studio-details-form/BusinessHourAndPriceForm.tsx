@@ -1,19 +1,28 @@
 "use client";
 
-import ErrorMessage from "@/components/custom-components/ErrorMessage";
+import ErrorMessage from "@/components/custom-components/common/ErrorMessage";
 import { Badge } from "@/components/shadcn/badge";
 import { Button } from "@/components/shadcn/button";
 import { Input } from "@/components/shadcn/input";
 import { Label } from "@/components/shadcn/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/shadcn/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/shadcn/select";
 import { Switch } from "@/components/shadcn/switch";
-import SubmitButton from "@/components/custom-components/buttons/SubmitButton";
+import SubmitButton from "@/components/custom-components/common/buttons/SubmitButton";
 import { toast } from "react-toastify";
 
 import { generateTimeslots } from "@/lib/utils/date-time/generate-timeslot";
 
 import { saveBusinessHoursAndPrice } from "@/actions/studio";
-import { BusinessHoursAndPriceFormData, BusinessHoursAndPriceSchema } from "@/lib/validations/zod-schema/studio/studio-step-schema";
+import {
+  BusinessHoursAndPriceFormData,
+  BusinessHoursAndPriceSchema,
+} from "@/lib/validations/zod-schema/studio/studio-step-schema";
 import { daysOfWeekType } from "@/services/model";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { usePathname, useRouter } from "next/navigation";
@@ -92,11 +101,19 @@ const BusinessHourAndPriceForm = ({ defaultValue, studioId, isOnboardingStep }: 
   // Trigger when user clicks the button to add a new timeslot row to specific day of week
   const handleAddTimeslot = (dayOfWeek: daysOfWeekType) => {
     //businessHours.Monday.timeslots is the data structure
-    setValue(`businessHours.${dayOfWeek}.timeslots`, [...(businessHoursWatch[dayOfWeek]?.timeslots || []), { from: "", to: "", priceType: "non-peak" }]);
+    setValue(`businessHours.${dayOfWeek}.timeslots`, [
+      ...(businessHoursWatch[dayOfWeek]?.timeslots || []),
+      { from: "", to: "", priceType: "non-peak" },
+    ]);
   };
 
   // Trigger when user selects/changes value on from time, to time and price type dropdowns
-  const handleUpdateTimeslot = (dayOfWeek: daysOfWeekType, index: number, field: "from" | "to" | "priceType", value: string) => {
+  const handleUpdateTimeslot = (
+    dayOfWeek: daysOfWeekType,
+    index: number,
+    field: "from" | "to" | "priceType",
+    value: string
+  ) => {
     setValue(`businessHours.${dayOfWeek}.timeslots.${index}.${field}`, value);
   };
 
@@ -150,7 +167,14 @@ const BusinessHourAndPriceForm = ({ defaultValue, studioId, isOnboardingStep }: 
 
           <div className="flex items-center">
             <p className="me-2">$</p>
-            <Input type="number" id="peakHourPrice" placeholder="請填寫繁忙時段價格。" className="text-sm" {...register("peakHourPrice")} onWheel={numberInputOnWheelPreventChange} />
+            <Input
+              type="number"
+              id="peakHourPrice"
+              placeholder="請填寫繁忙時段價格。"
+              className="text-sm"
+              {...register("peakHourPrice")}
+              onWheel={numberInputOnWheelPreventChange}
+            />
           </div>
           {errors.peakHourPrice && <ErrorMessage>{errors.peakHourPrice.message}</ErrorMessage>}
         </div>
@@ -162,9 +186,18 @@ const BusinessHourAndPriceForm = ({ defaultValue, studioId, isOnboardingStep }: 
 
           <div className="flex items-center">
             <p className="me-2">$</p>
-            <Input type="number" id="nonPeakHourPrice" placeholder="請填寫非繁忙時段價格。" className="text-sm" {...register("nonPeakHourPrice")} onWheel={numberInputOnWheelPreventChange} />
+            <Input
+              type="number"
+              id="nonPeakHourPrice"
+              placeholder="請填寫非繁忙時段價格。"
+              className="text-sm"
+              {...register("nonPeakHourPrice")}
+              onWheel={numberInputOnWheelPreventChange}
+            />
           </div>
-          {errors.nonPeakHourPrice && <ErrorMessage>{errors.nonPeakHourPrice.message}</ErrorMessage>}
+          {errors.nonPeakHourPrice && (
+            <ErrorMessage>{errors.nonPeakHourPrice.message}</ErrorMessage>
+          )}
         </div>
       </div>
 
@@ -201,8 +234,14 @@ const BusinessHourAndPriceForm = ({ defaultValue, studioId, isOnboardingStep }: 
           {/* When that day of week is being enabled - display open time, close time, price type selection */}
           {businessHoursWatch?.[day.day]?.is_enabled && (
             <div>
-              {errors.businessHours?.[day.day]?.timeslots?.root && <ErrorMessage>{errors.businessHours?.[day.day]?.timeslots?.root?.message}</ErrorMessage>}
-              {errors.businessHours?.[day.day]?.timeslots && <ErrorMessage>{errors.businessHours?.[day.day]?.timeslots?.message}</ErrorMessage>}
+              {errors.businessHours?.[day.day]?.timeslots?.root && (
+                <ErrorMessage>
+                  {errors.businessHours?.[day.day]?.timeslots?.root?.message}
+                </ErrorMessage>
+              )}
+              {errors.businessHours?.[day.day]?.timeslots && (
+                <ErrorMessage>{errors.businessHours?.[day.day]?.timeslots?.message}</ErrorMessage>
+              )}
               {businessHoursWatch?.[day.day]?.timeslots?.map((slot, index) => (
                 <div key={index} className="flex flex-wrap items-center gap-2 mt-5">
                   {/* From Time */}
@@ -211,7 +250,12 @@ const BusinessHourAndPriceForm = ({ defaultValue, studioId, isOnboardingStep }: 
                     control={control}
                     render={({ field }) => (
                       //  When user select one of the timeslot, update the businessHours data
-                      <Select value={field.value} onValueChange={(value) => handleUpdateTimeslot(day.day, index, "from", value)}>
+                      <Select
+                        value={field.value}
+                        onValueChange={(value) =>
+                          handleUpdateTimeslot(day.day, index, "from", value)
+                        }
+                      >
                         <SelectTrigger className="w-28">
                           <SelectValue placeholder="開始時間" />
                         </SelectTrigger>
@@ -235,7 +279,12 @@ const BusinessHourAndPriceForm = ({ defaultValue, studioId, isOnboardingStep }: 
                     control={control}
                     render={({ field }) => (
                       <>
-                        <Select value={field.value} onValueChange={(value) => handleUpdateTimeslot(day.day, index, "to", value)}>
+                        <Select
+                          value={field.value}
+                          onValueChange={(value) =>
+                            handleUpdateTimeslot(day.day, index, "to", value)
+                          }
+                        >
                           <SelectTrigger className="w-28">
                             <SelectValue placeholder="結束時間" />
                           </SelectTrigger>
@@ -252,7 +301,12 @@ const BusinessHourAndPriceForm = ({ defaultValue, studioId, isOnboardingStep }: 
                   />
 
                   {/* Price Type */}
-                  <Select value={slot.priceType} onValueChange={(value) => handleUpdateTimeslot(day.day, index, "priceType", value)}>
+                  <Select
+                    value={slot.priceType}
+                    onValueChange={(value) =>
+                      handleUpdateTimeslot(day.day, index, "priceType", value)
+                    }
+                  >
                     <SelectTrigger className="w-fit">
                       <SelectValue placeholder="價格類型" />
                     </SelectTrigger>
@@ -264,20 +318,36 @@ const BusinessHourAndPriceForm = ({ defaultValue, studioId, isOnboardingStep }: 
 
                   {/* Display error */}
                   <div>
-                    <ErrorMessage>{errors.businessHours?.[day.day]?.timeslots?.[index]?.from?.message}</ErrorMessage>
-                    <ErrorMessage>{errors.businessHours?.[day.day]?.timeslots?.[index]?.to?.message}</ErrorMessage>
-                    <ErrorMessage>{errors.businessHours?.[day.day]?.timeslots?.[index]?.priceType?.message}</ErrorMessage>
+                    <ErrorMessage>
+                      {errors.businessHours?.[day.day]?.timeslots?.[index]?.from?.message}
+                    </ErrorMessage>
+                    <ErrorMessage>
+                      {errors.businessHours?.[day.day]?.timeslots?.[index]?.to?.message}
+                    </ErrorMessage>
+                    <ErrorMessage>
+                      {errors.businessHours?.[day.day]?.timeslots?.[index]?.priceType?.message}
+                    </ErrorMessage>
                   </div>
                 </div>
               ))}
 
               {/* Add Timeslot */}
-              <Button variant="default" type="button" className="mt-4" onClick={() => handleAddTimeslot(day.day)}>
+              <Button
+                variant="default"
+                type="button"
+                className="mt-4"
+                onClick={() => handleAddTimeslot(day.day)}
+              >
                 新增時段
               </Button>
 
               {/* Remove All Slots */}
-              <Button variant="destructive" onClick={() => handleRemoveAllTimeslots(day.day)} type="button" className="mt-2 ms-4">
+              <Button
+                variant="destructive"
+                onClick={() => handleRemoveAllTimeslots(day.day)}
+                type="button"
+                className="mt-2 ms-4"
+              >
                 移除全部時段
               </Button>
             </div>
@@ -285,7 +355,11 @@ const BusinessHourAndPriceForm = ({ defaultValue, studioId, isOnboardingStep }: 
         </div>
       ))}
 
-      <SubmitButton isSubmitting={isSubmitting || isPending} nonSubmittingText={isOnboardingStep ? "往下一步" : "儲存"} withIcon={isOnboardingStep ? true : false} />
+      <SubmitButton
+        isSubmitting={isSubmitting || isPending}
+        nonSubmittingText={isOnboardingStep ? "往下一步" : "儲存"}
+        withIcon={isOnboardingStep ? true : false}
+      />
     </form>
   );
 };

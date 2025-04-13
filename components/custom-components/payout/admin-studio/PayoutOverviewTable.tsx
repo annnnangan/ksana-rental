@@ -1,6 +1,14 @@
 "use client";
 import { Button } from "@/components/shadcn/button";
-import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/shadcn/table";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/shadcn/table";
 
 import { Skeleton } from "@/components/shadcn/skeleton";
 import usePayout from "@/hooks/react-query/usePayout";
@@ -11,9 +19,6 @@ import { ArrowUpIcon, HandCoins, Search } from "lucide-react";
 import Link from "next/link";
 import SectionFallback from "../SectionFallback";
 import PayoutStatusBadge from "./PayoutStatusBadge";
-import StudioFilter from "../filters-and-sort/payout/StudioFilter";
-import StatusFilter from "../filters-and-sort/payout/StatusFilter";
-import PayoutMethodFilter from "../filters-and-sort/payout/PayoutMethodFilter";
 import PaginationWrapper from "../PaginationWrapper";
 
 export interface PayoutQuery {
@@ -51,13 +56,38 @@ const PayoutOverviewTable = ({ searchParams, defaultStartDate, defaultEndDate }:
   const payoutStartDate = searchParams.startDate || formatDate(defaultStartDate);
   const payoutEndDate = searchParams.endDate || formatDate(defaultEndDate);
   const studio = searchParams.studio;
-  const payoutMethod = ["fps", "payme", "bank-transfer"].includes(searchParams.payoutMethod) ? searchParams.payoutMethod : undefined;
-  const payoutStatus = ["pending", "complete"].includes(searchParams.payoutStatus) ? searchParams.payoutStatus : undefined;
+  const payoutMethod = ["fps", "payme", "bank-transfer"].includes(searchParams.payoutMethod)
+    ? searchParams.payoutMethod
+    : undefined;
+  const payoutStatus = ["pending", "complete"].includes(searchParams.payoutStatus)
+    ? searchParams.payoutStatus
+    : undefined;
   const page = Number(searchParams.page) || 1;
-  const orderBy = ["studioId", "studioName", "payoutStatus", "payoutMethod", "payoutAmount", "payoutAction"].includes(searchParams.orderBy) ? searchParams.orderBy : "studioId";
-  const orderDirection = ["asc", "desc"].includes(searchParams.orderDirection) ? searchParams.orderDirection : "asc";
+  const orderBy = [
+    "studioId",
+    "studioName",
+    "payoutStatus",
+    "payoutMethod",
+    "payoutAmount",
+    "payoutAction",
+  ].includes(searchParams.orderBy)
+    ? searchParams.orderBy
+    : "studioId";
+  const orderDirection = ["asc", "desc"].includes(searchParams.orderDirection)
+    ? searchParams.orderDirection
+    : "asc";
 
-  const { data: weeklyPayoutData, isLoading, isError, error } = usePayout(payoutStartDate, payoutEndDate, page, limit, studio, orderBy, orderDirection, payoutMethod, payoutStatus);
+  const { data: weeklyPayoutData, isLoading } = usePayout(
+    payoutStartDate,
+    payoutEndDate,
+    page,
+    limit,
+    studio,
+    orderBy,
+    orderDirection,
+    payoutMethod,
+    payoutStatus
+  );
 
   if (isLoading) {
     return (
@@ -72,12 +102,16 @@ const PayoutOverviewTable = ({ searchParams, defaultStartDate, defaultEndDate }:
     );
   }
 
-  console.log("count", weeklyPayoutData);
   return (
     <>
-      {weeklyPayoutData.totalPayout.total_completed_booking_amount === 0 && weeklyPayoutData.totalPayout.total_dispute_amount === 0 && weeklyPayoutData.totalPayout.total_refund_amount === 0 ? (
+      {weeklyPayoutData.totalPayout.total_completed_booking_amount === 0 &&
+      weeklyPayoutData.totalPayout.total_dispute_amount === 0 &&
+      weeklyPayoutData.totalPayout.total_refund_amount === 0 ? (
         <div className="mt-20">
-          <SectionFallback icon={HandCoins} fallbackText={"No payout is needed to handle this week."} />
+          <SectionFallback
+            icon={HandCoins}
+            fallbackText={"No payout is needed to handle this week."}
+          />
         </div>
       ) : (
         <>
@@ -110,7 +144,14 @@ const PayoutOverviewTable = ({ searchParams, defaultStartDate, defaultEndDate }:
                         {column.label}
                       </Link>
 
-                      {isActive && <ArrowUpIcon className={`inline transition-transform ${currentDirection === "desc" ? "rotate-180" : ""}`} size={16} />}
+                      {isActive && (
+                        <ArrowUpIcon
+                          className={`inline transition-transform ${
+                            currentDirection === "desc" ? "rotate-180" : ""
+                          }`}
+                          size={16}
+                        />
+                      )}
                     </TableHead>
                   );
                 })}
@@ -120,7 +161,14 @@ const PayoutOverviewTable = ({ searchParams, defaultStartDate, defaultEndDate }:
             {weeklyPayoutData.studioPayoutList.payoutList.length > 0 && (
               <TableBody>
                 {weeklyPayoutData.studioPayoutList.payoutList.map(
-                  (studio: { studio_id: number; studio_name: string; studio_slug: string; payout_status: PayoutStatus; payout_method: string; total_payout_amount: number }) => (
+                  (studio: {
+                    studio_id: number;
+                    studio_name: string;
+                    studio_slug: string;
+                    payout_status: PayoutStatus;
+                    payout_method: string;
+                    total_payout_amount: number;
+                  }) => (
                     <TableRow key={studio.studio_id}>
                       <TableCell>{studio.studio_id}</TableCell>
                       <TableCell>{studio.studio_name}</TableCell>
@@ -128,11 +176,19 @@ const PayoutOverviewTable = ({ searchParams, defaultStartDate, defaultEndDate }:
                       <TableCell>
                         <PayoutStatusBadge payoutStatus={studio.payout_status} />
                       </TableCell>
-                      <TableCell>{payoutMethodMap.find((method) => method.value === studio.payout_method)?.label}</TableCell>
+                      <TableCell>
+                        {
+                          payoutMethodMap.find((method) => method.value === studio.payout_method)
+                            ?.label
+                        }
+                      </TableCell>
                       <TableCell>HKD$ {studio.total_payout_amount}</TableCell>
                       <TableCell>
                         <Button variant="link">
-                          <Link href={`/admin/payout/studio/${studio.studio_slug}?startDate=${payoutStartDate}&endDate=${payoutEndDate}`} className="flex items-center gap-2">
+                          <Link
+                            href={`/admin/payout/studio/${studio.studio_slug}?startDate=${payoutStartDate}&endDate=${payoutEndDate}`}
+                            className="flex items-center gap-2"
+                          >
                             <span className="hidden md:block">Payment Details</span>
                             <HandCoins />
                           </Link>
@@ -146,7 +202,12 @@ const PayoutOverviewTable = ({ searchParams, defaultStartDate, defaultEndDate }:
           </Table>
           {weeklyPayoutData.studioPayoutList.totalCount > limit && (
             <div className="mt-8">
-              <PaginationWrapper currentPage={page} itemCount={weeklyPayoutData.studioPayoutList.totalCount} pageSize={limit} useQueryString={true} />
+              <PaginationWrapper
+                currentPage={page}
+                itemCount={weeklyPayoutData.studioPayoutList.totalCount}
+                pageSize={limit}
+                useQueryString={true}
+              />
             </div>
           )}
         </>

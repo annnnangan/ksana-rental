@@ -1,9 +1,6 @@
+import handleError from "@/lib/handlers/error";
 import { knex } from "@/services/knex";
 import { Knex } from "knex";
-import { validateStudioService } from "../studio/ValidateStudio";
-import { PayoutMethod, PayoutStatus } from "../model";
-import { studioService } from "../studio/StudioService";
-import handleError from "@/lib/handlers/error";
 import { paginationService } from "../PaginationService";
 
 export class PayoutService {
@@ -12,11 +9,21 @@ export class PayoutService {
   /**
    * @returns total_payout_amount = total_completed_booking_amount + total_dispute_amount - total_refund_amount
    */
-  async getWeeklyTotalPayout({ payoutStartDate, payoutEndDate }: { payoutStartDate: string; payoutEndDate: string }) {
+  async getWeeklyTotalPayout({
+    payoutStartDate,
+    payoutEndDate,
+  }: {
+    payoutStartDate: string;
+    payoutEndDate: string;
+  }) {
     try {
       const total_completed_booking_amount = (
         await this.knex
-          .select(this.knex.raw(`COALESCE(CAST(SUM(booking.price) AS INTEGER),0) AS total_completed_booking_amount`))
+          .select(
+            this.knex.raw(
+              `COALESCE(CAST(SUM(booking.price) AS INTEGER),0) AS total_completed_booking_amount`
+            )
+          )
           .from("booking")
           .whereBetween("date", [payoutStartDate, payoutEndDate])
           .andWhere({ status: "confirmed", is_complaint: false })
@@ -25,8 +32,12 @@ export class PayoutService {
       const dispute_transaction = (
         await this.knex
           .select(
-            this.knex.raw(`COALESCE(CAST(SUM(booking.price) AS INTEGER),0) AS total_dispute_amount`),
-            this.knex.raw(`COALESCE(CAST(SUM(booking_complaint.refund_amount) AS INTEGER),0) AS total_refund_amount`)
+            this.knex.raw(
+              `COALESCE(CAST(SUM(booking.price) AS INTEGER),0) AS total_dispute_amount`
+            ),
+            this.knex.raw(
+              `COALESCE(CAST(SUM(booking_complaint.refund_amount) AS INTEGER),0) AS total_refund_amount`
+            )
           )
           .from("booking_complaint")
           .leftJoin("review", "booking_complaint.review_id", "review.id")
@@ -35,7 +46,10 @@ export class PayoutService {
           .whereBetween("booking_complaint.resolved_at", [payoutStartDate, payoutEndDate])
       )[0];
 
-      const total_payout_amount = total_completed_booking_amount.total_completed_booking_amount + dispute_transaction.total_dispute_amount - dispute_transaction.total_refund_amount;
+      const total_payout_amount =
+        total_completed_booking_amount.total_completed_booking_amount +
+        dispute_transaction.total_dispute_amount -
+        dispute_transaction.total_refund_amount;
 
       return {
         success: true,
@@ -154,7 +168,16 @@ export class PayoutService {
   `;
 
       // Parameters for SQL query
-      const params = [payoutStartDate, payoutEndDate, payoutStartDate, payoutEndDate, payoutStartDate, payoutEndDate, payoutStartDate, payoutEndDate];
+      const params = [
+        payoutStartDate,
+        payoutEndDate,
+        payoutStartDate,
+        payoutEndDate,
+        payoutStartDate,
+        payoutEndDate,
+        payoutStartDate,
+        payoutEndDate,
+      ];
 
       // Add WHERE condition for slug if it's provided
       if (slug) {
@@ -205,7 +228,9 @@ export class PayoutService {
       }
       // Total count of all satisfied result for frontend pagination
       //@ts-ignore
-      const totalCount = (await queryBuilder.clone().clearSelect().clearOrder().count("* as totalCount"))[0]?.totalCount;
+      const totalCount = (
+        await queryBuilder.clone().clearSelect().clearOrder().count("* as totalCount")
+      )[0]?.totalCount;
 
       // Apply Pagination
       const result = await paginationService.paginateQuery(queryBuilder, page, limit);
@@ -220,7 +245,11 @@ export class PayoutService {
     }
   }
 
-  async getStudioCompletedBookingList(payoutStartDate: string, payoutEndDate: string, slug: string) {
+  async getStudioCompletedBookingList(
+    payoutStartDate: string,
+    payoutEndDate: string,
+    studioId: string
+  ) {
     try {
       const completed_booking_list = await this.knex
         .select(
@@ -236,7 +265,7 @@ export class PayoutService {
         .andWhere({
           "booking.status": "confirmed",
           "booking.is_complaint": false,
-          "studio.slug": slug,
+          "studio.id": studioId,
         })
         .orderBy("booking.date");
 
@@ -250,7 +279,11 @@ export class PayoutService {
     }
   }
 
-  async getStudioDisputeTransactionList(payoutStartDate: string, payoutEndDate: string, slug: string) {
+  async getStudioDisputeTransactionList(
+    payoutStartDate: string,
+    payoutEndDate: string,
+    studioId: string
+  ) {
     try {
       const dispute_booking_list = await this.knex
         .select(
@@ -270,7 +303,7 @@ export class PayoutService {
         .leftJoin("studio", "booking.studio_id", "studio.id")
         .whereBetween("booking_complaint.resolved_at", [payoutStartDate, payoutEndDate])
         .andWhere({
-          "studio.slug": slug,
+          "studio.id": studioId,
           "booking_complaint.status": "resolved",
         })
         .orderBy("booking.date");
@@ -287,7 +320,18 @@ export class PayoutService {
   async createPayoutRecord(proofImages: string[], payoutInformation: PayoutCompleteRecordType) {
     const txn = await this.knex.transaction();
     try {
-      const { studio_id, method, account_name, account_number, payoutStartDate, payoutEndDate, total_payout_amount, completed_booking_amount, dispute_amount, refund_amount } = payoutInformation;
+      const {
+        studio_id,
+        method,
+        account_name,
+        account_number,
+        payoutStartDate,
+        payoutEndDate,
+        total_payout_amount,
+        completed_booking_amount,
+        dispute_amount,
+        refund_amount,
+      } = payoutInformation;
 
       const insertedPayoutRecord = await txn("payout")
         .insert({
@@ -326,7 +370,7 @@ export class PayoutService {
 
   async getTotalPayoutList() {
     try {
-      let mainQuery = `
+      const mainQuery = `
         WITH weeks AS (
           SELECT
             generate_series(
@@ -368,8 +412,11 @@ export class PayoutService {
       const queryBuilder = this.knex.select("*").fromRaw(`(${rawMainQuery}) as subquery`);
 
       // Count total weeks (before pagination)
-      const totalCountResult = await queryBuilder.clone().clearSelect().count("* as totalCount");
-      //@ts-ignore
+      const totalCountResult: { totalCount: string }[] = await queryBuilder
+        .clone()
+        .clearSelect()
+        .count("* as totalCount");
+
       const totalCount = Number(totalCountResult[0]?.totalCount || 0);
 
       // Apply pagination for the actual data

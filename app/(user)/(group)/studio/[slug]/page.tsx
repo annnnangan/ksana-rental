@@ -9,7 +9,7 @@ import PriceSection from "@/components/custom-components/studio-page/section/Pri
 import ReviewSection from "@/components/custom-components/studio-page/section/review/ReviewSection";
 import SocialMediaSection from "@/components/custom-components/studio-page/section/social-media/SocialMediaSection";
 import SideSection from "@/components/custom-components/studio-page/SideSection";
-import ToastMessageWithRedirect from "@/components/custom-components/ToastMessageWithRedirect";
+import ToastMessageWithRedirect from "@/components/custom-components/common/ToastMessageWithRedirect";
 
 import { GENERAL_ERROR_MESSAGE } from "@/lib/constants/error-message";
 import { studioService } from "@/services/studio/StudioService";
@@ -34,7 +34,13 @@ const StudioPage = async ({ params }: { params: Promise<{ slug: string }> }) => 
   const isStudioExist = await validateStudioService.validateIsStudioExistBySlug(slug);
 
   if (!isStudioExist.success) {
-    return <ToastMessageWithRedirect type={"error"} message={"場地不存在。"} redirectPath={"/explore-studios"} />;
+    return (
+      <ToastMessageWithRedirect
+        type={"error"}
+        message={"場地不存在。"}
+        redirectPath={"/explore-studios"}
+      />
+    );
   }
 
   let studioImages;
@@ -45,7 +51,14 @@ const StudioPage = async ({ params }: { params: Promise<{ slug: string }> }) => 
   let studioRatingOverview;
 
   try {
-    const [basicInfoResult, galleryResult, equipmentResult, priceResult, socialResult, ratingOverviewResult] = await Promise.all([
+    const [
+      basicInfoResult,
+      galleryResult,
+      equipmentResult,
+      priceResult,
+      socialResult,
+      ratingOverviewResult,
+    ] = await Promise.all([
       studioService.getStudioBasicInfo({ slug: slug }),
       studioService.getGallery({ studioSlug: slug }),
       studioService.getEquipment({ studioSlug: slug }),
@@ -53,7 +66,14 @@ const StudioPage = async ({ params }: { params: Promise<{ slug: string }> }) => 
       studioService.getSocial({ studioSlug: slug }),
       studioService.getStudioRatingOverview(slug),
     ]);
-    if (!basicInfoResult.success || !galleryResult.success || !equipmentResult.success || !priceResult.success || !socialResult.success || !ratingOverviewResult.success) {
+    if (
+      !basicInfoResult.success ||
+      !galleryResult.success ||
+      !equipmentResult.success ||
+      !priceResult.success ||
+      !socialResult.success ||
+      !ratingOverviewResult.success
+    ) {
       throw new Error(GENERAL_ERROR_MESSAGE);
     } else {
       studioBasicInfo = basicInfoResult?.data?.studios[0];
@@ -64,7 +84,13 @@ const StudioPage = async ({ params }: { params: Promise<{ slug: string }> }) => 
       studioRatingOverview = ratingOverviewResult.data;
     }
   } catch {
-    return <ToastMessageWithRedirect type={"error"} message={GENERAL_ERROR_MESSAGE} redirectPath={"/explore-studios"} />;
+    return (
+      <ToastMessageWithRedirect
+        type={"error"}
+        message={GENERAL_ERROR_MESSAGE}
+        redirectPath={"/explore-studios"}
+      />
+    );
   }
 
   return (

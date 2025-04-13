@@ -13,7 +13,7 @@ import "swiper/css/pagination";
 // import required modules
 import { Button } from "@/components/shadcn/button";
 import { FreeMode, Pagination } from "swiper/modules";
-import StudioImage from "@/components/custom-components/studio/StudioImage";
+import StudioImage from "@/components/custom-components/studio-card/StudioImage";
 
 interface Props {
   openListModal: () => void;
@@ -34,26 +34,16 @@ const MobileTopGallery = ({ openListModal, images }: Props) => {
       >
         {images.map((image) => (
           <SwiperSlide key={image}>
-            <StudioImage
-              hoverEffect={false}
-              imageUrl={image}
-              onClick={openListModal}
-            />
+            <StudioImage hoverEffect={false} imageUrl={image} onClick={openListModal} />
           </SwiperSlide>
         ))}
       </Swiper>
       {/* Swiper Buttons */}
       <div className="flex space-x-3 mb-4 mx-5 my-3">
-        <Button
-          onClick={() => swiperRef.current?.slidePrev()}
-          className="rounded-full"
-        >
+        <Button onClick={() => swiperRef.current?.slidePrev()} className="rounded-full">
           <ArrowBigLeft />
         </Button>
-        <Button
-          onClick={() => swiperRef.current?.slidePrev()}
-          className="rounded-full "
-        >
+        <Button onClick={() => swiperRef.current?.slidePrev()} className="rounded-full ">
           <ArrowBigRight />
         </Button>
       </div>

@@ -1,12 +1,12 @@
 "use client";
-import PaginationWrapper from "@/components/custom-components/PaginationWrapper";
+import PaginationWrapper from "@/components/custom-components/common/PaginationWrapper";
 import { Progress } from "@/components/shadcn/progress";
 import { useQuery } from "@tanstack/react-query";
 import { MessageCircle, Star } from "lucide-react";
 import { useState } from "react";
 import Section from "../Section";
 import ReviewCard from "./ReviewCard";
-import SectionFallback from "@/components/custom-components/SectionFallback";
+import SectionFallback from "@/components/custom-components/common/SectionFallback";
 
 export interface Review {
   id: string;
@@ -41,7 +41,9 @@ const ReviewSection = ({ ratingOverview, studioSlug }: Props) => {
       <div className="flex gap-5 flex-wrap">
         <div className="h-[80px] w-[80px] bg-primary rounded-sm flex justify-center items-center mb-2">
           <p className="text-white text-2xl font-bold flex flex-col justify-center items-center">
-            {ratingOverview.rating !== null ? (Math.round(Number(ratingOverview.rating) * 10) / 10).toFixed(1) : "--"}
+            {ratingOverview.rating !== null
+              ? (Math.round(Number(ratingOverview.rating) * 10) / 10).toFixed(1)
+              : "--"}
             <Star size={16} fill="#ffffff" />
           </p>
         </div>
@@ -69,13 +71,24 @@ const ReviewSection = ({ ratingOverview, studioSlug }: Props) => {
         </div>
       )}
       <div className="flex flex-col gap-3">
-        {isLoading && Array.from({ length: 5 }, (_, index) => <ReviewCard isLoading={true} key={index} />)}
-        {!isLoading && data?.reviews.length! > 0 && data?.reviews.map((review) => <ReviewCard key={review.id} review={review} isLoading={false} />)}
+        {isLoading &&
+          Array.from({ length: 5 }, (_, index) => <ReviewCard isLoading={true} key={index} />)}
+        {!isLoading &&
+          data?.reviews.length! > 0 &&
+          data?.reviews.map((review) => (
+            <ReviewCard key={review.id} review={review} isLoading={false} />
+          ))}
       </div>
 
       {!isLoading && data?.total_count! > pageSize && (
         <div className="mt-8">
-          <PaginationWrapper currentPage={currentPage} itemCount={data?.total_count!} pageSize={pageSize} useQueryString={false} setCurrentPage={setCurrentPage} />
+          <PaginationWrapper
+            currentPage={currentPage}
+            itemCount={data?.total_count!}
+            pageSize={pageSize}
+            useQueryString={false}
+            setCurrentPage={setCurrentPage}
+          />
         </div>
       )}
     </Section>

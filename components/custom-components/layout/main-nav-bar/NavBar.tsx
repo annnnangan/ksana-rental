@@ -4,11 +4,25 @@ import Link from "next/link";
 import { auth } from "@/lib/next-auth-config/auth";
 import { userService } from "@/services/user/UserService";
 
-import ButtonLink from "../../buttons/ButtonLink";
+import ButtonLink from "../../common/buttons/ButtonLink";
 import { Button } from "@/components/shadcn/button";
-import { Menubar, MenubarContent, MenubarItem, MenubarMenu, MenubarSeparator, MenubarTrigger } from "@/components/shadcn/menubar";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/shadcn/sheet";
-import AvatarWithFallback from "../../AvatarWithFallback";
+import {
+  Menubar,
+  MenubarContent,
+  MenubarItem,
+  MenubarMenu,
+  MenubarSeparator,
+  MenubarTrigger,
+} from "@/components/shadcn/menubar";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/shadcn/sheet";
+import AvatarWithFallback from "../../common/AvatarWithFallback";
 import LogoutButton from "./LogoutButton";
 import { Menu } from "lucide-react";
 
@@ -16,7 +30,8 @@ const NavBar = async () => {
   const session = await auth();
 
   //@ts-ignore
-  const studioCount = (await userService.countStudioByUserId(session?.user?.id))?.data.studio_count || 0;
+  const studioCount =
+    (await userService.countStudioByUserId(session?.user?.id))?.data.studio_count || 0;
 
   return (
     <div className="flex justify-between bg-white rounded-full px-5 py-1">
@@ -31,9 +46,17 @@ const NavBar = async () => {
         <div className="hidden md:flex md:items-center">
           <div>
             <ButtonLink href="/explore-studios">探索所有場地</ButtonLink>
-            {!session?.user && <ButtonLink href={"/auth/register?redirect=/studio-owner/dashboard"}>場地註冊</ButtonLink>}
-            {session?.user && studioCount === 0 && <ButtonLink href={"/studio-owner/studios"}>建立你的第一個場地</ButtonLink>}
-            {session?.user && studioCount > 0 && <ButtonLink href={"/studio-owner/dashboard"}>切換為場主模式</ButtonLink>}
+            {!session?.user && (
+              <ButtonLink href={"/auth/register?redirect=/studio-owner/dashboard"}>
+                場地註冊
+              </ButtonLink>
+            )}
+            {session?.user && studioCount === 0 && (
+              <ButtonLink href={"/studio-owner/studios"}>建立你的第一個場地</ButtonLink>
+            )}
+            {session?.user && studioCount > 0 && (
+              <ButtonLink href={"/studio-owner/dashboard"}>切換為場主模式</ButtonLink>
+            )}
           </div>
 
           {!session?.user && (
@@ -65,7 +88,11 @@ const NavBar = async () => {
                   <MenubarContent>
                     <MenubarItem>
                       <div className="flex flex-row gap-2 items-center">
-                        <AvatarWithFallback avatarUrl={session?.user?.image!} type={"user"} size="xs" />
+                        <AvatarWithFallback
+                          avatarUrl={session?.user?.image!}
+                          type={"user"}
+                          size="xs"
+                        />
                         <div className="flex flex-col">
                           <p className="font-bold">{session!.user.name}</p>
                           <p className="text-sm">{session!.user.email}</p>
@@ -141,7 +168,10 @@ const NavBar = async () => {
                   會員註冊
                 </ButtonLink>
 
-                <ButtonLink href={"/auth/register?redirect=/studio-owner/dashboard"} className="w-full text-md">
+                <ButtonLink
+                  href={"/auth/register?redirect=/studio-owner/dashboard"}
+                  className="w-full text-md"
+                >
                   場地註冊
                 </ButtonLink>
               </div>

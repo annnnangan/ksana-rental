@@ -7,22 +7,41 @@ import { useEffect, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { useDebounceCallback } from "usehooks-ts";
 
-import UploadButton from "@/components/custom-components/buttons/UploadButton";
+import UploadButton from "@/components/custom-components/common/buttons/UploadButton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/shadcn/avatar";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/shadcn/form";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/shadcn/form";
 import { Input } from "@/components/shadcn/input";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/shadcn/select";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/shadcn/select";
 import { Textarea } from "@/components/shadcn/textarea";
 import { Building2, ImageIcon, Loader2 } from "lucide-react";
 import { toast } from "react-toastify";
-import ErrorMessage from "../ErrorMessage";
-import SubmitButton from "../buttons/SubmitButton";
+import ErrorMessage from "../common/ErrorMessage";
+import SubmitButton from "../common/buttons/SubmitButton";
 
 import { saveBasicInfoForm } from "@/actions/studio";
 import { removeCountryCode } from "@/lib/utils/remove-country-code";
 import { generateAWSImageUrls } from "@/lib/utils/s3-upload/s3-image-upload-utils";
 import { maxCoverImageSize, maxLogoImageSize } from "@/lib/validations/file";
-import { BasicInfoFormData, BasicInfoSchema } from "@/lib/validations/zod-schema/studio/studio-step-schema";
+import {
+  BasicInfoFormData,
+  BasicInfoSchema,
+} from "@/lib/validations/zod-schema/studio/studio-step-schema";
 import { districts } from "@/services/model";
 import { useSessionUser } from "@/hooks/use-session-user";
 
@@ -108,7 +127,11 @@ const BasicInfoForm = ({ isOnboardingStep, studioId, defaultValues }: Props) => 
     // Create AWS S3 Image URLs
     if (logoPreview) {
       // Generate AWS Image URLs
-      const imageUrl = await generateAWSImageUrls([data.logo] as File[], `studio/${studioId}/logo`, "logo");
+      const imageUrl = await generateAWSImageUrls(
+        [data.logo] as File[],
+        `studio/${studioId}/logo`,
+        "logo"
+      );
 
       if (!imageUrl.success) {
         toast(`Logo無法儲存: ${imageUrl?.error?.message}`, {
@@ -124,7 +147,11 @@ const BasicInfoForm = ({ isOnboardingStep, studioId, defaultValues }: Props) => 
 
     if (coverPreview) {
       // Generate AWS Image URLs
-      const imageUrl = await generateAWSImageUrls([data.cover_photo] as File[], `studio/${studioId}/cover`, "cover");
+      const imageUrl = await generateAWSImageUrls(
+        [data.cover_photo] as File[],
+        `studio/${studioId}/cover`,
+        "cover"
+      );
 
       if (!imageUrl.success) {
         toast(`封面圖片無法儲存: ${imageUrl?.error?.message}。`, {
@@ -204,14 +231,19 @@ const BasicInfoForm = ({ isOnboardingStep, studioId, defaultValues }: Props) => 
           </div>
 
           <FormDescription>圖片大小需小於{maxCoverImageSize / (1024 * 1024)}MB。</FormDescription>
-          {errors?.cover_photo?.message && <ErrorMessage>{String(errors?.cover_photo?.message)}</ErrorMessage>}
+          {errors?.cover_photo?.message && (
+            <ErrorMessage>{String(errors?.cover_photo?.message)}</ErrorMessage>
+          )}
         </div>
 
         {/* Logo */}
         <div>
           <div className="flex items-end gap-4 mb-1">
             <Avatar className="h-24 w-24">
-              <AvatarImage src={logoPreview || (defaultValues?.logo as string)} className="object-cover" />
+              <AvatarImage
+                src={logoPreview || (defaultValues?.logo as string)}
+                className="object-cover"
+              />
               <AvatarFallback>
                 <Building2 />
               </AvatarFallback>
@@ -235,7 +267,9 @@ const BasicInfoForm = ({ isOnboardingStep, studioId, defaultValues }: Props) => 
                       }}
                     />
                   </FormControl>
-                  <FormDescription>圖片大小需小於{maxLogoImageSize / (1024 * 1024)}MB。</FormDescription>
+                  <FormDescription>
+                    圖片大小需小於{maxLogoImageSize / (1024 * 1024)}MB。
+                  </FormDescription>
                 </FormItem>
               )}
             />
@@ -256,13 +290,17 @@ const BasicInfoForm = ({ isOnboardingStep, studioId, defaultValues }: Props) => 
                 <Input
                   type="text"
                   id="studioName"
-                  className={`form-input text-sm ${!isOnboardingStep && user?.role !== "admin" ? "bg-gray-200" : ""}`}
+                  className={`form-input text-sm ${
+                    !isOnboardingStep && user?.role !== "admin" ? "bg-gray-200" : ""
+                  }`}
                   placeholder="請輸入場地名稱"
                   {...field}
                   disabled={!isOnboardingStep && user?.role !== "admin"}
                 />
               </FormControl>
-              {!isOnboardingStep && <FormDescription>建立場地後無法修改，如需修改，請聯絡管理員。</FormDescription>}
+              {!isOnboardingStep && (
+                <FormDescription>建立場地後無法修改，如需修改，請聯絡管理員。</FormDescription>
+              )}
               <FormMessage />
             </FormItem>
           )}
@@ -277,7 +315,9 @@ const BasicInfoForm = ({ isOnboardingStep, studioId, defaultValues }: Props) => 
               <FormLabel className="text-base font-bold" htmlFor="studioSlug">
                 場地網站別名
               </FormLabel>
-              <FormDescription>此處將用於在網站中顯示出的場地連結。只接受英文字、數字和連字號(hyphens)。</FormDescription>
+              <FormDescription>
+                此處將用於在網站中顯示出的場地連結。只接受英文字、數字和連字號(hyphens)。
+              </FormDescription>
               <FormControl>
                 <div className="relative flex items-center">
                   <span className="absolute left-3 text-gray-500 text-sm">ksana.io/studio/</span>
@@ -285,7 +325,9 @@ const BasicInfoForm = ({ isOnboardingStep, studioId, defaultValues }: Props) => 
                     type="text"
                     id="studioSlug"
                     placeholder="請填寫場地網站別名。"
-                    className={`pl-[120px] text-sm ${!isOnboardingStep && user?.role !== "admin" ? "bg-gray-200" : ""}`}
+                    className={`pl-[120px] text-sm ${
+                      !isOnboardingStep && user?.role !== "admin" ? "bg-gray-200" : ""
+                    }`}
                     {...field}
                     disabled={!isOnboardingStep && user?.role !== "admin"}
                     onChange={(e) => {
@@ -295,10 +337,20 @@ const BasicInfoForm = ({ isOnboardingStep, studioId, defaultValues }: Props) => 
                   />
                 </div>
               </FormControl>
-              {!isOnboardingStep && <FormDescription>建立場地後無法修改，如需修改，請聯絡管理員。</FormDescription>}
+              {!isOnboardingStep && (
+                <FormDescription>建立場地後無法修改，如需修改，請聯絡管理員。</FormDescription>
+              )}
               {isCheckingSlugUnique && <Loader2 className="animate-spin h-3 w-3" />}
               {!isCheckingSlugUnique && checkSlugUniqueMessage && (
-                <p className={`text-sm ${checkSlugUniqueMessage === "可使用此網站別名。" ? "text-green-500" : "text-red-500"}`}>{checkSlugUniqueMessage}</p>
+                <p
+                  className={`text-sm ${
+                    checkSlugUniqueMessage === "可使用此網站別名。"
+                      ? "text-green-500"
+                      : "text-red-500"
+                  }`}
+                >
+                  {checkSlugUniqueMessage}
+                </p>
               )}
               <FormMessage />
             </FormItem>
@@ -315,7 +367,12 @@ const BasicInfoForm = ({ isOnboardingStep, studioId, defaultValues }: Props) => 
                 場地介紹
               </FormLabel>
               <FormControl>
-                <Textarea id="studioDescription" placeholder="請填寫場地介紹。" className="text-sm" {...field} />
+                <Textarea
+                  id="studioDescription"
+                  placeholder="請填寫場地介紹。"
+                  className="text-sm"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -392,7 +449,13 @@ const BasicInfoForm = ({ isOnboardingStep, studioId, defaultValues }: Props) => 
             render={({ field }) => (
               <FormItem className="w-full">
                 <FormControl>
-                  <Input type="text" id="studioAddress" className="form-input text-sm" placeholder="請填寫場地地址" {...field} />
+                  <Input
+                    type="text"
+                    id="studioAddress"
+                    className="form-input text-sm"
+                    placeholder="請填寫場地地址"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -400,7 +463,11 @@ const BasicInfoForm = ({ isOnboardingStep, studioId, defaultValues }: Props) => 
           />
         </div>
 
-        <SubmitButton isSubmitting={isSubmitting || isPending} nonSubmittingText={isOnboardingStep ? "往下一步" : "儲存"} withIcon={isOnboardingStep ? true : false} />
+        <SubmitButton
+          isSubmitting={isSubmitting || isPending}
+          nonSubmittingText={isOnboardingStep ? "往下一步" : "儲存"}
+          withIcon={isOnboardingStep ? true : false}
+        />
       </form>
     </Form>
   );

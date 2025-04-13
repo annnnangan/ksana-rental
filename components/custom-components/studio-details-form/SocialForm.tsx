@@ -1,15 +1,26 @@
 "use client";
 
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/shadcn/form";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/shadcn/form";
 import { SocialLinks, SocialPlatform } from "@/services/model";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 
 import { Input } from "@/components/shadcn/input";
-import { SocialFormData, SocialSchema } from "@/lib/validations/zod-schema/studio/studio-step-schema";
+import {
+  SocialFormData,
+  SocialSchema,
+} from "@/lib/validations/zod-schema/studio/studio-step-schema";
 import { useTransition } from "react";
-import SubmitButton from "../buttons/SubmitButton";
+import SubmitButton from "../common/buttons/SubmitButton";
 import { saveSocial } from "@/actions/studio";
 import { toast } from "react-toastify";
 
@@ -25,7 +36,9 @@ const SocialForm = ({ studioId, defaultValues, isOnboardingStep }: Props) => {
   /* ------------------------- React Hook Form ------------------------ */
   const form = useForm({
     resolver: zodResolver(SocialSchema),
-    defaultValues: { social: defaultValues ?? { instagram: "", website: "", facebook: "", youtube: "" } },
+    defaultValues: {
+      social: defaultValues ?? { instagram: "", website: "", facebook: "", youtube: "" },
+    },
   });
 
   const { isSubmitting } = form.formState;
@@ -65,14 +78,24 @@ const SocialForm = ({ studioId, defaultValues, isOnboardingStep }: Props) => {
                   {item === "instagram" && <FormDescription>必須填寫</FormDescription>}
                 </FormLabel>
                 <FormControl>
-                  <Input type="text" id={`${item}`} className={`form-input text-sm`} placeholder={`請填寫${item} - https://www.${item}.com/ksana`} {...field} />
+                  <Input
+                    type="text"
+                    id={`${item}`}
+                    className={`form-input text-sm`}
+                    placeholder={`請填寫${item} - https://www.${item}.com/ksana`}
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
         ))}
-        <SubmitButton isSubmitting={isSubmitting || isPending} nonSubmittingText={isOnboardingStep ? "往下一步" : "儲存"} withIcon={isOnboardingStep ? true : false} />
+        <SubmitButton
+          isSubmitting={isSubmitting || isPending}
+          nonSubmittingText={isOnboardingStep ? "往下一步" : "儲存"}
+          withIcon={isOnboardingStep ? true : false}
+        />
       </form>
     </Form>
   );

@@ -1,5 +1,5 @@
 "use client";
-import ErrorMessage from "@/components/custom-components/ErrorMessage";
+import ErrorMessage from "@/components/custom-components/common/ErrorMessage";
 import { Button } from "@/components/shadcn/button";
 import { generateAWSImageUrls } from "@/lib/utils/s3-upload/s3-image-upload-utils";
 
@@ -11,9 +11,12 @@ import { FieldError, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 
 import { deleteGalleryImages, saveGallery } from "@/actions/studio";
-import SubmitButton from "@/components/custom-components/buttons/SubmitButton";
+import SubmitButton from "@/components/custom-components/common/buttons/SubmitButton";
 import ImagesGridPreview from "@/components/custom-components/ImagesGridPreview";
-import { GalleryFormData, GallerySchema } from "@/lib/validations/zod-schema/studio/studio-step-schema";
+import {
+  GalleryFormData,
+  GallerySchema,
+} from "@/lib/validations/zod-schema/studio/studio-step-schema";
 
 interface Props {
   defaultValues: string[];
@@ -57,7 +60,9 @@ const GalleryForm = ({ defaultValues, studioId, isOnboardingStep }: Props) => {
       // await deleteImageFromS3(identifier);
     } else {
       // Remove new uploaded image
-      const updatedImages = gallery.filter((image) => !(image instanceof File && image.lastModified === identifier));
+      const updatedImages = gallery.filter(
+        (image) => !(image instanceof File && image.lastModified === identifier)
+      );
       setValue("gallery", updatedImages, { shouldValidate: true });
     }
   };
@@ -116,7 +121,11 @@ const GalleryForm = ({ defaultValues, studioId, isOnboardingStep }: Props) => {
 
       const newUploadImages: File[] = data.gallery.filter((image) => image instanceof File);
 
-      const newUploadImageUrls = await generateAWSImageUrls(newUploadImages as File[], `studio/${studioId}/gallery`, "gallery");
+      const newUploadImageUrls = await generateAWSImageUrls(
+        newUploadImages as File[],
+        `studio/${studioId}/gallery`,
+        "gallery"
+      );
 
       if (!newUploadImageUrls.success) {
         toast("圖片無法儲存，請重試。", {
@@ -155,12 +164,24 @@ const GalleryForm = ({ defaultValues, studioId, isOnboardingStep }: Props) => {
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className="my-5 flex justify-center items-center flex-col rounded-md">
-        <Button className="rounded-full text-sm border-primary hover:bg-primary hover:text-white mt-2" variant="outline" type="button" onClick={handleUploadBtnClick}>
+        <Button
+          className="rounded-full text-sm border-primary hover:bg-primary hover:text-white mt-2"
+          variant="outline"
+          type="button"
+          onClick={handleUploadBtnClick}
+        >
           <ImageUpIcon /> 上載圖片
         </Button>
         <p className="text-gray-500 mt-2 text-sm">上傳的每張相片大小不超過5MB。</p>
       </div>
-      <input type="file" accept="image/png, image/jpeg, image/jpg" multiple onChange={handleFileSelected} className="hidden" ref={hiddenFileInput} />
+      <input
+        type="file"
+        accept="image/png, image/jpeg, image/jpg"
+        multiple
+        onChange={handleFileSelected}
+        className="hidden"
+        ref={hiddenFileInput}
+      />
       <div className="mb-2">
         <ErrorMessage>{errors.gallery?.message}</ErrorMessage>
       </div>
@@ -172,7 +193,11 @@ const GalleryForm = ({ defaultValues, studioId, isOnboardingStep }: Props) => {
         imageAlt={"studio image"}
         allowDeleteImage={true}
       />
-      <SubmitButton isSubmitting={isSubmitting || isPending} nonSubmittingText={isOnboardingStep ? "往下一步" : "儲存"} withIcon={isOnboardingStep ? true : false} />
+      <SubmitButton
+        isSubmitting={isSubmitting || isPending}
+        nonSubmittingText={isOnboardingStep ? "往下一步" : "儲存"}
+        withIcon={isOnboardingStep ? true : false}
+      />
     </form>
   );
 };

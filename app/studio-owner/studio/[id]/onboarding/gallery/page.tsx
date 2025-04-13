@@ -1,4 +1,4 @@
-import GalleryForm from "@/components/custom-components/studio-details/GalleryForm";
+import GalleryForm from "@/components/custom-components/studio-details-form/GalleryForm";
 import { studioService } from "@/services/studio/StudioService";
 import StepIntro from "../StepIntro";
 
@@ -17,7 +17,11 @@ const GalleryPage = async ({ params }: { params: Promise<{ id: string }> }) => {
     <>
       <StepIntro title={"上傳場地照片"} description="請上傳最少3張，最多15張場地照片。" />
 
-      <GalleryForm studioId={studioId} defaultValues={formDataDefaultValues!} isOnboardingStep={true} />
+      <GalleryForm
+        studioId={studioId}
+        defaultValues={formDataDefaultValues!}
+        isOnboardingStep={true}
+      />
     </>
   );
 };

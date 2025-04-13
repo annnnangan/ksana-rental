@@ -1,13 +1,13 @@
 "use client";
 
-import ErrorMessage from "@/components/custom-components/ErrorMessage";
+import ErrorMessage from "@/components/custom-components/common/ErrorMessage";
 import ImagesGridPreview from "@/components/custom-components/ImagesGridPreview";
 
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useState, useTransition } from "react";
 import { toast } from "react-toastify";
 
-import SubmitButton from "@/components/custom-components/buttons/SubmitButton";
+import SubmitButton from "@/components/custom-components/common/buttons/SubmitButton";
 import { StudioPayoutOverviewData } from "@/app/admin/payout/studio/[slug]/page";
 import { generateAWSImageUrls } from "@/lib/utils/s3-upload/s3-image-upload-utils";
 import { confirmStudioPayout } from "@/actions/admin";
@@ -51,7 +51,9 @@ const ProofUploadAndPreview = ({ payoutOverview }: Props) => {
   };
 
   const handleImageRemove = (identifier: string | number, imageSrc: string) => {
-    const updatedImages = images.filter((image) => !(image instanceof File && image.lastModified === identifier));
+    const updatedImages = images.filter(
+      (image) => !(image instanceof File && image.lastModified === identifier)
+    );
     URL.revokeObjectURL(imageSrc);
     setImages(updatedImages);
   };
@@ -74,7 +76,11 @@ const ProofUploadAndPreview = ({ payoutOverview }: Props) => {
       refund_amount: payoutOverview.total_refund_amount,
     };
 
-    const uploadedProofImageURLs = await generateAWSImageUrls(images as File[], `studio/${payoutOverview.studio_id}/payout`, "payout");
+    const uploadedProofImageURLs = await generateAWSImageUrls(
+      images as File[],
+      `studio/${payoutOverview.studio_id}/payout`,
+      "payout"
+    );
 
     if (!uploadedProofImageURLs.success) {
       toast("圖片無法儲存，請重試。", {
@@ -92,8 +98,17 @@ const ProofUploadAndPreview = ({ payoutOverview }: Props) => {
             autoClose: 1000,
           });
           router.refresh();
-          queryClient.invalidateQueries({ queryKey: ["payout", payoutRecord.payoutStartDate, payoutRecord.payoutEndDate] });
-          queryClient.invalidateQueries({ queryKey: ["payout", payoutRecord.payoutStartDate, payoutRecord.payoutEndDate, payoutRecord.slug] });
+          queryClient.invalidateQueries({
+            queryKey: ["payout", payoutRecord.payoutStartDate, payoutRecord.payoutEndDate],
+          });
+          queryClient.invalidateQueries({
+            queryKey: [
+              "payout",
+              payoutRecord.payoutStartDate,
+              payoutRecord.payoutEndDate,
+              payoutRecord.slug,
+            ],
+          });
         });
       });
     }
@@ -105,16 +120,33 @@ const ProofUploadAndPreview = ({ payoutOverview }: Props) => {
     <>
       <form onSubmit={handleSubmit}>
         <p className="font-bold mb-2">Upload payout proof</p>
-        <input type="file" accept="image/png, image/jpeg, image/jpg" multiple className="text-sm" onChange={handleFileSelect} />
+        <input
+          type="file"
+          accept="image/png, image/jpeg, image/jpg"
+          multiple
+          className="text-sm"
+          onChange={handleFileSelect}
+        />
 
         {error && <ErrorMessage>{error}</ErrorMessage>}
         {images.length > 0 && (
           <>
             <div className="mt-5">
               <p className="font-bold">Payout Proof Preview</p>
-              <ImagesGridPreview images={images} removeImage={handleImageRemove} imageAlt={"payout proof"} allowDeleteImage={true} gridCol={"grid-cols-3"} imageRatio="aspect-[3/4]" />
+              <ImagesGridPreview
+                images={images}
+                removeImage={handleImageRemove}
+                imageAlt={"payout proof"}
+                allowDeleteImage={true}
+                gridCol={"grid-cols-3"}
+                imageRatio="aspect-[3/4]"
+              />
             </div>
-            <SubmitButton isSubmitting={loading} submittingText="Saving..." nonSubmittingText="Submit and Confirm Payout" />{" "}
+            <SubmitButton
+              isSubmitting={loading}
+              submittingText="Saving..."
+              nonSubmittingText="Submit and Confirm Payout"
+            />{" "}
           </>
         )}
       </form>

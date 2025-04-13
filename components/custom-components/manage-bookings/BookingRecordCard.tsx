@@ -3,10 +3,13 @@ import { Button } from "@/components/shadcn/button";
 import { Card } from "@/components/shadcn/card";
 import { Building2, Calendar, MapPinHouse } from "lucide-react";
 import { Tooltip } from "react-tooltip";
-import AvatarWithFallback from "../AvatarWithFallback";
+import AvatarWithFallback from "../common/AvatarWithFallback";
 
 import { convertTimeToString } from "@/lib/utils/date-time/format-time-utils";
-import { validateCanLeaveBookingReview, validateDoorPasswordAvailability } from "@/lib/utils/date-time/manage-bookings-validation";
+import {
+  validateCanLeaveBookingReview,
+  validateDoorPasswordAvailability,
+} from "@/lib/utils/date-time/manage-bookings-validation";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import StudioPasswordModal from "./StudioPasswordModal";
@@ -48,12 +51,16 @@ const BookingRecordCard = ({ bookingRecord }: Props) => {
   const [isFetchingDoorPassword, setFetchingDoorPassword] = useState(false);
 
   useEffect(() => {
-    setPasswordAvailable(validateDoorPasswordAvailability(bookingRecord.booking_date, bookingRecord.start_time));
+    setPasswordAvailable(
+      validateDoorPasswordAvailability(bookingRecord.booking_date, bookingRecord.start_time)
+    );
   }, [bookingRecord.booking_date, bookingRecord.start_time, isPasswordAvailable]);
 
   const showDoorPassword = async () => {
     setFetchingDoorPassword(true);
-    const response = await fetch(`/api/studio/${bookingRecord.studio_id}/door-password?booking=${bookingRecord.booking_reference_no}`);
+    const response = await fetch(
+      `/api/studio/${bookingRecord.studio_id}/door-password?booking=${bookingRecord.booking_reference_no}`
+    );
     const result = await response.json();
 
     if (!response.ok) {
@@ -77,14 +84,18 @@ const BookingRecordCard = ({ bookingRecord }: Props) => {
                   <Calendar size={18} />
                   預約日期時間:{" "}
                 </span>
-                {formatDate(new Date(bookingRecord.booking_date))} {convertTimeToString(bookingRecord.start_time)} - {convertTimeToString(bookingRecord.end_time)}
+                {formatDate(new Date(bookingRecord.booking_date))}{" "}
+                {convertTimeToString(bookingRecord.start_time)} -{" "}
+                {convertTimeToString(bookingRecord.end_time)}
               </li>
               <li className="mb-2">
                 <span className="flex items-center gap-1 text-sm text-gray-500">
                   <Building2 size={18} />
                   場地名稱:{" "}
                 </span>
-                <Link href={`/studio/${bookingRecord.studio_slug}`}>{bookingRecord.studio_name}</Link>
+                <Link href={`/studio/${bookingRecord.studio_slug}`}>
+                  {bookingRecord.studio_name}
+                </Link>
               </li>
               <li className="mb-2">
                 <span className="flex items-center gap-1 text-sm text-gray-500">
@@ -92,7 +103,12 @@ const BookingRecordCard = ({ bookingRecord }: Props) => {
                   場地地址:{" "}
                 </span>
                 {bookingRecord.studio_address}{" "}
-                <a className="text-primary underline hover:text-brand-700" href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(bookingRecord.studio_address)}`}>
+                <a
+                  className="text-primary underline hover:text-brand-700"
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                    bookingRecord.studio_address
+                  )}`}
+                >
                   (地圖)
                 </a>
               </li>
@@ -104,7 +120,11 @@ const BookingRecordCard = ({ bookingRecord }: Props) => {
           <Tooltip id="password-reminder" />
 
           {bookingRecord.status === "confirmed" && (
-            <div data-tooltip-id="password-reminder" data-tooltip-content="密碼於預約2小時前可查看。" data-tooltip-place="top">
+            <div
+              data-tooltip-id="password-reminder"
+              data-tooltip-content="密碼於預約2小時前可查看。"
+              data-tooltip-place="top"
+            >
               <Button
                 disabled={!isPasswordAvailable}
                 onClick={() => {
@@ -123,8 +143,19 @@ const BookingRecordCard = ({ bookingRecord }: Props) => {
         </div>
       </Card>
 
-      <StudioPasswordModal isOpen={isOpenPasswordModal} setOpenModal={setOpenPasswordModal} doorPassword={doorPassword} errorMessage={doorPasswordError} isLoading={isFetchingDoorPassword} />
-      <BookingDetailsModal isOpen={isOpenDetailModal} setOpenModal={setOpenDetailModal} bookingRecord={bookingRecord} role="user" />
+      <StudioPasswordModal
+        isOpen={isOpenPasswordModal}
+        setOpenModal={setOpenPasswordModal}
+        doorPassword={doorPassword}
+        errorMessage={doorPasswordError}
+        isLoading={isFetchingDoorPassword}
+      />
+      <BookingDetailsModal
+        isOpen={isOpenDetailModal}
+        setOpenModal={setOpenDetailModal}
+        bookingRecord={bookingRecord}
+        role="user"
+      />
     </>
   );
 };

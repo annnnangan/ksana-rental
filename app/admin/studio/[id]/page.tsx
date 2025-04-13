@@ -1,19 +1,27 @@
 "use client";
 import { approveStudio } from "@/actions/admin";
-import AvatarWithFallback from "@/components/custom-components/AvatarWithFallback";
-import SubmitButton from "@/components/custom-components/buttons/SubmitButton";
+import AvatarWithFallback from "@/components/custom-components/common/AvatarWithFallback";
+import SubmitButton from "@/components/custom-components/common/buttons/SubmitButton";
 import SectionTitle from "@/components/custom-components/common/SectionTitle";
 import ResponsiveTab from "@/components/custom-components/layout/ResponsiveTab";
-import BasicInfoForm from "@/components/custom-components/studio-details/BasicInfoForm";
-import BusinessHourAndPriceForm from "@/components/custom-components/studio-details/BusinessHourAndPriceForm";
-import DoorPasswordForm from "@/components/custom-components/studio-details/DoorPasswordForm";
-import EquipmentForm from "@/components/custom-components/studio-details/EquipmentForm";
-import GalleryForm from "@/components/custom-components/studio-details/GalleryForm";
-import PayoutForm from "@/components/custom-components/studio-details/PayoutForm";
-import SocialForm from "@/components/custom-components/studio-details/SocialForm";
+import BasicInfoForm from "@/components/custom-components/studio-details-form/BasicInfoForm";
+import BusinessHourAndPriceForm from "@/components/custom-components/studio-details-form/BusinessHourAndPriceForm";
+import DoorPasswordForm from "@/components/custom-components/studio-details-form/DoorPasswordForm";
+import EquipmentForm from "@/components/custom-components/studio-details-form/EquipmentForm";
+import GalleryForm from "@/components/custom-components/studio-details-form/GalleryForm";
+import PayoutForm from "@/components/custom-components/studio-details-form/PayoutForm";
+import SocialForm from "@/components/custom-components/studio-details-form/SocialForm";
 import StudioStatusBadge from "@/components/custom-components/StudioStatusBadge";
 import { Button } from "@/components/shadcn/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/shadcn/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/shadcn/dialog";
 import { Skeleton } from "@/components/shadcn/skeleton";
 import useStudioFormData from "@/hooks/react-query/useStudioFormData";
 import { useParams, useRouter } from "next/navigation";
@@ -92,7 +100,12 @@ const page = () => {
                 </DialogHeader>
                 <DialogFooter>
                   <div className="w-full flex justify-center" onClick={onSubmit}>
-                    <SubmitButton isSubmitting={isPending} submittingText={"Handling"} nonSubmittingText={"Approve"} withIcon={false} />
+                    <SubmitButton
+                      isSubmitting={isPending}
+                      submittingText={"Handling"}
+                      nonSubmittingText={"Approve"}
+                      withIcon={false}
+                    />
                   </div>
                 </DialogFooter>
               </DialogContent>
@@ -101,20 +114,67 @@ const page = () => {
         </div>
       )}
 
-      <ResponsiveTab activeTab={activeTab} tabListMap={tabListMap} useQueryString={false} setActiveTab={setActiveTab} />
+      <ResponsiveTab
+        activeTab={activeTab}
+        tabListMap={tabListMap}
+        useQueryString={false}
+        setActiveTab={setActiveTab}
+      />
 
       <div className="my-5">
         {isLoading ? (
           <Skeleton className="h-48 w-full" />
         ) : (
           <>
-            {activeTab === "basic-info" && <BasicInfoForm studioId={studioId} isOnboardingStep={false} defaultValues={data.basicInfo} />}
-            {activeTab === "business-hours-and-price" && <BusinessHourAndPriceForm studioId={studioId} isOnboardingStep={false} defaultValue={data.businessHoursAndPrice} />}
-            {activeTab === "gallery" && <GalleryForm studioId={studioId} isOnboardingStep={false} defaultValues={data.gallery} />}
-            {activeTab === "equipment" && <EquipmentForm studioId={studioId} isOnboardingStep={false} defaultValues={data.equipment} />}
-            {activeTab === "door-password" && <DoorPasswordForm studioId={studioId} isOnboardingStep={false} defaultValues={data.doorPassword} />}
-            {activeTab === "social" && <SocialForm studioId={studioId} isOnboardingStep={false} defaultValues={data.social} />}
-            {activeTab === "payout-info" && <PayoutForm studioId={studioId} isOnboardingStep={false} defaultValues={data.payoutInfo} />}
+            {activeTab === "basic-info" && (
+              <BasicInfoForm
+                studioId={studioId}
+                isOnboardingStep={false}
+                defaultValues={data.basicInfo}
+              />
+            )}
+            {activeTab === "business-hours-and-price" && (
+              <BusinessHourAndPriceForm
+                studioId={studioId}
+                isOnboardingStep={false}
+                defaultValue={data.businessHoursAndPrice}
+              />
+            )}
+            {activeTab === "gallery" && (
+              <GalleryForm
+                studioId={studioId}
+                isOnboardingStep={false}
+                defaultValues={data.gallery}
+              />
+            )}
+            {activeTab === "equipment" && (
+              <EquipmentForm
+                studioId={studioId}
+                isOnboardingStep={false}
+                defaultValues={data.equipment}
+              />
+            )}
+            {activeTab === "door-password" && (
+              <DoorPasswordForm
+                studioId={studioId}
+                isOnboardingStep={false}
+                defaultValues={data.doorPassword}
+              />
+            )}
+            {activeTab === "social" && (
+              <SocialForm
+                studioId={studioId}
+                isOnboardingStep={false}
+                defaultValues={data.social}
+              />
+            )}
+            {activeTab === "payout-info" && (
+              <PayoutForm
+                studioId={studioId}
+                isOnboardingStep={false}
+                defaultValues={data.payoutInfo}
+              />
+            )}
           </>
         )}
       </div>

@@ -1,6 +1,12 @@
 "use client";
 import { Input } from "@/components/shadcn/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/shadcn/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/shadcn/select";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
@@ -8,11 +14,22 @@ import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 
 import { savePayoutInfo } from "@/actions/studio";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/shadcn/form";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/shadcn/form";
 import { payoutMethodMap } from "@/lib/constants/studio-details";
-import { PayoutFormData, PayoutSchema } from "@/lib/validations/zod-schema/studio/studio-step-schema";
+import {
+  PayoutFormData,
+  PayoutSchema,
+} from "@/lib/validations/zod-schema/studio/studio-step-schema";
 import { useTransition } from "react";
-import SubmitButton from "../buttons/SubmitButton";
+import SubmitButton from "../common/buttons/SubmitButton";
 
 interface defaultValue {
   method: string;
@@ -30,7 +47,11 @@ const PayoutForm = ({ studioId, defaultValues, isOnboardingStep }: Props) => {
   /* ------------------------- React Hook Form ------------------------ */
   const form = useForm({
     resolver: zodResolver(PayoutSchema),
-    defaultValues: { payoutMethod: defaultValues?.method ?? "", payoutAccountName: defaultValues?.account_name ?? "", payoutAccountNumber: defaultValues?.account_number ?? "" },
+    defaultValues: {
+      payoutMethod: defaultValues?.method ?? "",
+      payoutAccountName: defaultValues?.account_name ?? "",
+      payoutAccountNumber: defaultValues?.account_number ?? "",
+    },
   });
 
   const { isSubmitting } = form.formState;
@@ -145,7 +166,13 @@ const PayoutForm = ({ studioId, defaultValues, isOnboardingStep }: Props) => {
               </FormLabel>
               <FormDescription>請填寫完整英文帳戶名稱(e.g. Chan Tai Man)。</FormDescription>
               <FormControl>
-                <Input type="text" id="payoutAccountName" className={`form-input text-sm`} placeholder="請輸入帳戶名稱" {...field} />
+                <Input
+                  type="text"
+                  id="payoutAccountName"
+                  className={`form-input text-sm`}
+                  placeholder="請輸入帳戶名稱"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -161,14 +188,24 @@ const PayoutForm = ({ studioId, defaultValues, isOnboardingStep }: Props) => {
                 帳戶號碼
               </FormLabel>
               <FormControl>
-                <Input type="text" id="payoutAccountNumber" className={`form-input text-sm`} placeholder="請輸入帳戶號碼" {...field} />
+                <Input
+                  type="text"
+                  id="payoutAccountNumber"
+                  className={`form-input text-sm`}
+                  placeholder="請輸入帳戶號碼"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        <SubmitButton isSubmitting={isSubmitting || isPending} nonSubmittingText={isOnboardingStep ? "往下一步" : "儲存"} withIcon={isOnboardingStep ? true : false} />
+        <SubmitButton
+          isSubmitting={isSubmitting || isPending}
+          nonSubmittingText={isOnboardingStep ? "往下一步" : "儲存"}
+          withIcon={isOnboardingStep ? true : false}
+        />
       </form>
     </Form>
   );

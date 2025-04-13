@@ -1,5 +1,5 @@
 import ReportDateRangePicker from "@/components/custom-components/filters-and-sort/ReportDateRangePicker";
-import ToastMessageWithRedirect from "@/components/custom-components/ToastMessageWithRedirect";
+import ToastMessageWithRedirect from "@/components/custom-components/common/ToastMessageWithRedirect";
 import { auth } from "@/lib/next-auth-config/auth";
 import { studioOwnerService } from "@/services/studio/StudioOwnerService";
 import React from "react";
@@ -32,13 +32,19 @@ const layout = async ({
   const session = await auth();
 
   if (!session?.user.id) {
-    return <ToastMessageWithRedirect type={"error"} message={"請先登入"} redirectPath={"/auth/login"} />;
+    return (
+      <ToastMessageWithRedirect type={"error"} message={"請先登入"} redirectPath={"/auth/login"} />
+    );
   }
 
-  const studioStatusCountResult = await studioOwnerService.countStudioByStatusByUserId(session?.user.id);
+  const studioStatusCountResult = await studioOwnerService.countStudioByStatusByUserId(
+    session?.user.id
+  );
 
-  const activeCount = Number(studioStatusCountResult?.data?.find((item) => item.status === "active")?.count) || 0;
-  const draftCount = Number(studioStatusCountResult?.data?.find((item) => item.status === "draft")?.count) || 0;
+  const activeCount =
+    Number(studioStatusCountResult?.data?.find((item) => item.status === "active")?.count) || 0;
+  const draftCount =
+    Number(studioStatusCountResult?.data?.find((item) => item.status === "draft")?.count) || 0;
 
   return (
     <>

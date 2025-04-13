@@ -1,7 +1,7 @@
 import AdminStudiosTable from "@/components/custom-components/admin/AdminStudiosTable";
 import SectionTitle from "@/components/custom-components/common/SectionTitle";
 import ResponsiveTab from "@/components/custom-components/layout/ResponsiveTab";
-import ToastMessageWithRedirect from "@/components/custom-components/ToastMessageWithRedirect";
+import ToastMessageWithRedirect from "@/components/custom-components/common/ToastMessageWithRedirect";
 import { sessionUserRole } from "@/lib/next-auth-config/session-user";
 import { adminService } from "@/services/admin/AdminService";
 import React from "react";
@@ -37,11 +37,15 @@ const data = [
 const page = async (props: Props) => {
   const userRole = await sessionUserRole();
   if (userRole !== "admin") {
-    return <ToastMessageWithRedirect type={"error"} message={"你沒有此權限。"} redirectPath={"/"} />;
+    return (
+      <ToastMessageWithRedirect type={"error"} message={"你沒有此權限。"} redirectPath={"/"} />
+    );
   }
   const activeTab = (await props.searchParams).tab || "awaiting-approval";
 
-  const studioList = (await adminService.getStudioList(activeTab === "awaiting-approval" ? "reviewing" : "active")).data;
+  const studioList = (
+    await adminService.getStudioList(activeTab === "awaiting-approval" ? "reviewing" : "active")
+  ).data;
 
   return (
     <div>

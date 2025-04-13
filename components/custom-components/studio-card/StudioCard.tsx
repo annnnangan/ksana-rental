@@ -1,7 +1,7 @@
 import { studioCardInfo } from "@/app/(user)/explore-studios/page";
-import StudioLocation from "@/components/custom-components/studio/StudioLocation";
-import StudioLogo from "@/components/custom-components/studio/StudioLogo";
-import StudioRating from "@/components/custom-components/studio/StudioRating";
+import StudioLocation from "@/components/custom-components/studio-card/StudioLocation";
+import StudioLogo from "@/components/custom-components/studio-card/StudioLogo";
+import StudioRating from "@/components/custom-components/studio-card/StudioRating";
 import Image from "next/image";
 import Link from "next/link";
 import BookmarkButton from "../studio-page/BookmarkButton";
@@ -14,7 +14,10 @@ interface Props {
 const StudioCard = ({ studio, bookmarkRouterRefresh = false }: Props) => {
   return (
     <div>
-      <Link href={`/studio/${studio.slug}`} className="group px-3 pb-10 w-full md:1/2 lg:w-1/3 xl:w-1/4">
+      <Link
+        href={`/studio/${studio.slug}`}
+        className="group px-3 pb-10 w-full md:1/2 lg:w-1/3 xl:w-1/4"
+      >
         <div className="relative rounded-md overflow-hidden shadow">
           {/* Cover Image */}
           <div className="aspect-[3/1] bg-neutral-200 mb-1 overflow-hidden">
@@ -48,7 +51,11 @@ const StudioCard = ({ studio, bookmarkRouterRefresh = false }: Props) => {
               {/* Location */}
               <StudioLocation district={studio.district} />
               {/* Rate */}
-              <StudioRating rating={studio.rating} numberOfReview={studio.number_of_review} numberOfCompletedBooking={studio.number_of_completed_booking} />
+              <StudioRating
+                rating={studio.rating}
+                numberOfReview={studio.number_of_review}
+                numberOfCompletedBooking={studio.number_of_completed_booking}
+              />
             </div>
 
             <p>HK${studio.min_price} 起</p>

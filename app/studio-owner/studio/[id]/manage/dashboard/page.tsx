@@ -1,13 +1,19 @@
 "use client";
-import AvatarWithFallback from "@/components/custom-components/AvatarWithFallback";
+import AvatarWithFallback from "@/components/custom-components/common/AvatarWithFallback";
 import { ByMonthLineChart } from "@/components/custom-components/charts/ByMonthLineChart";
 import ChartCard from "@/components/custom-components/charts/ChartCard";
 import ScoreCard from "@/components/custom-components/charts/ScoreCard";
 import SectionTitle from "@/components/custom-components/common/SectionTitle";
 import ReportDateRangePicker from "@/components/custom-components/filters-and-sort/ReportDateRangePicker";
-import SectionFallback from "@/components/custom-components/SectionFallback";
-import ToastMessageWithRedirect from "@/components/custom-components/ToastMessageWithRedirect";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/shadcn/card";
+import SectionFallback from "@/components/custom-components/common/SectionFallback";
+import ToastMessageWithRedirect from "@/components/custom-components/common/ToastMessageWithRedirect";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/shadcn/card";
 import { Skeleton } from "@/components/shadcn/skeleton";
 import useStudioDashboard from "@/hooks/react-query/useStudioDashboard";
 import { convertTimeToString } from "@/lib/utils/date-time/format-time-utils";
@@ -61,11 +67,23 @@ const StudioPanelDashboardPage = () => {
   });
 
   if (userStatus === "unauthenticated") {
-    return <ToastMessageWithRedirect type={"error"} message={"請先登入。"} redirectPath={"/auth/login"} />;
+    return (
+      <ToastMessageWithRedirect
+        type={"error"}
+        message={"請先登入。"}
+        redirectPath={"/auth/login"}
+      />
+    );
   }
 
   if (isError && error.message === "無權儲取此場地資料。") {
-    return <ToastMessageWithRedirect type={"error"} message={"無權儲取此場地資料。"} redirectPath={"/"} />;
+    return (
+      <ToastMessageWithRedirect
+        type={"error"}
+        message={"無權儲取此場地資料。"}
+        redirectPath={"/"}
+      />
+    );
   }
 
   if (isError) {
@@ -82,10 +100,17 @@ const StudioPanelDashboardPage = () => {
 
       <div className="flex flex-col-reverse gap-10 md:gap-5 md:grid md:grid-cols-3">
         <div className="border-gray-300 border-t pt-10 md:border-t-0 md:pt-0 md:col-span-2 md:border-r md:pr-5">
-          <ReportDateRangePicker parentPagePath={`/studio-owner/studio/${studioId}/manage/dashboard`} />
+          <ReportDateRangePicker
+            parentPagePath={`/studio-owner/studio/${studioId}/manage/dashboard`}
+          />
 
           <div className="grid grid-cols-3 gap-4 mb-5">
-            <ScoreCard metricName={"預約數量"} value={data?.bookingCount.total} toolTipContent={<BookingAmountToolTipContent />} isLoading={isLoading || userStatus === "loading"} />
+            <ScoreCard
+              metricName={"預約數量"}
+              value={data?.bookingCount.total}
+              toolTipContent={<BookingAmountToolTipContent />}
+              isLoading={isLoading || userStatus === "loading"}
+            />
             <ScoreCard
               metricName={"預計收入"}
               value={data?.expectedRevenue.total}
@@ -93,23 +118,47 @@ const StudioPanelDashboardPage = () => {
               isLoading={isLoading || userStatus === "loading"}
               isRevenue={true}
             />
-            <ScoreCard metricName={"實質已收取​收入"} value={data?.payout.total} toolTipContent={<ActualRevenueToolTipContent />} isLoading={isLoading || userStatus === "loading"} isRevenue={true} />
+            <ScoreCard
+              metricName={"實質已收取​收入"}
+              value={data?.payout.total}
+              toolTipContent={<ActualRevenueToolTipContent />}
+              isLoading={isLoading || userStatus === "loading"}
+              isRevenue={true}
+            />
           </div>
 
           <div className="space-y-5">
             <ChartCard
-              chart={<ByMonthLineChart chartData={data?.bookingCount.monthBreakdown} label={"預約數目"} isLoading={isLoading || userStatus === "loading"} />}
+              chart={
+                <ByMonthLineChart
+                  chartData={data?.bookingCount.monthBreakdown}
+                  label={"預約數目"}
+                  isLoading={isLoading || userStatus === "loading"}
+                />
+              }
               cardTitle={"每月預約數目"}
               toolTipContent={<BookingAmountToolTipContent />}
             />
             <ChartCard
-              chart={<ByMonthLineChart chartData={data?.expectedRevenue.monthBreakdown} label={"預計收入"} isLoading={isLoading || userStatus === "loading"} />}
+              chart={
+                <ByMonthLineChart
+                  chartData={data?.expectedRevenue.monthBreakdown}
+                  label={"預計收入"}
+                  isLoading={isLoading || userStatus === "loading"}
+                />
+              }
               cardTitle={"每月預計收入"}
               toolTipContent={<BookingAmountToolTipContent />}
             />
 
             <ChartCard
-              chart={<ByMonthLineChart chartData={data?.payout.monthBreakdown} label={"預計收入"} isLoading={isLoading || userStatus === "loading"} />}
+              chart={
+                <ByMonthLineChart
+                  chartData={data?.payout.monthBreakdown}
+                  label={"預計收入"}
+                  isLoading={isLoading || userStatus === "loading"}
+                />
+              }
               cardTitle={"每月實質已收取​收入"}
               toolTipContent={<ActualRevenueToolTipContent />}
             />
@@ -128,24 +177,37 @@ const StudioPanelDashboardPage = () => {
                       <Skeleton className="h-20 w-full mt-2" />
                     </div>
                   ))
-                : data?.upcoming5Bookings.bookingList.map((item: { reference_no: string; name: string; image: string; booking_date: string; start_time: string; end_time: string }) => (
-                    <div className="border border-gray-200 rounded-lg p-3 flex gap-3 shadow" key={item.reference_no}>
-                      <AvatarWithFallback avatarUrl={item.image} type={"user"} />
-                      <div>
-                        <p className="font-bold">{item.name}</p>
-                        <div className="flex items-center gap-2">
-                          <CalendarCheck2 size={14} />
-                          <p className="text-sm">{item.booking_date}</p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Clock5 size={14} />
-                          <p className="text-sm">
-                            {convertTimeToString(item.start_time)} - {convertTimeToString(item.end_time)}
-                          </p>
+                : data?.upcoming5Bookings.bookingList.map(
+                    (item: {
+                      reference_no: string;
+                      name: string;
+                      image: string;
+                      booking_date: string;
+                      start_time: string;
+                      end_time: string;
+                    }) => (
+                      <div
+                        className="border border-gray-200 rounded-lg p-3 flex gap-3 shadow"
+                        key={item.reference_no}
+                      >
+                        <AvatarWithFallback avatarUrl={item.image} type={"user"} />
+                        <div>
+                          <p className="font-bold">{item.name}</p>
+                          <div className="flex items-center gap-2">
+                            <CalendarCheck2 size={14} />
+                            <p className="text-sm">{item.booking_date}</p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Clock5 size={14} />
+                            <p className="text-sm">
+                              {convertTimeToString(item.start_time)} -{" "}
+                              {convertTimeToString(item.end_time)}
+                            </p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  )}
             </CardContent>
           </Card>
         </div>

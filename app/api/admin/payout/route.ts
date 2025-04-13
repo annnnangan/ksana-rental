@@ -1,7 +1,5 @@
 import handleError from "@/lib/handlers/error";
 import { ForbiddenError } from "@/lib/http-errors";
-import { validatePayoutDates } from "@/lib/utils/date-time/payout-date-validation";
-import { PayoutMethod, PayoutStatus } from "@/services/model";
 import { payoutService } from "@/services/payout/PayoutService";
 import { differenceInDays, getDay, isValid, parseISO } from "date-fns";
 import { NextRequest, NextResponse } from "next/server";
@@ -21,12 +19,31 @@ export async function GET(request: NextRequest) {
     const page = Number(searchParams.get("page")) || 1;
     const limit = Number(searchParams.get("limit")) || 10;
 
-    const payoutMethod = ["fps", "payme", "bank-transfer"].includes(searchParams.get("payoutMethod") || "undefined") ? searchParams.get("payoutMethod") : undefined;
-    const payoutStatus = ["pending", "complete"].includes(searchParams.get("payoutStatus") || "undefined") ? searchParams.get("payoutStatus") : undefined;
-    const orderBy = ["studioId", "studioName", "payoutStatus", "payoutMethod", "payoutAmount", "payoutAction"].includes(searchParams.get("orderBy") || "undefined")
+    const payoutMethod = ["fps", "payme", "bank-transfer"].includes(
+      searchParams.get("payoutMethod") || "undefined"
+    )
+      ? searchParams.get("payoutMethod")
+      : undefined;
+    const payoutStatus = ["pending", "complete"].includes(
+      searchParams.get("payoutStatus") || "undefined"
+    )
+      ? searchParams.get("payoutStatus")
+      : undefined;
+    const orderBy = [
+      "studioId",
+      "studioName",
+      "payoutStatus",
+      "payoutMethod",
+      "payoutAmount",
+      "payoutAction",
+    ].includes(searchParams.get("orderBy") || "undefined")
       ? searchParams.get("orderBy")
       : "studioId";
-    const orderDirection = ["asc", "desc"].includes(searchParams.get("orderDirection") || "undefined") ? searchParams.get("orderDirection") : "asc";
+    const orderDirection = ["asc", "desc"].includes(
+      searchParams.get("orderDirection") || "undefined"
+    )
+      ? searchParams.get("orderDirection")
+      : "asc";
 
     // 🔍 Validate if all date parameter is presented
     if (!payoutStartDate || !payoutEndDate) {
@@ -39,11 +56,18 @@ export async function GET(request: NextRequest) {
     }
 
     // 🔍 Validate if it is a valid date range
-    if (getDay(new Date(payoutStartDate)) !== 1 || getDay(new Date(payoutEndDate)) !== 0 || differenceInDays(new Date(payoutEndDate), new Date(payoutStartDate)) !== 6) {
+    if (
+      getDay(new Date(payoutStartDate)) !== 1 ||
+      getDay(new Date(payoutEndDate)) !== 0 ||
+      differenceInDays(new Date(payoutEndDate), new Date(payoutStartDate)) !== 6
+    ) {
       throw new ForbiddenError("Invalid payout date range.");
     }
 
-    const totalPayoutResponse = await payoutService.getWeeklyTotalPayout({ payoutStartDate, payoutEndDate });
+    const totalPayoutResponse = await payoutService.getWeeklyTotalPayout({
+      payoutStartDate,
+      payoutEndDate,
+    });
 
     const studioPayoutResponse = await payoutService.getWeeklyStudiosPayout({
       payoutStartDate,

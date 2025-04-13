@@ -2,7 +2,9 @@ import DateFilter from "@/components/custom-components/filters-and-sort/payout/D
 import PayoutMethodFilter from "@/components/custom-components/filters-and-sort/payout/PayoutMethodFilter";
 import StatusFilter from "@/components/custom-components/filters-and-sort/payout/StatusFilter";
 import StudioFilter from "@/components/custom-components/filters-and-sort/payout/StudioFilter";
-import PayoutOverviewTable, { PayoutQuery } from "@/components/custom-components/payout/PayoutOverviewTable";
+import PayoutOverviewTable, {
+  PayoutQuery,
+} from "@/components/custom-components/payout/PayoutOverviewTable";
 import SectionTitle from "@/components/custom-components/common/SectionTitle";
 import { PayoutMethod, PayoutStatus } from "@/services/model";
 import { startOfWeek, subDays } from "date-fns";
@@ -34,7 +36,7 @@ const PayoutPage = async (props: Props) => {
   const payoutStartDate = searchParams.startDate || formatDate(defaultStartDate);
   const payoutEndDate = searchParams.endDate || formatDate(defaultEndDate);
 
-  const totalPayout = (await payoutService.getWeeklyTotalPayout({ payoutStartDate, payoutEndDate })).data.total_payout_amount;
+  // const totalPayout = (await payoutService.getWeeklyTotalPayout({ payoutStartDate, payoutEndDate })).data.total_payout_amount;
 
   return (
     <>
@@ -43,14 +45,18 @@ const PayoutPage = async (props: Props) => {
         <DateFilter defaultStartDate={defaultStartDate} defaultEndDate={defaultEndDate} />
 
         <div className="mb-10">
-          <h2 className="text-xl font-bold mt-2">This Week Total Payout: HKD$ {totalPayout ?? 0} </h2>
+          <h2 className="text-xl font-bold mt-2">This Week Total Payout: HKD$ {0} </h2>
         </div>
         <div className="flex gap-4 mb-3">
           <StudioFilter />
           <StatusFilter />
           <PayoutMethodFilter />
         </div>
-        <PayoutOverviewTable searchParams={searchParams} defaultStartDate={defaultStartDate} defaultEndDate={defaultEndDate} />
+        <PayoutOverviewTable
+          searchParams={searchParams}
+          defaultStartDate={defaultStartDate}
+          defaultEndDate={defaultEndDate}
+        />
       </div>
     </>
   );

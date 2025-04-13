@@ -7,8 +7,8 @@ import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import SubmitButton from "../buttons/SubmitButton";
-import LoadingSpinner from "../loading/LoadingSpinner";
+import SubmitButton from "../common/buttons/SubmitButton";
+import LoadingSpinner from "../common/loading/LoadingSpinner";
 
 interface Props {
   amount: number;
@@ -115,7 +115,12 @@ const CheckoutForm = ({ amount }: Props) => {
   return (
     <form onSubmit={handleSubmit}>
       {clientSecret && <PaymentElement />}
-      <SubmitButton isSubmitting={!stripe || loading} submittingText="付款處理中" nonSubmittingText={`付款HK$ ${amount}`} className="w-full" />
+      <SubmitButton
+        isSubmitting={!stripe || loading}
+        submittingText="付款處理中"
+        nonSubmittingText={`付款HK$ ${amount}`}
+        className="w-full"
+      />
     </form>
   );
 };

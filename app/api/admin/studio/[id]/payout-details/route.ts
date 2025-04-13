@@ -1,7 +1,6 @@
 import handleError from "@/lib/handlers/error";
-import { ForbiddenError } from "@/lib/http-errors";
-import { validatePayoutDates } from "@/lib/utils/date-time/payout-date-validation";
-import { PayoutMethod, PayoutStatus } from "@/services/model";
+import { ForbiddenError, UnauthorizedError } from "@/lib/http-errors";
+import { auth } from "@/lib/next-auth-config/auth";
 import { payoutService } from "@/services/payout/PayoutService";
 import { differenceInDays, getDay, isValid, parseISO } from "date-fns";
 import { NextRequest, NextResponse } from "next/server";
@@ -12,13 +11,17 @@ function isValidDate(dateString: string) {
 }
 
 //Get Payout Data
-export async function GET(request: NextRequest, props: { params: Promise<{ slug: string }> }) {
+export async function GET(request: NextRequest, props: { params: Promise<{ id: string }> }) {
   try {
+    const user = await auth();
+    if (user?.user.role !== "admin") {
+      throw new UnauthorizedError("你沒有此權限。");
+    }
     const searchParams = request.nextUrl.searchParams;
     const payoutStartDate = searchParams.get("startDate");
     const payoutEndDate = searchParams.get("endDate");
     const params = await props.params;
-    const studioSlug = params.slug;
+    const studioId = params.id;
 
     // 🔍 Validate if all date parameter is presented
     if (!payoutStartDate || !payoutEndDate) {
@@ -31,13 +34,17 @@ export async function GET(request: NextRequest, props: { params: Promise<{ slug:
     }
 
     // 🔍 Validate if it is a valid date range
-    if (getDay(new Date(payoutStartDate)) !== 1 || getDay(new Date(payoutEndDate)) !== 0 || differenceInDays(new Date(payoutEndDate), new Date(payoutStartDate)) !== 6) {
+    if (
+      getDay(new Date(payoutStartDate)) !== 1 ||
+      getDay(new Date(payoutEndDate)) !== 0 ||
+      differenceInDays(new Date(payoutEndDate), new Date(payoutStartDate)) !== 6
+    ) {
       throw new ForbiddenError("Invalid payout date range.");
     }
 
     const [completedBookingListResponse, disputeTransactionListResponse] = await Promise.all([
-      payoutService.getStudioCompletedBookingList(payoutStartDate, payoutEndDate, studioSlug),
-      payoutService.getStudioDisputeTransactionList(payoutStartDate, payoutEndDate, studioSlug),
+      payoutService.getStudioCompletedBookingList(payoutStartDate, payoutEndDate, studioId),
+      payoutService.getStudioDisputeTransactionList(payoutStartDate, payoutEndDate, studioId),
     ]);
 
     if (completedBookingListResponse.success && disputeTransactionListResponse.success) {
