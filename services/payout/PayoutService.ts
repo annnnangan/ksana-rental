@@ -1,14 +1,200 @@
 import handleError from "@/lib/handlers/error";
+import { formatDate } from "@/lib/utils/date-time/format-date-utils";
 import { knex } from "@/services/knex";
+import { startOfWeek } from "date-fns";
 import { Knex } from "knex";
 import { paginationService } from "../PaginationService";
 
 export class PayoutService {
   constructor(private knex: Knex) {}
 
-  /**
-   * @returns total_payout_amount = total_completed_booking_amount + total_dispute_amount - total_refund_amount
-   */
+  /* ------------------------------- Share ------------------------------- */
+
+  async getStudioCompletedBookingList(
+    payoutStartDate: string,
+    payoutEndDate: string,
+    studioId: string
+  ) {
+    try {
+      const completed_booking_list = await this.knex
+        .select(
+          "booking.reference_no AS booking_reference_no",
+          knex.raw("TO_CHAR(booking.date, 'YYYY-MM-DD') AS booking_date"),
+          "booking.price AS booking_price",
+          "booking.status AS booking_status",
+          "booking.is_complaint"
+        )
+        .from("booking")
+        .leftJoin("studio", "booking.studio_id", "studio.id")
+        .whereBetween("booking.date", [payoutStartDate, payoutEndDate])
+        .andWhere({
+          "booking.status": "confirmed",
+          "booking.is_complaint": false,
+          "studio.id": studioId,
+        })
+        .orderBy("booking.date");
+
+      return {
+        success: true,
+        data: completed_booking_list,
+      };
+    } catch (error) {
+      console.dir(error);
+      return handleError(error, "server") as ActionResponse;
+    }
+  }
+
+  async getStudioDisputeTransactionList(
+    payoutStartDate: string,
+    payoutEndDate: string,
+    studioId: string
+  ) {
+    try {
+      const dispute_booking_list = await this.knex
+        .select(
+          "booking.reference_no AS booking_reference_no",
+          knex.raw("TO_CHAR(booking.date, 'YYYY-MM-DD') AS booking_date"),
+          "booking.price AS booking_price",
+          "booking.is_complaint",
+          "booking_complaint.status AS complaint_status",
+          knex.raw("TO_CHAR(booking_complaint.resolved_at, 'YYYY-MM-DD') AS complaint_resolved_at"),
+          "booking_complaint.is_refund",
+          "booking_complaint.refund_method",
+          "booking_complaint.refund_amount"
+        )
+        .from("booking_complaint")
+        .leftJoin("review", "booking_complaint.review_id", "review.id")
+        .leftJoin("booking", "review.booking_reference_no", "booking.reference_no")
+        .leftJoin("studio", "booking.studio_id", "studio.id")
+        .whereBetween("booking_complaint.resolved_at", [payoutStartDate, payoutEndDate])
+        .andWhere({
+          "studio.id": studioId,
+          "booking_complaint.status": "resolved",
+        })
+        .orderBy("booking.date");
+      return {
+        success: true,
+        data: dispute_booking_list,
+      };
+    } catch (error) {
+      console.dir(error);
+      return handleError(error, "server") as ActionResponse;
+    }
+  }
+
+  /* ------------------------------- Admin Only ------------------------------- */
+  async createPayoutRecord(proofImages: string[], payoutInformation: PayoutCompleteRecordType) {
+    const txn = await this.knex.transaction();
+    try {
+      const {
+        studio_id,
+        method,
+        account_name,
+        account_number,
+        payoutStartDate,
+        payoutEndDate,
+        total_payout_amount,
+        completed_booking_amount,
+        dispute_amount,
+        refund_amount,
+      } = payoutInformation;
+
+      const insertedPayoutRecord = await txn("payout")
+        .insert({
+          studio_id,
+          method,
+          account_name,
+          account_number,
+          status: "complete",
+          start_date: payoutStartDate,
+          end_date: payoutEndDate,
+          total_payout_amount,
+          completed_booking_amount,
+          dispute_amount,
+          refund_amount,
+        })
+        .returning("id");
+
+      await txn("payout_proof").insert(
+        proofImages.map((imageUrl) => ({
+          payout_id: insertedPayoutRecord[0].id,
+          proof_image_url: imageUrl,
+        }))
+      );
+
+      await txn.commit();
+
+      return {
+        success: true,
+      };
+    } catch (error) {
+      await txn.rollback();
+      console.dir(error);
+      return handleError(error, "server") as ActionResponse;
+    }
+  }
+
+  async getTotalPayoutList() {
+    try {
+      const mainQuery = `
+        WITH weeks AS (
+          SELECT
+            generate_series(
+              DATE '2024-12-02',
+              date_trunc('week', now()) - interval '7 days',
+              interval '1 week'
+            ) AS payout_start_date
+        ),
+        week_ranges AS (
+          SELECT
+            payout_start_date,
+            payout_start_date + interval '6 days' AS payout_end_date
+          FROM weeks
+        ),
+        payout_aggregated AS (
+          SELECT
+            start_date AS payout_start_date,
+            end_date AS payout_end_date,
+            SUM(completed_booking_amount) AS total_completed_booking_amount,
+            SUM(refund_amount) AS total_refund_amount,
+            SUM(total_payout_amount) AS total_payout_amount
+          FROM payout
+          GROUP BY start_date, end_date
+        )
+        SELECT
+          TO_CHAR(week_ranges.payout_start_date, 'YYYY-MM-DD') AS payout_start_date,
+          TO_CHAR(week_ranges.payout_end_date, 'YYYY-MM-DD') AS payout_end_date,
+          COALESCE(CAST(payout_aggregated.total_completed_booking_amount AS INTEGER), 0) AS total_completed_booking_amount,
+          COALESCE(CAST(payout_aggregated.total_refund_amount AS INTEGER), 0) AS total_refund_amount,
+          COALESCE(CAST(payout_aggregated.total_payout_amount AS INTEGER), 0) AS total_payout_amount
+        FROM week_ranges
+        LEFT JOIN payout_aggregated
+          ON week_ranges.payout_start_date = payout_aggregated.payout_start_date
+          AND week_ranges.payout_end_date = payout_aggregated.payout_end_date
+        ORDER BY week_ranges.payout_start_date DESC
+      `;
+
+      const rawMainQuery = this.knex.raw(mainQuery).toString();
+      const queryBuilder = this.knex.select("*").fromRaw(`(${rawMainQuery}) as subquery`);
+
+      // Count total weeks (before pagination)
+      const totalCountResult: { totalCount: string }[] = await queryBuilder
+        .clone()
+        .clearSelect()
+        .count("* as totalCount");
+
+      const totalCount = Number(totalCountResult[0]?.totalCount || 0);
+
+      // Apply pagination for the actual data
+      const result = await queryBuilder;
+
+      return { success: true, data: { totalCount: totalCount, payoutList: result } };
+    } catch (error) {
+      console.dir(error);
+      return handleError(error, "server") as ActionResponse;
+    }
+  }
+
   async getWeeklyTotalPayout({
     payoutStartDate,
     payoutEndDate,
@@ -245,137 +431,35 @@ export class PayoutService {
     }
   }
 
-  async getStudioCompletedBookingList(
-    payoutStartDate: string,
-    payoutEndDate: string,
-    studioId: string
-  ) {
+  /* ------------------------------- Studio Only ------------------------------- */
+
+  /* ------------------ List out all payout week of a studio ------------------ */
+  async getStudioPayoutRecordList({
+    studioId,
+    page,
+    limit,
+    payoutStartDate,
+  }: {
+    studioId: string;
+    page: number;
+    limit: number;
+    payoutStartDate?: string | undefined;
+  }) {
     try {
-      const completed_booking_list = await this.knex
-        .select(
-          "booking.reference_no AS booking_reference_no",
-          knex.raw("TO_CHAR(booking.date, 'YYYY-MM-DD') AS booking_date"),
-          "booking.price AS booking_price",
-          "booking.status AS booking_status",
-          "booking.is_complaint"
-        )
-        .from("booking")
-        .leftJoin("studio", "booking.studio_id", "studio.id")
-        .whereBetween("booking.date", [payoutStartDate, payoutEndDate])
-        .andWhere({
-          "booking.status": "confirmed",
-          "booking.is_complaint": false,
-          "studio.id": studioId,
-        })
-        .orderBy("booking.date");
+      const studioApprovedDate = (
+        await this.knex("studio").select(knex.raw("approved_at")).where("studio.id", studioId)
+      )[0].approved_at;
 
-      return {
-        success: true,
-        data: completed_booking_list,
-      };
-    } catch (error) {
-      console.dir(error);
-      return handleError(error, "server") as ActionResponse;
-    }
-  }
-
-  async getStudioDisputeTransactionList(
-    payoutStartDate: string,
-    payoutEndDate: string,
-    studioId: string
-  ) {
-    try {
-      const dispute_booking_list = await this.knex
-        .select(
-          "booking.reference_no AS booking_reference_no",
-          knex.raw("TO_CHAR(booking.date, 'YYYY-MM-DD') AS booking_date"),
-          "booking.price AS booking_price",
-          "booking.is_complaint",
-          "booking_complaint.status AS complaint_status",
-          knex.raw("TO_CHAR(booking_complaint.resolved_at, 'YYYY-MM-DD') AS complaint_resolved_at"),
-          "booking_complaint.is_refund",
-          "booking_complaint.refund_method",
-          "booking_complaint.refund_amount"
-        )
-        .from("booking_complaint")
-        .leftJoin("review", "booking_complaint.review_id", "review.id")
-        .leftJoin("booking", "review.booking_reference_no", "booking.reference_no")
-        .leftJoin("studio", "booking.studio_id", "studio.id")
-        .whereBetween("booking_complaint.resolved_at", [payoutStartDate, payoutEndDate])
-        .andWhere({
-          "studio.id": studioId,
-          "booking_complaint.status": "resolved",
-        })
-        .orderBy("booking.date");
-      return {
-        success: true,
-        data: dispute_booking_list,
-      };
-    } catch (error) {
-      console.dir(error);
-      return handleError(error, "server") as ActionResponse;
-    }
-  }
-
-  async createPayoutRecord(proofImages: string[], payoutInformation: PayoutCompleteRecordType) {
-    const txn = await this.knex.transaction();
-    try {
-      const {
-        studio_id,
-        method,
-        account_name,
-        account_number,
-        payoutStartDate,
-        payoutEndDate,
-        total_payout_amount,
-        completed_booking_amount,
-        dispute_amount,
-        refund_amount,
-      } = payoutInformation;
-
-      const insertedPayoutRecord = await txn("payout")
-        .insert({
-          studio_id,
-          method,
-          account_name,
-          account_number,
-          status: "complete",
-          start_date: payoutStartDate,
-          end_date: payoutEndDate,
-          total_payout_amount,
-          completed_booking_amount,
-          dispute_amount,
-          refund_amount,
-        })
-        .returning("id");
-
-      await txn("payout_proof").insert(
-        proofImages.map((imageUrl) => ({
-          payout_id: insertedPayoutRecord[0].id,
-          proof_image_url: imageUrl,
-        }))
+      const studioApprovedWeekMonday = formatDate(
+        startOfWeek(new Date(studioApprovedDate), { weekStartsOn: 1 })
       );
 
-      await txn.commit();
-
-      return {
-        success: true,
-      };
-    } catch (error) {
-      await txn.rollback();
-      console.dir(error);
-      return handleError(error, "server") as ActionResponse;
-    }
-  }
-
-  async getTotalPayoutList() {
-    try {
-      const mainQuery = `
+      let mainQuery = `
         WITH weeks AS (
           SELECT
             generate_series(
-              DATE '2024-12-02',
-              date_trunc('week', now()) - interval '7 days',
+              ?,
+              date_trunc('week', now()) - interval '14 days',
               interval '1 week'
             ) AS payout_start_date
         ),
@@ -386,43 +470,64 @@ export class PayoutService {
           FROM weeks
         ),
         payout_aggregated AS (
-          SELECT
-            start_date AS payout_start_date,
-            end_date AS payout_end_date,
-            SUM(completed_booking_amount) AS total_completed_booking_amount,
-            SUM(refund_amount) AS total_refund_amount,
-            SUM(total_payout_amount) AS total_payout_amount
-          FROM payout
-          GROUP BY start_date, end_date
-        )
+            SELECT
+              start_date AS payout_start_date,
+              end_date AS payout_end_date,
+              SUM(completed_booking_amount) AS total_completed_booking_amount,
+              SUM(refund_amount) AS total_refund_amount,
+              SUM(total_payout_amount) AS total_payout_amount,
+              payout_at
+            FROM payout
+            WHERE studio_id = ?
+            GROUP BY start_date, end_date, payout_at
+          )
         SELECT
           TO_CHAR(week_ranges.payout_start_date, 'YYYY-MM-DD') AS payout_start_date,
           TO_CHAR(week_ranges.payout_end_date, 'YYYY-MM-DD') AS payout_end_date,
           COALESCE(CAST(payout_aggregated.total_completed_booking_amount AS INTEGER), 0) AS total_completed_booking_amount,
           COALESCE(CAST(payout_aggregated.total_refund_amount AS INTEGER), 0) AS total_refund_amount,
-          COALESCE(CAST(payout_aggregated.total_payout_amount AS INTEGER), 0) AS total_payout_amount
+          COALESCE(CAST(payout_aggregated.total_payout_amount AS INTEGER), 0) AS total_payout_amount,
+          TO_CHAR(payout_aggregated.payout_at, 'YYYY-MM-DD') AS payout_at
         FROM week_ranges
         LEFT JOIN payout_aggregated
           ON week_ranges.payout_start_date = payout_aggregated.payout_start_date
           AND week_ranges.payout_end_date = payout_aggregated.payout_end_date
-        ORDER BY week_ranges.payout_start_date DESC
-      `;
+       `;
 
-      const rawMainQuery = this.knex.raw(mainQuery).toString();
+      const params = [studioApprovedWeekMonday, studioId];
+      let totalCount;
+
+      if (payoutStartDate) {
+        mainQuery += ` WHERE week_ranges.payout_start_date = ?`;
+        mainQuery += `ORDER BY week_ranges.payout_start_date DESC`;
+        params.push(payoutStartDate);
+        totalCount = 1;
+      } else {
+        mainQuery += `ORDER BY week_ranges.payout_start_date DESC`;
+        const totalResult = await knex.raw(
+          `
+          SELECT COUNT(*) AS week_count
+          FROM generate_series(
+            ?,
+            date_trunc('week', now()) - interval '14 days',
+            interval '1 week'
+          ) AS week
+          `,
+          [studioApprovedWeekMonday]
+        );
+
+        totalCount = totalResult.rows[0].week_count;
+      }
+
+      const rawMainQuery = this.knex.raw(mainQuery, params).toString();
       const queryBuilder = this.knex.select("*").fromRaw(`(${rawMainQuery}) as subquery`);
 
-      // Count total weeks (before pagination)
-      const totalCountResult: { totalCount: string }[] = await queryBuilder
-        .clone()
-        .clearSelect()
-        .count("* as totalCount");
+      const result = await paginationService.paginateQuery(queryBuilder, page, limit);
 
-      const totalCount = Number(totalCountResult[0]?.totalCount || 0);
-
-      // Apply pagination for the actual data
-      const result = await queryBuilder;
-
-      return { success: true, data: { totalCount: totalCount, payoutList: result } };
+      return {
+        success: true,
+        data: { totalCount: totalCount, payoutList: result },
+      };
     } catch (error) {
       console.dir(error);
       return handleError(error, "server") as ActionResponse;

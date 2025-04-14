@@ -1,6 +1,7 @@
 "use client";
-import PayoutStatusBadge from "@/components/custom-components/payout/common/PayoutStatusBadge";
+import ToastMessageWithRedirect from "@/components/custom-components/common/ToastMessageWithRedirect";
 import PayoutBreakdownTable from "@/components/custom-components/payout/common/PayoutBreakdownTable";
+import PayoutStatusBadge from "@/components/custom-components/payout/common/PayoutStatusBadge";
 import TotalPayoutAmountCard from "@/components/custom-components/payout/common/TotalPayoutAmountCard";
 import {
   Accordion,
@@ -13,8 +14,6 @@ import { Skeleton } from "@/components/shadcn/skeleton";
 import { differenceInDays, getDay, isAfter, startOfWeek, subDays } from "date-fns";
 import { CircleChevronLeft, Loader2 } from "lucide-react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
-import { toast } from "react-toastify";
 
 const payoutDetails = {
   method: "fps",
@@ -159,25 +158,31 @@ const PayoutDetailsPage = () => {
   const payoutStartDate = searchParams.get("startDate");
   const payoutEndDate = searchParams.get("endDate");
 
-  useEffect(() => {
-    const start = new Date(payoutStartDate as string);
-    const end = new Date(payoutEndDate as string);
+  // Validate is valid payout date range
+  const start = new Date(payoutStartDate || "");
+  const end = new Date(payoutEndDate || "");
 
-    const isValid = getDay(start) === 1 && getDay(end) === 0 && differenceInDays(end, start) === 6;
+  const isValid =
+    payoutStartDate &&
+    payoutEndDate &&
+    getDay(start) === 1 &&
+    getDay(end) === 0 &&
+    differenceInDays(end, start) === 6;
 
-    const maxAllowedEndDate = subDays(startOfWeek(new Date(), { weekStartsOn: 1 }), 8);
-    const isValidEnd = !isAfter(end, maxAllowedEndDate);
+  const maxAllowedEndDate = subDays(startOfWeek(new Date(), { weekStartsOn: 1 }), 8);
+  const isEndWithinRange = !isAfter(end, maxAllowedEndDate);
 
-    if (!isValid || !isValidEnd) {
-      toast("此結算時段無效。", {
-        position: "top-right",
-        type: "error",
-        autoClose: 1000,
-      });
+  const isDateRangeValid = isValid && isEndWithinRange;
 
-      router.replace(`/studio-owner/studio/${studioId}/manage/payout`);
-    }
-  }, [payoutStartDate, payoutEndDate, router, studioId]);
+  if (!isDateRangeValid) {
+    return (
+      <ToastMessageWithRedirect
+        type={"error"}
+        message={"無效結算時段"}
+        redirectPath={`/studio-owner/studio/${studioId}/manage/payout`}
+      />
+    );
+  }
 
   return (
     <div className="mt-5">

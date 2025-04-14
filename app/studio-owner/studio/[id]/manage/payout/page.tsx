@@ -1,9 +1,11 @@
 "use client";
 
+import PaginationWrapper from "@/components/custom-components/common/PaginationWrapper";
+import SectionFallback from "@/components/custom-components/common/SectionFallback";
 import SectionTitle from "@/components/custom-components/common/SectionTitle";
 import DateFilter from "@/components/custom-components/filters-and-sort/payout/DateFilter";
-import PayoutStatusBadge from "@/components/custom-components/payout/common/PayoutStatusBadge";
 import { Button } from "@/components/shadcn/button";
+import { Skeleton } from "@/components/shadcn/skeleton";
 import {
   Table,
   TableBody,
@@ -12,9 +14,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/shadcn/table";
+import useStudioPayoutList from "@/hooks/react-query/useStudioPayoutList";
+import { formatDate } from "@/lib/utils/date-time/format-date-utils";
 import { HandCoins } from "lucide-react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { DateRange } from "react-day-picker";
 
@@ -24,31 +28,16 @@ const columns: {
 }[] = [
   { label: "開始日期", value: "payoutStartDate" },
   { label: "完結日期", value: "payoutEndDate" },
-  { label: "結算狀態", value: "payoutStatus" },
   { label: "結算金額", value: "payoutAmount" },
   { label: "結算日期", value: "payoutAt" },
   { label: "", value: "payoutAction" },
 ];
 
-const payoutList = [
-  {
-    payout_start_date: "2025-03-10",
-    payout_end_date: "2025-03-16",
-    total_payout_amount: 200,
-    payout_status: "complete",
-    payout_at: "2025-02-20",
-  },
-  {
-    payout_start_date: "2025-04-07",
-    payout_end_date: "2025-04-13",
-    total_payout_amount: 200,
-    payout_status: "pending",
-    payout_at: "2025-02-20",
-  },
-];
-
+const limit = 10;
 const PayoutPage = () => {
   const searchParams = useSearchParams();
+  const params = useParams();
+  const studioId = params.id;
 
   const [selectedWeek, setSelectedWeek] = useState<DateRange>({
     from: searchParams.get("startDate")
@@ -56,6 +45,15 @@ const PayoutPage = () => {
       : undefined,
     to: searchParams.get("endDate") ? new Date(searchParams.get("endDate") as string) : undefined,
   });
+
+  const [page, setPage] = useState(1);
+
+  const { data, isLoading, isError } = useStudioPayoutList(
+    page,
+    limit,
+    studioId as string,
+    selectedWeek.from ? formatDate(selectedWeek.from) : undefined
+  );
 
   return (
     <>
@@ -81,40 +79,62 @@ const PayoutPage = () => {
           </TableHeader>
 
           <TableBody>
-            {payoutList.map((item) => (
-              <TableRow key={item.payout_start_date}>
-                <TableCell>{item.payout_start_date}</TableCell>
-                <TableCell>{item.payout_end_date}</TableCell>
-                <TableCell>
-                  <PayoutStatusBadge payoutStatus={item.payout_status as "complete"} />
-                </TableCell>
-                <TableCell>HKD$ {item.total_payout_amount}</TableCell>
-                <TableCell>{item.payout_at}</TableCell>
-                <TableCell>
-                  <Button variant="link" className="p-0">
-                    <Link
-                      href={`payout/details?startDate=${item.payout_start_date}&endDate=${item.payout_end_date}`}
-                      className="flex items-center gap-2"
-                    >
-                      <span className="hidden md:block">詳情</span>
-                      <HandCoins />
-                    </Link>
-                  </Button>
+            {isError && (
+              <TableRow>
+                <TableCell colSpan={5}>
+                  <SectionFallback icon={HandCoins} fallbackText={"未能取得結算資料。"} />
                 </TableCell>
               </TableRow>
-            ))}
+            )}
+            {isLoading &&
+              Array.from({ length: 5 }, (_, index) => (
+                <TableRow key={index} className="border-0">
+                  <TableCell colSpan={5}>
+                    <Skeleton className="h-5 w-full" />
+                  </TableCell>
+                </TableRow>
+              ))}
+            {!isLoading &&
+              data?.payoutList.map(
+                (item: {
+                  payout_start_date: string;
+                  payout_end_date: string;
+                  total_payout_amount: number;
+                  payout_at: string | null;
+                }) => (
+                  <TableRow key={item.payout_start_date}>
+                    <TableCell>{item.payout_start_date}</TableCell>
+                    <TableCell>{item.payout_end_date}</TableCell>
+
+                    <TableCell>HKD$ {item.total_payout_amount}</TableCell>
+                    <TableCell>{item.payout_at ?? "N/A"}</TableCell>
+                    <TableCell>
+                      <Button variant="link" className="p-0">
+                        <Link
+                          href={`payout/details?startDate=${item.payout_start_date}&endDate=${item.payout_end_date}`}
+                          className="flex items-center gap-2"
+                        >
+                          <span className="hidden md:block">詳情</span>
+                          <HandCoins />
+                        </Link>
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                )
+              )}
           </TableBody>
         </Table>
-        {/* {weeklyPayoutData.studioPayoutList.totalCount > limit && (
+        {!isLoading && data?.totalCount > limit && (
           <div className="mt-8">
             <PaginationWrapper
               currentPage={page}
-              itemCount={weeklyPayoutData.studioPayoutList.totalCount}
+              itemCount={data?.totalCount}
               pageSize={limit}
-              useQueryString={true}
+              useQueryString={false}
+              setCurrentPage={setPage}
             />
           </div>
-        )} */}
+        )}
       </div>
     </>
   );
