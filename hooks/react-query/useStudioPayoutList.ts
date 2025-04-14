@@ -2,7 +2,7 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query";
 
 const useStudioPayoutList = (page: number, limit: number, studioId: string, startDate?: string) => {
   return useQuery({
-    queryKey: [studioId, "payout", page, limit, startDate],
+    queryKey: ["payout-list", studioId, page, limit, startDate],
 
     queryFn: async () => {
       await new Promise((resolve) => setTimeout(resolve, 500));

@@ -5,12 +5,14 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/shadcn/accordion";
+import { Skeleton } from "@/components/shadcn/skeleton";
 
 interface Props {
   finalPayoutAmount: number;
   completedBookingAmount: number;
   disputeTransactionsAmount: number;
   disputeTransactionsRefundAmount: number;
+  isLoading: boolean;
 }
 
 const TotalPayoutAmountCard = ({
@@ -18,6 +20,7 @@ const TotalPayoutAmountCard = ({
   completedBookingAmount,
   disputeTransactionsAmount,
   disputeTransactionsRefundAmount,
+  isLoading,
 }: Props) => {
   return (
     <Accordion type="single" defaultValue="item-1" collapsible>
@@ -28,19 +31,36 @@ const TotalPayoutAmountCard = ({
             <CardContent className="flex flex-col gap-5 p-0">
               <div>
                 <p className="text-brand-700 font-bold">1. 完成預約款項</p>
-                <p>+ HK$ {completedBookingAmount}</p>
+                {isLoading ? (
+                  <Skeleton className="mt-1 h-5 w-1/2" />
+                ) : (
+                  <p>+ HK$ {completedBookingAmount}</p>
+                )}
               </div>
               <div>
                 <p className="text-brand-700 font-bold">2.爭議款項</p>
                 <p className="text-brand-700 text-sm">爭議預約金額</p>
-                <p>+ HK$ {disputeTransactionsAmount}</p>
+                {isLoading ? (
+                  <Skeleton className="mt-1 h-5 w-1/2" />
+                ) : (
+                  <p>+ HK$ {disputeTransactionsAmount}</p>
+                )}
+
                 <p className="text-brand-700 text-sm">退款</p>
-                <p>- HK$ {disputeTransactionsRefundAmount}</p>
+                {isLoading ? (
+                  <Skeleton className="mt-1 h-5 w-1/2" />
+                ) : (
+                  <p>- HK$ {disputeTransactionsRefundAmount}</p>
+                )}
               </div>
 
               <div className="border-t-2 pt-2">
                 <p className="text-brand-700 font-bold">總結算款項</p>
-                <p>HKD$ {finalPayoutAmount}</p>
+                {isLoading ? (
+                  <Skeleton className="mt-1 h-5 w-1/2" />
+                ) : (
+                  <p>HKD$ {finalPayoutAmount}</p>
+                )}
               </div>
             </CardContent>
           </Card>

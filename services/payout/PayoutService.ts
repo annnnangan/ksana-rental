@@ -533,6 +533,125 @@ export class PayoutService {
       return handleError(error, "server") as ActionResponse;
     }
   }
+
+  async getStudioPayoutOverviewByDate({
+    studioId,
+    payoutStartDate,
+    payoutEndDate,
+  }: {
+    studioId: string;
+    payoutStartDate: string;
+    payoutEndDate: string;
+  }) {
+    try {
+      const mainQuery = `
+    WITH completed_booking AS (
+      SELECT studio_id, SUM(booking.price) AS total_completed_booking_amount
+      FROM booking
+      WHERE date BETWEEN ? AND ?
+          AND status = 'confirmed'
+          AND is_complaint = false
+          AND studio_id = ?
+      GROUP BY studio_id
+    ),
+
+    dispute_transaction AS (
+      SELECT booking.studio_id, SUM(booking.price) AS total_dispute_amount,
+             SUM(booking_complaint.refund_amount) AS total_refund_amount
+      FROM booking_complaint
+      LEFT JOIN review ON booking_complaint.review_id = review.id
+      LEFT JOIN booking ON review.booking_reference_no = booking.reference_no
+      WHERE booking_complaint.status = 'resolved'
+          AND booking_complaint.resolved_at BETWEEN ? AND ?
+          AND booking.studio_id = ?
+      GROUP BY booking.studio_id
+    ),
+
+
+     payout_record AS (
+      SELECT 
+          id,
+          studio_id,
+          status,
+          payout_at,
+          method,
+          account_name,
+          account_number
+      FROM payout
+      WHERE start_date = ? and end_date = ?
+            AND studio_id = ?
+    ),
+
+    payout_proof_images AS (
+     SELECT payout.studio_id,
+          array_agg(payout_proof.proof_image_url) as payout_proof_image_urls
+      FROM payout_proof
+      LEFT JOIN payout
+        ON payout_proof.payout_id = payout.id
+      WHERE payout.start_date = ? and payout.end_date = ?
+            AND payout.studio_id = ?
+      GROUP BY payout.studio_id
+    )
+
+    SELECT 
+        studio.id,
+        TO_CHAR(payout_record.payout_at, 'YYYY-MM-DD') AS payout_at,
+        payout_record.status AS payout_status,
+        payout_proof_images.payout_proof_image_urls,
+        COALESCE(payout_record.method ,studio_payout_detail.method) AS payout_method,
+        COALESCE(payout_record.account_number ,studio_payout_detail.account_number) AS payout_account_number,
+        COALESCE(payout_record.account_name, studio_payout_detail.account_name) AS payout_account_name,
+        COALESCE(CAST(completed_booking.total_completed_booking_amount AS INTEGER), 0) AS total_completed_booking_amount,
+        COALESCE(CAST(dispute_transaction.total_dispute_amount AS INTEGER), 0) AS total_dispute_amount,
+        COALESCE(CAST(dispute_transaction.total_refund_amount AS INTEGER), 0) AS total_refund_amount,
+        (COALESCE(CAST(completed_booking.total_completed_booking_amount AS INTEGER), 0) + 
+         COALESCE(CAST(dispute_transaction.total_dispute_amount AS INTEGER), 0) - 
+         COALESCE(CAST(dispute_transaction.total_refund_amount AS INTEGER), 0)
+        ) AS total_payout_amount   
+    FROM studio
+    LEFT JOIN completed_booking
+        ON studio.id = completed_booking.studio_id
+    LEFT JOIN dispute_transaction
+        ON studio.id = dispute_transaction.studio_id
+    LEFT JOIN studio_payout_detail
+        ON studio.id = studio_payout_detail.studio_id
+    LEFT JOIN payout_record
+        ON studio.id = completed_booking.studio_id
+    LEFT JOIN payout_proof_images
+        ON studio.id = payout_proof_images.studio_id
+    WHERE studio.id = ?
+  `;
+
+      // Parameters for SQL query
+      const params = [
+        payoutStartDate,
+        payoutEndDate,
+        studioId,
+        payoutStartDate,
+        payoutEndDate,
+        studioId,
+        payoutStartDate,
+        payoutEndDate,
+        studioId,
+        payoutStartDate,
+        payoutEndDate,
+        studioId,
+        studioId,
+      ];
+
+      // Completed Raw SQL Query
+      const rawQuery = knex.raw(mainQuery, params).toString();
+      const result = await knex.select("*").fromRaw(`(${rawQuery}) as subquery`);
+
+      return {
+        success: true,
+        data: result[0],
+      };
+    } catch (error) {
+      console.dir(error);
+      return handleError(error, "server") as ActionResponse;
+    }
+  }
 }
 
 export const payoutService = new PayoutService(knex);

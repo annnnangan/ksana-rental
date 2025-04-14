@@ -17,25 +17,22 @@ const PayoutBreakdownTable = <ColumnKeys extends string>({
   columns,
   values,
 }: Props<ColumnKeys>) => {
+  console.log(values);
   return (
     <>
       <p className="mb-2 text-neutral-400">Total Records: {values.length}</p>
 
-      <Table>
-        {values.length === 0 && <TableCaption>- No Records -</TableCaption>}
-
-        <TableHeader>
-          <TableRow>
-            {(Object.keys(columns) as ColumnKeys[]).map((column) => (
-              <TableHead key={column} className="min-w-fit text-nowrap sticky top-0 bg-white z-10">
-                {columns[column]}
-              </TableHead>
-            ))}
-          </TableRow>
-        </TableHeader>
-      </Table>
       <div className="max-h-[500px] overflow-y-auto">
         <Table>
+          <TableHeader>
+            <TableRow>
+              {(Object.keys(columns) as ColumnKeys[]).map((column) => (
+                <TableHead key={column} className="sticky top-0 bg-white z-10">
+                  {columns[column]}
+                </TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
           {values.length === 0 && <TableCaption>- No Records -</TableCaption>}
           <TableBody>
             {values.map((value, index) => (
