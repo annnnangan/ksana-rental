@@ -1,11 +1,27 @@
 "use client";
-import AvatarWithFallback from "@/components/custom-components/AvatarWithFallback";
-import SubmitButton from "@/components/custom-components/buttons/SubmitButton";
+import AvatarWithFallback from "@/components/custom-components/common/AvatarWithFallback";
+import SubmitButton from "@/components/custom-components/common/buttons/SubmitButton";
 import SectionTitle from "@/components/custom-components/common/SectionTitle";
 import { Button } from "@/components/shadcn/button";
 import { Checkbox } from "@/components/shadcn/checkbox";
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/shadcn/dialog";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/shadcn/form";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/shadcn/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/shadcn/form";
 import { Input } from "@/components/shadcn/input";
 import { ScrollArea } from "@/components/shadcn/scroll-area";
 
@@ -34,7 +50,18 @@ const BookingConfirmationPage = () => {
   const router = useRouter();
 
   const {
-    bookingInfo: { date, startTime, studioSlug, studioName, studioAddress, studioLogo, price, usedCredit, paidAmount, isUsedCredit },
+    bookingInfo: {
+      date,
+      startTime,
+      studioSlug,
+      studioName,
+      studioAddress,
+      studioLogo,
+      price,
+      usedCredit,
+      paidAmount,
+      isUsedCredit,
+    },
   } = useBookingStore();
 
   const queryClient = useQueryClient();
@@ -90,7 +117,18 @@ const BookingConfirmationPage = () => {
       paidAmount: paidAmount,
       isUsedCredit: isUsedCredit,
     });
-  }, [date, startTime, studioSlug, studioName, studioAddress, studioLogo, price, usedCredit, paidAmount, isUsedCredit]);
+  }, [
+    date,
+    startTime,
+    studioSlug,
+    studioName,
+    studioAddress,
+    studioLogo,
+    price,
+    usedCredit,
+    paidAmount,
+    isUsedCredit,
+  ]);
 
   const handleSubmit = async (formData: BookingFormData) => {
     startTransition(() => {
@@ -170,7 +208,13 @@ const BookingConfirmationPage = () => {
                     名稱 *
                   </FormLabel>
                   <FormControl>
-                    <Input type="text" id="username" className={`form-input text-sm`} placeholder="請輸入使用者名稱" {...field} />
+                    <Input
+                      type="text"
+                      id="username"
+                      className={`form-input text-sm`}
+                      placeholder="請輸入使用者名稱"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -211,7 +255,12 @@ const BookingConfirmationPage = () => {
                     備註
                   </FormLabel>
                   <FormControl>
-                    <Textarea id="remarks" placeholder="請填寫備註。" className="text-sm" {...field} />
+                    <Textarea
+                      id="remarks"
+                      placeholder="請填寫備註。"
+                      className="text-sm"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -227,7 +276,11 @@ const BookingConfirmationPage = () => {
               <FormItem>
                 <div className="flex flex-row items-center space-x-3 space-y-0">
                   <FormControl>
-                    <Checkbox checked={field.value} onCheckedChange={field.onChange} className="h-6 w-6" />
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      className="h-6 w-6"
+                    />
                   </FormControl>
                   <FormLabel className="text-md font-normal">
                     我已閱畢，並同意
@@ -243,14 +296,18 @@ const BookingConfirmationPage = () => {
                           <DialogDescription></DialogDescription>
                         </DialogHeader>
                         <ScrollArea className="h-[80vh] text-left">
-                          <p className="mb-4">歡迎使用我們的瑜伽場地租賃平台！為確保所有租用者擁有良好的體驗，請仔細閱讀以下條款與細則。完成預訂即代表您同意遵守本規則。</p>
+                          <p className="mb-4">
+                            歡迎使用我們的瑜伽場地租賃平台！為確保所有租用者擁有良好的體驗，請仔細閱讀以下條款與細則。完成預訂即代表您同意遵守本規則。
+                          </p>
 
                           <section className="mb-6">
                             <h2 className="text-xl font-semibold mb-2">1. 預訂與付款</h2>
                             <ul className="list-disc list-inside space-y-2">
                               <li>所有預訂需通過本平台完成，並需全額付款以確認租用。</li>
                               <li>僅接受平台指定的付款方式，恕不接受現金交易。</li>
-                              <li>預訂時間包含進場與退場時間，請務必準時離場，以免影響下一位租用者。</li>
+                              <li>
+                                預訂時間包含進場與退場時間，請務必準時離場，以免影響下一位租用者。
+                              </li>
                             </ul>
                           </section>
 
@@ -258,12 +315,15 @@ const BookingConfirmationPage = () => {
                             <h2 className="text-xl font-semibold mb-2">2. 取消與退款政策</h2>
                             <ul className="list-disc list-inside space-y-2">
                               <li>
-                                <strong>48小時或之前</strong>取消預訂，會將場地費用/已使用積分全數退回為平台積分，下次租用時可使用，恕不提供退款選項。
+                                <strong>48小時或之前</strong>
+                                取消預訂，會將場地費用/已使用積分全數退回為平台積分，下次租用時可使用，恕不提供退款選項。
                               </li>
                               <li>
                                 <strong>48小時內</strong>取消預訂，恕不退款/退回平台積分。
                               </li>
-                              <li>若因不可抗力因素（如天災、政府法規）導致場地無法使用，本平台將安排延期或全額退款。</li>
+                              <li>
+                                若因不可抗力因素（如天災、政府法規）導致場地無法使用，本平台將安排延期或全額退款。
+                              </li>
                               <li>若租用者因個人原因未能準時使用場地，恕不補時或退款。</li>
                             </ul>
                           </section>
@@ -283,7 +343,9 @@ const BookingConfirmationPage = () => {
                           <section className="mb-6">
                             <h2 className="text-xl font-semibold mb-2">4. 責任與安全</h2>
                             <ul className="list-disc list-inside space-y-2">
-                              <li>本平台及場地業主不負責租用者或其參與者的個人財物遺失、損壞或人身傷害。</li>
+                              <li>
+                                本平台及場地業主不負責租用者或其參與者的個人財物遺失、損壞或人身傷害。
+                              </li>
                               <li>租用者應自行評估活動風險，並確保參與者的安全。</li>
                               <li>若租用者發生任何意外，請立即通知場地管理員或相關負責人。</li>
                             </ul>
@@ -303,7 +365,13 @@ const BookingConfirmationPage = () => {
             );
           }}
         />
-        <SubmitButton isSubmitting={isSubmitting || isPending} submittingText={"處理中..."} nonSubmittingText={"前往付款"} withIcon={false} className="w-full md:w-fit" />
+        <SubmitButton
+          isSubmitting={isSubmitting || isPending}
+          submittingText={"處理中..."}
+          nonSubmittingText={"前往付款"}
+          withIcon={false}
+          className="w-full md:w-fit"
+        />
       </form>
     </Form>
   );

@@ -1,12 +1,19 @@
 "use client";
-import StudioCardLoadingSkeleton from "@/components/custom-components/loading/StudioCardLoadingSkeleton";
-import StudioCard from "@/components/custom-components/studio/StudioCard";
+import StudioCardLoadingSkeleton from "@/components/custom-components/common/loading/StudioCardLoadingSkeleton";
+
 import { equipmentMap } from "@/lib/constants/studio-details";
 import { districts } from "@/services/model";
 import { useCopilotAction, useCopilotReadable } from "@copilotkit/react-core";
-import { ButtonProps, CopilotKitCSSProperties, CopilotPopup, HeaderProps, useChatContext } from "@copilotkit/react-ui";
+import {
+  ButtonProps,
+  CopilotKitCSSProperties,
+  CopilotPopup,
+  HeaderProps,
+  useChatContext,
+} from "@copilotkit/react-ui";
 import React, { useState } from "react";
 import { studioCardInfo } from "./explore-studios/page";
+import StudioCard from "@/components/custom-components/studio-card/StudioCard";
 
 function Header({}: HeaderProps) {
   const { setOpen, icons, labels } = useChatContext();
@@ -44,8 +51,14 @@ function Button({}: ButtonProps) {
       )}
 
       {/* Chatbot Button */}
-      <div onClick={() => setOpen(!open)} className="w-[75px] h-[75px] shadow-2xl rounded-full bg-brand-400 text-white flex justify-center transition-transform transform hover:scale-110">
-        <button className={`${open ? "open" : ""} p-3`} aria-label={open ? "Close Chat" : "Open Chat"}>
+      <div
+        onClick={() => setOpen(!open)}
+        className="w-[75px] h-[75px] shadow-2xl rounded-full bg-brand-400 text-white flex justify-center transition-transform transform hover:scale-110"
+      >
+        <button
+          className={`${open ? "open" : ""} p-3`}
+          aria-label={open ? "Close Chat" : "Open Chat"}
+        >
           <img src="/assets/bot.png" />
         </button>
       </div>
@@ -84,12 +97,14 @@ const UserPagesLayout = ({ children }: { children: React.ReactNode }) => {
       {
         name: "date",
         type: "string",
-        description: "The date that the user want to book for the studio. Format the date to YYYY-MM-DD when pass to API",
+        description:
+          "The date that the user want to book for the studio. Format the date to YYYY-MM-DD when pass to API",
       },
       {
         name: "startTime",
         type: "string",
-        description: "The start time that the user want to book for the studio. Format the time to xx (e.g. 01) when pass to API. Only accept value from 00 to 23",
+        description:
+          "The start time that the user want to book for the studio. Format the time to xx (e.g. 01) when pass to API. Only accept value from 00 to 23",
       },
     ],
 

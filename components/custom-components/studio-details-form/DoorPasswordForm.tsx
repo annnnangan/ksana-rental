@@ -1,5 +1,12 @@
 "use client";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/shadcn/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/shadcn/form";
 import { Input } from "@/components/shadcn/input";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,9 +15,12 @@ import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 
 import { getOnboardingStep } from "@/lib/utils/get-onboarding-step-utils";
-import { DoorPasswordFormData, DoorPasswordSchema } from "@/lib/validations/zod-schema/studio/studio-step-schema";
+import {
+  DoorPasswordFormData,
+  DoorPasswordSchema,
+} from "@/lib/validations/zod-schema/studio/studio-step-schema";
 import { useTransition } from "react";
-import SubmitButton from "../buttons/SubmitButton";
+import SubmitButton from "../common/buttons/SubmitButton";
 import { saveDoorPassword } from "@/actions/studio";
 
 interface Props {
@@ -60,14 +70,24 @@ const DoorPasswordForm = ({ studioId, defaultValues, isOnboardingStep }: Props) 
                 大門密碼
               </FormLabel>
               <FormControl>
-                <Input type="text" id="doorPassword" className="form-input text-sm" placeholder="請輸入大門密碼" {...field} />
+                <Input
+                  type="text"
+                  id="doorPassword"
+                  className="form-input text-sm"
+                  placeholder="請輸入大門密碼"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        <SubmitButton isSubmitting={isSubmitting || isPending} nonSubmittingText={isOnboardingStep ? "往下一步" : "儲存"} withIcon={isOnboardingStep ? true : false} />
+        <SubmitButton
+          isSubmitting={isSubmitting || isPending}
+          nonSubmittingText={isOnboardingStep ? "往下一步" : "儲存"}
+          withIcon={isOnboardingStep ? true : false}
+        />
       </form>
     </Form>
   );

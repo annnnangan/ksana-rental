@@ -6,7 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/shadcn/dialog";
-import ErrorMessage from "../ErrorMessage";
+import ErrorMessage from "../common/ErrorMessage";
 import { Loader2 } from "lucide-react";
 
 interface Props {

@@ -1,6 +1,6 @@
 "use client";
-import ButtonLink from "@/components/custom-components/buttons/ButtonLink";
-import SectionFallback from "@/components/custom-components/SectionFallback";
+import ButtonLink from "@/components/custom-components/common/buttons/ButtonLink";
+import SectionFallback from "@/components/custom-components/common/SectionFallback";
 import { Button } from "@/components/shadcn/button";
 import { House } from "lucide-react";
 

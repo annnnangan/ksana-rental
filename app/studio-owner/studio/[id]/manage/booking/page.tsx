@@ -1,4 +1,4 @@
-import ToastMessageWithRedirect from "@/components/custom-components/ToastMessageWithRedirect";
+import ToastMessageWithRedirect from "@/components/custom-components/common/ToastMessageWithRedirect";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/next-auth-config/auth";
 import { bookingService } from "@/services/booking/BookingService";
@@ -36,9 +36,22 @@ const BookingPage = async (props: Props) => {
   }
 
   const session = await auth();
-  if (!session?.user.id) return <ToastMessageWithRedirect type={"error"} message={"登入後才可查詢預約"} redirectPath={"/auth/login"} />;
+  if (!session?.user.id)
+    return (
+      <ToastMessageWithRedirect
+        type={"error"}
+        message={"登入後才可查詢預約"}
+        redirectPath={"/auth/login"}
+      />
+    );
 
-  const bookingRecords = (await bookingService.getBookingListByRoleAndStatus({ studioId: studioId, bookingType: bookingStatus }))?.data || [];
+  const bookingRecords =
+    (
+      await bookingService.getBookingListByRoleAndStatus({
+        studioId: studioId,
+        bookingType: bookingStatus,
+      })
+    )?.data || [];
 
   return (
     <div>

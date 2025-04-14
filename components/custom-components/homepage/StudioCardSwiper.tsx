@@ -15,7 +15,7 @@ import "swiper/css/pagination";
 import { studioCardInfo } from "@/app/(user)/explore-studios/page";
 import { Button } from "@/components/shadcn/button";
 import { FreeMode, Pagination } from "swiper/modules";
-import StudioCard from "../studio/StudioCard";
+import StudioCard from "../studio-card/StudioCard";
 
 interface Props {
   slideItems: studioCardInfo[];
@@ -30,7 +30,10 @@ const StudioCardSwiper = ({ slideItems }: Props) => {
         <Button onClick={() => swiperRef.current?.slidePrev()} className="rounded-full p-0 h-5 w-5">
           <ArrowBigLeft />
         </Button>
-        <Button onClick={() => swiperRef.current?.slideNext()} className="rounded-full p-0 h-5 w-5 ">
+        <Button
+          onClick={() => swiperRef.current?.slideNext()}
+          className="rounded-full p-0 h-5 w-5 "
+        >
           <ArrowBigRight />
         </Button>
       </div>

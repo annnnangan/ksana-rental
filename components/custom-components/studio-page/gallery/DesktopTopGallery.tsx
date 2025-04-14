@@ -1,4 +1,4 @@
-import StudioImage from "@/components/custom-components/studio/StudioImage";
+import StudioImage from "@/components/custom-components/studio-card/StudioImage";
 import React from "react";
 
 interface Props {

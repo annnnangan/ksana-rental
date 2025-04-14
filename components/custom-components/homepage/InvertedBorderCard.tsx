@@ -1,6 +1,5 @@
 import React, { ReactNode } from "react";
 import styles from "./inverted-border-card.module.css";
-import { CalendarClock } from "lucide-react";
 import Link from "next/link";
 
 interface Props {
@@ -10,12 +9,7 @@ interface Props {
   link?: string;
 }
 
-const InvertedBorderCard = ({
-  children,
-  isLinkBtn = false,
-  btn,
-  link,
-}: Props) => {
+const InvertedBorderCard = ({ children, isLinkBtn = false, btn, link }: Props) => {
   return (
     <div className="h-[200px] bg-white rounded-lg relative">
       {children}

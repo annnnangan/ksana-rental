@@ -1,4 +1,4 @@
-import BasicInfoForm from "@/components/custom-components/studio-details/BasicInfoForm";
+import BasicInfoForm from "@/components/custom-components/studio-details-form/BasicInfoForm";
 
 import { studioService } from "@/services/studio/StudioService";
 import StepIntro from "../StepIntro";
@@ -16,7 +16,11 @@ const StudioCreatePage = async ({ params }: { params: Promise<{ id: string }> })
   return (
     <div>
       <StepIntro title={"設定場地基本資料"} />
-      <BasicInfoForm studioId={studioId} isOnboardingStep={true} defaultValues={basicInfoFormDataDefaultValues} />
+      <BasicInfoForm
+        studioId={studioId}
+        isOnboardingStep={true}
+        defaultValues={basicInfoFormDataDefaultValues}
+      />
     </div>
   );
 };

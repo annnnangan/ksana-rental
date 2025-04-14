@@ -1,9 +1,9 @@
 import { DayBusinessHour, daysOfWeek, daysOfWeekType, Price } from "@/services/model";
 
-import BusinessHourAndPrice from "@/components/custom-components/studio-details/BusinessHourAndPriceForm";
-import DateSpecificHour from "@/components/custom-components/studio-details/DateSpecificHour";
+import BusinessHourAndPrice from "@/components/custom-components/studio-details-form/BusinessHourAndPriceForm";
+import DateSpecificHour from "@/components/custom-components/studio-details-form/DateSpecificHour";
 import SectionTitle from "@/components/custom-components/common/SectionTitle";
-import ToastMessageWithRedirect from "@/components/custom-components/ToastMessageWithRedirect";
+import ToastMessageWithRedirect from "@/components/custom-components/common/ToastMessageWithRedirect";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/shadcn/tabs";
 import { sessionUser } from "@/lib/next-auth-config/session-user";
 import { studioService } from "@/services/studio/StudioService";
@@ -20,14 +20,25 @@ const BusinessHourAndPricePage = async ({ params }: { params: Promise<{ id: stri
     return <ToastMessageWithRedirect type={"error"} message={"請先登入。"} redirectPath={"/"} />;
   }
 
-  const [dateSpecificHourListResponse, businessHoursListResponse, priceListResponse] = await Promise.all([
-    studioService.getAllDateSpecificHourByStudioId(studioId),
-    studioService.getBusinessHoursByStudioId(studioId),
-    studioService.getPrice({ studioId: studioId }),
-  ]);
+  const [dateSpecificHourListResponse, businessHoursListResponse, priceListResponse] =
+    await Promise.all([
+      studioService.getAllDateSpecificHourByStudioId(studioId),
+      studioService.getBusinessHoursByStudioId(studioId),
+      studioService.getPrice({ studioId: studioId }),
+    ]);
 
-  if (!dateSpecificHourListResponse.success || !businessHoursListResponse.success || !priceListResponse.success) {
-    return <ToastMessageWithRedirect type={"error"} message={"系統發生錯誤。"} redirectPath={"/studio-owner/dashboard"} />;
+  if (
+    !dateSpecificHourListResponse.success ||
+    !businessHoursListResponse.success ||
+    !priceListResponse.success
+  ) {
+    return (
+      <ToastMessageWithRedirect
+        type={"error"}
+        message={"系統發生錯誤。"}
+        redirectPath={"/studio-owner/dashboard"}
+      />
+    );
   }
 
   const dateSpecificHourList = formatDateSpecificHours(dateSpecificHourListResponse.data!);
@@ -46,7 +57,11 @@ const BusinessHourAndPricePage = async ({ params }: { params: Promise<{ id: stri
           <TabsTrigger value="dateSpecificHour">特定日期可預約時間</TabsTrigger>
         </TabsList>
         <TabsContent value="weeklyHours">
-          <BusinessHourAndPrice studioId={studioId} isOnboardingStep={false} defaultValue={businessHoursAndPriceValue} />
+          <BusinessHourAndPrice
+            studioId={studioId}
+            isOnboardingStep={false}
+            defaultValue={businessHoursAndPriceValue}
+          />
         </TabsContent>
         <TabsContent value="dateSpecificHour">
           <DateSpecificHour studioId={studioId} dateSpecificHourList={dateSpecificHourList} />
@@ -59,8 +74,19 @@ const BusinessHourAndPricePage = async ({ params }: { params: Promise<{ id: stri
 export default BusinessHourAndPricePage;
 
 // format the database data to frontend data
-function formatDateSpecificHours(data: { date: Date; is_closed: boolean; from: string; to: string; price_type: "non-peak" | "peak" }[]) {
-  const groupedData: Record<string, { from: string; to: string; priceType: "non-peak" | "peak" }[]> = {};
+function formatDateSpecificHours(
+  data: {
+    date: Date;
+    is_closed: boolean;
+    from: string;
+    to: string;
+    price_type: "non-peak" | "peak";
+  }[]
+) {
+  const groupedData: Record<
+    string,
+    { from: string; to: string; priceType: "non-peak" | "peak" }[]
+  > = {};
 
   data.forEach(({ date, is_closed, from, to, price_type }) => {
     const formattedDate = formatDate(new Date(date));
@@ -70,7 +96,11 @@ function formatDateSpecificHours(data: { date: Date; is_closed: boolean; from: s
     }
 
     if (!is_closed) {
-      groupedData[formattedDate].push({ from: convertTimeToString(from), to: convertTimeToString(to), priceType: price_type });
+      groupedData[formattedDate].push({
+        from: convertTimeToString(from),
+        to: convertTimeToString(to),
+        priceType: price_type,
+      });
     }
   });
 

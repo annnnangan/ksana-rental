@@ -1,12 +1,12 @@
 import { Tabs, TabsList, TabsTrigger } from "@/components/shadcn/tabs";
 
 import BookingRecordCard from "@/components/custom-components/manage-bookings/BookingRecordCard";
-import ToastMessageWithRedirect from "@/components/custom-components/ToastMessageWithRedirect";
+import ToastMessageWithRedirect from "@/components/custom-components/common/ToastMessageWithRedirect";
 import { auth } from "@/lib/next-auth-config/auth";
 import { userService } from "@/services/user/UserService";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import SectionFallback from "@/components/custom-components/SectionFallback";
+import SectionFallback from "@/components/custom-components/common/SectionFallback";
 import { CalendarClock } from "lucide-react";
 
 interface SearchQuery {
@@ -29,9 +29,17 @@ const ManageBookingsPage = async (props: Props) => {
   }
 
   const session = await auth();
-  if (!session?.user.id) return <ToastMessageWithRedirect type={"error"} message={"登入後才可查詢預約"} redirectPath={"/auth/login"} />;
+  if (!session?.user.id)
+    return (
+      <ToastMessageWithRedirect
+        type={"error"}
+        message={"登入後才可查詢預約"}
+        redirectPath={"/auth/login"}
+      />
+    );
 
-  const bookingRecords = (await userService.getBookingsByUserId(session?.user.id, bookingStatus))?.data || [];
+  const bookingRecords =
+    (await userService.getBookingsByUserId(session?.user.id, bookingStatus))?.data || [];
 
   return (
     <div>
@@ -75,7 +83,10 @@ const ManageBookingsPage = async (props: Props) => {
           <SectionFallback icon={CalendarClock} fallbackText={"未有記錄"} />
         </div>
       )}
-      {bookingRecords.length > 0 && bookingRecords.map((item) => <BookingRecordCard bookingRecord={item} key={item.booking_reference_no} />)}
+      {bookingRecords.length > 0 &&
+        bookingRecords.map((item) => (
+          <BookingRecordCard bookingRecord={item} key={item.booking_reference_no} />
+        ))}
     </div>
   );
 };

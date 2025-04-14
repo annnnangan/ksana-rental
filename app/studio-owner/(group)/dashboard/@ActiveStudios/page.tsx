@@ -1,4 +1,4 @@
-import StudioMiniCard from "@/components/custom-components/studio/StudioMiniCard";
+import StudioMiniCard from "@/components/custom-components/studio-card/StudioMiniCard";
 import { sessionUser } from "@/lib/next-auth-config/session-user";
 import { dashboardService } from "@/services/Dashboard/DashboardService";
 
@@ -11,7 +11,12 @@ const page = async () => {
       <div className="flex space-x-3">
         {result?.data?.map((item) => (
           <div key={item.slug} className="min-w-[180px]">
-            <StudioMiniCard studio_name={item.name} studio_slug={item.slug} cover_image={item.cover_photo} rating={item.rating} />
+            <StudioMiniCard
+              studio_name={item.name}
+              studio_slug={item.slug}
+              cover_image={item.cover_photo}
+              rating={item.rating}
+            />
           </div>
         ))}
       </div>

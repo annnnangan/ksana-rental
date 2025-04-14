@@ -1,6 +1,7 @@
-import PaginationWrapper from "@/components/custom-components/PaginationWrapper";
-import SectionFallback from "@/components/custom-components/SectionFallback";
-import StudioCard from "@/components/custom-components/studio/StudioCard";
+import PaginationWrapper from "@/components/custom-components/common/PaginationWrapper";
+import SectionFallback from "@/components/custom-components/common/SectionFallback";
+import StudioCard from "@/components/custom-components/studio-card/StudioCard";
+
 import { studioService } from "@/services/studio/StudioService";
 import { MapPinHouse } from "lucide-react";
 
@@ -51,11 +52,14 @@ const ExploreStudiosPage = async (props: Props) => {
     date: date,
     startTime: startTime,
   });
-  const studioListData: studioCardInfo[] = (studioListResult.success && studioListResult?.data?.studios) || [];
+  const studioListData: studioCardInfo[] =
+    (studioListResult.success && studioListResult?.data?.studios) || [];
 
   return (
     <>
-      <p className="text-sm text-gray-400 mb-2">場地數量：{studioListResult.data?.totalCount || 0}</p>
+      <p className="text-sm text-gray-400 mb-2">
+        場地數量：{studioListResult.data?.totalCount || 0}
+      </p>
       {studioListData.length === 0 ? (
         <div className="h-[200px] place-content-center">
           <SectionFallback icon={MapPinHouse} fallbackText={"暫無篩選場地"} />
@@ -70,7 +74,12 @@ const ExploreStudiosPage = async (props: Props) => {
 
       <div className="mt-8">
         {Number(studioListResult?.data?.totalCount) > pageSize && (
-          <PaginationWrapper currentPage={currentPage} itemCount={Number(studioListResult?.data?.totalCount) || 0} pageSize={pageSize} useQueryString={true} />
+          <PaginationWrapper
+            currentPage={currentPage}
+            itemCount={Number(studioListResult?.data?.totalCount) || 0}
+            pageSize={pageSize}
+            useQueryString={true}
+          />
         )}
       </div>
     </>

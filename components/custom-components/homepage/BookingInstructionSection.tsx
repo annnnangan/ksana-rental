@@ -1,6 +1,7 @@
 import React from "react";
-import InvertedBorderCard from "../InvertedBorderCard";
+
 import { CalendarClock, HandCoins, KeyRound, HandHeart } from "lucide-react";
+import InvertedBorderCard from "./InvertedBorderCard";
 
 const BookingInstructionSection = () => {
   return (
@@ -11,9 +12,7 @@ const BookingInstructionSection = () => {
           children={
             <div className="flex flex-col justify-center items-center absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
               <CalendarClock size={35} color="#01a2c7" />
-              <p className="mt-2 text-sm text-center">
-                選擇場地、 預約日期時間
-              </p>
+              <p className="mt-2 text-sm text-center">選擇場地、 預約日期時間</p>
             </div>
           }
           isLinkBtn={false}

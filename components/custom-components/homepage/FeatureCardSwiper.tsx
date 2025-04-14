@@ -14,7 +14,7 @@ import "swiper/css/pagination";
 // import required modules
 import { Button } from "@/components/shadcn/button";
 import { FreeMode, Pagination } from "swiper/modules";
-import StudioMiniCard from "../studio/StudioMiniCard";
+import StudioMiniCard from "../studio-card/StudioMiniCard";
 
 interface FeatureCardProps {
   studio_name: string;
@@ -38,10 +38,16 @@ const FeatureCardSwiper = ({ slideItems }: Props) => {
         </p>
         {/* Swiper Buttons */}
         <div className="flex space-x-1 mb-2 justify-end">
-          <Button onClick={() => swiperRef.current?.slidePrev()} className="rounded-full p-0 h-5 w-5">
+          <Button
+            onClick={() => swiperRef.current?.slidePrev()}
+            className="rounded-full p-0 h-5 w-5"
+          >
             <ArrowBigLeft />
           </Button>
-          <Button onClick={() => swiperRef.current?.slideNext()} className="rounded-full p-0 h-5 w-5 ">
+          <Button
+            onClick={() => swiperRef.current?.slideNext()}
+            className="rounded-full p-0 h-5 w-5 "
+          >
             <ArrowBigRight />
           </Button>
         </div>
@@ -60,7 +66,12 @@ const FeatureCardSwiper = ({ slideItems }: Props) => {
       >
         {slideItems.map((item) => (
           <SwiperSlide key={item.studio_slug}>
-            <StudioMiniCard studio_name={item.studio_name} studio_slug={item.studio_slug} cover_image={item.cover_photo} rating={item.rating} />
+            <StudioMiniCard
+              studio_name={item.studio_name}
+              studio_slug={item.studio_slug}
+              cover_image={item.cover_photo}
+              rating={item.rating}
+            />
           </SwiperSlide>
         ))}
       </Swiper>

@@ -2,11 +2,14 @@ import { auth } from "@/lib/next-auth-config/auth";
 import { studioOwnerService } from "@/services/studio/StudioOwnerService";
 
 import LinkButton from "@/components/animata/button/link-button";
-import AvatarWithFallback from "@/components/custom-components/AvatarWithFallback";
+import AvatarWithFallback from "@/components/custom-components/common/AvatarWithFallback";
 import AddNewStudio from "@/components/custom-components/studio-owner/AddNewStudio";
 import StudioStatusBadge from "@/components/custom-components/StudioStatusBadge";
-import ToastMessageWithRedirect from "@/components/custom-components/ToastMessageWithRedirect";
-import { findAreaByDistrictValue, getDistrictLabelByDistrictValue } from "@/lib/utils/areas-districts-converter";
+import ToastMessageWithRedirect from "@/components/custom-components/common/ToastMessageWithRedirect";
+import {
+  findAreaByDistrictValue,
+  getDistrictLabelByDistrictValue,
+} from "@/lib/utils/areas-districts-converter";
 import { Avatar } from "@radix-ui/react-avatar";
 import { ImageIcon, MapPin } from "lucide-react";
 import Image from "next/image";
@@ -16,7 +19,13 @@ const StudiosPage = async () => {
   const session = await auth();
 
   if (!session?.user) {
-    return <ToastMessageWithRedirect type={"error"} message={"請先登入後才可處理。"} redirectPath={"/auth/login"} />;
+    return (
+      <ToastMessageWithRedirect
+        type={"error"}
+        message={"請先登入後才可處理。"}
+        redirectPath={"/auth/login"}
+      />
+    );
   }
 
   const studios = (await studioOwnerService.getStudiosByUserId(session?.user.id)).data;
@@ -34,7 +43,12 @@ const StudiosPage = async () => {
                   {/* Cover Image */}
                   <div className="relative aspect-[3/1] bg-neutral-200  mb-1">
                     {studio.cover_photo ? (
-                      <Image alt="studio cover image" src={studio.cover_photo} fill={true} className="absolute inset-0 w-full h-full object-cover object-center" />
+                      <Image
+                        alt="studio cover image"
+                        src={studio.cover_photo}
+                        fill={true}
+                        className="absolute inset-0 w-full h-full object-cover object-center"
+                      />
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center">
                         <ImageIcon />
@@ -73,14 +87,23 @@ const StudiosPage = async () => {
                       <div className="flex justify-center items-center">
                         <MapPin size={14} />
                         <p className="text-sm">
-                          {getDistrictLabelByDistrictValue(studio.district)}, {findAreaByDistrictValue(studio.district)?.label}
+                          {getDistrictLabelByDistrictValue(studio.district)},{" "}
+                          {findAreaByDistrictValue(studio.district)?.label}
                         </p>
                       </div>
                     )}
                   </div>
 
-                  {studio.status === "active" && <LinkButton href={`/studio-owner/studio/${studio.id}/manage/dashboard`}>管理場地</LinkButton>}
-                  {studio.status === "draft" && <LinkButton href={`/studio-owner/studio/${studio.id}/onboarding/basic-info`}>繼續登記</LinkButton>}
+                  {studio.status === "active" && (
+                    <LinkButton href={`/studio-owner/studio/${studio.id}/manage/dashboard`}>
+                      管理場地
+                    </LinkButton>
+                  )}
+                  {studio.status === "draft" && (
+                    <LinkButton href={`/studio-owner/studio/${studio.id}/onboarding/basic-info`}>
+                      繼續登記
+                    </LinkButton>
+                  )}
                 </div>
               </div>
             </div>

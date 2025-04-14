@@ -1,10 +1,21 @@
 "use client";
 
 import { Checkbox } from "@/components/shadcn/checkbox";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/shadcn/form";
-import SubmitButton from "../buttons/SubmitButton";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/shadcn/form";
+import SubmitButton from "../common/buttons/SubmitButton";
 
-import { EquipmentFormData, EquipmentSchema } from "@/lib/validations/zod-schema/studio/studio-step-schema";
+import {
+  EquipmentFormData,
+  EquipmentSchema,
+} from "@/lib/validations/zod-schema/studio/studio-step-schema";
 
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -69,13 +80,20 @@ const EquipmentForm = ({ defaultValues, studioId, isOnboardingStep }: Props) => 
                   name="equipment"
                   render={({ field }) => {
                     return (
-                      <FormItem key={item.value} className="flex flex-row items-center space-x-3 space-y-0">
+                      <FormItem
+                        key={item.value}
+                        className="flex flex-row items-center space-x-3 space-y-0"
+                      >
                         <FormControl>
                           <Checkbox
                             checked={field.value?.includes(item.value)}
                             className="h-6 w-6"
                             onCheckedChange={(checked) => {
-                              return checked ? field.onChange([...field?.value, item.value]) : field.onChange(field?.value?.filter((value) => value !== item.value));
+                              return checked
+                                ? field.onChange([...field?.value, item.value])
+                                : field.onChange(
+                                    field?.value?.filter((value) => value !== item.value)
+                                  );
                             }}
                           />
                         </FormControl>
@@ -89,7 +107,11 @@ const EquipmentForm = ({ defaultValues, studioId, isOnboardingStep }: Props) => 
             </FormItem>
           )}
         />
-        <SubmitButton isSubmitting={isSubmitting || isPending} nonSubmittingText={isOnboardingStep ? "往下一步" : "儲存"} withIcon={isOnboardingStep ? true : false} />
+        <SubmitButton
+          isSubmitting={isSubmitting || isPending}
+          nonSubmittingText={isOnboardingStep ? "往下一步" : "儲存"}
+          withIcon={isOnboardingStep ? true : false}
+        />
       </form>
     </Form>
   );

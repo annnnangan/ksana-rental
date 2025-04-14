@@ -6,7 +6,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import CheckoutForm from "@/components/custom-components/booking/CheckoutForm";
-import LoadingSpinner from "@/components/custom-components/loading/LoadingSpinner";
+import LoadingSpinner from "@/components/custom-components/common/loading/LoadingSpinner";
 import SectionTitle from "@/components/custom-components/common/SectionTitle";
 import { useSessionUser } from "@/hooks/use-session-user";
 import { useEffect, useState } from "react";
@@ -33,7 +33,9 @@ const BookingPaymentPage = () => {
     const getActualPayment = async () => {
       try {
         setLoading(true);
-        const actualPaymentResponse = await fetch(`/api/booking/payment/${bookingReferenceNumber}?userId=${user?.id}`);
+        const actualPaymentResponse = await fetch(
+          `/api/booking/payment/${bookingReferenceNumber}?userId=${user?.id}`
+        );
         const actualPaymentResult = await actualPaymentResponse.json();
 
         if (!actualPaymentResult.success) {

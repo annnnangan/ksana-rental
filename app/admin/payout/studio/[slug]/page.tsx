@@ -1,23 +1,28 @@
 "use client";
-import ToastMessageWithRedirect from "@/components/custom-components/ToastMessageWithRedirect";
+import ToastMessageWithRedirect from "@/components/custom-components/common/ToastMessageWithRedirect";
 import { Button } from "@/components/shadcn/button";
 import { PayoutMethod, PayoutStatus } from "@/services/model";
 import { CircleChevronLeft, Frown, Loader, Loader2 } from "lucide-react";
 
-import AvatarWithFallback from "@/components/custom-components/AvatarWithFallback";
-import PayoutStatusBadge from "@/components/custom-components/payout/PayoutStatusBadge";
+import AvatarWithFallback from "@/components/custom-components/common/AvatarWithFallback";
+import PayoutStatusBadge from "@/components/custom-components/payout/common/PayoutStatusBadge";
 import { Skeleton } from "@/components/shadcn/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/shadcn/tabs";
 import usePayout from "@/hooks/react-query/usePayout";
 import { payoutMethodMap } from "@/lib/constants/studio-details";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import ImagesGridPreview from "@/components/custom-components/ImagesGridPreview";
-import ProofUploadAndPreview from "@/components/custom-components/payout/studio/overview-tab-content/ProofUploadAndPreview";
-import TotalPayoutAmountCard from "@/components/custom-components/payout/studio/details-tab-content/TotalPayoutAmountCard";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/shadcn/accordion";
-import PayoutBreakdownTable from "@/components/custom-components/payout/studio/details-tab-content/PayoutBreakdownTable";
+import ProofUploadAndPreview from "@/components/custom-components/payout/admin-studio/ProofUploadAndPreview";
+import TotalPayoutAmountCard from "@/components/custom-components/payout/common/TotalPayoutAmountCard";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/shadcn/accordion";
+import PayoutBreakdownTable from "@/components/custom-components/payout/common/PayoutBreakdownTable";
 import usePayoutDetails from "@/hooks/react-query/usePayoutDetails";
-import SectionFallback from "@/components/custom-components/SectionFallback";
+import SectionFallback from "@/components/custom-components/common/SectionFallback";
 
 export interface StudioPayoutOverviewData {
   studio_id: number;
@@ -46,18 +51,39 @@ const page = () => {
   const studio = params.slug as string;
 
   if (!payoutStartDate || !payoutEndDate || !studio) {
-    return <ToastMessageWithRedirect type={"error"} message={"無法取得資料"} redirectPath={"/admin/payout"} />;
+    return (
+      <ToastMessageWithRedirect
+        type={"error"}
+        message={"無法取得資料"}
+        redirectPath={"/admin/payout"}
+      />
+    );
   }
 
-  const { data: payoutOverviewData, isLoading: isLoadingPayoutOverview } = usePayout(payoutStartDate, payoutEndDate, 1, 1, studio);
-  const { data: payoutDetails, isLoading: isLoadingPayoutDetails, isError: isPayoutDetailsError } = usePayoutDetails(payoutStartDate, payoutEndDate, studio);
+  const { data: payoutOverviewData, isLoading: isLoadingPayoutOverview } = usePayout(
+    payoutStartDate,
+    payoutEndDate,
+    1,
+    1,
+    studio
+  );
+  const {
+    data: payoutDetails,
+    isLoading: isLoadingPayoutDetails,
+    isError: isPayoutDetailsError,
+  } = usePayoutDetails(payoutStartDate, payoutEndDate, studio);
 
-  const payoutOverview = payoutOverviewData && payoutOverviewData?.studioPayoutList?.payoutList?.[0];
+  const payoutOverview =
+    payoutOverviewData && payoutOverviewData?.studioPayoutList?.payoutList?.[0];
 
   return (
     <div className="my-8">
       <Button type="button" variant="ghost" className="fixed right-4 top-11" asChild>
-        <Button variant="ghost" className="flex items-center gap-2 justify-center" onClick={() => router.back()}>
+        <Button
+          variant="ghost"
+          className="flex items-center gap-2 justify-center"
+          onClick={() => router.back()}
+        >
           <CircleChevronLeft />
           Back
         </Button>
@@ -110,7 +136,13 @@ const page = () => {
                 </div>
                 <div>
                   <p className="font-bold">Payout Method</p>
-                  <p>{payoutMethodMap.find((method) => method.value === payoutOverview.payout_method)?.label}</p>
+                  <p>
+                    {
+                      payoutMethodMap.find(
+                        (method) => method.value === payoutOverview.payout_method
+                      )?.label
+                    }
+                  </p>
                 </div>
                 <div>
                   <p className="font-bold">Payout Account</p>
@@ -124,7 +156,13 @@ const page = () => {
 
               <div className="md:col-span-2 bg-gray-50 p-5 rounded-lg">
                 {payoutOverview.payout_proof_image_urls ? (
-                  <ImagesGridPreview images={payoutOverview.payout_proof_image_urls} imageAlt={"payout proof"} allowDeleteImage={false} gridCol={"grid-cols-3"} imageRatio="aspect-[3/4]" />
+                  <ImagesGridPreview
+                    images={payoutOverview.payout_proof_image_urls}
+                    imageAlt={"payout proof"}
+                    allowDeleteImage={false}
+                    gridCol={"grid-cols-3"}
+                    imageRatio="aspect-[3/4]"
+                  />
                 ) : (
                   <ProofUploadAndPreview payoutOverview={payoutOverview} />
                 )}
@@ -158,14 +196,28 @@ const page = () => {
                   <AccordionItem value="item-1" className="border-0">
                     <AccordionTrigger className="font-bold">Completed Booking</AccordionTrigger>
                     <AccordionContent>
-                      {isLoadingPayoutDetails ? <Loader2 className="animate-spin" /> : <PayoutBreakdownTable columns={BOOKING_TABLE_COLUMNS} values={payoutDetails.completedBookingList} />}
+                      {isLoadingPayoutDetails ? (
+                        <Loader2 className="animate-spin" />
+                      ) : (
+                        <PayoutBreakdownTable
+                          columns={BOOKING_TABLE_COLUMNS}
+                          values={payoutDetails.completedBookingList}
+                        />
+                      )}
                     </AccordionContent>
                   </AccordionItem>
 
                   <AccordionItem value="item-2" className="border-0">
                     <AccordionTrigger className="font-bold">Dispute Transactions</AccordionTrigger>
                     <AccordionContent>
-                      {isLoadingPayoutDetails ? <Loader2 className="animate-spin" /> : <PayoutBreakdownTable columns={DISPUTE_TABLE_COLUMNS} values={payoutDetails.disputeTransactionList} />}
+                      {isLoadingPayoutDetails ? (
+                        <Loader2 className="animate-spin" />
+                      ) : (
+                        <PayoutBreakdownTable
+                          columns={DISPUTE_TABLE_COLUMNS}
+                          values={payoutDetails.disputeTransactionList}
+                        />
+                      )}
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>

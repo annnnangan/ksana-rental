@@ -1,25 +1,37 @@
 "use client";
 import { Button } from "@/components/shadcn/button";
 import { Checkbox } from "@/components/shadcn/checkbox";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/shadcn/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/shadcn/dialog";
 import { Label } from "@/components/shadcn/label";
 import { Textarea } from "@/components/shadcn/textarea";
-import ErrorMessage from "../ErrorMessage";
+import ErrorMessage from "../common/ErrorMessage";
 import ImagesGridPreview from "../ImagesGridPreview";
 
 import { Rating } from "@smastrom/react-rating";
 import "@smastrom/react-rating/style.css";
 
-import { reviewBookingSchema, reviewFormData } from "@/lib/validations/zod-schema/review-booking-schema";
+import {
+  reviewBookingSchema,
+  reviewFormData,
+} from "@/lib/validations/zod-schema/review-booking-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 
 import { useTransition } from "react";
 
-import { addUploadTimestampToFile, generateAWSImageUrls } from "@/lib/utils/s3-upload/s3-image-upload-utils";
+import {
+  addUploadTimestampToFile,
+  generateAWSImageUrls,
+} from "@/lib/utils/s3-upload/s3-image-upload-utils";
 import { reviewBooking } from "@/actions/booking";
 import { toast } from "react-toastify";
-import SubmitButton from "../buttons/SubmitButton";
+import SubmitButton from "../common/buttons/SubmitButton";
 import { useRouter } from "next/navigation";
 import { formatDate } from "@/lib/utils/date-time/format-date-utils";
 import { convertTimeToString } from "@/lib/utils/date-time/format-time-utils";
@@ -111,7 +123,9 @@ const ReviewBookingModal = ({ isOpen, setOpenModal, bookingRecord }: Props) => {
   };
 
   const handleImageRemove = (identifier: string | number, imageSrc: string) => {
-    const updatedImages = imagesList.filter((image) => !(image instanceof File && image.lastModified === identifier));
+    const updatedImages = imagesList.filter(
+      (image) => !(image instanceof File && image.lastModified === identifier)
+    );
     URL.revokeObjectURL(imageSrc);
     setValue("images", updatedImages);
   };
@@ -126,7 +140,9 @@ const ReviewBookingModal = ({ isOpen, setOpenModal, bookingRecord }: Props) => {
         </DialogHeader>
 
         <p className="mb-4">
-          請為你於 {formatDate(new Date(bookingRecord.booking_date))} {convertTimeToString(bookingRecord.start_time)} - {convertTimeToString(bookingRecord.end_time)} 在 {bookingRecord.studio_name}{" "}
+          請為你於 {formatDate(new Date(bookingRecord.booking_date))}{" "}
+          {convertTimeToString(bookingRecord.start_time)} -{" "}
+          {convertTimeToString(bookingRecord.end_time)} 在 {bookingRecord.studio_name}{" "}
           的場地體驗，提供評分及評論。
         </p>
 
@@ -139,7 +155,14 @@ const ReviewBookingModal = ({ isOpen, setOpenModal, bookingRecord }: Props) => {
               name="rating"
               control={control}
               rules={{ required: true }}
-              render={({ field }) => <Rating style={{ maxWidth: 150 }} value={field.value} onChange={(value: number) => setValue("rating", value)} isRequired />}
+              render={({ field }) => (
+                <Rating
+                  style={{ maxWidth: 150 }}
+                  value={field.value}
+                  onChange={(value: number) => setValue("rating", value)}
+                  isRequired
+                />
+              )}
             />
           </div>
 
@@ -153,13 +176,24 @@ const ReviewBookingModal = ({ isOpen, setOpenModal, bookingRecord }: Props) => {
           <div>
             <div className="flex flex-col">
               <Label className="font-bold mb-1">上傳圖片</Label>
-              <p className="text-xs text-gray-800 mb-2">最多只可上傳5張圖片，每張圖片大小需小於1MB。</p>
+              <p className="text-xs text-gray-800 mb-2">
+                最多只可上傳5張圖片，每張圖片大小需小於1MB。
+              </p>
 
               <Controller
                 control={control}
                 name={"images"}
                 render={({ field: { value, onChange, ...field } }) => {
-                  return <input {...field} type="file" accept="image/png, image/jpeg, image/jpg" multiple className="text-sm" onChange={handleFileSelect} />;
+                  return (
+                    <input
+                      {...field}
+                      type="file"
+                      accept="image/png, image/jpeg, image/jpg"
+                      multiple
+                      className="text-sm"
+                      onChange={handleFileSelect}
+                    />
+                  );
                 }}
               />
             </div>
@@ -169,7 +203,13 @@ const ReviewBookingModal = ({ isOpen, setOpenModal, bookingRecord }: Props) => {
             {imagesList.length > 0 && (
               <div className="mt-5 mb-20">
                 <Label className="font-bold mb-1">圖片預覽</Label>
-                <ImagesGridPreview images={imagesList} removeImage={handleImageRemove} imageAlt={"Rating image"} allowDeleteImage={isSubmitting ? false : true} objectFit="object-contain" />
+                <ImagesGridPreview
+                  images={imagesList}
+                  removeImage={handleImageRemove}
+                  imageAlt={"Rating image"}
+                  allowDeleteImage={isSubmitting ? false : true}
+                  objectFit="object-contain"
+                />
               </div>
             )}
           </div>
