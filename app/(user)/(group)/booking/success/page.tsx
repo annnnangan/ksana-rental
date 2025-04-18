@@ -1,19 +1,29 @@
-import ButtonLink from "@/components/custom-components/buttons/ButtonLink";
+import ButtonLink from "@/components/custom-components/common/buttons/ButtonLink";
 import { auth } from "@/lib/next-auth-config/auth";
 import { formatDate } from "@/lib/utils/date-time/format-date-utils";
 import { Bell, Building2, Calendar, MapPinHouse } from "lucide-react";
 import Image from "next/image";
-import ToastMessageWithRedirect from "@/components/custom-components/ToastMessageWithRedirect";
+import ToastMessageWithRedirect from "@/components/custom-components/common/ToastMessageWithRedirect";
 import { bookingService } from "@/services/booking/BookingService";
 import { GENERAL_ERROR_MESSAGE } from "@/lib/constants/error-message";
 import { convertTimeToString } from "@/lib/utils/date-time/format-time-utils";
 
-const BookingSuccessPage = async ({ searchParams }: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) => {
+const BookingSuccessPage = async ({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) => {
   // Check
   const session = await auth();
 
   if (!session?.user) {
-    return <ToastMessageWithRedirect type={"error"} message={"請先登入後才可預約。"} redirectPath={"/auth/login"} />;
+    return (
+      <ToastMessageWithRedirect
+        type={"error"}
+        message={"請先登入後才可預約。"}
+        redirectPath={"/auth/login"}
+      />
+    );
   }
 
   const bookingReference = (await searchParams)?.booking;
@@ -22,10 +32,19 @@ const BookingSuccessPage = async ({ searchParams }: { searchParams: Promise<{ [k
     return <ToastMessageWithRedirect type={"error"} message={"沒有此預約"} redirectPath={"/"} />;
   }
 
-  let bookingRecordResponse = await bookingService.getBookingInfoForBookingSuccessPage(bookingReference as string, session.user.id);
+  let bookingRecordResponse = await bookingService.getBookingInfoForBookingSuccessPage(
+    bookingReference as string,
+    session.user.id
+  );
   if (!bookingRecordResponse.success) {
     // @ts-ignore
-    return <ToastMessageWithRedirect type={"error"} message={bookingRecordResponse?.error?.message || GENERAL_ERROR_MESSAGE} redirectPath={"/"} />;
+    return (
+      <ToastMessageWithRedirect
+        type={"error"}
+        message={bookingRecordResponse?.error?.message || GENERAL_ERROR_MESSAGE}
+        redirectPath={"/"}
+      />
+    );
   }
 
   let bookingRecord = bookingRecordResponse.success && bookingRecordResponse.data;
@@ -43,7 +62,9 @@ const BookingSuccessPage = async ({ searchParams }: { searchParams: Promise<{ [k
               預約日期時間:{" "}
             </p>
             <p>
-              {formatDate(new Date(bookingRecord.date))} {convertTimeToString(bookingRecord.start_time)} - {convertTimeToString(bookingRecord.end_time)}
+              {formatDate(new Date(bookingRecord.date))}{" "}
+              {convertTimeToString(bookingRecord.start_time)} -{" "}
+              {convertTimeToString(bookingRecord.end_time)}
             </p>
           </li>
           <li className="md:flex md:justify-between">

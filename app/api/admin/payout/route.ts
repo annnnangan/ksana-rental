@@ -1,5 +1,6 @@
 import handleError from "@/lib/handlers/error";
-import { ForbiddenError } from "@/lib/http-errors";
+import { ForbiddenError, UnauthorizedError } from "@/lib/http-errors";
+import { auth } from "@/lib/next-auth-config/auth";
 import { payoutService } from "@/services/payout/PayoutService";
 import { differenceInDays, getDay, isValid, parseISO } from "date-fns";
 import { NextRequest, NextResponse } from "next/server";
@@ -12,6 +13,11 @@ function isValidDate(dateString: string) {
 //Get Payout Data
 export async function GET(request: NextRequest) {
   try {
+    const session = await auth();
+
+    if (session?.user.role !== "admin") {
+      throw new UnauthorizedError("你沒有此權限。");
+    }
     const searchParams = request.nextUrl.searchParams;
     const payoutStartDate = searchParams.get("startDate");
     const payoutEndDate = searchParams.get("endDate");

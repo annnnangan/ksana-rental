@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/s
 import { CircleX } from "lucide-react";
 
 import { ReviewUserProfile } from "./ReviewSection";
-import AvatarWithFallback from "@/components/custom-components/AvatarWithFallback";
+import AvatarWithFallback from "@/components/custom-components/common/AvatarWithFallback";
 import GallerySlideshow from "@/components/custom-components/studio-page/gallery/GallerySlideshow";
 import BookNowButton from "../../BookNowButton";
 

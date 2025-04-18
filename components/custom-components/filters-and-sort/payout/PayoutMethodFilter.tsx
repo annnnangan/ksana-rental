@@ -1,24 +1,37 @@
 "use client";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/shadcn/select";
+import { AdminPayoutFilters } from "@/app/admin/payout/page";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/shadcn/select";
 import { payoutMethodMap } from "@/lib/constants/studio-details";
 import { PayoutMethod } from "@/services/model";
-import { useRouter, useSearchParams } from "next/navigation";
 
-const paymentMethod: { label: string; value?: PayoutMethod }[] = [{ label: "All" }, ...payoutMethodMap];
+const paymentMethod: { label: string; value?: PayoutMethod }[] = [
+  { label: "All" },
+  ...payoutMethodMap,
+];
 
-const PayoutMethodFilter = () => {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-
+const PayoutMethodFilter = ({
+  filter,
+  setFilter,
+}: {
+  filter: AdminPayoutFilters;
+  setFilter: React.Dispatch<React.SetStateAction<AdminPayoutFilters>>;
+}) => {
   function handleChange(method: string): void {
-    const currentParams = new URLSearchParams(searchParams?.toString());
-    currentParams.set("payoutMethod", method);
-    if (method === "All") currentParams.delete("payoutMethod");
-    router.push(`?${currentParams.toString()}`);
+    if (method === "All") {
+      setFilter({ ...filter, payoutMethod: "" });
+    } else {
+      setFilter({ ...filter, payoutMethod: method });
+    }
   }
 
   return (
-    <Select onValueChange={handleChange} value={searchParams.get("payoutMethod") || ""}>
+    <Select onValueChange={handleChange}>
       <SelectTrigger className="w-[180px]">
         <SelectValue placeholder="Payment Method" />
       </SelectTrigger>

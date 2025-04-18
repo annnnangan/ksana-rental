@@ -1,6 +1,13 @@
 "use client";
 import { Button } from "@/components/shadcn/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/shadcn/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/shadcn/table";
 import {
   ColumnFiltersState,
   createColumnHelper,
@@ -16,10 +23,19 @@ import {
 import { ArrowDown, ArrowUp, ArrowUpDown, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { DataTablePagination } from "../common/DataTablePagination";
-import SectionFallback from "../SectionFallback";
+import { DataTablePagination } from "../react-table/DataTablePagination";
+import SectionFallback from "../common/SectionFallback";
 
-const AdminStudiosTable = ({ data }: { data: { studio_id: string; studio_name: string; studio_slug: string; request_review_date: string }[] }) => {
+const AdminStudiosTable = ({
+  data,
+}: {
+  data: {
+    studio_id: string;
+    studio_name: string;
+    studio_slug: string;
+    request_review_date: string;
+  }[];
+}) => {
   const router = useRouter();
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
@@ -52,14 +68,20 @@ const AdminStudiosTable = ({ data }: { data: { studio_id: string; studio_name: s
         id: columnName,
         header: ({ column }) => {
           return (
-            <Button variant="ghost" className="hover:bg-transparent pl-1 w-full flex justify-between" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+            <Button
+              variant="ghost"
+              className="hover:bg-transparent pl-1 w-full flex justify-between"
+              onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            >
               {label}
 
               {column.getIsSorted() === "asc" && <ArrowUp className="ml-2 h-4 w-4" />}
 
               {column.getIsSorted() === "desc" && <ArrowDown className="ml-2 h-4 w-4" />}
 
-              {column.getIsSorted() !== "desc" && column.getIsSorted() !== "asc" && <ArrowUpDown className="ml-2 h-4 w-4" />}
+              {column.getIsSorted() !== "desc" && column.getIsSorted() !== "asc" && (
+                <ArrowUpDown className="ml-2 h-4 w-4" />
+              )}
             </Button>
           );
         },
@@ -104,7 +126,11 @@ const AdminStudiosTable = ({ data }: { data: { studio_id: string; studio_name: s
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>{header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}</TableHead>
+                  <TableHead key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(header.column.columnDef.header, header.getContext())}
+                  </TableHead>
                 ))}
               </TableRow>
             ))}
@@ -112,9 +138,15 @@ const AdminStudiosTable = ({ data }: { data: { studio_id: string; studio_name: s
           <TableBody>
             {table.getRowModel().rows.map((row) => (
               //@ts-ignore
-              <TableRow key={row.id} className="hover:bg-gray-100 cursor-pointer" onClick={() => router.push(`/admin/studio/${row.original.studio_id}`)}>
+              <TableRow
+                key={row.id}
+                className="hover:bg-gray-100 cursor-pointer"
+                onClick={() => router.push(`/admin/studio/${row.original.studio_id}`)}
+              >
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+                  <TableCell key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
                 ))}
               </TableRow>
             ))}

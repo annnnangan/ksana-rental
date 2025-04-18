@@ -3,9 +3,9 @@ import { Button } from "@/components/shadcn/button";
 import { Calendar } from "@/components/shadcn/calendar";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/shadcn/card";
 import { Switch } from "@/components/shadcn/switch";
-import AvatarWithFallback from "../AvatarWithFallback";
-import SubmitButton from "../buttons/SubmitButton";
-import ErrorMessage from "../ErrorMessage";
+import AvatarWithFallback from "../common/AvatarWithFallback";
+import SubmitButton from "../common/buttons/SubmitButton";
+import ErrorMessage from "../common/ErrorMessage";
 import Timeslot from "./Timeslot";
 
 import { CalendarCheck2, CalendarX2, Clock10, MapPinHouse, X } from "lucide-react";
@@ -19,10 +19,13 @@ import { Controller, useForm } from "react-hook-form";
 
 import { calculateBookingEndTime } from "@/lib/utils/date-time/format-time-utils";
 import { formatDate } from "@/lib/utils/date-time/format-date-utils";
-import { BookingDateTimeSelectFormData, BookingDateTimeSelectSchema } from "@/lib/validations/zod-schema/booking-schema";
+import {
+  BookingDateTimeSelectFormData,
+  BookingDateTimeSelectSchema,
+} from "@/lib/validations/zod-schema/booking-schema";
 import { PriceType } from "@/services/model";
 import useBookingStore from "@/stores/BookingStore";
-import SectionFallback from "../SectionFallback";
+import SectionFallback from "../common/SectionFallback";
 
 const BookingCalendar = ({
   bookingStudioBasicInfo,
@@ -108,7 +111,11 @@ const BookingCalendar = ({
     setEndMonth(new Date(today.getFullYear(), today.getMonth() + 3, 0));
   }, []);
 
-  const { data: timeslotsResult, isLoading: isLoadingTimeslots, isError } = useBookingTimeslots(bookingStudioBasicInfo.slug, formatDate(dateWatch ?? new Date()));
+  const {
+    data: timeslotsResult,
+    isLoading: isLoadingTimeslots,
+    isError,
+  } = useBookingTimeslots(bookingStudioBasicInfo.slug, formatDate(dateWatch ?? new Date()));
 
   const onSubmit = async (data: BookingDateTimeSelectFormData) => {
     setBookingInfo({
@@ -151,7 +158,9 @@ const BookingCalendar = ({
                 <div className="flex md:flex-row items-start flex-wrap">
                   {priceType.map((type) => (
                     <div key={type.label} className="flex justify-center items-center me-4">
-                      <div className={classNames(type.bgColor, "rounded-full", "w-3", "h-3", "me-2")}></div>
+                      <div
+                        className={classNames(type.bgColor, "rounded-full", "w-3", "h-3", "me-2")}
+                      ></div>
                       <p className={classNames(type.textColor)}>{type.label}</p>
                     </div>
                   ))}
@@ -159,7 +168,8 @@ const BookingCalendar = ({
                 <div className="space-y-2">
                   {errors?.startTime && <ErrorMessage>{errors?.startTime?.message}</ErrorMessage>}
                   <div className="grid grid-cols-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-                    {isLoadingTimeslots && Array.from({ length: 15 }, (_, i) => <Timeslot isLoading={true} key={i} />)}
+                    {isLoadingTimeslots &&
+                      Array.from({ length: 15 }, (_, i) => <Timeslot isLoading={true} key={i} />)}
 
                     {!isLoadingTimeslots &&
                       //@ts-ignore
@@ -179,7 +189,9 @@ const BookingCalendar = ({
                         />
                       ))}
                   </div>
-                  {!isLoadingTimeslots && timeslotsResult?.length === 0 && <SectionFallback icon={CalendarX2} fallbackText={"暫無可預約時間"} />}
+                  {!isLoadingTimeslots && timeslotsResult?.length === 0 && (
+                    <SectionFallback icon={CalendarX2} fallbackText={"暫無可預約時間"} />
+                  )}
                 </div>
               </div>
             </div>
@@ -198,7 +210,12 @@ const BookingCalendar = ({
               </div>
               <div className="flex items-center gap-2">
                 <Clock10 size={20} />
-                <p>預約時間：{startTimeWatch ? `${startTimeWatch} - ${calculateBookingEndTime(startTimeWatch)}` : "---"}</p>
+                <p>
+                  預約時間：
+                  {startTimeWatch
+                    ? `${startTimeWatch} - ${calculateBookingEndTime(startTimeWatch)}`
+                    : "---"}
+                </p>
               </div>
             </div>
           </div>
@@ -209,10 +226,20 @@ const BookingCalendar = ({
           <div className="fixed bottom-0 left-0 w-full bg-white border-t-2 rounded-t-xl z-10 shadow-lg p-4 flex justify-between items-center h-16 lg:hidden">
             <p className="text-lg font-bold">HK$ {startTimeWatch ? paidAmountWatch : "---"}</p>
             <div className="flex justify-center items-center gap-2">
-              <Button variant="outline" onClick={() => setIsDrawerOpen((prev) => !prev)} type="button">
+              <Button
+                variant="outline"
+                onClick={() => setIsDrawerOpen((prev) => !prev)}
+                type="button"
+              >
                 詳情
               </Button>
-              <SubmitButton isSubmitting={isSubmitting} submittingText={"處理中..."} nonSubmittingText={"下一步"} withIcon={false} className="w-full mb-5" />
+              <SubmitButton
+                isSubmitting={isSubmitting}
+                submittingText={"處理中..."}
+                nonSubmittingText={"下一步"}
+                withIcon={false}
+                className="w-full mb-5"
+              />
             </div>
           </div>
 
@@ -263,7 +290,9 @@ const BookingCalendar = ({
                 )}
               </div>
               <div className="mt-5">
-                <p className="text-2xl font-bold text-end">HK$ {startTimeWatch ? paidAmountWatch : "---"}</p>
+                <p className="text-2xl font-bold text-end">
+                  HK$ {startTimeWatch ? paidAmountWatch : "---"}
+                </p>
               </div>
             </div>
           )}
@@ -314,11 +343,19 @@ const BookingCalendar = ({
                   )}
                 </div>
                 <div className="mt-5">
-                  <p className="text-2xl font-bold text-end">HK$ {startTimeWatch ? paidAmountWatch : "---"}</p>
+                  <p className="text-2xl font-bold text-end">
+                    HK$ {startTimeWatch ? paidAmountWatch : "---"}
+                  </p>
                 </div>
               </CardContent>
               <CardFooter>
-                <SubmitButton isSubmitting={isSubmitting} submittingText={"處理中..."} nonSubmittingText={"下一步"} withIcon={false} className="w-full" />
+                <SubmitButton
+                  isSubmitting={isSubmitting}
+                  submittingText={"處理中..."}
+                  nonSubmittingText={"下一步"}
+                  withIcon={false}
+                  className="w-full"
+                />
               </CardFooter>
             </Card>
           </div>
@@ -344,7 +381,12 @@ const useBookingTimeslots = (selectedStudioSlug: string, selectedDate: string) =
       if (!result.success) {
         throw new Error(result.error.message);
       }
-      return result.data as { time: string; is_booked: boolean; price: number; price_type: string }[];
+      return result.data as {
+        time: string;
+        is_booked: boolean;
+        price: number;
+        price_type: string;
+      }[];
     },
     staleTime: 2 * 60 * 1000, // Cache for 2 minutes
     enabled: !!selectedStudioSlug && !!selectedDate, // Fetch only when both are provided

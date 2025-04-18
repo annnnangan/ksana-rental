@@ -10,13 +10,13 @@ const page = async (props: Props) => {
   const user = await sessionUser();
   const searchParams = await props.searchParams;
   const selectedDateRange = searchParams["dateRange"] || "last-6-months";
-  const result = await dashboardService.getMonthlyCount({ timeframe: selectedDateRange, dateType: "created_at", userId: user?.id! });
-  const data: { totalCount: number; monthBreakdown: { month: string; total: number }[] } = result.data!;
+  const result = await dashboardService.getStudioBookingCount({ timeframe: selectedDateRange, dateType: "created_at", userId: user?.id! });
+  const data: { total: number; monthBreakdown: { month: string; total: number }[] } = result.data!;
 
   return (
     <>
       <div className="flex items-center justify-between flex-wrap gap-4">
-        <p className="text-3xl md:text-4xl font-bold">{data.totalCount}</p>
+        <p className="text-3xl md:text-4xl font-bold">{data.total}</p>
       </div>
       <div>{result.success && <ByMonthLineChart chartData={data?.monthBreakdown} label={"預約數目"} />}</div>
     </>

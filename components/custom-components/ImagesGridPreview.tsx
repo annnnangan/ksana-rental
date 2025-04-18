@@ -1,4 +1,4 @@
-import ErrorMessage from "@/components/custom-components/ErrorMessage";
+import ErrorMessage from "@/components/custom-components/common/ErrorMessage";
 import { Trash2 } from "lucide-react";
 import Image from "next/image";
 import { FieldError } from "react-hook-form";
@@ -38,7 +38,13 @@ const ImagesGridPreview = ({
           return (
             <div key={identifier}>
               <div className={`relative ${imageRatio} group`}>
-                <Image src={src} alt={imageAlt} className={`${objectFit} transition-all duration-500 group-hover:brightness-50`} fill sizes="w-auto" />
+                <Image
+                  src={src}
+                  alt={imageAlt}
+                  className={`${objectFit} transition-all duration-500 group-hover:brightness-50`}
+                  fill
+                  sizes="w-auto"
+                />
                 {allowDeleteImage && (
                   <div className="absolute inset-0 flex items-center justify-center">
                     <button

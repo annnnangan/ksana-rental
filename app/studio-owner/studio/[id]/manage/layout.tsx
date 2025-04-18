@@ -2,9 +2,18 @@ import { StudioPanelNavItems } from "@/components/custom-components/layout/backe
 import { NavUserMenu } from "@/components/custom-components/layout/backend-panel-nav-bar/NavUser";
 import { StudioSwitcher } from "@/components/custom-components/layout/backend-panel-nav-bar/StudioSwitcher";
 import LogoutButton from "@/components/custom-components/layout/main-nav-bar/LogoutButton";
-import ToastMessageWithRedirect from "@/components/custom-components/ToastMessageWithRedirect";
+import ToastMessageWithRedirect from "@/components/custom-components/common/ToastMessageWithRedirect";
 import { DropdownMenuItem } from "@/components/shadcn/dropdown-menu";
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarInset, SidebarProvider, SidebarRail, SidebarTrigger } from "@/components/shadcn/sidebar";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarInset,
+  SidebarProvider,
+  SidebarRail,
+  SidebarTrigger,
+} from "@/components/shadcn/sidebar";
 import { GENERAL_ERROR_MESSAGE } from "@/lib/constants/error-message";
 import { sessionUser } from "@/lib/next-auth-config/session-user";
 import { studioOwnerService } from "@/services/studio/StudioOwnerService";
@@ -25,21 +34,38 @@ export default async function Layout({ children, params }: Props) {
   const user = await sessionUser();
 
   if (!user) {
-    return <ToastMessageWithRedirect type={"error"} message={"請先登入才可操作"} redirectPath={"/"} />;
+    return (
+      <ToastMessageWithRedirect type={"error"} message={"請先登入才可操作"} redirectPath={"/"} />
+    );
   }
 
   // Check if the studio id belong to the user
-  const isStudioBelongUserResponse = await validateStudioService.validateIsStudioBelongToUser(user?.id, currentStudioId);
+  const isStudioBelongUserResponse = await validateStudioService.validateIsStudioBelongToUser(
+    user?.id,
+    currentStudioId
+  );
 
   if (!isStudioBelongUserResponse.success) {
-    return <ToastMessageWithRedirect type="error" message={isStudioBelongUserResponse?.error?.message || GENERAL_ERROR_MESSAGE} redirectPath="/" />;
+    return (
+      <ToastMessageWithRedirect
+        type="error"
+        message={isStudioBelongUserResponse?.error?.message || GENERAL_ERROR_MESSAGE}
+        redirectPath="/"
+      />
+    );
   }
 
   // Get all the studio belongs to user
   const response = await studioOwnerService.getStudiosByUserId(user?.id);
 
   if (!response.success) {
-    return <ToastMessageWithRedirect type="error" message={response?.error?.message || GENERAL_ERROR_MESSAGE} redirectPath="/" />;
+    return (
+      <ToastMessageWithRedirect
+        type="error"
+        message={response?.error?.message || GENERAL_ERROR_MESSAGE}
+        redirectPath="/"
+      />
+    );
   }
 
   const availableStudios = response.success && response.data;
@@ -72,7 +98,7 @@ export default async function Layout({ children, params }: Props) {
               </Link>
 
               <DropdownMenuItem>
-                <LogoutButton />
+                <LogoutButton direction="justify-start" />
               </DropdownMenuItem>
             </NavUserMenu>
           </SidebarFooter>

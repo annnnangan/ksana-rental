@@ -86,6 +86,8 @@ export class DashboardService {
     }
   }
 
+  /* ---------------------------------- Studio Owner / Studio Dashboard --------------------------------- */
+
   async getStudioOwnerActiveStudio(userId: string) {
     try {
       const result = await this.knex
@@ -103,75 +105,45 @@ export class DashboardService {
     }
   }
 
-  async getMonthlyCount({ timeframe, dateType, userId, studioId }: { timeframe: string; dateType: "created_at" | "booking_date"; userId: string; studioId?: string }) {
+  async getStudioBookingCount({ timeframe, dateType, userId, studioId }: { timeframe: string; dateType: "created_at" | "booking_date"; userId?: string; studioId?: string }) {
     try {
-      let startDate;
-      let monthsBack;
-
       const dateTypeField = dateType === "booking_date" ? "date" : "created_at";
-
-      if (timeframe === "last-12-months") {
-        // Include this month and go back 12 months from the current date
-        startDate = knex.raw("DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '12 months'");
-        monthsBack = 12;
-      } else if (timeframe === "last-6-months") {
-        // Include this month and go back 6 months from the current date
-        startDate = knex.raw("DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '6 months'");
-        monthsBack = 6;
-      } else if (timeframe === "this-month") {
-        // Just this month
-        startDate = knex.raw("DATE_TRUNC('month', CURRENT_DATE)");
-        monthsBack = 1;
-      } else {
-        throw new Error("Invalid timeframe");
-      }
-
-      // Generate a month list
-      const monthList = (
-        await this.knex.raw(
-          `
-    SELECT TO_CHAR(generate_series(
-    DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '${monthsBack - 1} months', 
-    DATE_TRUNC('month', CURRENT_DATE), 
-    INTERVAL '1 month'
-    ), 'YYYY-MM') AS month_series
-  `
-        )
-      ).rows;
+      const { startDate, monthList } = await this.generateTimeframeQuery({ timeframe });
 
       // Start building the query
-      const mainQuery = this.knex
+      const monthlyBreakdownQuery = this.knex
         .select(this.knex.raw(`TO_CHAR(DATE_TRUNC('month', booking.${dateTypeField}), 'YYYY-MM') AS month, COUNT(*) AS total`))
         .from("booking")
         .leftJoin("studio", "booking.studio_id", "studio.id")
-        .where({ "studio.user_id": userId, "booking.status": "confirmed" })
+        .where({ "booking.status": "confirmed" })
         .andWhere(`booking.${dateTypeField}`, ">=", startDate)
         .groupByRaw("1") // Group by truncated month
         .orderByRaw("1 DESC"); // Order from latest to oldest;
 
-      // Conditionally add studio filter if studioId is provided
-      if (studioId) {
-        mainQuery.andWhere("booking.studio_id", studioId);
-      }
-
-      // Get the monthly booking count
-      const monthlyBookingCount = await mainQuery;
-
       // Get the total booking count
-      const countQuery = this.knex
-        .select(this.knex.raw("COUNT(booking.id) AS total_count"))
+      const totalQuery = this.knex
+        .select(this.knex.raw("COUNT(booking.id) AS total"))
         .from("booking")
         .leftJoin("studio", "booking.studio_id", "studio.id")
-        .where({ "studio.user_id": userId, "booking.status": "confirmed" })
+        .where({ "booking.status": "confirmed" })
         .andWhere(`booking.${dateTypeField}`, ">=", startDate)
         .andWhere(`booking.${dateTypeField}`, "<=", this.knex.raw("DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month' - INTERVAL '1 day'"));
 
       if (studioId) {
-        countQuery.andWhere("booking.studio_id", studioId);
+        monthlyBreakdownQuery.andWhere({ "booking.studio_id": studioId });
+        totalQuery.andWhere({ "booking.studio_id": studioId });
       }
-      const totalBookingCount = await countQuery;
 
-      const bookingMap = new Map(monthlyBookingCount.map((item) => [item.month, item.total]));
+      if (userId) {
+        monthlyBreakdownQuery.andWhere({ "studio.user_id": userId });
+        totalQuery.andWhere({ "studio.user_id": userId });
+      }
+
+      // Get the monthly booking count
+      const monthlyBookingCount = await monthlyBreakdownQuery;
+      const totalBookingCount = await totalQuery;
+
+      const formatMonthlyBreakdownList = new Map(monthlyBookingCount.map((item) => [item.month, item.total]));
 
       function getMonthName(monthNumber: string) {
         return new Date(2000, parseInt(monthNumber) - 1).toLocaleString("en-US", {
@@ -183,84 +155,54 @@ export class DashboardService {
         const month = item.month_series;
         return {
           month: getMonthName(month.split("-")[1]),
-          total: bookingMap.has(month) ? Number(bookingMap.get(month)) : 0, // Default to '0' if no data for that month
+          total: formatMonthlyBreakdownList.has(month) ? Number(formatMonthlyBreakdownList.get(month)) : 0, // Default to '0' if no data for that month
         };
       });
 
-      return { success: true, data: { totalCount: Number(totalBookingCount[0].total_count), monthBreakdown: result } };
+      return { success: true, data: { total: Number(totalBookingCount[0].total), monthBreakdown: result } };
     } catch (error) {
       console.log(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
 
-  async getMonthlyRevenue({ timeframe, dateType, userId, studioId }: { timeframe: string; dateType: "created_at" | "booking_date"; userId: string; studioId?: string }) {
+  async getStudioExpectedRevenue({ timeframe, dateType, userId, studioId }: { timeframe: string; dateType: "created_at" | "booking_date"; userId?: string; studioId?: string }) {
     try {
-      let startDate;
-      let monthsBack;
-
       const dateTypeField = dateType === "booking_date" ? "date" : "created_at";
-
-      if (timeframe === "last-12-months") {
-        // Include this month and go back 12 months from the current date
-        startDate = knex.raw("DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '12 months'");
-        monthsBack = 12;
-      } else if (timeframe === "last-6-months") {
-        // Include this month and go back 6 months from the current date
-        startDate = knex.raw("DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '6 months'");
-        monthsBack = 6;
-      } else if (timeframe === "this-month") {
-        // Just this month
-        startDate = knex.raw("DATE_TRUNC('month', CURRENT_DATE)");
-        monthsBack = 1;
-      } else {
-        throw new Error("Invalid timeframe");
-      }
-
-      // Generate a month list
-      const monthList = (
-        await this.knex.raw(
-          `
-    SELECT TO_CHAR(generate_series(
-    DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '${monthsBack - 1} months', 
-    DATE_TRUNC('month', CURRENT_DATE), 
-    INTERVAL '1 month'
-    ), 'YYYY-MM') AS month_series
-  `
-        )
-      ).rows;
+      const { startDate, monthList } = await this.generateTimeframeQuery({ timeframe });
 
       // Get the booking revenue with month
-      const mainQuery = this.knex
+      const monthlyBreakdownQuery = this.knex
         .select(this.knex.raw(`TO_CHAR(DATE_TRUNC('month', booking.${dateTypeField}), 'YYYY-MM') AS month, SUM(booking.price) AS total`))
         .from("booking")
         .leftJoin("studio", "booking.studio_id", "studio.id")
-        .where({ "studio.user_id": userId, "booking.status": "confirmed" })
+        .where({ "booking.status": "confirmed" })
         .andWhere(`booking.${dateTypeField}`, ">=", startDate)
         .groupByRaw("1") // Group by truncated month
         .orderByRaw("1 DESC"); // Order from latest to oldest
 
-      if (studioId) {
-        mainQuery.andWhere("booking.studio_id", studioId);
-      }
-
-      const monthlyBookingRevenue = await mainQuery;
-
-      const countQuery = this.knex
-        .select(this.knex.raw("SUM(booking.price) AS total_revenue"))
+      const totalQuery = this.knex
+        .select(this.knex.raw("SUM(booking.price) AS total"))
         .from("booking")
         .leftJoin("studio", "booking.studio_id", "studio.id")
-        .where({ "studio.user_id": userId, "booking.status": "confirmed" })
+        .where({ "booking.status": "confirmed" })
         .andWhere(`booking.${dateTypeField}`, ">=", startDate)
         .andWhere(`booking.${dateTypeField}`, "<=", this.knex.raw("DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month' - INTERVAL '1 day'"));
 
       if (studioId) {
-        countQuery.andWhere("booking.studio_id", studioId);
+        monthlyBreakdownQuery.andWhere({ "booking.studio_id": studioId });
+        totalQuery.andWhere({ "booking.studio_id": studioId });
       }
 
-      const totalBookingRevenue = await countQuery;
+      if (userId) {
+        monthlyBreakdownQuery.andWhere({ "studio.user_id": userId });
+        totalQuery.andWhere({ "studio.user_id": userId });
+      }
 
-      const bookingMap = new Map(monthlyBookingRevenue.map((item) => [item.month, item.total]));
+      const monthlyBookingRevenue = await monthlyBreakdownQuery;
+      const totalBookingRevenue = await totalQuery;
+
+      const formatMonthlyBreakdownList = new Map(monthlyBookingRevenue.map((item) => [item.month, item.total]));
 
       function getMonthName(monthNumber: string) {
         return new Date(2000, parseInt(monthNumber) - 1).toLocaleString("en-US", {
@@ -273,11 +215,89 @@ export class DashboardService {
         const month = item.month_series;
         return {
           month: getMonthName(month.split("-")[1]),
-          total: bookingMap.has(month) ? Number(bookingMap.get(month)) : 0, // Default to '0' if no data for that month
+          total: formatMonthlyBreakdownList.has(month) ? Number(formatMonthlyBreakdownList.get(month)) : 0, // Default to '0' if no data for that month
         };
       });
 
-      return { success: true, data: { totalRevenue: Number(totalBookingRevenue[0].total_revenue), monthBreakdown: result } };
+      return { success: true, data: { total: Number(totalBookingRevenue[0].total), monthBreakdown: result } };
+    } catch (error) {
+      console.log(error);
+      return handleError(error, "server") as ActionResponse;
+    }
+  }
+
+  async getStudioPayout({ timeframe, userId, studioId }: { timeframe: string; userId?: string; studioId?: string }) {
+    try {
+      const { startDate, monthList } = await this.generateTimeframeQuery({ timeframe });
+
+      // Get the booking revenue with month
+      const monthlyBreakdownQuery = this.knex
+        .select(this.knex.raw(`TO_CHAR(DATE_TRUNC('month', payout.payout_at), 'YYYY-MM') AS month, SUM(total_payout_amount) AS total`))
+        .from("payout")
+        .leftJoin("studio", "payout.studio_id", "studio.id")
+        .andWhere(`payout.payout_at`, ">=", startDate)
+        .groupByRaw("1") // Group by truncated month
+        .orderByRaw("1 DESC"); // Order from latest to oldest
+
+      const totalQuery = this.knex
+        .select(this.knex.raw("SUM(total_payout_amount) AS total"))
+        .from("payout")
+        .leftJoin("studio", "payout.studio_id", "studio.id")
+        .andWhere(`payout.payout_at`, ">=", startDate)
+        .andWhere(`payout.payout_at`, "<=", this.knex.raw("DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month' - INTERVAL '1 day'"));
+
+      if (studioId) {
+        monthlyBreakdownQuery.andWhere("payout.studio_id", studioId);
+        totalQuery.andWhere("payout.studio_id", studioId);
+      }
+
+      if (userId) {
+        monthlyBreakdownQuery.andWhere("studio.user_id", userId);
+        totalQuery.andWhere("studio.user_id", userId);
+      }
+
+      const monthlyBreakdownResult = await monthlyBreakdownQuery;
+
+      const totalResult = await totalQuery;
+
+      const formatMonthlyBreakdownList = new Map(monthlyBreakdownResult.map((item) => [item.month, item.total]));
+
+      function getMonthName(monthNumber: string) {
+        return new Date(2000, parseInt(monthNumber) - 1).toLocaleString("en-US", {
+          month: "short",
+        });
+      }
+
+      // Combine the month series with the data
+      const result = monthList.map((item: { month_series: string }) => {
+        const month = item.month_series;
+        return {
+          month: getMonthName(month.split("-")[1]),
+          total: formatMonthlyBreakdownList.has(month) ? Number(formatMonthlyBreakdownList.get(month)) : 0, // Default to '0' if no data for that month
+        };
+      });
+
+      return { success: true, data: { total: Number(totalResult[0].total), monthBreakdown: result } };
+    } catch (error) {
+      console.log(error);
+      return handleError(error, "server") as ActionResponse;
+    }
+  }
+
+  async getUpcoming5Bookings({ studioId }: { studioId?: string }) {
+    try {
+      const upcomingBookingQuery = this.knex
+        .select(this.knex.raw(`booking.reference_no,users.name, users.image, TO_CHAR(booking.date, 'YYYY-MM-DD') AS booking_date, booking.start_time, booking.end_time`))
+        .from("booking")
+        .leftJoin("users", "booking.user_id", "users.id")
+        .where("booking.studio_id", studioId)
+        .andWhere("booking.status", "confirmed")
+        .andWhereRaw("booking.date::DATE + end_time::INTERVAL > NOW()")
+        .orderByRaw("1 DESC"); // Order from latest to oldest
+
+      const bookingList = await paginationService.paginateQuery(upcomingBookingQuery, 1, 5);
+
+      return { success: true, data: { bookingList } };
     } catch (error) {
       console.log(error);
       return handleError(error, "server") as ActionResponse;

@@ -1,12 +1,22 @@
 "use client";
 import SlideArrowButton from "@/components/animata/button/slide-arrow-button";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/shadcn/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/shadcn/dialog";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/shadcn/form";
 import { Input } from "@/components/shadcn/input";
 import { CirclePlus } from "lucide-react";
-import SubmitButton from "../buttons/SubmitButton";
+import SubmitButton from "../common/buttons/SubmitButton";
 
-import { StudioNameFormData, StudioNameSchema } from "@/lib/validations/zod-schema/studio/studio-step-schema";
+import {
+  StudioNameFormData,
+  StudioNameSchema,
+} from "@/lib/validations/zod-schema/studio/studio-step-schema";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
@@ -73,8 +83,15 @@ const AddNewStudio = ({ hasCreatedStudio, isDashboard }: Props) => {
         <div className="flex justify-center items-center mt-20">
           <DialogTrigger asChild>
             <div className="flex flex-col items-center cursor-pointer">
-              <Image src="/yoga-cartoon/yoga-girl-doing-anjaneyasana-pose.png" alt="yoga image" width="200" height="200" />
-              <SlideArrowButton primaryColor="hsl(var(--primary))">建立你的第一個場地</SlideArrowButton>
+              <Image
+                src="/yoga-cartoon/yoga-girl-doing-anjaneyasana-pose.png"
+                alt="yoga image"
+                width="200"
+                height="200"
+              />
+              <SlideArrowButton primaryColor="hsl(var(--primary))">
+                建立你的第一個場地
+              </SlideArrowButton>
             </div>
           </DialogTrigger>
         </div>
@@ -102,7 +119,13 @@ const AddNewStudio = ({ hasCreatedStudio, isDashboard }: Props) => {
               render={({ field }) => (
                 <FormItem className="w-full">
                   <FormControl>
-                    <Input type="text" id="studioName" className={`form-input text-sm`} placeholder="請輸入場地名稱" {...field} />
+                    <Input
+                      type="text"
+                      id="studioName"
+                      className={`form-input text-sm`}
+                      placeholder="請輸入場地名稱"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

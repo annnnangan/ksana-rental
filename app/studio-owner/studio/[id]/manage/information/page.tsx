@@ -1,12 +1,12 @@
 import ResponsiveTab from "@/components/custom-components/layout/ResponsiveTab";
-import LoadingSpinner from "@/components/custom-components/loading/LoadingSpinner";
-import BasicInfoForm from "@/components/custom-components/studio-details/BasicInfoForm";
-import DoorPasswordForm from "@/components/custom-components/studio-details/DoorPasswordForm";
-import EquipmentForm from "@/components/custom-components/studio-details/EquipmentForm";
-import GalleryForm from "@/components/custom-components/studio-details/GalleryForm";
-import PayoutForm from "@/components/custom-components/studio-details/PayoutForm";
+import LoadingSpinner from "@/components/custom-components/common/loading/LoadingSpinner";
+import BasicInfoForm from "@/components/custom-components/studio-details-form/BasicInfoForm";
+import DoorPasswordForm from "@/components/custom-components/studio-details-form/DoorPasswordForm";
+import EquipmentForm from "@/components/custom-components/studio-details-form/EquipmentForm";
+import GalleryForm from "@/components/custom-components/studio-details-form/GalleryForm";
+import PayoutForm from "@/components/custom-components/studio-details-form/PayoutForm";
 import SectionTitle from "@/components/custom-components/common/SectionTitle";
-import SocialForm from "@/components/custom-components/studio-details/SocialForm";
+import SocialForm from "@/components/custom-components/studio-details-form/SocialForm";
 import { studioService, StudioService } from "@/services/studio/StudioService";
 import { Suspense } from "react";
 
@@ -68,12 +68,48 @@ const StudioInformationPage = async (props: Props) => {
       {dataResponse.success ? (
         <div className="mt-5">
           <Suspense fallback={<LoadingSpinner />}>
-            {activeTab === "basic-info" && <BasicInfoForm studioId={studioId} isOnboardingStep={false} defaultValues={defaultValues} />}
-            {activeTab === "gallery" && <GalleryForm studioId={studioId} isOnboardingStep={false} defaultValues={defaultValues} />}
-            {activeTab === "equipment" && <EquipmentForm studioId={studioId} isOnboardingStep={false} defaultValues={defaultValues} />}
-            {activeTab === "door-password" && <DoorPasswordForm studioId={studioId} isOnboardingStep={false} defaultValues={defaultValues} />}
-            {activeTab === "social" && <SocialForm studioId={studioId} isOnboardingStep={false} defaultValues={defaultValues} />}
-            {activeTab === "payout-info" && <PayoutForm studioId={studioId} isOnboardingStep={false} defaultValues={defaultValues} />}
+            {activeTab === "basic-info" && (
+              <BasicInfoForm
+                studioId={studioId}
+                isOnboardingStep={false}
+                defaultValues={defaultValues}
+              />
+            )}
+            {activeTab === "gallery" && (
+              <GalleryForm
+                studioId={studioId}
+                isOnboardingStep={false}
+                defaultValues={defaultValues}
+              />
+            )}
+            {activeTab === "equipment" && (
+              <EquipmentForm
+                studioId={studioId}
+                isOnboardingStep={false}
+                defaultValues={defaultValues}
+              />
+            )}
+            {activeTab === "door-password" && (
+              <DoorPasswordForm
+                studioId={studioId}
+                isOnboardingStep={false}
+                defaultValues={defaultValues}
+              />
+            )}
+            {activeTab === "social" && (
+              <SocialForm
+                studioId={studioId}
+                isOnboardingStep={false}
+                defaultValues={defaultValues}
+              />
+            )}
+            {activeTab === "payout-info" && (
+              <PayoutForm
+                studioId={studioId}
+                isOnboardingStep={false}
+                defaultValues={defaultValues}
+              />
+            )}
           </Suspense>
         </div>
       ) : (

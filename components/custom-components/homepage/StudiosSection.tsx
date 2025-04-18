@@ -1,11 +1,16 @@
 import { studioService } from "@/services/studio/StudioService";
-import ButtonLink from "../buttons/ButtonLink";
+import ButtonLink from "../common/buttons/ButtonLink";
 import StudioCardSwiper from "./StudioCardSwiper";
 import { studioCardInfo } from "@/app/(user)/explore-studios/page";
 
 const HomepageStudioSection = async () => {
-  const studioListResult = await studioService.getStudioBasicInfo({ status: "active", page: 1, limit: 10 });
-  const studioListData: studioCardInfo[] = (studioListResult.success && studioListResult?.data?.studios) || [];
+  const studioListResult = await studioService.getStudioBasicInfo({
+    status: "active",
+    page: 1,
+    limit: 10,
+  });
+  const studioListData: studioCardInfo[] =
+    (studioListResult.success && studioListResult?.data?.studios) || [];
 
   return (
     <div className="my-10 flex flex-col items-center">

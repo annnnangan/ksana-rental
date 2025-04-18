@@ -17,7 +17,7 @@ const GlobalStyle = createGlobalStyle`
 `;
 
 // import required modules
-import StudioImage from "@/components/custom-components/studio/StudioImage";
+import StudioImage from "@/components/custom-components/studio-card/StudioImage";
 import { FreeMode, Navigation, Thumbs } from "swiper/modules";
 
 interface Props {
@@ -40,11 +40,7 @@ const GallerySlideshow = ({ images }: Props) => {
       >
         {images.map((image) => (
           <SwiperSlide key={image}>
-            <StudioImage
-              objectFit="object-contain"
-              hoverEffect={false}
-              imageUrl={image}
-            />
+            <StudioImage objectFit="object-contain" hoverEffect={false} imageUrl={image} />
           </SwiperSlide>
         ))}
       </Swiper>

@@ -9,29 +9,27 @@ import { Calendar } from "@/components/shadcn/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/shadcn/popover";
 
 import { cn } from "@/lib/utils/tailwind-utils";
-import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { formatDate } from "@/lib/utils/date-time/format-date-utils";
 
 interface Props {
-  defaultStartDate: Date;
-  defaultEndDate: Date;
+  selectedWeek: DateRange;
+  setSelectedWeek: ({ from, to }: { from: Date; to: Date }) => void;
 }
 
-const DateFilter = ({ defaultStartDate, defaultEndDate }: Props) => {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-
-  const [selectedWeek, setSelectedWeek] = useState<DateRange>({
-    from: searchParams.get("startDate") ? new Date(searchParams.get("startDate") as string) : defaultStartDate,
-    to: searchParams.get("endDate") ? new Date(searchParams.get("endDate") as string) : defaultEndDate,
-  });
+const DateFilter = ({ selectedWeek, setSelectedWeek }: Props) => {
+  const maxCalendarDate = subDays(startOfWeek(new Date(), { weekStartsOn: 1 }), 8);
 
   return (
     <div className="grid gap-2">
       <Popover>
         <PopoverTrigger asChild>
-          <Button id="date" variant={"outline"} className={cn("w-[300px] justify-start text-left font-normal", !selectedWeek && "text-muted-foreground")}>
+          <Button
+            id="date"
+            variant={"outline"}
+            className={cn(
+              "w-[300px] justify-start text-left font-normal",
+              !selectedWeek && "text-muted-foreground"
+            )}
+          >
             <CalendarIcon />
             {selectedWeek?.from ? (
               selectedWeek.to ? (
@@ -42,7 +40,7 @@ const DateFilter = ({ defaultStartDate, defaultEndDate }: Props) => {
                 format(selectedWeek.from, "LLL dd, y")
               )
             ) : (
-              <span>Pick a date</span>
+              <span>選擇結算時段</span>
             )}
           </Button>
         </PopoverTrigger>
@@ -50,19 +48,15 @@ const DateFilter = ({ defaultStartDate, defaultEndDate }: Props) => {
           <Calendar
             modifiers={{
               selected: selectedWeek!,
-              range_start: selectedWeek?.from!,
-              range_end: selectedWeek?.to!,
+              range_start: selectedWeek.from!,
+              range_end: selectedWeek.to!,
             }}
-            disabled={{ after: defaultEndDate }}
-            onDayClick={(day, modifiers) => {
+            disabled={{ after: maxCalendarDate }}
+            onDayClick={(day) => {
               setSelectedWeek({
                 from: startOfWeek(day, { weekStartsOn: 1 }),
                 to: endOfWeek(day, { weekStartsOn: 1 }),
               });
-              const currentParams = new URLSearchParams(searchParams?.toString());
-              currentParams.set("startDate", formatDate(startOfWeek(day, { weekStartsOn: 1 })));
-              currentParams.set("endDate", formatDate(endOfWeek(day, { weekStartsOn: 1 })));
-              router.push(`?${currentParams.toString()}`);
             }}
           />
         </PopoverContent>

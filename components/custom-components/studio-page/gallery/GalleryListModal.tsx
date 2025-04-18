@@ -1,5 +1,5 @@
 "use client";
-import StudioImage from "@/components/custom-components/studio/StudioImage";
+import StudioImage from "@/components/custom-components/studio-card/StudioImage";
 import { Button } from "@/components/shadcn/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/shadcn/dialog";
 import { CircleX, GalleryThumbnails } from "lucide-react";
@@ -12,7 +12,12 @@ interface Props {
   images: string[];
 }
 
-const GalleryListModal = ({ isOpenListModal, onCloseListModal, openSlideshowModal, images }: Props) => {
+const GalleryListModal = ({
+  isOpenListModal,
+  onCloseListModal,
+  openSlideshowModal,
+  images,
+}: Props) => {
   return (
     <>
       <Dialog open={isOpenListModal}>
