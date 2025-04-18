@@ -1,7 +1,5 @@
 import handleError from "@/lib/handlers/error";
 import { ForbiddenError } from "@/lib/http-errors";
-import { validatePayoutDates } from "@/lib/utils/date-time/payout-date-validation";
-import { PayoutMethod, PayoutStatus } from "@/services/model";
 import { payoutService } from "@/services/payout/PayoutService";
 import { differenceInDays, getDay, isValid, parseISO } from "date-fns";
 import { NextRequest, NextResponse } from "next/server";
@@ -31,7 +29,11 @@ export async function GET(request: NextRequest, props: { params: Promise<{ slug:
     }
 
     // 🔍 Validate if it is a valid date range
-    if (getDay(new Date(payoutStartDate)) !== 1 || getDay(new Date(payoutEndDate)) !== 0 || differenceInDays(new Date(payoutEndDate), new Date(payoutStartDate)) !== 6) {
+    if (
+      getDay(new Date(payoutStartDate)) !== 1 ||
+      getDay(new Date(payoutEndDate)) !== 0 ||
+      differenceInDays(new Date(payoutEndDate), new Date(payoutStartDate)) !== 6
+    ) {
       throw new ForbiddenError("Invalid payout date range.");
     }
 
