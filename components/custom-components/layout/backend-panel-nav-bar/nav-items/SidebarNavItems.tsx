@@ -1,5 +1,12 @@
 "use client";
-import { SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/shadcn/sidebar";
+import {
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/shadcn/sidebar";
 import { LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -17,6 +24,18 @@ export interface NavItems {
 export function SidebarNavItems({ navItems }: { navItems: NavItems }) {
   const currentPath = usePathname();
 
+  const checkActivePath = (itemUrl: string) => {
+    if (currentPath.startsWith("/admin/payout/studio") && itemUrl === "/admin/payout") {
+      return true;
+    } else if (itemUrl === "/admin/payout-history") {
+      return currentPath === itemUrl;
+    } else if (itemUrl === "/admin/payout") {
+      return currentPath === itemUrl;
+    }
+
+    return currentPath.startsWith(itemUrl);
+  };
+
   return (
     <>
       {Object.keys(navItems).map((section: string) => (
@@ -26,7 +45,11 @@ export function SidebarNavItems({ navItems }: { navItems: NavItems }) {
             <SidebarMenu>
               {navItems[section]?.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={item.url === currentPath} className="h-full [&>svg]:size-4">
+                  <SidebarMenuButton
+                    asChild
+                    isActive={checkActivePath(item.url)}
+                    className="h-full [&>svg]:size-4"
+                  >
                     <Link href={item.url} className="h-full">
                       <item.icon />
                       {item.title}
