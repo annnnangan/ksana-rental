@@ -130,5 +130,13 @@ exports.seed = async function (knex) {
       email_verified: new Date(),
       image: "https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/icon/icon-female-5.jpg",
     },
+    {
+      name: "Anna(Admin)",
+      email: "annangan1998@gmail.com",
+      password: "$2a$10$hO0guhsG2wzFQWTJiUFsz.BHAJO7cI4EpahAz2NWQr4IGOAlDP/rG",
+      email_verified: new Date(),
+      image: "https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/icon/icon-female-5.jpg",
+      role: "admin",
+    },
   ]);
 };

@@ -1,7 +1,6 @@
 "use client";
 import DateFilter from "@/components/custom-components/filters-and-sort/payout/DateFilter";
 import PayoutMethodFilter from "@/components/custom-components/filters-and-sort/payout/PayoutMethodFilter";
-import StudioFilter from "@/components/custom-components/filters-and-sort/payout/StudioFilter";
 
 import SectionTitle from "@/components/custom-components/common/SectionTitle";
 import { PayoutMethod, PayoutStatus } from "@/services/model";
@@ -11,6 +10,7 @@ import LoadingSpinner from "@/components/custom-components/common/loading/Loadin
 import PaginationWrapper from "@/components/custom-components/common/PaginationWrapper";
 import SectionFallback from "@/components/custom-components/common/SectionFallback";
 import PayoutStatusFilter from "@/components/custom-components/filters-and-sort/payout/PayoutStatusFilter";
+import StudioNameFilter from "@/components/custom-components/filters-and-sort/StudioNameFilter";
 import PayoutStatusBadge from "@/components/custom-components/payout/common/PayoutStatusBadge";
 import { Button } from "@/components/shadcn/button";
 import {
@@ -85,7 +85,7 @@ const PayoutPage = () => {
         <DateFilter selectedWeek={selectedWeek} setSelectedWeek={setSelectedWeek} />
 
         <div className="flex gap-4 mb-10 mt-5">
-          <StudioFilter setFilter={setFilter} filter={filters} />
+          <StudioNameFilter setFilter={setFilter} filter={filters} filterKey={"studio"} />
           <PayoutStatusFilter setFilter={setFilter} filter={filters} />
           <PayoutMethodFilter setFilter={setFilter} filter={filters} />
         </div>
