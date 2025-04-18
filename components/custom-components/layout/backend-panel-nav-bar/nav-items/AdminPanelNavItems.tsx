@@ -1,5 +1,5 @@
 "use client";
-import { CircleGauge, FileClock, HandCoins, House } from "lucide-react";
+import { CircleGauge, FileClock, HandCoins, House, Megaphone } from "lucide-react";
 import { NavItems, SidebarNavItems } from "./SidebarNavItems";
 
 const navItems: NavItems = {
@@ -27,6 +27,7 @@ const navItems: NavItems = {
       icon: FileClock,
     },
   ],
+  Promotion: [{ title: "Promotion", url: "/admin/promotion", icon: Megaphone }],
 };
 
 export function AdminPanelNavItems() {

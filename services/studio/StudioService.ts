@@ -41,9 +41,19 @@ export class StudioService {
     };
   }
 
-  async getAllStudiosName() {
+  async getAllStudiosName({ status = "all" }: { status?: "all" | "active" }) {
     try {
-      const studios = await this.knex.select("name", "slug").from("studio").orderBy("name");
+      const mainQuery = this.knex
+        .select("name AS label", "id AS value", "logo")
+        .from("studio")
+        .orderBy("name")
+        .whereNot("status", "draft");
+
+      if (status === "active") {
+        mainQuery.where("status", "active");
+      }
+
+      const studios = await mainQuery;
 
       return {
         success: true,
@@ -55,9 +65,45 @@ export class StudioService {
     }
   }
 
+  async getRecommendStudios() {
+    try {
+      const studioList = await this.knex("recommend_studio")
+        .select(
+          "studio.id AS studio_id",
+          "recommend_studio.rank",
+          "studio.name",
+          "studio.slug",
+          "studio.cover_photo",
+          "studio.district",
+          this.knex.raw(`COALESCE(AVG(review.rating), 0) AS rating`)
+        )
+        .leftJoin("studio", "recommend_studio.studio_id", "studio.id")
+        .leftJoin("booking", "studio.id", "booking.studio_id")
+        .leftJoin("review", "booking.reference_no", "review.booking_reference_no")
+        .groupBy(
+          "studio.id",
+          "recommend_studio.rank",
+          "studio.name",
+          "studio.slug",
+          "studio.cover_photo",
+          "studio.district"
+        )
+        .orderBy("recommend_studio.rank", "asc");
+
+      return {
+        success: true,
+        data: studioList,
+      };
+    } catch (error) {
+      console.dir(error);
+      return handleError(error, "server") as ActionResponse;
+    }
+  }
+
   async getStudioStatus(studioId: string) {
     try {
-      const status = (await this.knex.select("status").from("studio").where({ id: studioId }))[0].status;
+      const status = (await this.knex.select("status").from("studio").where({ id: studioId }))[0]
+        .status;
 
       return {
         success: true,
@@ -132,7 +178,16 @@ export class StudioService {
         .leftJoin("studio_price", "studio.id", "studio_price.studio_id")
         .leftJoin("studio_equipment", "studio.id", "studio_equipment.studio_id")
         .leftJoin("equipment", "studio_equipment.equipment_id", "equipment.id")
-        .groupBy("studio.id", "studio.name", "studio.slug", "studio.logo", "studio.district", "studio.address", "studio.description", "studio.phone");
+        .groupBy(
+          "studio.id",
+          "studio.name",
+          "studio.slug",
+          "studio.logo",
+          "studio.district",
+          "studio.address",
+          "studio.description",
+          "studio.phone"
+        );
 
       /* ---------------------------- Apply Filter ---------------------------- */
       if (date && startTime) {
@@ -154,7 +209,10 @@ export class StudioService {
               .andWhere("studio_business_hour.to", ">=", endTime)
               .whereNotExists(function () {
                 // Ensure studio doesn't have a specific entry (business_hour applies only if no specific hour is set)
-                this.select("id").from("studio_date_specific_hour").whereRaw("studio_date_specific_hour.studio_id = studio_business_hour.studio_id").andWhere("studio_date_specific_hour.date", date);
+                this.select("id")
+                  .from("studio_date_specific_hour")
+                  .whereRaw("studio_date_specific_hour.studio_id = studio_business_hour.studio_id")
+                  .andWhere("studio_date_specific_hour.date", date);
               });
           });
 
@@ -169,7 +227,9 @@ export class StudioService {
               .andWhere("booking.start_time", formattedStartTime)
               .andWhere(function () {
                 this.where("booking.status", "confirmed").orWhere(function () {
-                  this.where("booking.status", "pending for payment").andWhereRaw("booking.created_at >= NOW() - INTERVAL '15 minutes'");
+                  this.where("booking.status", "pending for payment").andWhereRaw(
+                    "booking.created_at >= NOW() - INTERVAL '15 minutes'"
+                  );
                 });
               });
           })
@@ -178,7 +238,11 @@ export class StudioService {
             if (slug) query.where("studio.slug", slug);
             if (district) query.where("studio.district", district);
             if (equipment && equipment.length > 0) {
-              query.whereIn("equipment.equipment", equipment.split(",")).havingRaw("COUNT(DISTINCT studio_equipment.equipment_id) = ?", [equipment.split(",").length]);
+              query
+                .whereIn("equipment.equipment", equipment.split(","))
+                .havingRaw("COUNT(DISTINCT studio_equipment.equipment_id) = ?", [
+                  equipment.split(",").length,
+                ]);
             }
           });
 
@@ -196,7 +260,9 @@ export class StudioService {
               .andWhere("booking.start_time", formattedStartTime)
               .andWhere(function () {
                 this.where("booking.status", "confirmed").orWhere(function () {
-                  this.where("booking.status", "pending for payment").andWhereRaw("booking.created_at >= NOW() - INTERVAL '15 minutes'");
+                  this.where("booking.status", "pending for payment").andWhereRaw(
+                    "booking.created_at >= NOW() - INTERVAL '15 minutes'"
+                  );
                 });
               });
           })
@@ -205,7 +271,11 @@ export class StudioService {
             if (slug) query.where("studio.slug", slug);
             if (district) query.where("studio.district", district);
             if (equipment && equipment.length > 0) {
-              query.whereIn("equipment.equipment", equipment.split(",")).havingRaw("COUNT(DISTINCT studio_equipment.equipment_id) = ?", [equipment.split(",").length]);
+              query
+                .whereIn("equipment.equipment", equipment.split(","))
+                .havingRaw("COUNT(DISTINCT studio_equipment.equipment_id) = ?", [
+                  equipment.split(",").length,
+                ]);
             }
           });
       }
@@ -219,7 +289,11 @@ export class StudioService {
         mainQuery = mainQuery.where("studio.district", district);
       }
       if (equipment && equipment.length > 0) {
-        mainQuery = mainQuery.whereIn("equipment.equipment", equipment.split(",")).havingRaw("COUNT(DISTINCT studio_equipment.equipment_id) = ?", [equipment.split(",").length]); // Ensure the studio has all selected equipment
+        mainQuery = mainQuery
+          .whereIn("equipment.equipment", equipment.split(","))
+          .havingRaw("COUNT(DISTINCT studio_equipment.equipment_id) = ?", [
+            equipment.split(",").length,
+          ]); // Ensure the studio has all selected equipment
       }
 
       /* ---------------------------- Apply OrderBy ---------------------------- */
@@ -261,7 +335,9 @@ export class StudioService {
               query
                 .whereIn("equipment.equipment", equipmentArray) // Filter equipment
                 .groupBy("studio.id") // Group by studio
-                .havingRaw("COUNT(DISTINCT studio_equipment.equipment_id) = ?", [equipmentArray.length]);
+                .havingRaw("COUNT(DISTINCT studio_equipment.equipment_id) = ?", [
+                  equipmentArray.length,
+                ]);
             }
           })
           .select("studio.id"); // Select only studio.id
@@ -327,7 +403,11 @@ export class StudioService {
       return {
         success: true,
         //@ts-ignore
-        data: { rating: Number(rating.rating), review_amount: Number(publicReviewAmount.count), rating_breakdown: ratingBreakdown },
+        data: {
+          rating: Number(rating.rating),
+          review_amount: Number(publicReviewAmount.count),
+          rating_breakdown: ratingBreakdown,
+        },
       };
     } catch (error) {
       console.dir(error);
@@ -346,7 +426,9 @@ export class StudioService {
           "review.review",
           "review.created_at",
           "review.is_anonymous",
-          this.knex.raw("COALESCE(json_agg(review_photo.photo) FILTER (WHERE review_photo.photo IS NOT NULL), '[]') AS photos")
+          this.knex.raw(
+            "COALESCE(json_agg(review_photo.photo) FILTER (WHERE review_photo.photo IS NOT NULL), '[]') AS photos"
+          )
         )
         .from("review")
         .leftJoin("booking", "review.booking_reference_no", "booking.reference_no")
@@ -354,7 +436,15 @@ export class StudioService {
         .leftJoin("users", "booking.user_id", "users.id")
         .leftJoin("review_photo", "review.id", "review_photo.review_id")
         .where({ "studio.slug": studioSlug })
-        .groupBy("review.id", "users.name", "users.image", "review.rating", "review.review", "review.created_at", "review.is_anonymous")
+        .groupBy(
+          "review.id",
+          "users.name",
+          "users.image",
+          "review.rating",
+          "review.review",
+          "review.created_at",
+          "review.is_anonymous"
+        )
         .orderBy("review.created_at", "desc");
 
       /* ---------------------------- Apply pagination ---------------------------- */
@@ -403,7 +493,10 @@ export class StudioService {
   /* ---------------------------------- Get Onboarding Step Status ---------------------------------- */
   async getOnboardingStepStatus(studioId: string) {
     try {
-      const result = await this.knex.select("step", "is_complete").from("studio_onboarding_step").where({ studio_id: studioId });
+      const result = await this.knex
+        .select("step", "is_complete")
+        .from("studio_onboarding_step")
+        .where({ studio_id: studioId });
 
       if (result.length === 0) {
         throw new NotFoundError("場地");
@@ -455,7 +548,10 @@ export class StudioService {
   async deleteDraftStudio(studioId: string, userId: string) {
     const txn = await this.knex.transaction();
     try {
-      const isStudioBelongUser = await validateStudioService.validateIsStudioBelongToUser(userId, studioId);
+      const isStudioBelongUser = await validateStudioService.validateIsStudioBelongToUser(
+        userId,
+        studioId
+      );
 
       if (!isStudioBelongUser.success) {
         throw new UnauthorizedError("場地不存在");
@@ -500,7 +596,9 @@ export class StudioService {
         .update({ ...data, area: area });
 
       if (isOnboardingStep) {
-        await txn("studio_onboarding_step").where({ studio_id: studioId, step: "basic-info" }).update({ is_complete: true });
+        await txn("studio_onboarding_step")
+          .where({ studio_id: studioId, step: "basic-info" })
+          .update({ is_complete: true });
       }
 
       // Commit the transaction
@@ -517,9 +615,25 @@ export class StudioService {
 
   async getBasicInfoFormData(studioId: string) {
     try {
-      const result = (await this.knex.select("logo", "cover_photo", "name", "slug", "district", "address", "description", "phone").from("studio").where({ id: studioId }))[0];
+      const result = (
+        await this.knex
+          .select(
+            "logo",
+            "cover_photo",
+            "name",
+            "slug",
+            "district",
+            "address",
+            "description",
+            "phone"
+          )
+          .from("studio")
+          .where({ id: studioId })
+      )[0];
       // Ensure all fields are non-null by mapping through result
-      const sanitizedResult = result && Object.fromEntries(Object.entries(result).map(([key, value]) => [key, value ?? ""]));
+      const sanitizedResult =
+        result &&
+        Object.fromEntries(Object.entries(result).map(([key, value]) => [key, value ?? ""]));
       return {
         success: true,
         data: sanitizedResult,
@@ -537,8 +651,13 @@ export class StudioService {
     try {
       // Get all price types from DB and create a map
       // From [{id: 1, price_type: "non-peak"},{id: 2, price_type: "peak"}]  --> { "non-peak": 1, "peak":2 })
-      const priceTypes = await this.knex.select("id", "price_type").from("studio_price").where({ studio_id: studioId });
-      const priceTypeMap: Record<string, number> = Object.fromEntries(priceTypes.map(({ id, price_type }) => [price_type, id]));
+      const priceTypes = await this.knex
+        .select("id", "price_type")
+        .from("studio_price")
+        .where({ studio_id: studioId });
+      const priceTypeMap: Record<string, number> = Object.fromEntries(
+        priceTypes.map(({ id, price_type }) => [price_type, id])
+      );
 
       // Formate the timeslot to insert into database
       let formattedTimeslots;
@@ -556,7 +675,10 @@ export class StudioService {
       }
 
       // Check if the date exist in the database
-      const isDateExist = await this.knex.select("id").from("studio_date_specific_hour").where({ date: date, studio_id: studioId });
+      const isDateExist = await this.knex
+        .select("id")
+        .from("studio_date_specific_hour")
+        .where({ date: date, studio_id: studioId });
       // If date exist in the database - remove all the rows and then insert new rows
       // If date doesn't exist in the database - create a new one
       if (isDateExist.length > 0) {
@@ -579,7 +701,13 @@ export class StudioService {
   async getAllDateSpecificHourByStudioId(studioId: string) {
     try {
       const result = await this.knex
-        .select("studio_date_specific_hour.date", "studio_date_specific_hour.is_closed", "studio_date_specific_hour.from", "studio_date_specific_hour.to", "studio_price.price_type")
+        .select(
+          "studio_date_specific_hour.date",
+          "studio_date_specific_hour.is_closed",
+          "studio_date_specific_hour.from",
+          "studio_date_specific_hour.to",
+          "studio_price.price_type"
+        )
         .from("studio_date_specific_hour")
         .where({ "studio_date_specific_hour.studio_id": studioId })
         .leftJoin("studio_price", "studio_date_specific_hour.price_type_id", "studio_price.id")
@@ -601,12 +729,17 @@ export class StudioService {
   async deleteDateSpecificHourByStudioId(date: string, studioId: string) {
     try {
       // Check if the date exist in database
-      const isDateExist = await this.knex.select("id").from("studio_date_specific_hour").where({ date: date, studio_id: studioId });
+      const isDateExist = await this.knex
+        .select("id")
+        .from("studio_date_specific_hour")
+        .where({ date: date, studio_id: studioId });
 
       //if no return not found
       //if yes delete
       if (isDateExist.length > 0) {
-        await this.knex("studio_date_specific_hour").where({ date: date, studio_id: studioId }).del();
+        await this.knex("studio_date_specific_hour")
+          .where({ date: date, studio_id: studioId })
+          .del();
       } else {
         throw new NotFoundError("時段");
       }
@@ -619,7 +752,11 @@ export class StudioService {
   }
 
   /* ----------------------------------- Handle Business Hours and Price ----------------------------------- */
-  async saveBusinessHoursAndPrice(data: BusinessHoursAndPriceFormData, studioId: string, isOnboardingStep: boolean) {
+  async saveBusinessHoursAndPrice(
+    data: BusinessHoursAndPriceFormData,
+    studioId: string,
+    isOnboardingStep: boolean
+  ) {
     const { businessHours, peakHourPrice, nonPeakHourPrice } = data;
 
     const txn = await this.knex.transaction();
@@ -633,11 +770,29 @@ export class StudioService {
 
       /* ------------------------------ Handle price update/create  ------------------------------ */
       if (isPriceDataExist.length == 0) {
-        nonPeakHourPriceId = (await txn("studio_price").insert({ studio_id: studioId, price_type: "non-peak", price: nonPeakHourPrice }).returning("id"))[0].id;
-        peakHourPiceId = (await txn("studio_price").insert({ studio_id: studioId, price_type: "peak", price: peakHourPrice }).returning("id"))[0].id;
+        nonPeakHourPriceId = (
+          await txn("studio_price")
+            .insert({ studio_id: studioId, price_type: "non-peak", price: nonPeakHourPrice })
+            .returning("id")
+        )[0].id;
+        peakHourPiceId = (
+          await txn("studio_price")
+            .insert({ studio_id: studioId, price_type: "peak", price: peakHourPrice })
+            .returning("id")
+        )[0].id;
       } else {
-        nonPeakHourPriceId = (await txn("studio_price").where({ studio_id: studioId, price_type: "non-peak" }).update({ price: nonPeakHourPrice }).returning("id"))[0].id;
-        peakHourPiceId = (await txn("studio_price").where({ studio_id: studioId, price_type: "peak" }).update({ price: peakHourPrice }).returning("id"))[0].id;
+        nonPeakHourPriceId = (
+          await txn("studio_price")
+            .where({ studio_id: studioId, price_type: "non-peak" })
+            .update({ price: nonPeakHourPrice })
+            .returning("id")
+        )[0].id;
+        peakHourPiceId = (
+          await txn("studio_price")
+            .where({ studio_id: studioId, price_type: "peak" })
+            .update({ price: peakHourPrice })
+            .returning("id")
+        )[0].id;
       }
 
       /* ------------------------------ Handle business hours update ------------------------------ */
@@ -677,7 +832,10 @@ export class StudioService {
       }
 
       // Check if the business hour data exist in the database
-      const isBusinessHourDataExist = await this.knex.select("id").from("studio_business_hour").where({ studio_id: studioId });
+      const isBusinessHourDataExist = await this.knex
+        .select("id")
+        .from("studio_business_hour")
+        .where({ studio_id: studioId });
       // If date exist in the database - remove all the rows and then insert new rows
       // If date doesn't exist in the database - create a new one
       if (isBusinessHourDataExist.length > 0) {
@@ -688,7 +846,9 @@ export class StudioService {
       }
 
       if (isOnboardingStep) {
-        await txn("studio_onboarding_step").where({ studio_id: studioId, step: "business-hour-and-price" }).update({ is_complete: true });
+        await txn("studio_onboarding_step")
+          .where({ studio_id: studioId, step: "business-hour-and-price" })
+          .update({ is_complete: true });
       }
 
       // Commit the transaction
@@ -706,7 +866,13 @@ export class StudioService {
   async getBusinessHoursByStudioId(studioId: string) {
     try {
       const result = await this.knex
-        .select("studio_business_hour.day_of_week", "studio_business_hour.is_closed", "studio_business_hour.from", "studio_business_hour.to", "studio_price.price_type")
+        .select(
+          "studio_business_hour.day_of_week",
+          "studio_business_hour.is_closed",
+          "studio_business_hour.from",
+          "studio_business_hour.to",
+          "studio_price.price_type"
+        )
         .from("studio_business_hour")
         .where({ "studio_business_hour.studio_id": studioId })
         .leftJoin("studio_price", "studio_business_hour.price_type_id", "studio_price.id")
@@ -716,20 +882,27 @@ export class StudioService {
         throw new NotFoundError("營業時間");
       }
 
-      const businessHoursObject = result.reduce((acc, { day_of_week, is_closed, from, to, price_type }) => {
-        if (!acc[day_of_week]) {
-          acc[day_of_week] = {
-            is_enabled: !is_closed, // Reverse is_closed to is_enabled
-            timeslots: [],
-          };
-        }
+      const businessHoursObject = result.reduce(
+        (acc, { day_of_week, is_closed, from, to, price_type }) => {
+          if (!acc[day_of_week]) {
+            acc[day_of_week] = {
+              is_enabled: !is_closed, // Reverse is_closed to is_enabled
+              timeslots: [],
+            };
+          }
 
-        if (!is_closed) {
-          acc[day_of_week].timeslots.push({ from: convertTimeToString(from), to: convertTimeToString(to) === "00:00" ? "24:00" : convertTimeToString(to), priceType: price_type });
-        }
+          if (!is_closed) {
+            acc[day_of_week].timeslots.push({
+              from: convertTimeToString(from),
+              to: convertTimeToString(to) === "00:00" ? "24:00" : convertTimeToString(to),
+              priceType: price_type,
+            });
+          }
 
-        return acc;
-      }, {});
+          return acc;
+        },
+        {}
+      );
 
       return {
         success: true,
@@ -745,16 +918,25 @@ export class StudioService {
     try {
       let result;
       if (studioSlug) {
-        result = await this.knex.select("price_type", "price").from("studio_price").innerJoin("studio", "studio_price.studio_id", "studio.id").where({ "studio.slug": studioSlug });
+        result = await this.knex
+          .select("price_type", "price")
+          .from("studio_price")
+          .innerJoin("studio", "studio_price.studio_id", "studio.id")
+          .where({ "studio.slug": studioSlug });
       } else {
-        result = await this.knex.select("price_type", "price").from("studio_price").where({ studio_id: studioId });
+        result = await this.knex
+          .select("price_type", "price")
+          .from("studio_price")
+          .where({ studio_id: studioId });
       }
 
       if (result.length == 0 || !result) {
         throw new NotFoundError("價錢");
       }
 
-      const pricesObject = Object.fromEntries(result.map(({ price_type, price }) => [price_type, price]));
+      const pricesObject = Object.fromEntries(
+        result.map(({ price_type, price }) => [price_type, price])
+      );
 
       return {
         success: true,
@@ -773,7 +955,11 @@ export class StudioService {
       // Return the equipment list in id
       const newEquipmentIdList = await Promise.all(
         data.equipment.map(async (item) => {
-          const result = await this.knex.select("id").from("equipment").where("equipment", item).first();
+          const result = await this.knex
+            .select("id")
+            .from("equipment")
+            .where("equipment", item)
+            .first();
           if (!result) {
             // Throw an error if the equipment is not found
             throw new NotFoundError(`設備`);
@@ -782,10 +968,16 @@ export class StudioService {
         })
       );
 
-      const insertList = newEquipmentIdList.map((itemId) => ({ studio_id: studioId, equipment_id: itemId }));
+      const insertList = newEquipmentIdList.map((itemId) => ({
+        studio_id: studioId,
+        equipment_id: itemId,
+      }));
 
       // Check if there is existing equipment list
-      const existingEquipmentIdList = await this.knex.select("id").from("studio_equipment").where({ studio_id: studioId });
+      const existingEquipmentIdList = await this.knex
+        .select("id")
+        .from("studio_equipment")
+        .where({ studio_id: studioId });
 
       // If doesn't exist, then directly insert
       if (existingEquipmentIdList.length == 0) {
@@ -796,7 +988,9 @@ export class StudioService {
       }
 
       if (isOnboardingStep) {
-        await txn("studio_onboarding_step").where({ studio_id: studioId, step: "equipment" }).update({ is_complete: true });
+        await txn("studio_onboarding_step")
+          .where({ studio_id: studioId, step: "equipment" })
+          .update({ is_complete: true });
       }
 
       // Commit the transaction
@@ -821,7 +1015,11 @@ export class StudioService {
           .leftJoin("studio", "studio_equipment.studio_id", "studio.id")
           .where({ "studio.slug": studioSlug });
       } else {
-        result = await this.knex.select("equipment.equipment").from("studio_equipment").leftJoin("equipment", "studio_equipment.equipment_id", "equipment.id").where({ studio_id: studioId });
+        result = await this.knex
+          .select("equipment.equipment")
+          .from("studio_equipment")
+          .leftJoin("equipment", "studio_equipment.equipment_id", "equipment.id")
+          .where({ studio_id: studioId });
       }
 
       let equipmentArray = [];
@@ -847,9 +1045,16 @@ export class StudioService {
 
       let result;
       if (studioSlug) {
-        result = await this.knex.select("photo").from("studio_photo").leftJoin("studio", "studio_photo.studio_id", "studio.id").where({ "studio.slug": studioSlug });
+        result = await this.knex
+          .select("photo")
+          .from("studio_photo")
+          .leftJoin("studio", "studio_photo.studio_id", "studio.id")
+          .where({ "studio.slug": studioSlug });
       } else {
-        result = await this.knex.select("photo").from("studio_photo").where({ studio_id: studioId });
+        result = await this.knex
+          .select("photo")
+          .from("studio_photo")
+          .where({ studio_id: studioId });
       }
 
       let galleryArray = [];
@@ -880,7 +1085,9 @@ export class StudioService {
       }
 
       if (isOnboardingStep) {
-        await txn("studio_onboarding_step").where({ studio_id: studioId, step: "gallery" }).update({ is_complete: true });
+        await txn("studio_onboarding_step")
+          .where({ studio_id: studioId, step: "gallery" })
+          .update({ is_complete: true });
       }
 
       // Commit the transaction
@@ -896,12 +1103,19 @@ export class StudioService {
   async deleteGalleryImages(imageUrls: string[], studioId: string) {
     try {
       // Check if the date exist in database
-      const isImageExist = await this.knex.select("photo").from("studio_photo").where("studio_id", studioId).whereIn("photo", imageUrls);
+      const isImageExist = await this.knex
+        .select("photo")
+        .from("studio_photo")
+        .where("studio_id", studioId)
+        .whereIn("photo", imageUrls);
 
       //if no return not found
       //if yes delete
       if (isImageExist.length > 0) {
-        await this.knex("studio_photo").where("studio_id", studioId).whereIn("photo", imageUrls).del();
+        await this.knex("studio_photo")
+          .where("studio_id", studioId)
+          .whereIn("photo", imageUrls)
+          .del();
       } else {
         throw new NotFoundError("圖片");
       }
@@ -942,7 +1156,9 @@ export class StudioService {
       await txn("studio").where({ id: studioId }).update({ door_password: data.doorPassword });
 
       if (isOnboardingStep) {
-        await txn("studio_onboarding_step").where({ studio_id: studioId, step: "door-password" }).update({ is_complete: true });
+        await txn("studio_onboarding_step")
+          .where({ studio_id: studioId, step: "door-password" })
+          .update({ is_complete: true });
       }
       // Commit the transaction
       await txn.commit();
@@ -960,9 +1176,16 @@ export class StudioService {
       let result;
 
       if (studioSlug) {
-        result = await this.knex.select("type", "contact").from("studio_social").leftJoin("studio", "studio_social.studio_id", "studio.id").where({ "studio.slug": studioSlug });
+        result = await this.knex
+          .select("type", "contact")
+          .from("studio_social")
+          .leftJoin("studio", "studio_social.studio_id", "studio.id")
+          .where({ "studio.slug": studioSlug });
       } else {
-        result = await this.knex.select("type", "contact").from("studio_social").where({ studio_id: studioId });
+        result = await this.knex
+          .select("type", "contact")
+          .from("studio_social")
+          .where({ studio_id: studioId });
       }
 
       let socialList;
@@ -1008,7 +1231,9 @@ export class StudioService {
       await txn("studio_social").insert(transformedData);
 
       if (isOnboardingStep) {
-        await txn("studio_onboarding_step").where({ studio_id: studioId, step: "social" }).update({ is_complete: true });
+        await txn("studio_onboarding_step")
+          .where({ studio_id: studioId, step: "social" })
+          .update({ is_complete: true });
       }
       // Commit the transaction
       await txn.commit();
@@ -1023,7 +1248,10 @@ export class StudioService {
 
   async getPayoutInfo(studioId: string) {
     try {
-      const result = await this.knex.select("method", "account_name", "account_number").from("studio_payout_detail").where({ studio_id: studioId });
+      const result = await this.knex
+        .select("method", "account_name", "account_number")
+        .from("studio_payout_detail")
+        .where({ studio_id: studioId });
 
       return {
         success: true,
@@ -1041,13 +1269,26 @@ export class StudioService {
       const isDataExist = await this.knex("studio_payout_detail").where({ studio_id: studioId });
 
       if (isDataExist.length > 0) {
-        await txn("studio_payout_detail").update({ method: data.payoutMethod, account_name: data.payoutAccountName, account_number: data.payoutAccountNumber }).where({ studio_id: studioId });
+        await txn("studio_payout_detail")
+          .update({
+            method: data.payoutMethod,
+            account_name: data.payoutAccountName,
+            account_number: data.payoutAccountNumber,
+          })
+          .where({ studio_id: studioId });
       } else {
-        await txn("studio_payout_detail").insert({ studio_id: studioId, method: data.payoutMethod, account_name: data.payoutAccountName, account_number: data.payoutAccountNumber });
+        await txn("studio_payout_detail").insert({
+          studio_id: studioId,
+          method: data.payoutMethod,
+          account_name: data.payoutAccountName,
+          account_number: data.payoutAccountNumber,
+        });
       }
 
       if (isOnboardingStep) {
-        await txn("studio_onboarding_step").where({ studio_id: studioId, step: "payout-info" }).update({ is_complete: true });
+        await txn("studio_onboarding_step")
+          .where({ studio_id: studioId, step: "payout-info" })
+          .update({ is_complete: true });
       }
       // Commit the transaction
       await txn.commit();
@@ -1063,7 +1304,10 @@ export class StudioService {
   async completeStudioOnboardingApplication(data: OnboardingTermsFormData, studioId: string) {
     const txn = await this.knex.transaction();
     try {
-      const hasSubmittedApplication = await this.knex.select("step").from("studio_onboarding_step").where({ studio_id: studioId, is_complete: true, step: "confirmation" });
+      const hasSubmittedApplication = await this.knex
+        .select("step")
+        .from("studio_onboarding_step")
+        .where({ studio_id: studioId, is_complete: true, step: "confirmation" });
 
       if (hasSubmittedApplication.length > 0) {
         throw new ForbiddenError("請勿重複送出申請。");
@@ -1075,12 +1319,19 @@ export class StudioService {
 
       //check if all the step is completed, if yes, then change studio status to reviewing
 
-      const completedOnboardingSteps = await this.knex.select("step").from("studio_onboarding_step").where({ studio_id: studioId, is_complete: true });
+      const completedOnboardingSteps = await this.knex
+        .select("step")
+        .from("studio_onboarding_step")
+        .where({ studio_id: studioId, is_complete: true });
 
-      const checkHasAllSteps = onBoardingRequiredSteps.every((step) => completedOnboardingSteps.some((obj) => obj.step === step));
+      const checkHasAllSteps = onBoardingRequiredSteps.every((step) =>
+        completedOnboardingSteps.some((obj) => obj.step === step)
+      );
 
       if (checkHasAllSteps) {
-        await txn("studio_onboarding_step").update({ is_complete: true }).where({ studio_id: studioId, step: "confirmation" });
+        await txn("studio_onboarding_step")
+          .update({ is_complete: true })
+          .where({ studio_id: studioId, step: "confirmation" });
         await txn("studio").update({ status: "reviewing" }).where({ id: studioId });
       } else {
         throw new ForbiddenError("未完成所有步驟，無法送出申請。");
@@ -1097,9 +1348,14 @@ export class StudioService {
 
   async checkIfCompletedAllOnboardingSteps(studioId: string) {
     try {
-      const completedOnboardingSteps = await this.knex.select("step").from("studio_onboarding_step").where({ studio_id: studioId, is_complete: true });
+      const completedOnboardingSteps = await this.knex
+        .select("step")
+        .from("studio_onboarding_step")
+        .where({ studio_id: studioId, is_complete: true });
 
-      const checkHasAllSteps = onBoardingRequiredSteps.every((step) => completedOnboardingSteps.some((obj) => obj.step === step));
+      const checkHasAllSteps = onBoardingRequiredSteps.every((step) =>
+        completedOnboardingSteps.some((obj) => obj.step === step)
+      );
 
       if (!checkHasAllSteps) {
         throw new ForbiddenError("未完成所有步驟，無法送出申請。");
