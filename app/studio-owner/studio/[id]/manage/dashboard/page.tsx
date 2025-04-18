@@ -15,7 +15,7 @@ import {
   CardTitle,
 } from "@/components/shadcn/card";
 import { Skeleton } from "@/components/shadcn/skeleton";
-import useStudioDashboard from "@/hooks/react-query/useStudioDashboard";
+import useStudioDashboard from "@/hooks/react-query/studio-panel/useStudioDashboard";
 import { convertTimeToString } from "@/lib/utils/date-time/format-time-utils";
 import { CalendarCheck2, CircleX, Clock5 } from "lucide-react";
 import { useSession } from "next-auth/react";

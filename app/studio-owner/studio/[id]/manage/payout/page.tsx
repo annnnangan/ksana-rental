@@ -14,7 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/shadcn/table";
-import useStudioPayoutList from "@/hooks/react-query/useStudioPayoutList";
+import useStudioPayoutList from "@/hooks/react-query/studio-panel/useStudioPayoutList";
 import { formatDate } from "@/lib/utils/date-time/format-date-utils";
 import { HandCoins } from "lucide-react";
 import Link from "next/link";

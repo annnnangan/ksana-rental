@@ -1,66 +1,54 @@
 "use client";
 
-import * as React from "react";
-import { Check, ChevronsUpDown } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import * as React from "react";
 
-import { Button } from "@/components/shadcn/button";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/shadcn/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/shadcn/popover";
-import { cn } from "@/lib/utils/tailwind-utils";
-import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { AdminPayoutFilters } from "@/app/admin/payout/page";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/shadcn/select";
 
-const StudioFilterDropdown = () => {
-  const [open, setOpen] = useState(false);
-  const [value, setValue] = useState("");
-  const { data: studios, error, isLoading } = useStudios();
-  const router = useRouter();
-  const searchParams = useSearchParams();
+const StudioFilter = ({
+  filter,
+  setFilter,
+}: {
+  filter: AdminPayoutFilters;
+  setFilter: React.Dispatch<React.SetStateAction<AdminPayoutFilters>>;
+}) => {
+  const { data: studios, isLoading } = useStudios();
 
   if (isLoading) return null;
 
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button variant="outline" role="combobox" aria-expanded={open} className="w-[200px] justify-between">
-          {value ? studios?.find((studio) => studio.slug === value)?.name : "Studio Name"}
-          <ChevronsUpDown className="opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0">
-        <Command>
-          <CommandInput placeholder="Search studios..." className="h-9" />
-          <CommandList>
-            <CommandEmpty>No Studios Found.</CommandEmpty>
-            <CommandGroup>
-              {studios?.map((studio) => (
-                <CommandItem
-                  key={studio.slug}
-                  value={studio.slug}
-                  onSelect={(currentValue: React.SetStateAction<string>) => {
-                    setValue(currentValue === value ? "" : currentValue);
-                    setOpen(false);
-                    const currentParams = new URLSearchParams(searchParams?.toString() || "");
+  function handleChange(value: string): void {
+    if (value === "All") {
+      setFilter({ ...filter, studio: "" });
+    } else {
+      setFilter({ ...filter, studio: value });
+    }
+  }
 
-                    currentParams.set("studio", currentValue as string);
-                    if (currentValue === value) currentParams.delete("studio");
-                    router.push(`?${currentParams.toString()}`);
-                  }}
-                >
-                  {studio.name}
-                  <Check className={cn("ml-auto", value === studio.slug ? "opacity-100" : "opacity-0")} />
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
+  return (
+    <Select onValueChange={handleChange}>
+      <SelectTrigger className="w-[180px]">
+        <SelectValue placeholder="Filter by studio" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value={"All"}>All</SelectItem>
+        {studios?.map((studio) => (
+          <SelectItem value={studio.slug} key={studio.slug}>
+            {studio.name}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 };
 
-export default StudioFilterDropdown;
+export default StudioFilter;
 
 //use react query to fetch data
 const useStudios = () =>

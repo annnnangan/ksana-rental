@@ -1,8 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 
-const usePayoutDetails = (startDate: string, endDate: string, slug: string) => {
+const useAdminStudioPayoutDetails = (
+  startDate: string,
+  endDate: string,
+  studioId: string,
+  options = {}
+) => {
   return useQuery({
-    queryKey: ["payout-details", startDate, endDate, slug],
+    queryKey: ["admin", "payout-details", studioId, startDate, endDate],
     queryFn: async () => {
       await new Promise((resolve) => setTimeout(resolve, 500));
       const params = new URLSearchParams({
@@ -10,7 +15,7 @@ const usePayoutDetails = (startDate: string, endDate: string, slug: string) => {
         ...(endDate && { endDate }),
       });
 
-      const res = await fetch(`/api/admin/studio/${slug}/payout-details?${params.toString()}`);
+      const res = await fetch(`/api/admin/studio/${studioId}/payout-details?${params.toString()}`);
 
       if (!res.ok) {
         const errorData = await res.json();
@@ -21,8 +26,8 @@ const usePayoutDetails = (startDate: string, endDate: string, slug: string) => {
       return result.data;
     },
     staleTime: 5 * 60 * 1000,
-    enabled: !!startDate && !!endDate && !!slug,
+    ...options,
   });
 };
 
-export default usePayoutDetails;
+export default useAdminStudioPayoutDetails;

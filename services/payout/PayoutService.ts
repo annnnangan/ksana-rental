@@ -261,16 +261,18 @@ export class PayoutService {
     orderDirection,
     page = 1,
     limit = 10,
+    studioId,
   }: {
     payoutStartDate: string;
     payoutEndDate: string;
     slug?: string;
     payoutMethod?: string;
     status?: string;
-    orderBy: string;
-    orderDirection: string;
+    orderBy?: string;
+    orderDirection?: string;
     page: number;
     limit: number;
+    studioId?: string;
   }) {
     try {
       let mainQuery = `
@@ -371,6 +373,11 @@ export class PayoutService {
         params.push(slug);
       }
 
+      if (studioId) {
+        mainQuery += ` WHERE studio.id = ?`;
+        params.push(studioId);
+      }
+
       // Add WHERE condition for payoutMethod if provided
       if (payoutMethod) {
         mainQuery += slug ? ` AND` : ` WHERE`;
@@ -413,17 +420,17 @@ export class PayoutService {
           queryBuilder.orderBy("studio_id", direction);
       }
       // Total count of all satisfied result for frontend pagination
-      //@ts-ignore
       const totalCount = (
-        await queryBuilder.clone().clearSelect().clearOrder().count("* as totalCount")
-      )[0]?.totalCount;
+        await queryBuilder.clone().clearSelect().clearOrder().count("* as total_count")
+      )[0];
 
       // Apply Pagination
       const result = await paginationService.paginateQuery(queryBuilder, page, limit);
 
       return {
         success: true,
-        data: { totalCount: Number(totalCount), payoutList: result },
+        //@ts-expect-error total_count can get
+        data: { totalCount: Number(totalCount?.total_count), payoutList: result },
       };
     } catch (error) {
       console.dir(error);

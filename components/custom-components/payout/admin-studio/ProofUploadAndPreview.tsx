@@ -8,7 +8,7 @@ import { FormEvent, useState, useTransition } from "react";
 import { toast } from "react-toastify";
 
 import SubmitButton from "@/components/custom-components/common/buttons/SubmitButton";
-import { StudioPayoutOverviewData } from "@/app/admin/payout/studio/[slug]/page";
+import { StudioPayoutOverviewData } from "@/app/admin/payout/studio/[id]/page";
 import { generateAWSImageUrls } from "@/lib/utils/s3-upload/s3-image-upload-utils";
 import { confirmStudioPayout } from "@/actions/admin";
 import { useQueryClient } from "@tanstack/react-query";
