@@ -24,7 +24,17 @@ export interface NavItems {
 export function SidebarNavItems({ navItems }: { navItems: NavItems }) {
   const currentPath = usePathname();
 
-  const activePath = currentPath;
+  const checkActivePath = (itemUrl: string) => {
+    if (currentPath.startsWith("/admin/payout/studio") && itemUrl === "/admin/payout") {
+      return true;
+    } else if (itemUrl === "/admin/payout-history") {
+      return currentPath === itemUrl;
+    } else if (itemUrl === "/admin/payout") {
+      return currentPath === itemUrl;
+    }
+
+    return currentPath.startsWith(itemUrl);
+  };
 
   return (
     <>
@@ -37,7 +47,7 @@ export function SidebarNavItems({ navItems }: { navItems: NavItems }) {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     asChild
-                    isActive={activePath.startsWith(item.url)}
+                    isActive={checkActivePath(item.url)}
                     className="h-full [&>svg]:size-4"
                   >
                     <Link href={item.url} className="h-full">
