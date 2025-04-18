@@ -11,7 +11,7 @@ import {
 } from "@/components/shadcn/accordion";
 import { Button } from "@/components/shadcn/button";
 import { Skeleton } from "@/components/shadcn/skeleton";
-import useStudioPayoutDetails from "@/hooks/react-query/useStudioPayoutDetails";
+import useStudioPayoutDetails from "@/hooks/react-query/studio-panel/useStudioPayoutDetails";
 import { payoutMethodMap } from "@/lib/constants/studio-details";
 import { differenceInDays, getDay, isAfter, startOfDay, startOfWeek, subDays } from "date-fns";
 import { CircleChevronLeft, Loader2 } from "lucide-react";

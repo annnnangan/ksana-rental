@@ -15,7 +15,7 @@ import {
   CardTitle,
 } from "@/components/shadcn/card";
 import { Skeleton } from "@/components/shadcn/skeleton";
-import useAdminDashboard from "@/hooks/react-query/useAdminDashboard";
+import useAdminDashboard from "@/hooks/react-query/admin-panel/useAdminDashboard";
 import { useSessionUser } from "@/hooks/use-session-user";
 import { House } from "lucide-react";
 

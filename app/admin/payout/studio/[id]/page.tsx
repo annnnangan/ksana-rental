@@ -2,17 +2,12 @@
 import ToastMessageWithRedirect from "@/components/custom-components/common/ToastMessageWithRedirect";
 import { Button } from "@/components/shadcn/button";
 import { PayoutMethod, PayoutStatus } from "@/services/model";
-import { CircleChevronLeft, Frown, Loader, Loader2 } from "lucide-react";
-
+import { CircleChevronLeft, Loader2 } from "lucide-react";
 import AvatarWithFallback from "@/components/custom-components/common/AvatarWithFallback";
-import PayoutStatusBadge from "@/components/custom-components/payout/common/PayoutStatusBadge";
-import { Skeleton } from "@/components/shadcn/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/shadcn/tabs";
-import usePayout from "@/hooks/react-query/usePayout";
-import { payoutMethodMap } from "@/lib/constants/studio-details";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
 import ImagesGridPreview from "@/components/custom-components/ImagesGridPreview";
 import ProofUploadAndPreview from "@/components/custom-components/payout/admin-studio/ProofUploadAndPreview";
+import PayoutBreakdownTable from "@/components/custom-components/payout/common/PayoutBreakdownTable";
+import PayoutStatusBadge from "@/components/custom-components/payout/common/PayoutStatusBadge";
 import TotalPayoutAmountCard from "@/components/custom-components/payout/common/TotalPayoutAmountCard";
 import {
   Accordion,
@@ -20,9 +15,13 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/shadcn/accordion";
-import PayoutBreakdownTable from "@/components/custom-components/payout/common/PayoutBreakdownTable";
-import usePayoutDetails from "@/hooks/react-query/usePayoutDetails";
-import SectionFallback from "@/components/custom-components/common/SectionFallback";
+import { Skeleton } from "@/components/shadcn/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/shadcn/tabs";
+
+import { payoutMethodMap } from "@/lib/constants/studio-details";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { differenceInDays, getDay, isAfter, startOfDay, startOfWeek, subDays } from "date-fns";
+import useAdminStudioPayoutDetails from "@/hooks/react-query/admin-panel/useAdminStudioPayoutDetails";
 
 export interface StudioPayoutOverviewData {
   studio_id: number;
@@ -42,15 +41,53 @@ export interface StudioPayoutOverviewData {
   total_payout_amount: number;
 }
 
-const page = () => {
+const AdminPayoutStudioDetailsPage = () => {
   const router = useRouter();
-  const searchParams = useSearchParams();
+
+  // Get Studio Id from route
   const params = useParams();
+  const studioId = params.id;
+
+  // Get Payout Start and End Date from route
+  const searchParams = useSearchParams();
   const payoutStartDate = searchParams.get("startDate");
   const payoutEndDate = searchParams.get("endDate");
-  const studio = params.slug as string;
 
-  if (!payoutStartDate || !payoutEndDate || !studio) {
+  // Validate is valid payout date range
+  const start = new Date(payoutStartDate || "");
+  const end = new Date(payoutEndDate || "");
+
+  const isValid =
+    payoutStartDate &&
+    payoutEndDate &&
+    getDay(start) === 1 &&
+    getDay(end) === 0 &&
+    differenceInDays(end, start) === 6;
+
+  const maxAllowedEndDate = startOfDay(subDays(startOfWeek(new Date(), { weekStartsOn: 1 }), 8));
+  const isEndWithinRange = !isAfter(startOfDay(end), maxAllowedEndDate);
+  const isDateRangeValid = isValid && isEndWithinRange;
+
+  // Call API to Get Studio Payout Details
+  const { data, isLoading } = useAdminStudioPayoutDetails(
+    payoutStartDate!,
+    payoutEndDate!,
+    studioId as string,
+    { enabled: isDateRangeValid, studioId, payoutStartDate, payoutEndDate }
+  );
+
+  // Redirect back to payout list page when input details is incorrect
+  if (!isDateRangeValid) {
+    return (
+      <ToastMessageWithRedirect
+        type={"error"}
+        message={"無效結算時段"}
+        redirectPath={"/admin/payout"}
+      />
+    );
+  }
+
+  if (!studioId) {
     return (
       <ToastMessageWithRedirect
         type={"error"}
@@ -59,22 +96,6 @@ const page = () => {
       />
     );
   }
-
-  const { data: payoutOverviewData, isLoading: isLoadingPayoutOverview } = usePayout(
-    payoutStartDate,
-    payoutEndDate,
-    1,
-    1,
-    studio
-  );
-  const {
-    data: payoutDetails,
-    isLoading: isLoadingPayoutDetails,
-    isError: isPayoutDetailsError,
-  } = usePayoutDetails(payoutStartDate, payoutEndDate, studio);
-
-  const payoutOverview =
-    payoutOverviewData && payoutOverviewData?.studioPayoutList?.payoutList?.[0];
 
   return (
     <div className="my-8">
@@ -89,23 +110,27 @@ const page = () => {
         </Button>
       </Button>
       <div className="flex gap-5 mb-10">
-        {isLoadingPayoutOverview ? (
+        {isLoading ? (
           <Skeleton className="h-20 w-1/2" />
         ) : (
           <>
-            <AvatarWithFallback avatarUrl={payoutOverview.studio_logo} type={"studio"} size="lg" />
+            <AvatarWithFallback
+              avatarUrl={data?.payoutOverviewData.studio_logo}
+              type={"studio"}
+              size="lg"
+            />
             <div>
               <p>
                 <span className="font-bold">Studio: </span>
-                {payoutOverview.studio_name}
+                {data?.payoutOverviewData.studio_name}
               </p>
               <p>
                 <span className="font-bold">Contact: </span>
-                {payoutOverview.studio_contact}
+                {data?.payoutOverviewData.studio_contact}
               </p>
               <p>
                 <span className="font-bold">Email: </span>
-                {payoutOverview.studio_email}
+                {data?.payoutOverviewData.studio_email}
               </p>
             </div>
           </>
@@ -121,50 +146,50 @@ const page = () => {
         </TabsList>
 
         <TabsContent value="overview">
-          {isLoadingPayoutOverview ? (
+          {isLoading ? (
             <Skeleton className="h-[200px] w-full" />
           ) : (
             <div className="grid md:grid-cols-3 gap-4">
               <div className="flex flex-col bg-gray-50 p-5 rounded-lg gap-5 w-full md:col-span-1">
                 <div>
                   <p className="font-bold">Payout Status</p>
-                  <PayoutStatusBadge payoutStatus={payoutOverview.payout_status} />
+                  <PayoutStatusBadge payoutStatus={data.payoutOverviewData.payout_status} />
                 </div>
                 <div>
                   <p className="font-bold">Payout Amount</p>
-                  <p>HKD$ {payoutOverview.total_payout_amount}</p>
+                  <p>HKD$ {data.payoutOverviewData.total_payout_amount}</p>
                 </div>
                 <div>
                   <p className="font-bold">Payout Method</p>
                   <p>
                     {
                       payoutMethodMap.find(
-                        (method) => method.value === payoutOverview.payout_method
+                        (method) => method.value === data.payoutOverviewData.payout_method
                       )?.label
                     }
                   </p>
                 </div>
                 <div>
                   <p className="font-bold">Payout Account</p>
-                  <p>{payoutOverview.payout_account_number}</p>
+                  <p>{data.payoutOverviewData.payout_account_number}</p>
                 </div>
                 <div>
                   <p className="font-bold">Payout Name</p>
-                  <p>{payoutOverview.payout_account_name}</p>
+                  <p>{data.payoutOverviewData.payout_account_name}</p>
                 </div>
               </div>
 
               <div className="md:col-span-2 bg-gray-50 p-5 rounded-lg">
-                {payoutOverview.payout_proof_image_urls ? (
+                {data.payoutOverviewData.payout_proof_image_urls ? (
                   <ImagesGridPreview
-                    images={payoutOverview.payout_proof_image_urls}
+                    images={data.payoutOverviewData.payout_proof_image_urls}
                     imageAlt={"payout proof"}
                     allowDeleteImage={false}
                     gridCol={"grid-cols-3"}
                     imageRatio="aspect-[3/4]"
                   />
                 ) : (
-                  <ProofUploadAndPreview payoutOverview={payoutOverview} />
+                  <ProofUploadAndPreview payoutOverview={data.payoutOverviewData} />
                 )}
               </div>
             </div>
@@ -174,18 +199,16 @@ const page = () => {
         <TabsContent value="details">
           <div className="flex flex-wrap xl:flex-nowrap gap-5">
             {/* Payout Amount Card */}
-            {isLoadingPayoutOverview ? (
-              <Skeleton className="h-32" />
-            ) : (
-              <div className="w-full xl:basis-1/4 bg-gray-50 p-5 rounded-lg">
-                <TotalPayoutAmountCard
-                  finalPayoutAmount={payoutOverview.total_payout_amount}
-                  completedBookingAmount={payoutOverview.total_completed_booking_amount}
-                  disputeTransactionsAmount={payoutOverview.total_dispute_amount}
-                  disputeTransactionsRefundAmount={payoutOverview.total_refund_amount}
-                />
-              </div>
-            )}
+
+            <div className="w-full xl:basis-1/4 bg-gray-50 p-5 rounded-lg">
+              <TotalPayoutAmountCard
+                isLoading={isLoading}
+                finalPayoutAmount={data?.payoutOverviewData.total_payout_amount}
+                completedBookingAmount={data?.payoutOverviewData.total_completed_booking_amount}
+                disputeTransactionsAmount={data?.payoutOverviewData.total_dispute_amount}
+                disputeTransactionsRefundAmount={data?.payoutOverviewData.total_refund_amount}
+              />
+            </div>
 
             {/* Breakdown Tables */}
             <div className="w-full xl:basis-3/4">
@@ -196,12 +219,12 @@ const page = () => {
                   <AccordionItem value="item-1" className="border-0">
                     <AccordionTrigger className="font-bold">Completed Booking</AccordionTrigger>
                     <AccordionContent>
-                      {isLoadingPayoutDetails ? (
+                      {isLoading ? (
                         <Loader2 className="animate-spin" />
                       ) : (
                         <PayoutBreakdownTable
                           columns={BOOKING_TABLE_COLUMNS}
-                          values={payoutDetails.completedBookingList}
+                          values={data?.completedBookingList}
                         />
                       )}
                     </AccordionContent>
@@ -210,12 +233,12 @@ const page = () => {
                   <AccordionItem value="item-2" className="border-0">
                     <AccordionTrigger className="font-bold">Dispute Transactions</AccordionTrigger>
                     <AccordionContent>
-                      {isLoadingPayoutDetails ? (
+                      {isLoading ? (
                         <Loader2 className="animate-spin" />
                       ) : (
                         <PayoutBreakdownTable
                           columns={DISPUTE_TABLE_COLUMNS}
-                          values={payoutDetails.disputeTransactionList}
+                          values={data?.disputeTransactionList}
                         />
                       )}
                     </AccordionContent>
@@ -230,7 +253,7 @@ const page = () => {
   );
 };
 
-export default page;
+export default AdminPayoutStudioDetailsPage;
 
 const DISPUTE_TABLE_COLUMNS = {
   index: "#",

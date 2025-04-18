@@ -1,16 +1,15 @@
 "use client";
 
-import ErrorMessage from "@/components/custom-components/common/ErrorMessage";
 import ImagesGridPreview from "@/components/custom-components/ImagesGridPreview";
 
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useState, useTransition } from "react";
 import { toast } from "react-toastify";
 
-import SubmitButton from "@/components/custom-components/common/buttons/SubmitButton";
-import { StudioPayoutOverviewData } from "@/app/admin/payout/studio/[slug]/page";
-import { generateAWSImageUrls } from "@/lib/utils/s3-upload/s3-image-upload-utils";
 import { confirmStudioPayout } from "@/actions/admin";
+import { StudioPayoutOverviewData } from "@/app/admin/payout/studio/[id]/page";
+import SubmitButton from "@/components/custom-components/common/buttons/SubmitButton";
+import { generateAWSImageUrls } from "@/lib/utils/s3-upload/s3-image-upload-utils";
 import { useQueryClient } from "@tanstack/react-query";
 
 const addUploadTimestampToFile = (file: File, index: number) => {
@@ -37,7 +36,6 @@ const ProofUploadAndPreview = ({ payoutOverview }: Props) => {
 
   const [images, setImages] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -99,14 +97,20 @@ const ProofUploadAndPreview = ({ payoutOverview }: Props) => {
           });
           router.refresh();
           queryClient.invalidateQueries({
-            queryKey: ["payout", payoutRecord.payoutStartDate, payoutRecord.payoutEndDate],
+            queryKey: [
+              "admin",
+              "payout-details",
+              payoutRecord.studio_id,
+              payoutRecord.payoutStartDate,
+              payoutRecord.payoutEndDate,
+            ],
           });
           queryClient.invalidateQueries({
             queryKey: [
-              "payout",
+              "admin",
+              "payout-list",
               payoutRecord.payoutStartDate,
               payoutRecord.payoutEndDate,
-              payoutRecord.slug,
             ],
           });
         });
@@ -128,7 +132,6 @@ const ProofUploadAndPreview = ({ payoutOverview }: Props) => {
           onChange={handleFileSelect}
         />
 
-        {error && <ErrorMessage>{error}</ErrorMessage>}
         {images.length > 0 && (
           <>
             <div className="mt-5">
@@ -143,10 +146,10 @@ const ProofUploadAndPreview = ({ payoutOverview }: Props) => {
               />
             </div>
             <SubmitButton
-              isSubmitting={loading}
+              isSubmitting={loading || isPending}
               submittingText="Saving..."
               nonSubmittingText="Submit and Confirm Payout"
-            />{" "}
+            />
           </>
         )}
       </form>

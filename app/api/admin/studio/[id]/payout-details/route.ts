@@ -42,18 +42,30 @@ export async function GET(request: NextRequest, props: { params: Promise<{ id: s
       throw new ForbiddenError("Invalid payout date range.");
     }
 
-    const [completedBookingListResponse, disputeTransactionListResponse] = await Promise.all([
+    const [payoutOverviewResult, completedBookingList, disputeTransactionList] = await Promise.all([
+      payoutService.getWeeklyStudiosPayout({
+        studioId,
+        payoutStartDate,
+        payoutEndDate,
+        page: 1,
+        limit: 1,
+      }),
       payoutService.getStudioCompletedBookingList(payoutStartDate, payoutEndDate, studioId),
       payoutService.getStudioDisputeTransactionList(payoutStartDate, payoutEndDate, studioId),
     ]);
 
-    if (completedBookingListResponse.success && disputeTransactionListResponse.success) {
+    if (
+      payoutOverviewResult.success &&
+      completedBookingList.success &&
+      disputeTransactionList.success
+    ) {
       return NextResponse.json(
         {
           success: true,
           data: {
-            completedBookingList: completedBookingListResponse.data,
-            disputeTransactionList: disputeTransactionListResponse.data,
+            payoutOverviewData: payoutOverviewResult.data?.payoutList[0],
+            completedBookingList: completedBookingList.data,
+            disputeTransactionList: disputeTransactionList.data,
           },
         },
         { status: 201 }

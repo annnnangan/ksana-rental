@@ -1,8 +1,30 @@
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 
-const usePayout = (startDate: string, endDate: string, page: number, limit: number, slug?: string, orderBy?: string, orderDirection?: string, payoutMethod?: string, payoutStatus?: string) => {
+const useAdminStudioPayoutList = (
+  startDate: string,
+  endDate: string,
+  page: number,
+  limit: number,
+  slug?: string,
+  orderBy?: string,
+  orderDirection?: string,
+  payoutMethod?: string,
+  payoutStatus?: string
+) => {
   return useQuery({
-    queryKey: ["payout", startDate, endDate, page, limit, slug, orderBy, orderDirection, payoutMethod, payoutStatus],
+    queryKey: [
+      "admin",
+      "payout-list",
+      startDate,
+      endDate,
+      page,
+      limit,
+      slug,
+      orderBy,
+      orderDirection,
+      payoutMethod,
+      payoutStatus,
+    ],
     queryFn: async () => {
       await new Promise((resolve) => setTimeout(resolve, 500));
       const params = new URLSearchParams({
@@ -29,7 +51,8 @@ const usePayout = (startDate: string, endDate: string, page: number, limit: numb
     },
     staleTime: 5 * 60 * 1000,
     enabled: !!startDate && !!endDate,
+    placeholderData: keepPreviousData,
   });
 };
 
-export default usePayout;
+export default useAdminStudioPayoutList;

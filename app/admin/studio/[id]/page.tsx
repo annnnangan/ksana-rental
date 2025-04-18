@@ -23,7 +23,7 @@ import {
   DialogTrigger,
 } from "@/components/shadcn/dialog";
 import { Skeleton } from "@/components/shadcn/skeleton";
-import useStudioFormData from "@/hooks/react-query/useStudioFormData";
+import useStudioFormData from "@/hooks/react-query/studio-panel/useStudioFormData";
 import { useParams, useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { toast } from "react-toastify";
