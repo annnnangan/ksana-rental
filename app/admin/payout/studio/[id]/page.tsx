@@ -41,7 +41,7 @@ export interface StudioPayoutOverviewData {
   total_payout_amount: number;
 }
 
-const AdminPayoutPage = () => {
+const AdminPayoutStudioDetailsPage = () => {
   const router = useRouter();
 
   // Get Studio Id from route
@@ -69,10 +69,10 @@ const AdminPayoutPage = () => {
   const isDateRangeValid = isValid && isEndWithinRange;
 
   // Call API to Get Studio Payout Details
-  const { data, isLoading, isError } = useAdminStudioPayoutDetails(
-    studioId as string,
+  const { data, isLoading } = useAdminStudioPayoutDetails(
     payoutStartDate!,
     payoutEndDate!,
+    studioId as string,
     { enabled: isDateRangeValid, studioId, payoutStartDate, payoutEndDate }
   );
 
@@ -115,22 +115,22 @@ const AdminPayoutPage = () => {
         ) : (
           <>
             <AvatarWithFallback
-              avatarUrl={data.payoutOverviewData.studio_logo}
+              avatarUrl={data?.payoutOverviewData.studio_logo}
               type={"studio"}
               size="lg"
             />
             <div>
               <p>
                 <span className="font-bold">Studio: </span>
-                {data.payoutOverviewData.studio_name}
+                {data?.payoutOverviewData.studio_name}
               </p>
               <p>
                 <span className="font-bold">Contact: </span>
-                {data.payoutOverviewData.studio_contact}
+                {data?.payoutOverviewData.studio_contact}
               </p>
               <p>
                 <span className="font-bold">Email: </span>
-                {data.payoutOverviewData.studio_email}
+                {data?.payoutOverviewData.studio_email}
               </p>
             </div>
           </>
@@ -203,10 +203,10 @@ const AdminPayoutPage = () => {
             <div className="w-full xl:basis-1/4 bg-gray-50 p-5 rounded-lg">
               <TotalPayoutAmountCard
                 isLoading={isLoading}
-                finalPayoutAmount={data.payoutOverviewData.total_payout_amount}
-                completedBookingAmount={data.payoutOverviewData.total_completed_booking_amount}
-                disputeTransactionsAmount={data.payoutOverviewData.total_dispute_amount}
-                disputeTransactionsRefundAmount={data.payoutOverviewData.total_refund_amount}
+                finalPayoutAmount={data?.payoutOverviewData.total_payout_amount}
+                completedBookingAmount={data?.payoutOverviewData.total_completed_booking_amount}
+                disputeTransactionsAmount={data?.payoutOverviewData.total_dispute_amount}
+                disputeTransactionsRefundAmount={data?.payoutOverviewData.total_refund_amount}
               />
             </div>
 
@@ -224,7 +224,7 @@ const AdminPayoutPage = () => {
                       ) : (
                         <PayoutBreakdownTable
                           columns={BOOKING_TABLE_COLUMNS}
-                          values={data.completedBookingList}
+                          values={data?.completedBookingList}
                         />
                       )}
                     </AccordionContent>
@@ -238,7 +238,7 @@ const AdminPayoutPage = () => {
                       ) : (
                         <PayoutBreakdownTable
                           columns={DISPUTE_TABLE_COLUMNS}
-                          values={data.disputeTransactionList}
+                          values={data?.disputeTransactionList}
                         />
                       )}
                     </AccordionContent>
@@ -253,7 +253,7 @@ const AdminPayoutPage = () => {
   );
 };
 
-export default AdminPayoutPage;
+export default AdminPayoutStudioDetailsPage;
 
 const DISPUTE_TABLE_COLUMNS = {
   index: "#",

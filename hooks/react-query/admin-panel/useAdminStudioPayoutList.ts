@@ -13,7 +13,8 @@ const useAdminStudioPayoutList = (
 ) => {
   return useQuery({
     queryKey: [
-      "payout",
+      "admin",
+      "payout-list",
       startDate,
       endDate,
       page,

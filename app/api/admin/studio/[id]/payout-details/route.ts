@@ -63,7 +63,7 @@ export async function GET(request: NextRequest, props: { params: Promise<{ id: s
         {
           success: true,
           data: {
-            payoutOverviewData: payoutOverviewResult.data?.payoutList,
+            payoutOverviewData: payoutOverviewResult.data?.payoutList[0],
             completedBookingList: completedBookingList.data,
             disputeTransactionList: disputeTransactionList.data,
           },
