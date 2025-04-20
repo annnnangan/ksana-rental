@@ -16,6 +16,7 @@ const page = async () => {
               studio_slug={item.slug}
               cover_image={item.cover_photo}
               rating={item.rating}
+              district={item.district}
             />
           </div>
         ))}

@@ -8,33 +8,16 @@ import HomepageStudioSection from "@/components/custom-components/homepage/Studi
 import NavBar from "@/components/custom-components/layout/main-nav-bar/NavBar";
 import Footer from "@/components/custom-components/layout/MainFooter";
 import { Be_Vietnam_Pro } from "next/font/google";
+import { studioService } from "@/services/studio/StudioService";
 
 const VietnamProFont = Be_Vietnam_Pro({
   subsets: ["latin"],
   weight: "700",
 });
 
-export default function Home() {
-  const featured_studios = [
-    {
-      studio_slug: "soul-yogi-studio",
-      studio_name: "Soul Yogi Studio",
-      rating: "5",
-      cover_photo: "https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/seed-photo/soul-yogi/soul-yogi-cover.jpg",
-    },
-    {
-      studio_slug: "zen-oasis",
-      studio_name: "Zen Oasis",
-      rating: "5",
-      cover_photo: "https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/seed-photo/zen-oasis/zen-oasis-cover.jpg",
-    },
-    {
-      studio_slug: "larana-yoga",
-      studio_name: "Larana Yoga",
-      rating: "5",
-      cover_photo: "https://ksana-rental-local.s3.ap-southeast-1.amazonaws.com/seed-photo/larana/larana-cover.jpg",
-    },
-  ];
+export default async function Home() {
+  const recommendStudios = (await studioService.getRecommendStudios()).data || [];
+
   return (
     <div className="">
       <div className="flex flex-col pb-5 min-h-[700px] bg-[url(/yoga-image-assets/karolina-grabowska-GkXJisd5W1M-unsplash-m.jpg)] bg-cover bg-center">
@@ -49,13 +32,25 @@ export default function Home() {
             <div className="flex items-center gap-3">
               <h1 className={`text-6xl ${VietnamProFont.className} drop-shadow-xl`}>Find Your</h1>
               <div className="relative w-28 h-12 rounded-full overflow-hidden shadow-2xl">
-                <Image src="/yoga-image-assets/getty-images-zFgdwsNh3Q4-unsplash.jpg" alt="cover image" className="object-cover object-bottom" fill sizes="w-auto" />
+                <Image
+                  src="/yoga-image-assets/getty-images-zFgdwsNh3Q4-unsplash.jpg"
+                  alt="cover image"
+                  className="object-cover object-bottom"
+                  fill
+                  sizes="w-auto"
+                />
               </div>
             </div>
 
             <div className="flex items-center gap-3">
               <div className="relative w-28 h-12 rounded-full overflow-hidden shadow-2xl">
-                <Image src="/yoga-image-assets/stephanie-greene-1aB-1s4BIEo-unsplash.jpg" alt="cover image" className="object-cover object-bottom" fill sizes="w-auto" />
+                <Image
+                  src="/yoga-image-assets/stephanie-greene-1aB-1s4BIEo-unsplash.jpg"
+                  alt="cover image"
+                  className="object-cover object-bottom"
+                  fill
+                  sizes="w-auto"
+                />
               </div>
 
               <h2 className={`text-6xl ${VietnamProFont.className} drop-shadow-xl`}>Inner Peace</h2>
@@ -65,7 +60,7 @@ export default function Home() {
           {/* Recommend Studio Swiper */}
           <div className="flex justify-end">
             <div className="w-full md:w-[500px]">
-              <FeatureCardSwiper slideItems={featured_studios} />
+              <FeatureCardSwiper slideItems={recommendStudios} />
             </div>
           </div>
         </div>

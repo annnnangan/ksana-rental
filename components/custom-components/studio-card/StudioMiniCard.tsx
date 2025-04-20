@@ -9,9 +9,10 @@ interface Props {
   studio_slug: string;
   cover_image: string;
   rating: string;
+  district: string;
 }
 
-const StudioMiniCard = ({ studio_name, studio_slug, cover_image, rating }: Props) => {
+const StudioMiniCard = ({ studio_name, studio_slug, cover_image, rating, district }: Props) => {
   return (
     <Link href={`/studio/${studio_slug}`}>
       <Card className="flex rounded-md border-0 h-20 gap-2 p-1 bg-gray-100">
@@ -28,10 +29,12 @@ const StudioMiniCard = ({ studio_name, studio_slug, cover_image, rating }: Props
         <div className="flex flex-col">
           <div className="flex items-center">
             <Star size={10} className="me-1" fill="#01a2c7" strokeWidth={0} />
-            <p className="text-[10px]">{rating !== null ? (Math.round(Number(rating) * 10) / 10).toFixed(1) : "--"}</p>
+            <p className="text-[10px]">
+              {rating !== null ? (Math.round(Number(rating) * 10) / 10).toFixed(1) : "--"}
+            </p>
           </div>
 
-          <StudioLocation district="kwai-tsing" iconSize={10} textSize="text-[10px]" />
+          <StudioLocation district={district} iconSize={10} textSize="text-[10px]" />
 
           <p className="text-[11px] font-bold mt-auto">{studio_name}</p>
         </div>
