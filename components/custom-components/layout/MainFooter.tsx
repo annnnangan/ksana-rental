@@ -18,10 +18,8 @@ const Footer = () => {
             <Link href="/about" className="text-white hover:text-brand-600">
               關於我們
             </Link>
-            <Link href="/services" className="text-white hover:text-brand-600">
-              聯絡我們
-            </Link>
-            <Link href="/services" className="text-white hover:text-brand-600">
+
+            <Link href="/explore-studios" className="text-white hover:text-brand-600">
               所有場地
             </Link>
           </div>
@@ -34,7 +32,10 @@ const Footer = () => {
             <Link href="/terms-and-conditions" className="text-white hover:text-brand-600">
               條款與細則
             </Link>
-            <Link href="/auth/register?redirect=/studio-owner/dashboard" className="text-white hover:text-brand-600">
+            <Link
+              href="/auth/register?redirect=/studio-owner/dashboard"
+              className="text-white hover:text-brand-600"
+            >
               建立場地
             </Link>
           </div>
@@ -63,7 +64,10 @@ const Footer = () => {
         </div>
 
         {/* Bottom Section */}
-        <div className="border-t border-gray-700 mt-6 pt-4 text-center text-sm text-gray-400">&copy; {new Date().getFullYear()} Ksana. All rights reserved.</div>
+        <div className="border-t border-gray-700 mt-6 pt-4 text-center text-sm text-gray-400">
+          <p className="mb-1">&copy; {new Date().getFullYear()} Ksana. All rights reserved.</p>
+          <p>本網站僅供作品參考，並非真實營運販售</p>
+        </div>
       </div>
     </footer>
   );
