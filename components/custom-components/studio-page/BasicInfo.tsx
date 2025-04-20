@@ -16,6 +16,7 @@ type BasicStudioInfo = Pick<
   | "rating"
   | "number_of_review"
   | "number_of_completed_booking"
+  | "is_bookmarked"
 >;
 
 interface Props {
@@ -32,12 +33,17 @@ const BasicInfo = ({
     rating,
     number_of_review,
     number_of_completed_booking,
+    is_bookmarked,
   },
 }: Props) => {
   return (
     <section className="mt-5">
       <div className="flex justify-end">
-        <BookmarkButton studioSlug={slug} />
+        <BookmarkButton
+          studioSlug={slug}
+          needRouterRefresh={false}
+          currentIsBookmark={is_bookmarked}
+        />
       </div>
       <div className="flex items-center flex-col md:flex-row md:justify-start gap-4 -mt-4">
         <StudioLogo logo={logo} size="md" />

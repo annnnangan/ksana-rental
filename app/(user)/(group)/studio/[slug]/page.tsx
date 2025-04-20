@@ -14,6 +14,7 @@ import ToastMessageWithRedirect from "@/components/custom-components/common/Toas
 import { GENERAL_ERROR_MESSAGE } from "@/lib/constants/error-message";
 import { studioService } from "@/services/studio/StudioService";
 import { validateStudioService } from "@/services/studio/ValidateStudio";
+import { auth } from "@/lib/next-auth-config/auth";
 
 export interface StudioInfo {
   slug: string;
@@ -26,9 +27,11 @@ export interface StudioInfo {
   number_of_completed_booking: number;
   description: string;
   address: string;
+  is_bookmarked: boolean;
 }
 
 const StudioPage = async ({ params }: { params: Promise<{ slug: string }> }) => {
+  const user = await auth();
   const slug = (await params).slug;
 
   const isStudioExist = await validateStudioService.validateIsStudioExistBySlug(slug);
@@ -59,7 +62,7 @@ const StudioPage = async ({ params }: { params: Promise<{ slug: string }> }) => 
       socialResult,
       ratingOverviewResult,
     ] = await Promise.all([
-      studioService.getStudioBasicInfo({ slug: slug }),
+      studioService.getStudioBasicInfo({ slug: slug, userId: user?.user.id }),
       studioService.getGallery({ studioSlug: slug }),
       studioService.getEquipment({ studioSlug: slug }),
       studioService.getPrice({ studioSlug: slug }),

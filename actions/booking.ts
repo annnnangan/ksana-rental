@@ -1,11 +1,22 @@
 "use server";
 
 import handleError from "@/lib/handlers/error";
-import { ForbiddenError, NotFoundError, UnauthorizedError, ValidationError } from "@/lib/http-errors";
+import {
+  ForbiddenError,
+  NotFoundError,
+  UnauthorizedError,
+  ValidationError,
+} from "@/lib/http-errors";
 import { auth } from "@/lib/next-auth-config/auth";
-import { validateCancelBookingAvailability, validateCanLeaveBookingReview } from "@/lib/utils/date-time/manage-bookings-validation";
+import {
+  validateCancelBookingAvailability,
+  validateCanLeaveBookingReview,
+} from "@/lib/utils/date-time/manage-bookings-validation";
 import { BookingFormData } from "@/lib/validations/zod-schema/booking-schema";
-import { reviewBookingSchema, reviewFormData } from "@/lib/validations/zod-schema/review-booking-schema";
+import {
+  reviewBookingSchema,
+  reviewFormData,
+} from "@/lib/validations/zod-schema/review-booking-schema";
 import { bookingService } from "@/services/booking/BookingService";
 
 export const createPendingForPaymentBooking = async (data: BookingFormData) => {
@@ -46,9 +57,10 @@ export const createConfirmedForFreeBooking = async (data: BookingFormData) => {
       return pendingPaymentResult as ErrorResponse;
     }
 
-    const confirmedBookingResult = await bookingService.updateBookingStatusToConfirmed(pendingPaymentResult.data.reference_no, userId);
-
-    console.log("confirmedBookingResult", confirmedBookingResult);
+    const confirmedBookingResult = await bookingService.updateBookingStatusToConfirmed(
+      pendingPaymentResult.data.reference_no,
+      userId
+    );
 
     if (!confirmedBookingResult?.success) {
       return confirmedBookingResult as ErrorResponse;
@@ -60,7 +72,15 @@ export const createConfirmedForFreeBooking = async (data: BookingFormData) => {
   }
 };
 
-export const cancelBooking = async ({ bookingReferenceNo, role, studioId }: { bookingReferenceNo: string; role: "user" | "studio"; studioId?: string }) => {
+export const cancelBooking = async ({
+  bookingReferenceNo,
+  role,
+  studioId,
+}: {
+  bookingReferenceNo: string;
+  role: "user" | "studio";
+  studioId?: string;
+}) => {
   try {
     if (!bookingReferenceNo) {
       throw new NotFoundError("預約");
@@ -74,7 +94,9 @@ export const cancelBooking = async ({ bookingReferenceNo, role, studioId }: { bo
     //TODO - Check if user id and the studio id belong
 
     //Get booking reference date and start time
-    const { date, start_time, status } = (await bookingService.getBookingInfoByReferenceNo(bookingReferenceNo))?.data;
+    const { date, start_time, status } = (
+      await bookingService.getBookingInfoByReferenceNo(bookingReferenceNo)
+    )?.data;
 
     //check if it is 24 hours before
 
@@ -87,11 +109,19 @@ export const cancelBooking = async ({ bookingReferenceNo, role, studioId }: { bo
     let result;
 
     if (role === "user") {
-      result = await bookingService.cancelBookingAndRefundCredit({ bookingReferenceNo: bookingReferenceNo, role: "user", userId: session?.user?.id });
+      result = await bookingService.cancelBookingAndRefundCredit({
+        bookingReferenceNo: bookingReferenceNo,
+        role: "user",
+        userId: session?.user?.id,
+      });
     }
 
     if (role === "studio") {
-      result = await bookingService.cancelBookingAndRefundCredit({ bookingReferenceNo: bookingReferenceNo, role: "studio", studioId: studioId });
+      result = await bookingService.cancelBookingAndRefundCredit({
+        bookingReferenceNo: bookingReferenceNo,
+        role: "studio",
+        studioId: studioId,
+      });
     }
 
     if (!result?.success) {
@@ -122,17 +152,28 @@ export const reviewBooking = async (bookingReferenceNo: string, data: reviewForm
     }
 
     //Get booking reference date and start time
-    const { date, start_time, status, has_reviewed } = (await bookingService.getBookingInfoByReferenceNo(bookingReferenceNo))?.data;
+    const { date, start_time, status, has_reviewed } = (
+      await bookingService.getBookingInfoByReferenceNo(bookingReferenceNo)
+    )?.data;
 
     //check if it is after the booking date and time
     //check if it is within 7 days after the booking date and time
-    const canLeaveBookingReview: boolean = validateCanLeaveBookingReview(has_reviewed, status, date, start_time);
+    const canLeaveBookingReview: boolean = validateCanLeaveBookingReview(
+      has_reviewed,
+      status,
+      date,
+      start_time
+    );
 
     if (!canLeaveBookingReview) {
       throw new ForbiddenError("無法評論，因為評論需於預約開始後7天內進行。");
     }
 
-    const response = await bookingService.submitBookingReview(bookingReferenceNo, session?.user.id, data);
+    const response = await bookingService.submitBookingReview(
+      bookingReferenceNo,
+      session?.user.id,
+      data
+    );
 
     console.log("Database Response....");
 
