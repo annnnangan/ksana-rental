@@ -11,12 +11,7 @@ const articles = [
   {
     image: "/yoga-image-assets/getty-images-zFgdwsNh3Q4-unsplash.jpg",
     title: "如何更新場地可預約時間？",
-    href: "/studio-owner/helps/article/update-availability",
-  },
-  {
-    image: "/yoga-image-assets/luna-active-fitness-iEpsg6OzyXw-unsplash.jpg",
-    title: "如何在Ksana管理你的預約？",
-    href: "/studio-owner/helps/article/manage-bookings",
+    href: "/studio-owner/helps/article/update-booking-availability",
   },
   {
     image: "/yoga-image-assets/getty-images-QhivR4cdUf0-unsplash.jpg",
@@ -35,7 +30,13 @@ const OwnerGuidelinePage = () => {
             <div className="relative rounded-md overflow-hidden shadow">
               {/* Cover Image */}
               <div className="aspect-[3/1] bg-neutral-200 mb-1 overflow-hidden">
-                <Image alt={`help image`} width={500} height={500} src={article.image} className="w-full h-full object-cover object-center transition-transform duration-300" />
+                <Image
+                  alt={`help image`}
+                  width={500}
+                  height={500}
+                  src={article.image}
+                  className="w-full h-full object-cover object-center transition-transform duration-300"
+                />
               </div>
 
               <div className="p-5">

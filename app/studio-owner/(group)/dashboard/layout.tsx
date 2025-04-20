@@ -10,11 +10,9 @@ const layout = async ({
   HelpsArticle,
   DraftStudioStepTracker,
   ActiveStudios,
-  AnalyticsMonthlyCountByCreatedAt,
   AnalyticsMonthlyCountByBookingDate,
   AnalyticsMonthlyRevenueByBookingDate,
   AnalyticsCountByBookingDateByStudio,
-  AnalyticsCountByCreatedAtByStudio,
   AnalyticsRevenueByBookingDateByStudio,
 }: {
   children: React.ReactNode;
@@ -22,11 +20,9 @@ const layout = async ({
   HelpsArticle: React.ReactNode;
   DraftStudioStepTracker: React.ReactNode;
   ActiveStudios: React.ReactNode;
-  AnalyticsMonthlyCountByCreatedAt: React.ReactNode;
   AnalyticsMonthlyCountByBookingDate: React.ReactNode;
   AnalyticsMonthlyRevenueByBookingDate: React.ReactNode;
   AnalyticsCountByBookingDateByStudio: React.ReactNode;
-  AnalyticsCountByCreatedAtByStudio: React.ReactNode;
   AnalyticsRevenueByBookingDateByStudio: React.ReactNode;
 }) => {
   const session = await auth();
@@ -62,8 +58,6 @@ const layout = async ({
             <div>
               <ReportDateRangePicker parentPagePath={"/studio-owner/dashboard"} />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {AnalyticsMonthlyCountByCreatedAt}
-                {AnalyticsCountByCreatedAtByStudio}
                 {AnalyticsMonthlyCountByBookingDate}
                 {AnalyticsCountByBookingDateByStudio}
                 {AnalyticsMonthlyRevenueByBookingDate}
