@@ -124,6 +124,7 @@ const AdminDashboardPage = () => {
                     cover_photo: string;
                     rating: string;
                     total: string;
+                    district: string;
                   },
                   index: number
                 ) => (
@@ -136,6 +137,7 @@ const AdminDashboardPage = () => {
                           studio_slug={studio.slug}
                           cover_image={studio.cover_photo}
                           rating={studio.rating}
+                          district={studio.district}
                         />
                       </div>
 

@@ -43,7 +43,10 @@ export class DashboardService {
 
   async getStudioTotalBookingsCount(studioId: string) {
     try {
-      const totalBookings = await this.knex.count({ total_bookings: "booking.id" }).from("booking").where({ studio_id: studioId });
+      const totalBookings = await this.knex
+        .count({ total_bookings: "booking.id" })
+        .from("booking")
+        .where({ studio_id: studioId });
 
       return {
         success: true,
@@ -91,7 +94,14 @@ export class DashboardService {
   async getStudioOwnerActiveStudio(userId: string) {
     try {
       const result = await this.knex
-        .select("studio.name", "studio.slug", "studio.cover_photo", "studio.logo", "studio.district", this.knex.raw(`COALESCE(AVG(review.rating), 0) AS rating`))
+        .select(
+          "studio.name",
+          "studio.slug",
+          "studio.cover_photo",
+          "studio.logo",
+          "studio.district",
+          this.knex.raw(`COALESCE(AVG(review.rating), 0) AS rating`)
+        )
         .from("studio")
         .leftJoin("booking", "studio.id", "booking.studio_id")
         .leftJoin("review", "booking.reference_no", "review.booking_reference_no")
@@ -105,14 +115,28 @@ export class DashboardService {
     }
   }
 
-  async getStudioBookingCount({ timeframe, dateType, userId, studioId }: { timeframe: string; dateType: "created_at" | "booking_date"; userId?: string; studioId?: string }) {
+  async getStudioBookingCount({
+    timeframe,
+    dateType,
+    userId,
+    studioId,
+  }: {
+    timeframe: string;
+    dateType: "created_at" | "booking_date";
+    userId?: string;
+    studioId?: string;
+  }) {
     try {
       const dateTypeField = dateType === "booking_date" ? "date" : "created_at";
       const { startDate, monthList } = await this.generateTimeframeQuery({ timeframe });
 
       // Start building the query
       const monthlyBreakdownQuery = this.knex
-        .select(this.knex.raw(`TO_CHAR(DATE_TRUNC('month', booking.${dateTypeField}), 'YYYY-MM') AS month, COUNT(*) AS total`))
+        .select(
+          this.knex.raw(
+            `TO_CHAR(DATE_TRUNC('month', booking.${dateTypeField}), 'YYYY-MM') AS month, COUNT(*) AS total`
+          )
+        )
         .from("booking")
         .leftJoin("studio", "booking.studio_id", "studio.id")
         .where({ "booking.status": "confirmed" })
@@ -127,7 +151,11 @@ export class DashboardService {
         .leftJoin("studio", "booking.studio_id", "studio.id")
         .where({ "booking.status": "confirmed" })
         .andWhere(`booking.${dateTypeField}`, ">=", startDate)
-        .andWhere(`booking.${dateTypeField}`, "<=", this.knex.raw("DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month' - INTERVAL '1 day'"));
+        .andWhere(
+          `booking.${dateTypeField}`,
+          "<=",
+          this.knex.raw("DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month' - INTERVAL '1 day'")
+        );
 
       if (studioId) {
         monthlyBreakdownQuery.andWhere({ "booking.studio_id": studioId });
@@ -143,7 +171,9 @@ export class DashboardService {
       const monthlyBookingCount = await monthlyBreakdownQuery;
       const totalBookingCount = await totalQuery;
 
-      const formatMonthlyBreakdownList = new Map(monthlyBookingCount.map((item) => [item.month, item.total]));
+      const formatMonthlyBreakdownList = new Map(
+        monthlyBookingCount.map((item) => [item.month, item.total])
+      );
 
       function getMonthName(monthNumber: string) {
         return new Date(2000, parseInt(monthNumber) - 1).toLocaleString("en-US", {
@@ -155,25 +185,44 @@ export class DashboardService {
         const month = item.month_series;
         return {
           month: getMonthName(month.split("-")[1]),
-          total: formatMonthlyBreakdownList.has(month) ? Number(formatMonthlyBreakdownList.get(month)) : 0, // Default to '0' if no data for that month
+          total: formatMonthlyBreakdownList.has(month)
+            ? Number(formatMonthlyBreakdownList.get(month))
+            : 0, // Default to '0' if no data for that month
         };
       });
 
-      return { success: true, data: { total: Number(totalBookingCount[0].total), monthBreakdown: result } };
+      return {
+        success: true,
+        data: { total: Number(totalBookingCount[0].total), monthBreakdown: result },
+      };
     } catch (error) {
       console.log(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
 
-  async getStudioExpectedRevenue({ timeframe, dateType, userId, studioId }: { timeframe: string; dateType: "created_at" | "booking_date"; userId?: string; studioId?: string }) {
+  async getStudioExpectedRevenue({
+    timeframe,
+    dateType,
+    userId,
+    studioId,
+  }: {
+    timeframe: string;
+    dateType: "created_at" | "booking_date";
+    userId?: string;
+    studioId?: string;
+  }) {
     try {
       const dateTypeField = dateType === "booking_date" ? "date" : "created_at";
       const { startDate, monthList } = await this.generateTimeframeQuery({ timeframe });
 
       // Get the booking revenue with month
       const monthlyBreakdownQuery = this.knex
-        .select(this.knex.raw(`TO_CHAR(DATE_TRUNC('month', booking.${dateTypeField}), 'YYYY-MM') AS month, SUM(booking.price) AS total`))
+        .select(
+          this.knex.raw(
+            `TO_CHAR(DATE_TRUNC('month', booking.${dateTypeField}), 'YYYY-MM') AS month, SUM(booking.price) AS total`
+          )
+        )
         .from("booking")
         .leftJoin("studio", "booking.studio_id", "studio.id")
         .where({ "booking.status": "confirmed" })
@@ -187,7 +236,11 @@ export class DashboardService {
         .leftJoin("studio", "booking.studio_id", "studio.id")
         .where({ "booking.status": "confirmed" })
         .andWhere(`booking.${dateTypeField}`, ">=", startDate)
-        .andWhere(`booking.${dateTypeField}`, "<=", this.knex.raw("DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month' - INTERVAL '1 day'"));
+        .andWhere(
+          `booking.${dateTypeField}`,
+          "<=",
+          this.knex.raw("DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month' - INTERVAL '1 day'")
+        );
 
       if (studioId) {
         monthlyBreakdownQuery.andWhere({ "booking.studio_id": studioId });
@@ -202,7 +255,9 @@ export class DashboardService {
       const monthlyBookingRevenue = await monthlyBreakdownQuery;
       const totalBookingRevenue = await totalQuery;
 
-      const formatMonthlyBreakdownList = new Map(monthlyBookingRevenue.map((item) => [item.month, item.total]));
+      const formatMonthlyBreakdownList = new Map(
+        monthlyBookingRevenue.map((item) => [item.month, item.total])
+      );
 
       function getMonthName(monthNumber: string) {
         return new Date(2000, parseInt(monthNumber) - 1).toLocaleString("en-US", {
@@ -215,24 +270,41 @@ export class DashboardService {
         const month = item.month_series;
         return {
           month: getMonthName(month.split("-")[1]),
-          total: formatMonthlyBreakdownList.has(month) ? Number(formatMonthlyBreakdownList.get(month)) : 0, // Default to '0' if no data for that month
+          total: formatMonthlyBreakdownList.has(month)
+            ? Number(formatMonthlyBreakdownList.get(month))
+            : 0, // Default to '0' if no data for that month
         };
       });
 
-      return { success: true, data: { total: Number(totalBookingRevenue[0].total), monthBreakdown: result } };
+      return {
+        success: true,
+        data: { total: Number(totalBookingRevenue[0].total), monthBreakdown: result },
+      };
     } catch (error) {
       console.log(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
 
-  async getStudioPayout({ timeframe, userId, studioId }: { timeframe: string; userId?: string; studioId?: string }) {
+  async getStudioPayout({
+    timeframe,
+    userId,
+    studioId,
+  }: {
+    timeframe: string;
+    userId?: string;
+    studioId?: string;
+  }) {
     try {
       const { startDate, monthList } = await this.generateTimeframeQuery({ timeframe });
 
       // Get the booking revenue with month
       const monthlyBreakdownQuery = this.knex
-        .select(this.knex.raw(`TO_CHAR(DATE_TRUNC('month', payout.payout_at), 'YYYY-MM') AS month, SUM(total_payout_amount) AS total`))
+        .select(
+          this.knex.raw(
+            `TO_CHAR(DATE_TRUNC('month', payout.payout_at), 'YYYY-MM') AS month, SUM(total_payout_amount) AS total`
+          )
+        )
         .from("payout")
         .leftJoin("studio", "payout.studio_id", "studio.id")
         .andWhere(`payout.payout_at`, ">=", startDate)
@@ -244,7 +316,11 @@ export class DashboardService {
         .from("payout")
         .leftJoin("studio", "payout.studio_id", "studio.id")
         .andWhere(`payout.payout_at`, ">=", startDate)
-        .andWhere(`payout.payout_at`, "<=", this.knex.raw("DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month' - INTERVAL '1 day'"));
+        .andWhere(
+          `payout.payout_at`,
+          "<=",
+          this.knex.raw("DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month' - INTERVAL '1 day'")
+        );
 
       if (studioId) {
         monthlyBreakdownQuery.andWhere("payout.studio_id", studioId);
@@ -260,7 +336,9 @@ export class DashboardService {
 
       const totalResult = await totalQuery;
 
-      const formatMonthlyBreakdownList = new Map(monthlyBreakdownResult.map((item) => [item.month, item.total]));
+      const formatMonthlyBreakdownList = new Map(
+        monthlyBreakdownResult.map((item) => [item.month, item.total])
+      );
 
       function getMonthName(monthNumber: string) {
         return new Date(2000, parseInt(monthNumber) - 1).toLocaleString("en-US", {
@@ -273,11 +351,16 @@ export class DashboardService {
         const month = item.month_series;
         return {
           month: getMonthName(month.split("-")[1]),
-          total: formatMonthlyBreakdownList.has(month) ? Number(formatMonthlyBreakdownList.get(month)) : 0, // Default to '0' if no data for that month
+          total: formatMonthlyBreakdownList.has(month)
+            ? Number(formatMonthlyBreakdownList.get(month))
+            : 0, // Default to '0' if no data for that month
         };
       });
 
-      return { success: true, data: { total: Number(totalResult[0].total), monthBreakdown: result } };
+      return {
+        success: true,
+        data: { total: Number(totalResult[0].total), monthBreakdown: result },
+      };
     } catch (error) {
       console.log(error);
       return handleError(error, "server") as ActionResponse;
@@ -287,7 +370,11 @@ export class DashboardService {
   async getUpcoming5Bookings({ studioId }: { studioId?: string }) {
     try {
       const upcomingBookingQuery = this.knex
-        .select(this.knex.raw(`booking.reference_no,users.name, users.image, TO_CHAR(booking.date, 'YYYY-MM-DD') AS booking_date, booking.start_time, booking.end_time`))
+        .select(
+          this.knex.raw(
+            `booking.reference_no,users.name, users.image, TO_CHAR(booking.date, 'YYYY-MM-DD') AS booking_date, booking.start_time, booking.end_time`
+          )
+        )
         .from("booking")
         .leftJoin("users", "booking.user_id", "users.id")
         .where("booking.studio_id", studioId)
@@ -304,7 +391,15 @@ export class DashboardService {
     }
   }
 
-  async getCountBreakdownByStudio({ timeframe, dateType, userId }: { timeframe: string; dateType: "created_at" | "booking_date"; userId: string }) {
+  async getCountBreakdownByStudio({
+    timeframe,
+    dateType,
+    userId,
+  }: {
+    timeframe: string;
+    dateType: "created_at" | "booking_date";
+    userId: string;
+  }) {
     try {
       let startDate;
       let monthsBack;
@@ -335,7 +430,11 @@ export class DashboardService {
         .leftJoin("studio", "booking.studio_id", "studio.id")
         .where({ "studio.user_id": userId, "booking.status": "confirmed" })
         .andWhere(`booking.${dateTypeField}`, ">=", startDate)
-        .andWhere(`booking.${dateTypeField}`, "<=", this.knex.raw("DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month' - INTERVAL '1 day'"))
+        .andWhere(
+          `booking.${dateTypeField}`,
+          "<=",
+          this.knex.raw("DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month' - INTERVAL '1 day'")
+        )
         .orderByRaw("2 DESC");
 
       return { success: true, data: bookingCountBreakdownByStudio };
@@ -345,7 +444,15 @@ export class DashboardService {
     }
   }
 
-  async getRevenueBreakdownByStudio({ timeframe, dateType, userId }: { timeframe: string; dateType: "created_at" | "booking_date"; userId: string }) {
+  async getRevenueBreakdownByStudio({
+    timeframe,
+    dateType,
+    userId,
+  }: {
+    timeframe: string;
+    dateType: "created_at" | "booking_date";
+    userId: string;
+  }) {
     try {
       let startDate;
 
@@ -365,13 +472,19 @@ export class DashboardService {
       }
 
       const data = await this.knex
-        .select(this.knex.raw("studio.name AS studio_name, CAST(SUM(booking.price) AS INTEGER) AS total"))
+        .select(
+          this.knex.raw("studio.name AS studio_name, CAST(SUM(booking.price) AS INTEGER) AS total")
+        )
         .from("booking")
         .groupBy("studio.name")
         .leftJoin("studio", "booking.studio_id", "studio.id")
         .where({ "studio.user_id": userId, "booking.status": "confirmed" })
         .andWhere(`booking.${dateTypeField}`, ">=", startDate)
-        .andWhere(`booking.${dateTypeField}`, "<=", this.knex.raw("DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month' - INTERVAL '1 day'"))
+        .andWhere(
+          `booking.${dateTypeField}`,
+          "<=",
+          this.knex.raw("DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month' - INTERVAL '1 day'")
+        )
         .orderByRaw("2 DESC");
 
       return { success: true, data: data };
@@ -388,7 +501,11 @@ export class DashboardService {
       const { startDate, monthList } = await this.generateTimeframeQuery({ timeframe });
 
       const mainQuery = await this.knex
-        .select(this.knex.raw(`TO_CHAR(DATE_TRUNC('month', created_at), 'YYYY-MM') AS month, COUNT(*) AS total`))
+        .select(
+          this.knex.raw(
+            `TO_CHAR(DATE_TRUNC('month', created_at), 'YYYY-MM') AS month, COUNT(*) AS total`
+          )
+        )
         .from("users")
         .where({ role: "user" })
         .andWhere("created_at", ">=", startDate)
@@ -400,7 +517,11 @@ export class DashboardService {
         .from("users")
         .where({ role: "user" })
         .andWhere("created_at", ">=", startDate)
-        .andWhere("created_at", "<=", this.knex.raw("DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month' - INTERVAL '1 day'"));
+        .andWhere(
+          "created_at",
+          "<=",
+          this.knex.raw("DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month' - INTERVAL '1 day'")
+        );
 
       const monthMap = new Map(mainQuery.map((item) => [item.month, item.total]));
 
@@ -418,7 +539,10 @@ export class DashboardService {
         };
       });
 
-      return { success: true, data: { total: Number(totalQuery[0].total), monthBreakdown: result } };
+      return {
+        success: true,
+        data: { total: Number(totalQuery[0].total), monthBreakdown: result },
+      };
     } catch (error) {
       console.log(error);
       return handleError(error, "server") as ActionResponse;
@@ -430,7 +554,11 @@ export class DashboardService {
       const { startDate, monthList } = await this.generateTimeframeQuery({ timeframe });
 
       const mainQuery = await this.knex
-        .select(this.knex.raw(`TO_CHAR(DATE_TRUNC('month', created_at), 'YYYY-MM') AS month, COUNT(*) AS total`))
+        .select(
+          this.knex.raw(
+            `TO_CHAR(DATE_TRUNC('month', created_at), 'YYYY-MM') AS month, COUNT(*) AS total`
+          )
+        )
         .from("booking")
         .where({ status: "confirmed" })
         .andWhere("created_at", ">=", startDate)
@@ -442,7 +570,11 @@ export class DashboardService {
         .from("booking")
         .where({ status: "confirmed" })
         .andWhere("created_at", ">=", startDate)
-        .andWhere("created_at", "<=", this.knex.raw("DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month' - INTERVAL '1 day'"));
+        .andWhere(
+          "created_at",
+          "<=",
+          this.knex.raw("DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month' - INTERVAL '1 day'")
+        );
 
       const monthMap = new Map(mainQuery.map((item) => [item.month, item.total]));
 
@@ -460,7 +592,10 @@ export class DashboardService {
         };
       });
 
-      return { success: true, data: { total: Number(totalQuery[0].total), monthBreakdown: result } };
+      return {
+        success: true,
+        data: { total: Number(totalQuery[0].total), monthBreakdown: result },
+      };
     } catch (error) {
       console.log(error);
       return handleError(error, "server") as ActionResponse;
@@ -472,7 +607,11 @@ export class DashboardService {
       const { startDate, monthList } = await this.generateTimeframeQuery({ timeframe });
 
       const mainQuery = await this.knex
-        .select(this.knex.raw(`TO_CHAR(DATE_TRUNC('month', approved_at), 'YYYY-MM') AS month, COUNT(*) AS total`))
+        .select(
+          this.knex.raw(
+            `TO_CHAR(DATE_TRUNC('month', approved_at), 'YYYY-MM') AS month, COUNT(*) AS total`
+          )
+        )
         .from("studio")
         .where({ status: "active" })
         .andWhere("approved_at", ">=", startDate)
@@ -484,7 +623,11 @@ export class DashboardService {
         .from("studio")
         .where({ status: "active" })
         .andWhere("approved_at", ">=", startDate)
-        .andWhere("approved_at", "<=", this.knex.raw("DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month' - INTERVAL '1 day'"));
+        .andWhere(
+          "approved_at",
+          "<=",
+          this.knex.raw("DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month' - INTERVAL '1 day'")
+        );
 
       const monthMap = new Map(mainQuery.map((item) => [item.month, item.total]));
 
@@ -502,7 +645,10 @@ export class DashboardService {
         };
       });
 
-      return { success: true, data: { total: Number(totalQuery[0].total), monthBreakdown: result } };
+      return {
+        success: true,
+        data: { total: Number(totalQuery[0].total), monthBreakdown: result },
+      };
     } catch (error) {
       console.log(error);
       return handleError(error, "server") as ActionResponse;
@@ -514,7 +660,11 @@ export class DashboardService {
       const { startDate, monthList } = await this.generateTimeframeQuery({ timeframe });
 
       const mainQuery = await this.knex
-        .select(this.knex.raw(`TO_CHAR(DATE_TRUNC('month', created_at), 'YYYY-MM') AS month, SUM(booking.price) AS total`))
+        .select(
+          this.knex.raw(
+            `TO_CHAR(DATE_TRUNC('month', created_at), 'YYYY-MM') AS month, SUM(booking.price) AS total`
+          )
+        )
         .from("booking")
         .where({ status: "confirmed" })
         .andWhere("created_at", ">=", startDate)
@@ -526,7 +676,11 @@ export class DashboardService {
         .from("booking")
         .where({ status: "confirmed" })
         .andWhere("created_at", ">=", startDate)
-        .andWhere("created_at", "<=", this.knex.raw("DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month' - INTERVAL '1 day'"));
+        .andWhere(
+          "created_at",
+          "<=",
+          this.knex.raw("DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month' - INTERVAL '1 day'")
+        );
 
       const monthMap = new Map(mainQuery.map((item) => [item.month, item.total]));
 
@@ -544,7 +698,10 @@ export class DashboardService {
         };
       });
 
-      return { success: true, data: { total: Number(totalQuery[0].total), monthBreakdown: result } };
+      return {
+        success: true,
+        data: { total: Number(totalQuery[0].total), monthBreakdown: result },
+      };
     } catch (error) {
       console.log(error);
       return handleError(error, "server") as ActionResponse;
@@ -556,7 +713,14 @@ export class DashboardService {
       const { startDate } = await this.generateTimeframeQuery({ timeframe });
 
       const mainQuery = this.knex
-        .select("studio.id", "studio.name", "studio.slug", "studio.cover_photo", this.knex.raw(`COALESCE(AVG(review.rating), 0) AS rating`))
+        .select(
+          "studio.id",
+          "studio.name",
+          "studio.slug",
+          "studio.cover_photo",
+          "studio.district",
+          this.knex.raw(`COALESCE(AVG(review.rating), 0) AS rating`)
+        )
         .count("booking.id AS total")
         .from("booking")
         .leftJoin("review", "booking.reference_no", "review.booking_reference_no")

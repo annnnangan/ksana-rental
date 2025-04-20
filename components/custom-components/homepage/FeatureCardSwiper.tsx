@@ -17,10 +17,11 @@ import { FreeMode, Pagination } from "swiper/modules";
 import StudioMiniCard from "../studio-card/StudioMiniCard";
 
 interface FeatureCardProps {
-  studio_name: string;
-  studio_slug: string;
+  name: string;
+  slug: string;
   cover_photo: string;
   rating: string;
+  district: string;
 }
 
 interface Props {
@@ -65,12 +66,13 @@ const FeatureCardSwiper = ({ slideItems }: Props) => {
         }}
       >
         {slideItems.map((item) => (
-          <SwiperSlide key={item.studio_slug}>
+          <SwiperSlide key={item.slug}>
             <StudioMiniCard
-              studio_name={item.studio_name}
-              studio_slug={item.studio_slug}
+              studio_name={item.name}
+              studio_slug={item.slug}
               cover_image={item.cover_photo}
               rating={item.rating}
+              district={item.district}
             />
           </SwiperSlide>
         ))}
