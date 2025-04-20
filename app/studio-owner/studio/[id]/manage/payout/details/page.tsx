@@ -13,6 +13,7 @@ import { Button } from "@/components/shadcn/button";
 import { Skeleton } from "@/components/shadcn/skeleton";
 import useStudioPayoutDetails from "@/hooks/react-query/studio-panel/useStudioPayoutDetails";
 import { payoutMethodMap } from "@/lib/constants/studio-details";
+import Image from "next/image";
 import { differenceInDays, getDay, isAfter, startOfDay, startOfWeek, subDays } from "date-fns";
 import { CircleChevronLeft, Loader2 } from "lucide-react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
@@ -58,6 +59,8 @@ const PayoutDetailsPage = () => {
     payoutEndDate!,
     { enabled: isDateRangeValid, studioId, payoutStartDate, payoutEndDate }
   );
+
+  console.log(data);
 
   if (!isDateRangeValid) {
     return (
@@ -137,6 +140,7 @@ const PayoutDetailsPage = () => {
               isLoading={isLoading}
             />
           </div>
+
           <div className="bg-gray-50 p-5 rounded-lg">
             <Accordion type="single" collapsible>
               <AccordionItem value="item-1" className="border-0">
@@ -167,7 +171,7 @@ const PayoutDetailsPage = () => {
         </div>
 
         {/* Breakdown Tables */}
-        <div className="w-full xl:basis-3/4">
+        <div className="w-full xl:basis-3/4 space-y-5">
           <div className="bg-gray-50 p-5 rounded-lg">
             <h3 className="text-primary text-xl font-bold">詳細結算</h3>
 
@@ -196,6 +200,36 @@ const PayoutDetailsPage = () => {
                       columns={DISPUTE_TABLE_COLUMNS}
                       values={data.disputeTransactionList}
                     />
+                  )}
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </div>
+          <div className="bg-gray-50 p-5 rounded-lg">
+            <Accordion type="single" collapsible>
+              <AccordionItem value="item-1" className="border-0">
+                <AccordionTrigger className="text-primary text-xl font-bold p-0">
+                  收帳證明
+                </AccordionTrigger>
+                <AccordionContent className="mt-5 space-y-1">
+                  {isLoading ? (
+                    <Skeleton className="h-5 w-1/2" />
+                  ) : (
+                    <>
+                      <div className="grid grid-cols-3">
+                        {data?.payoutOverviewData.payout_proof_image_urls.map((image: string) => (
+                          <div className="relative aspect-[3/4]" key={image}>
+                            <Image
+                              src={image}
+                              alt="payout proof image"
+                              fill
+                              sizes="(min-width: 1024px) 200px, 100vw"
+                              className="rounded-md object-contain object-center"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </>
                   )}
                 </AccordionContent>
               </AccordionItem>

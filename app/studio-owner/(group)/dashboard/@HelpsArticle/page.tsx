@@ -8,9 +8,9 @@ const articles = [
     href: "/studio-owner/helps/article/onboarding",
   },
   {
-    image: "/yoga-image-assets/luna-active-fitness-iEpsg6OzyXw-unsplash.jpg",
-    title: "如何在Ksana管理你的預約？",
-    href: "/studio-owner/helps/article/manage-bookings",
+    image: "/yoga-image-assets/getty-images-zFgdwsNh3Q4-unsplash.jpg",
+    title: "如何更新場地可預約時間？",
+    href: "/studio-owner/helps/article/update-booking-availability",
   },
   {
     image: "/yoga-image-assets/getty-images-QhivR4cdUf0-unsplash.jpg",
@@ -31,7 +31,13 @@ const page = () => {
             </h4>
             <LinkButton href={article.href}>Read</LinkButton>
             <div className="relative h-32">
-              <Image src={article.image} alt="yoga banner image" fill sizes="(min-width: 1024px) 200px, 100vw" className="rounded-md object-cover object-center" />
+              <Image
+                src={article.image}
+                alt="yoga banner image"
+                fill
+                sizes="(min-width: 1024px) 200px, 100vw"
+                className="rounded-md object-cover object-center"
+              />
             </div>
           </li>
         ))}
