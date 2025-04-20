@@ -16,7 +16,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     <>
       {disableInput && (
         <p className="text-center text-xs bg-destructive text-white py-1 px-2 rounded-lg font-bold">
-          管理員正在審核你的申請，在此期間，無法修改場地資料。
+          管理員正在審核你的申請，在此期間，無法修改恆常營業時間，但可增加特定日期可預約時間。
         </p>
       )}
 

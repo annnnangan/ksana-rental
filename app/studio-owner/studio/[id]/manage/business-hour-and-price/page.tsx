@@ -54,14 +54,14 @@ const BusinessHourAndPricePage = async ({ params }: { params: Promise<{ id: stri
           <TabsTrigger value="weeklyHours">恆常營業時間</TabsTrigger>
           <TabsTrigger value="dateSpecificHour">特定日期可預約時間</TabsTrigger>
         </TabsList>
-        <TabsContent value="weeklyHours">
+        <TabsContent value="weeklyHours" className="mt-5">
           <BusinessHourAndPrice
             studioId={studioId}
             isOnboardingStep={false}
             defaultValue={businessHoursAndPriceValue}
           />
         </TabsContent>
-        <TabsContent value="dateSpecificHour">
+        <TabsContent value="dateSpecificHour" className="mt-5">
           <DateSpecificHour studioId={studioId} dateSpecificHourList={dateSpecificHourList} />
         </TabsContent>
       </Tabs>

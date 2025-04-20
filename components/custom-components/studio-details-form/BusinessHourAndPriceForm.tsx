@@ -28,6 +28,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useMemo, useTransition, WheelEvent } from "react";
 import { Controller, useForm } from "react-hook-form";
+import useStudioStatus from "@/hooks/react-query/studio-panel/useStudioStatus";
+import { useSessionUser } from "@/hooks/use-session-user";
+import LoadingSpinner from "../common/loading/LoadingSpinner";
 
 //Create for generating the day of week field in the form
 const daysOfWeekMap: {
@@ -64,8 +67,10 @@ const emptyDefaultValue = {
 };
 
 const BusinessHourAndPriceForm = ({ defaultValue, studioId, isOnboardingStep }: Props) => {
-  const router = useRouter();
+  const user = useSessionUser();
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+  const { data: studioStatus, isLoading: isLoadingStudioStatus } = useStudioStatus(studioId);
 
   const {
     control,
@@ -155,6 +160,9 @@ const BusinessHourAndPriceForm = ({ defaultValue, studioId, isOnboardingStep }: 
     }, 0);
   };
 
+  if (isLoadingStudioStatus) return <LoadingSpinner height="h-48" />;
+  const disableInput = studioStatus === "reviewing" && user?.role === "user";
+
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       {/* Set up price for peak / non-peak hours  */}
@@ -171,9 +179,10 @@ const BusinessHourAndPriceForm = ({ defaultValue, studioId, isOnboardingStep }: 
               type="number"
               id="peakHourPrice"
               placeholder="請填寫繁忙時段價格。"
-              className="text-sm"
+              className={`text-sm${disableInput ? " bg-gray-200" : ""}`}
               {...register("peakHourPrice")}
               onWheel={numberInputOnWheelPreventChange}
+              disabled={disableInput}
             />
           </div>
           {errors.peakHourPrice && <ErrorMessage>{errors.peakHourPrice.message}</ErrorMessage>}
@@ -190,9 +199,10 @@ const BusinessHourAndPriceForm = ({ defaultValue, studioId, isOnboardingStep }: 
               type="number"
               id="nonPeakHourPrice"
               placeholder="請填寫非繁忙時段價格。"
-              className="text-sm"
+              className={`text-sm${disableInput ? " bg-gray-200" : ""}`}
               {...register("nonPeakHourPrice")}
               onWheel={numberInputOnWheelPreventChange}
+              disabled={disableInput}
             />
           </div>
           {errors.nonPeakHourPrice && (
@@ -203,7 +213,7 @@ const BusinessHourAndPriceForm = ({ defaultValue, studioId, isOnboardingStep }: 
 
       {/* Generate fields for each day in a week dynamically */}
       {daysOfWeekMap.map((day) => (
-        <div key={day.day} className="border-2 rounded-md p-5 md:p-8 mt-8 md:mt-12">
+        <div key={day.day} className="border-2 rounded-md p-5 md:p-8 mt-8">
           {/* Default views - a switch with day of week label */}
           <div className="flex">
             <div className="flex items-center gap-x-5">
@@ -217,6 +227,7 @@ const BusinessHourAndPriceForm = ({ defaultValue, studioId, isOnboardingStep }: 
                       setValue(`businessHours.${day.day}.is_enabled`, value);
                       setValue(`businessHours.${day.day}.timeslots`, []);
                     }}
+                    disabled={disableInput}
                   />
                 )}
               />
@@ -255,8 +266,9 @@ const BusinessHourAndPriceForm = ({ defaultValue, studioId, isOnboardingStep }: 
                         onValueChange={(value) =>
                           handleUpdateTimeslot(day.day, index, "from", value)
                         }
+                        disabled={disableInput}
                       >
-                        <SelectTrigger className="w-28">
+                        <SelectTrigger className={`w-28${disableInput ? " bg-gray-200" : ""}`}>
                           <SelectValue placeholder="開始時間" />
                         </SelectTrigger>
                         <SelectContent>
@@ -284,8 +296,9 @@ const BusinessHourAndPriceForm = ({ defaultValue, studioId, isOnboardingStep }: 
                           onValueChange={(value) =>
                             handleUpdateTimeslot(day.day, index, "to", value)
                           }
+                          disabled={disableInput}
                         >
-                          <SelectTrigger className="w-28">
+                          <SelectTrigger className={`w-28${disableInput ? " bg-gray-200" : ""}`}>
                             <SelectValue placeholder="結束時間" />
                           </SelectTrigger>
                           <SelectContent>
@@ -307,7 +320,10 @@ const BusinessHourAndPriceForm = ({ defaultValue, studioId, isOnboardingStep }: 
                       handleUpdateTimeslot(day.day, index, "priceType", value)
                     }
                   >
-                    <SelectTrigger className="w-fit">
+                    <SelectTrigger
+                      className={`w-fit${disableInput ? " bg-gray-200" : ""}`}
+                      disabled={disableInput}
+                    >
                       <SelectValue placeholder="價格類型" />
                     </SelectTrigger>
                     <SelectContent>
@@ -330,36 +346,40 @@ const BusinessHourAndPriceForm = ({ defaultValue, studioId, isOnboardingStep }: 
                   </div>
                 </div>
               ))}
-
               {/* Add Timeslot */}
-              <Button
-                variant="default"
-                type="button"
-                className="mt-4"
-                onClick={() => handleAddTimeslot(day.day)}
-              >
-                新增時段
-              </Button>
-
-              {/* Remove All Slots */}
-              <Button
-                variant="destructive"
-                onClick={() => handleRemoveAllTimeslots(day.day)}
-                type="button"
-                className="mt-2 ms-4"
-              >
-                移除全部時段
-              </Button>
+              {!disableInput && (
+                <>
+                  <Button
+                    variant="default"
+                    type="button"
+                    className="mt-4"
+                    onClick={() => handleAddTimeslot(day.day)}
+                  >
+                    新增時段
+                  </Button>
+                  {/* Remove All Slots */}
+                  <Button
+                    variant="destructive"
+                    onClick={() => handleRemoveAllTimeslots(day.day)}
+                    type="button"
+                    className="mt-2 ms-4"
+                  >
+                    移除全部時段
+                  </Button>
+                </>
+              )}
             </div>
           )}
         </div>
       ))}
 
-      <SubmitButton
-        isSubmitting={isSubmitting || isPending}
-        nonSubmittingText={isOnboardingStep ? "往下一步" : "儲存"}
-        withIcon={isOnboardingStep ? true : false}
-      />
+      {!disableInput && (
+        <SubmitButton
+          isSubmitting={isSubmitting || isPending}
+          nonSubmittingText={isOnboardingStep ? "往下一步" : "儲存"}
+          withIcon={isOnboardingStep ? true : false}
+        />
+      )}
     </form>
   );
 };
