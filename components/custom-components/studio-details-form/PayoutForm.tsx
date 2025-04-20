@@ -30,6 +30,9 @@ import {
 } from "@/lib/validations/zod-schema/studio/studio-step-schema";
 import { useTransition } from "react";
 import SubmitButton from "../common/buttons/SubmitButton";
+import useStudioStatus from "@/hooks/react-query/studio-panel/useStudioStatus";
+import LoadingSpinner from "../common/loading/LoadingSpinner";
+import { useSessionUser } from "@/hooks/use-session-user";
 
 interface defaultValue {
   method: string;
@@ -44,6 +47,11 @@ interface Props {
 }
 
 const PayoutForm = ({ studioId, defaultValues, isOnboardingStep }: Props) => {
+  const user = useSessionUser();
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+  const { data: studioStatus, isLoading: isLoadingStudioStatus } = useStudioStatus(studioId);
+
   /* ------------------------- React Hook Form ------------------------ */
   const form = useForm({
     resolver: zodResolver(PayoutSchema),
@@ -56,59 +64,7 @@ const PayoutForm = ({ studioId, defaultValues, isOnboardingStep }: Props) => {
 
   const { isSubmitting } = form.formState;
 
-  const [isPending, startTransition] = useTransition();
-  const router = useRouter();
-
-  // const onSubmit = async (data: StudioPayoutFormData) => {
-  //   try {
-  //     const savePayoutDetailResponse = await fetch(`/api/studio/${studioId}/payout-detail`, {
-  //       method: "PUT",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({
-  //         data,
-  //       }),
-  //     });
-
-  //     if (!savePayoutDetailResponse.ok) {
-  //       const errorData = await savePayoutDetailResponse.json();
-  //       throw new Error(errorData?.error.message || "系統發生未預期錯誤。");
-  //     }
-
-  //     //Save Onboarding Step Track
-  //     const onboardingStep = getOnboardingStep(pathname);
-  //     const completeOnboardingStepResponse = await fetch(`/api/studio/${studioId}/onboarding-step`, {
-  //       method: "PATCH",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({
-  //         onboardingStep,
-  //       }),
-  //     });
-
-  //     if (!completeOnboardingStepResponse.ok) {
-  //       // If the response status is not 2xx, throw an error with the response message
-  //       const errorData = await completeOnboardingStepResponse.json();
-  //       throw new Error(errorData?.error.message || "系統發生未預期錯誤。");
-  //     }
-
-  //     router.push(`/studio-owner/studio/${studioId}/onboarding/confirmation`);
-  //     router.refresh();
-  //   } catch (error) {
-  //     const errorMessage = error instanceof Error ? error.message : "系統發生未預期錯誤，請重試。";
-  //     toast(errorMessage, {
-  //       position: "top-right",
-  //       type: "error",
-  //       autoClose: 1000,
-  //     });
-  //     router.refresh();
-  //   }
-  // };
   const handleSubmit = async (data: PayoutFormData) => {
-    console.log(data);
-
     // Update Database
     startTransition(() => {
       savePayoutInfo(data, studioId, isOnboardingStep).then((data) => {
@@ -126,6 +82,9 @@ const PayoutForm = ({ studioId, defaultValues, isOnboardingStep }: Props) => {
     });
   };
 
+  if (isLoadingStudioStatus) return <LoadingSpinner height="h-48" />;
+  const disableInput = studioStatus === "reviewing" && user?.role === "user";
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="w-full space-y-6">
@@ -139,7 +98,10 @@ const PayoutForm = ({ studioId, defaultValues, isOnboardingStep }: Props) => {
               </FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
-                  <SelectTrigger>
+                  <SelectTrigger
+                    disabled={disableInput}
+                    className={`${disableInput ? " bg-gray-200" : ""}`}
+                  >
                     <SelectValue placeholder="選擇收帳方法" />
                   </SelectTrigger>
                 </FormControl>
@@ -169,9 +131,10 @@ const PayoutForm = ({ studioId, defaultValues, isOnboardingStep }: Props) => {
                 <Input
                   type="text"
                   id="payoutAccountName"
-                  className={`form-input text-sm`}
+                  className={`form-input text-sm${disableInput ? " bg-gray-200" : ""}`}
                   placeholder="請輸入帳戶名稱"
                   {...field}
+                  disabled={disableInput}
                 />
               </FormControl>
               <FormMessage />
@@ -191,9 +154,10 @@ const PayoutForm = ({ studioId, defaultValues, isOnboardingStep }: Props) => {
                 <Input
                   type="text"
                   id="payoutAccountNumber"
-                  className={`form-input text-sm`}
+                  className={`form-input text-sm${disableInput ? " bg-gray-200" : ""}`}
                   placeholder="請輸入帳戶號碼"
                   {...field}
+                  disabled={disableInput}
                 />
               </FormControl>
               <FormMessage />
@@ -201,11 +165,13 @@ const PayoutForm = ({ studioId, defaultValues, isOnboardingStep }: Props) => {
           )}
         />
 
-        <SubmitButton
-          isSubmitting={isSubmitting || isPending}
-          nonSubmittingText={isOnboardingStep ? "往下一步" : "儲存"}
-          withIcon={isOnboardingStep ? true : false}
-        />
+        {!disableInput && (
+          <SubmitButton
+            isSubmitting={isSubmitting || isPending}
+            nonSubmittingText={isOnboardingStep ? "往下一步" : "儲存"}
+            withIcon={isOnboardingStep ? true : false}
+          />
+        )}
       </form>
     </Form>
   );

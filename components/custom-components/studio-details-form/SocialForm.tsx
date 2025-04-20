@@ -23,6 +23,9 @@ import { useTransition } from "react";
 import SubmitButton from "../common/buttons/SubmitButton";
 import { saveSocial } from "@/actions/studio";
 import { toast } from "react-toastify";
+import { useSessionUser } from "@/hooks/use-session-user";
+import useStudioStatus from "@/hooks/react-query/studio-panel/useStudioStatus";
+import LoadingSpinner from "../common/loading/LoadingSpinner";
 
 interface Props {
   studioId: string;
@@ -33,6 +36,11 @@ interface Props {
 const socialChannels: SocialPlatform[] = ["instagram", "website", "facebook", "youtube"];
 
 const SocialForm = ({ studioId, defaultValues, isOnboardingStep }: Props) => {
+  const user = useSessionUser();
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+  const { data: studioStatus, isLoading: isLoadingStudioStatus } = useStudioStatus(studioId);
+
   /* ------------------------- React Hook Form ------------------------ */
   const form = useForm({
     resolver: zodResolver(SocialSchema),
@@ -42,9 +50,6 @@ const SocialForm = ({ studioId, defaultValues, isOnboardingStep }: Props) => {
   });
 
   const { isSubmitting } = form.formState;
-
-  const [isPending, startTransition] = useTransition();
-  const router = useRouter();
 
   const handleSubmit = async (data: SocialFormData) => {
     // Update Database
@@ -62,6 +67,9 @@ const SocialForm = ({ studioId, defaultValues, isOnboardingStep }: Props) => {
       });
     });
   };
+
+  if (isLoadingStudioStatus) return <LoadingSpinner height="h-48" />;
+  const disableInput = studioStatus === "reviewing" && user?.role === "user";
 
   return (
     <Form {...form}>
@@ -81,9 +89,10 @@ const SocialForm = ({ studioId, defaultValues, isOnboardingStep }: Props) => {
                   <Input
                     type="text"
                     id={`${item}`}
-                    className={`form-input text-sm`}
+                    className={`form-input text-sm${disableInput ? " bg-gray-200" : ""}`}
                     placeholder={`請填寫${item} - https://www.${item}.com/ksana`}
                     {...field}
+                    disabled={disableInput}
                   />
                 </FormControl>
                 <FormMessage />
@@ -91,11 +100,13 @@ const SocialForm = ({ studioId, defaultValues, isOnboardingStep }: Props) => {
             )}
           />
         ))}
-        <SubmitButton
-          isSubmitting={isSubmitting || isPending}
-          nonSubmittingText={isOnboardingStep ? "往下一步" : "儲存"}
-          withIcon={isOnboardingStep ? true : false}
-        />
+        {!disableInput && (
+          <SubmitButton
+            isSubmitting={isSubmitting || isPending}
+            nonSubmittingText={isOnboardingStep ? "往下一步" : "儲存"}
+            withIcon={isOnboardingStep ? true : false}
+          />
+        )}
       </form>
     </Form>
   );

@@ -55,7 +55,7 @@ const BookingPage = async (props: Props) => {
 
   return (
     <div>
-      <SectionTitle>所有預約</SectionTitle>
+      <SectionTitle textColor="text-primary">所有預約</SectionTitle>
       <ResponsiveTab activeTab={bookingStatus} tabListMap={tabListMap} />
 
       <BookingTable data={bookingRecords} />

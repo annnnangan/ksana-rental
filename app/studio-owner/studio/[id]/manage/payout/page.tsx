@@ -57,7 +57,7 @@ const PayoutPage = () => {
 
   return (
     <>
-      <SectionTitle>結算記錄</SectionTitle>
+      <SectionTitle textColor="text-primary">結算記錄</SectionTitle>
       <div className="flex gap-2">
         <DateFilter selectedWeek={selectedWeek} setSelectedWeek={setSelectedWeek} />
         <Button

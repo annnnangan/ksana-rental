@@ -1,5 +1,6 @@
 "use client";
 
+import SubmitButton from "@/components/custom-components/common/buttons/SubmitButton";
 import ErrorMessage from "@/components/custom-components/common/ErrorMessage";
 import { Badge } from "@/components/shadcn/badge";
 import { Button } from "@/components/shadcn/button";
@@ -13,7 +14,6 @@ import {
   SelectValue,
 } from "@/components/shadcn/select";
 import { Switch } from "@/components/shadcn/switch";
-import SubmitButton from "@/components/custom-components/common/buttons/SubmitButton";
 import { toast } from "react-toastify";
 
 import { generateTimeslots } from "@/lib/utils/date-time/generate-timeslot";
@@ -25,7 +25,7 @@ import {
 } from "@/lib/validations/zod-schema/studio/studio-step-schema";
 import { daysOfWeekType } from "@/services/model";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useMemo, useTransition, WheelEvent } from "react";
 import { Controller, useForm } from "react-hook-form";
 

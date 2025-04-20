@@ -14,7 +14,6 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 
-import { getOnboardingStep } from "@/lib/utils/get-onboarding-step-utils";
 import {
   DoorPasswordFormData,
   DoorPasswordSchema,
@@ -22,6 +21,9 @@ import {
 import { useTransition } from "react";
 import SubmitButton from "../common/buttons/SubmitButton";
 import { saveDoorPassword } from "@/actions/studio";
+import useStudioStatus from "@/hooks/react-query/studio-panel/useStudioStatus";
+import { useSessionUser } from "@/hooks/use-session-user";
+import LoadingSpinner from "../common/loading/LoadingSpinner";
 
 interface Props {
   studioId: string;
@@ -30,8 +32,10 @@ interface Props {
 }
 
 const DoorPasswordForm = ({ studioId, defaultValues, isOnboardingStep }: Props) => {
-  const router = useRouter();
+  const user = useSessionUser();
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+  const { data: studioStatus, isLoading: isLoadingStudioStatus } = useStudioStatus(studioId);
 
   const form = useForm({
     resolver: zodResolver(DoorPasswordSchema),
@@ -58,6 +62,9 @@ const DoorPasswordForm = ({ studioId, defaultValues, isOnboardingStep }: Props) 
     });
   };
 
+  if (isLoadingStudioStatus) return <LoadingSpinner height="h-48" />;
+  const disableInput = studioStatus === "reviewing" && user?.role === "user";
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="w-full space-y-6">
@@ -73,9 +80,10 @@ const DoorPasswordForm = ({ studioId, defaultValues, isOnboardingStep }: Props) 
                 <Input
                   type="text"
                   id="doorPassword"
-                  className="form-input text-sm"
+                  className={`form-input text-sm${disableInput ? " bg-gray-200" : ""}`}
                   placeholder="請輸入大門密碼"
                   {...field}
+                  disabled={disableInput}
                 />
               </FormControl>
               <FormMessage />
@@ -83,11 +91,13 @@ const DoorPasswordForm = ({ studioId, defaultValues, isOnboardingStep }: Props) 
           )}
         />
 
-        <SubmitButton
-          isSubmitting={isSubmitting || isPending}
-          nonSubmittingText={isOnboardingStep ? "往下一步" : "儲存"}
-          withIcon={isOnboardingStep ? true : false}
-        />
+        {!disableInput && (
+          <SubmitButton
+            isSubmitting={isSubmitting || isPending}
+            nonSubmittingText={isOnboardingStep ? "往下一步" : "儲存"}
+            withIcon={isOnboardingStep ? true : false}
+          />
+        )}
       </form>
     </Form>
   );

@@ -28,7 +28,7 @@ const StudiosPage = async () => {
     );
   }
 
-  const studios = (await studioOwnerService.getStudiosByUserId(session?.user.id)).data;
+  const studios = (await studioOwnerService.getStudiosByUserId(session?.user.id, "all")).data;
 
   return (
     <>

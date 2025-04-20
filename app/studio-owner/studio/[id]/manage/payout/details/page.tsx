@@ -60,8 +60,6 @@ const PayoutDetailsPage = () => {
     { enabled: isDateRangeValid, studioId, payoutStartDate, payoutEndDate }
   );
 
-  console.log(data);
-
   if (!isDateRangeValid) {
     return (
       <ToastMessageWithRedirect

@@ -96,7 +96,7 @@ const StudioPanelDashboardPage = () => {
 
   return (
     <>
-      <SectionTitle>儀表板</SectionTitle>
+      <SectionTitle textColor="text-primary">儀表板</SectionTitle>
 
       <div className="flex flex-col-reverse gap-10 md:gap-5 md:grid md:grid-cols-3">
         <div className="border-gray-300 border-t pt-10 md:border-t-0 md:pt-0 md:col-span-2 md:border-r md:pr-5">

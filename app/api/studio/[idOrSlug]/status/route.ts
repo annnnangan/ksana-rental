@@ -1,7 +1,7 @@
 import handleError from "@/lib/handlers/error";
 import { UnauthorizedError } from "@/lib/http-errors";
 import { auth } from "@/lib/next-auth-config/auth";
-import { payoutService } from "@/services/payout/PayoutService";
+import { studioService } from "@/services/studio/StudioService";
 import { validateStudioService } from "@/services/studio/ValidateStudio";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -10,10 +10,6 @@ export async function GET(request: NextRequest, props: { params: Promise<{ idOrS
     const params = await props.params;
     const user = await auth();
     const studioId = params.idOrSlug;
-    const searchParams = request.nextUrl.searchParams;
-    const payoutStartDate = searchParams.get("startDate") || undefined;
-    const page = Number(searchParams.get("page")) || 1;
-    const limit = Number(searchParams.get("limit")) || 10;
 
     if (!user?.user.id) {
       throw new UnauthorizedError("請先登入。");
@@ -31,12 +27,7 @@ export async function GET(request: NextRequest, props: { params: Promise<{ idOrS
     }
 
     //admin & studio owner could access this api
-    const result = await payoutService.getStudioPayoutRecordList({
-      studioId,
-      page,
-      limit,
-      payoutStartDate,
-    });
+    const result = await studioService.getStudioStatus(studioId);
 
     return NextResponse.json(
       {
