@@ -15,6 +15,7 @@ import "swiper/css/pagination";
 import { Button } from "@/components/shadcn/button";
 import { FreeMode, Pagination } from "swiper/modules";
 import StudioMiniCard from "../studio-card/StudioMiniCard";
+import SlideUpTransition from "../framer-motion/SlideUpTransition";
 
 interface FeatureCardProps {
   name: string;
@@ -31,7 +32,7 @@ interface Props {
 const FeatureCardSwiper = ({ slideItems }: Props) => {
   const swiperRef = useRef<SwiperType | null>(null);
   return (
-    <>
+    <SlideUpTransition>
       <div className="flex justify-between">
         <p className="text-xs flex items-center gap-1 text-white drop-shadow-xl font-bold">
           <ThumbsUp size={12} />
@@ -77,7 +78,7 @@ const FeatureCardSwiper = ({ slideItems }: Props) => {
           </SwiperSlide>
         ))}
       </Swiper>
-    </>
+    </SlideUpTransition>
   );
 };
 
