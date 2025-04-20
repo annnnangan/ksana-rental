@@ -94,7 +94,7 @@ const StudiosPage = async () => {
                     )}
                   </div>
 
-                  {studio.status === "active" && (
+                  {(studio.status === "active" || studio.status === "reviewing") && (
                     <LinkButton href={`/studio-owner/studio/${studio.id}/manage/dashboard`}>
                       管理場地
                     </LinkButton>
