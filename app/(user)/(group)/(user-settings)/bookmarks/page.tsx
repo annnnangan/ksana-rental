@@ -38,6 +38,7 @@ const BookmarksPage = async (props: Props) => {
     currentPage,
     pageSize
   );
+
   const bookmarkList = bookmarkResult.success
     ? bookmarkResult.data
     : { bookmarkList: [], totalCount: 0 };

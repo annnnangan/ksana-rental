@@ -32,7 +32,11 @@ const StudioCard = ({ studio, bookmarkRouterRefresh = false }: Props) => {
 
           {/* Bookmark Icon */}
           <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <BookmarkButton studioSlug={studio.slug} needRouterRefresh={bookmarkRouterRefresh} />
+            <BookmarkButton
+              studioSlug={studio.slug}
+              needRouterRefresh={bookmarkRouterRefresh}
+              currentIsBookmark={studio.is_bookmarked}
+            />
           </div>
 
           {/* Logo */}

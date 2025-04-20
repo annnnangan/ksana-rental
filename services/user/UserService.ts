@@ -95,21 +95,29 @@ export class UserService {
 
       switch (bookingType) {
         case "confirmed":
-          query = query.andWhere("booking.status", "confirmed").andWhereRaw("booking.date::DATE + end_time::INTERVAL > NOW()");
+          query = query
+            .andWhere("booking.status", "confirmed")
+            .andWhereRaw("booking.date::DATE + end_time::INTERVAL > NOW()");
           break;
 
         case "pending-for-payment":
-          query = query.andWhere("booking.status", "pending for payment").andWhereRaw("booking.created_at >= NOW() - INTERVAL '15 minutes'");
+          query = query
+            .andWhere("booking.status", "pending for payment")
+            .andWhereRaw("booking.created_at >= NOW() - INTERVAL '15 minutes'");
           break;
 
         case "completed":
-          query = query.andWhere("booking.status", "confirmed").andWhereRaw("booking.date::DATE + end_time::INTERVAL < NOW()");
+          query = query
+            .andWhere("booking.status", "confirmed")
+            .andWhereRaw("booking.date::DATE + end_time::INTERVAL < NOW()");
           break;
 
         case "canceled-and-expired":
           query = query.where(function () {
             this.where("booking.status", "canceled").orWhere(function () {
-              this.where("booking.status", "pending for payment").andWhereRaw("booking.created_at < NOW() - INTERVAL '15 minutes'");
+              this.where("booking.status", "pending for payment").andWhereRaw(
+                "booking.created_at < NOW() - INTERVAL '15 minutes'"
+              );
             });
           });
           break;
@@ -140,7 +148,9 @@ export class UserService {
         throw new NotFoundError("此用戶");
       }
 
-      const userCreditAmount = (await this.knex.select("credit_amount").from("users").where({ id: userId }))[0];
+      const userCreditAmount = (
+        await this.knex.select("credit_amount").from("users").where({ id: userId })
+      )[0];
 
       return {
         success: true,
@@ -167,6 +177,9 @@ export class UserService {
           "studio.cover_photo",
           "studio.logo",
           "studio.district",
+          this.knex.raw(
+            `CASE WHEN bookmark.user_id IS NOT NULL THEN true ELSE false END AS is_bookmarked`
+          ),
           this.knex.raw(`COALESCE(AVG(review.rating), 0) AS rating`),
           this.knex.raw(
             `CAST(COUNT(DISTINCT CASE WHEN booking.status = 'confirmed' AND booking.date::DATE + booking.end_time::INTERVAL < NOW() THEN booking.id END) AS INTEGER) AS number_of_completed_booking`
@@ -179,12 +192,24 @@ export class UserService {
         .leftJoin("booking", "studio.id", "booking.studio_id")
         .leftJoin("review", "booking.reference_no", "review.booking_reference_no")
         .leftJoin("studio_price", "studio.id", "studio_price.studio_id")
-        .groupBy("studio.id", "studio.name", "studio.slug", "studio.logo", "studio.district")
+        .groupBy(
+          "studio.id",
+          "studio.name",
+          "studio.slug",
+          "studio.logo",
+          "studio.district",
+          "bookmark.user_id"
+        )
         .where("bookmark.user_id", userId);
 
       const bookmarkList = await paginationService.paginateQuery(mainQuery, page, limit);
 
-      const totalCount = (await this.knex.countDistinct("bookmark.studio_id as totalCount").from("bookmark").where("bookmark.user_id", userId))[0];
+      const totalCount = (
+        await this.knex
+          .countDistinct("bookmark.studio_id as totalCount")
+          .from("bookmark")
+          .where("bookmark.user_id", userId)
+      )[0];
 
       return {
         success: true,
@@ -212,7 +237,11 @@ export class UserService {
       }
 
       if (isValidStudio.success) {
-        const bookmark = (await this.knex("bookmark").select("id").where({ user_id: userId, studio_id: isValidStudio.data?.studio_id }))[0];
+        const bookmark = (
+          await this.knex("bookmark")
+            .select("id")
+            .where({ user_id: userId, studio_id: isValidStudio.data?.studio_id })
+        )[0];
 
         const isBookmarked = bookmark?.id ? true : false;
 

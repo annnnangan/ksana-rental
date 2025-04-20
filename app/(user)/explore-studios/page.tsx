@@ -1,6 +1,7 @@
 import PaginationWrapper from "@/components/custom-components/common/PaginationWrapper";
 import SectionFallback from "@/components/custom-components/common/SectionFallback";
 import StudioCard from "@/components/custom-components/studio-card/StudioCard";
+import { auth } from "@/lib/next-auth-config/auth";
 
 import { studioService } from "@/services/studio/StudioService";
 import { MapPinHouse } from "lucide-react";
@@ -25,6 +26,7 @@ export interface studioCardInfo {
   number_of_review: number;
   number_of_completed_booking: number;
   min_price: number;
+  is_bookmarked: boolean;
 }
 
 interface Props {
@@ -32,6 +34,7 @@ interface Props {
 }
 
 const ExploreStudiosPage = async (props: Props) => {
+  const user = await auth();
   const searchParams = await props.searchParams;
   const currentPage = Number(searchParams["page"]) || 1;
   const districts = searchParams["location"];
@@ -51,7 +54,9 @@ const ExploreStudiosPage = async (props: Props) => {
     orderBy: orderBy,
     date: date,
     startTime: startTime,
+    userId: user?.user.id,
   });
+
   const studioListData: studioCardInfo[] =
     (studioListResult.success && studioListResult?.data?.studios) || [];
 

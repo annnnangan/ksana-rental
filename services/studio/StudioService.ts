@@ -131,6 +131,7 @@ export class StudioService {
     orderBy,
     date,
     startTime,
+    userId,
   }: {
     slug?: string;
     status?: StudioStatus;
@@ -141,6 +142,7 @@ export class StudioService {
     orderBy?: string;
     date?: string;
     startTime?: string;
+    userId?: string | undefined;
   }) {
     try {
       if (slug) {
@@ -279,6 +281,26 @@ export class StudioService {
             }
           });
       }
+
+      if (userId) {
+        const userIdRaw = this.knex.raw("?", [userId]);
+
+        mainQuery = mainQuery
+          .leftJoin("bookmark", function () {
+            this.on("studio.id", "=", "bookmark.studio_id").andOn(
+              "bookmark.user_id",
+              "=",
+              userIdRaw
+            );
+          })
+          .select(
+            this.knex.raw(
+              `CASE WHEN bookmark.user_id IS NOT NULL THEN true ELSE false END AS is_bookmarked`
+            )
+          )
+          .groupBy("bookmark.user_id");
+      }
+
       if (status) {
         mainQuery = mainQuery.where("studio.status", status);
       }
@@ -365,7 +387,7 @@ export class StudioService {
   /* ---------------------------------- Get Studio Rating and Review ---------------------------------- */
   async getStudioRatingOverview(studioSlug: string) {
     try {
-      let ratingBreakdown: {
+      const ratingBreakdown: {
         [key: number]: { count: number };
       } = { 5: { count: 0 }, 4: { count: 0 }, 3: { count: 0 }, 2: { count: 0 }, 1: { count: 0 } };
 
@@ -402,9 +424,10 @@ export class StudioService {
 
       return {
         success: true,
-        //@ts-ignore
+
         data: {
           rating: Number(rating.rating),
+          //@ts-expect-error expected
           review_amount: Number(publicReviewAmount.count),
           rating_breakdown: ratingBreakdown,
         },
