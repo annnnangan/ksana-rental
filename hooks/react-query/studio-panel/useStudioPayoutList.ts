@@ -1,6 +1,12 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 
-const useStudioPayoutList = (page: number, limit: number, studioId: string, startDate?: string) => {
+const useStudioPayoutList = (
+  page: number,
+  limit: number,
+  studioId: string,
+  options = {},
+  startDate?: string
+) => {
   return useQuery({
     queryKey: ["payout-list", studioId, page, limit, startDate],
 
@@ -26,6 +32,7 @@ const useStudioPayoutList = (page: number, limit: number, studioId: string, star
 
     staleTime: 5 * 60 * 1000,
     placeholderData: keepPreviousData,
+    ...options,
   });
 };
 

@@ -44,6 +44,8 @@ import {
 } from "@/lib/validations/zod-schema/studio/studio-step-schema";
 import { districts } from "@/services/model";
 import { useSessionUser } from "@/hooks/use-session-user";
+import useStudioStatus from "@/hooks/react-query/studio-panel/useStudioStatus";
+import LoadingSpinner from "../common/loading/LoadingSpinner";
 
 interface Props {
   defaultValues: BasicInfoFormData;
@@ -64,6 +66,9 @@ const emptyDefaultValues = {
 
 const BasicInfoForm = ({ isOnboardingStep, studioId, defaultValues }: Props) => {
   const user = useSessionUser();
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+  const { data: studioStatus, isLoading: isLoadingStudioStatus } = useStudioStatus(studioId);
   /* ------------------------- React Hook Form ------------------------ */
   const form = useForm({
     resolver: zodResolver(BasicInfoSchema),
@@ -74,9 +79,6 @@ const BasicInfoForm = ({ isOnboardingStep, studioId, defaultValues }: Props) => 
 
   const { isSubmitting } = form.formState;
   const { errors } = form.formState;
-
-  const [isPending, startTransition] = useTransition();
-  const router = useRouter();
 
   /* ------------------------- Check if slug is unique ------------------------ */
   const [debounceSlug, setDebounceSlug] = useState("");
@@ -182,6 +184,9 @@ const BasicInfoForm = ({ isOnboardingStep, studioId, defaultValues }: Props) => 
     });
   };
 
+  if (isLoadingStudioStatus) return <LoadingSpinner height="h-48" />;
+  const disableInput = studioStatus === "reviewing" && user?.role === "user";
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="w-full space-y-6">
@@ -204,30 +209,32 @@ const BasicInfoForm = ({ isOnboardingStep, studioId, defaultValues }: Props) => 
               </div>
             )}
 
-            <div className="absolute bottom-3 right-3">
-              <FormField
-                control={form.control}
-                name="cover_photo"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <UploadButton
-                        buttonLabel="上傳封面圖片"
-                        onFileSelect={(file) => {
-                          field.onChange(file);
-                          if (file) {
-                            const imageUrl = URL.createObjectURL(file);
-                            setCoverPreview(imageUrl);
-                          } else {
-                            setCoverPreview(undefined);
-                          }
-                        }}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            </div>
+            {!disableInput && (
+              <div className="absolute bottom-3 right-3">
+                <FormField
+                  control={form.control}
+                  name="cover_photo"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <UploadButton
+                          buttonLabel="上傳封面圖片"
+                          onFileSelect={(file) => {
+                            field.onChange(file);
+                            if (file) {
+                              const imageUrl = URL.createObjectURL(file);
+                              setCoverPreview(imageUrl);
+                            } else {
+                              setCoverPreview(undefined);
+                            }
+                          }}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
+            )}
           </div>
 
           <FormDescription>圖片大小需小於{maxCoverImageSize / (1024 * 1024)}MB。</FormDescription>
@@ -248,31 +255,33 @@ const BasicInfoForm = ({ isOnboardingStep, studioId, defaultValues }: Props) => 
                 <Building2 />
               </AvatarFallback>
             </Avatar>
-            <FormField
-              control={form.control}
-              name="logo"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <UploadButton
-                      buttonLabel="上傳Logo"
-                      onFileSelect={(file) => {
-                        field.onChange(file);
-                        if (file) {
-                          const imageUrl = URL.createObjectURL(file);
-                          setLogoPreview(imageUrl);
-                        } else {
-                          setLogoPreview(undefined);
-                        }
-                      }}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    圖片大小需小於{maxLogoImageSize / (1024 * 1024)}MB。
-                  </FormDescription>
-                </FormItem>
-              )}
-            />
+            {!disableInput && (
+              <FormField
+                control={form.control}
+                name="logo"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                      <UploadButton
+                        buttonLabel="上傳Logo"
+                        onFileSelect={(file) => {
+                          field.onChange(file);
+                          if (file) {
+                            const imageUrl = URL.createObjectURL(file);
+                            setLogoPreview(imageUrl);
+                          } else {
+                            setLogoPreview(undefined);
+                          }
+                        }}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      圖片大小需小於{maxLogoImageSize / (1024 * 1024)}MB。
+                    </FormDescription>
+                  </FormItem>
+                )}
+              />
+            )}
           </div>
           {errors?.logo?.message && <ErrorMessage>{String(errors?.logo?.message)}</ErrorMessage>}
         </div>
@@ -370,8 +379,9 @@ const BasicInfoForm = ({ isOnboardingStep, studioId, defaultValues }: Props) => 
                 <Textarea
                   id="studioDescription"
                   placeholder="請填寫場地介紹。"
-                  className="text-sm"
+                  className={`text-sm${disableInput ? " bg-gray-200" : ""}`}
                   {...field}
+                  disabled={disableInput}
                 />
               </FormControl>
               <FormMessage />
@@ -392,7 +402,7 @@ const BasicInfoForm = ({ isOnboardingStep, studioId, defaultValues }: Props) => 
                 <Input
                   type="text"
                   id="studioPhone"
-                  className="form-input text-sm"
+                  className={`form-input text-sm${disableInput ? " bg-gray-200" : ""}`}
                   placeholder="請填寫場地聯絡電話"
                   // Strip the country code when displaying the value
                   defaultValue={removeCountryCode(field.value)} // Remove country code for display
@@ -401,6 +411,7 @@ const BasicInfoForm = ({ isOnboardingStep, studioId, defaultValues }: Props) => 
                     // Update the form value with the country code on change
                     setValue("phone", `+852${phoneNumber}`);
                   }}
+                  disabled={disableInput}
                 />
               </FormControl>
               <FormMessage />
@@ -420,7 +431,10 @@ const BasicInfoForm = ({ isOnboardingStep, studioId, defaultValues }: Props) => 
                 </FormLabel>
                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger
+                      disabled={disableInput}
+                      className={`form-input text-sm${disableInput ? " bg-gray-200" : ""}`}
+                    >
                       <SelectValue placeholder="選擇場地之地區" />
                     </SelectTrigger>
                   </FormControl>
@@ -452,9 +466,10 @@ const BasicInfoForm = ({ isOnboardingStep, studioId, defaultValues }: Props) => 
                   <Input
                     type="text"
                     id="studioAddress"
-                    className="form-input text-sm"
+                    className={`form-input text-sm${disableInput ? " bg-gray-200" : ""}`}
                     placeholder="請填寫場地地址"
                     {...field}
+                    disabled={disableInput}
                   />
                 </FormControl>
                 <FormMessage />
@@ -463,11 +478,13 @@ const BasicInfoForm = ({ isOnboardingStep, studioId, defaultValues }: Props) => 
           />
         </div>
 
-        <SubmitButton
-          isSubmitting={isSubmitting || isPending}
-          nonSubmittingText={isOnboardingStep ? "往下一步" : "儲存"}
-          withIcon={isOnboardingStep ? true : false}
-        />
+        {!disableInput && (
+          <SubmitButton
+            isSubmitting={isSubmitting || isPending}
+            nonSubmittingText={isOnboardingStep ? "往下一步" : "儲存"}
+            withIcon={isOnboardingStep ? true : false}
+          />
+        )}
       </form>
     </Form>
   );

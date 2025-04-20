@@ -1,13 +1,13 @@
-import ResponsiveTab from "@/components/custom-components/layout/ResponsiveTab";
 import LoadingSpinner from "@/components/custom-components/common/loading/LoadingSpinner";
+import SectionTitle from "@/components/custom-components/common/SectionTitle";
+import ResponsiveTab from "@/components/custom-components/layout/ResponsiveTab";
 import BasicInfoForm from "@/components/custom-components/studio-details-form/BasicInfoForm";
 import DoorPasswordForm from "@/components/custom-components/studio-details-form/DoorPasswordForm";
 import EquipmentForm from "@/components/custom-components/studio-details-form/EquipmentForm";
 import GalleryForm from "@/components/custom-components/studio-details-form/GalleryForm";
 import PayoutForm from "@/components/custom-components/studio-details-form/PayoutForm";
-import SectionTitle from "@/components/custom-components/common/SectionTitle";
 import SocialForm from "@/components/custom-components/studio-details-form/SocialForm";
-import { studioService, StudioService } from "@/services/studio/StudioService";
+import { studioService } from "@/services/studio/StudioService";
 import { Suspense } from "react";
 
 interface SearchQuery {
@@ -62,7 +62,7 @@ const StudioInformationPage = async (props: Props) => {
 
   return (
     <div>
-      <SectionTitle>更改場地資料</SectionTitle>
+      <SectionTitle textColor="text-primary">更改場地資料</SectionTitle>
       <ResponsiveTab activeTab={activeTab} tabListMap={tabListMap} />
 
       {dataResponse.success ? (

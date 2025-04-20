@@ -137,7 +137,7 @@ const DateSpecificHour = ({ studioId, dateSpecificHourList }: Props) => {
   };
 
   return (
-    <div className="mt-5">
+    <div>
       <Dialog open={isOpenModal}>
         <Button onClick={() => setOpenModal(true)}>
           <CalendarPlus className="mr-1 h-4 w-4" />

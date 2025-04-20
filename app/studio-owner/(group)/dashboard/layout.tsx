@@ -3,6 +3,7 @@ import ToastMessageWithRedirect from "@/components/custom-components/common/Toas
 import { auth } from "@/lib/next-auth-config/auth";
 import { studioOwnerService } from "@/services/studio/StudioOwnerService";
 import React from "react";
+import SectionTitle from "@/components/custom-components/common/SectionTitle";
 
 const layout = async ({
   children,
@@ -44,7 +45,7 @@ const layout = async ({
 
   return (
     <>
-      <h1 className="text-primary text-2xl font-bold mb-5">儀表板</h1>
+      <SectionTitle textColor="text-primary">儀表板</SectionTitle>
       <div className="space-y-10 mb-5">
         {draftCount > 0 && DraftStudioStepTracker}
         {draftCount > 0 && activeCount === 0 && HelpsArticle}

@@ -17,6 +17,9 @@ import {
   GalleryFormData,
   GallerySchema,
 } from "@/lib/validations/zod-schema/studio/studio-step-schema";
+import { useSessionUser } from "@/hooks/use-session-user";
+import useStudioStatus from "@/hooks/react-query/studio-panel/useStudioStatus";
+import LoadingSpinner from "../common/loading/LoadingSpinner";
 
 interface Props {
   defaultValues: string[];
@@ -25,8 +28,10 @@ interface Props {
 }
 
 const GalleryForm = ({ defaultValues, studioId, isOnboardingStep }: Props) => {
-  const router = useRouter();
+  const user = useSessionUser();
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+  const { data: studioStatus, isLoading: isLoadingStudioStatus } = useStudioStatus(studioId);
 
   const [awsImagesToDelete, setAWSImagesToDelete] = useState<string[]>([]); // To track to be deleted AWS images
   const {
@@ -161,19 +166,24 @@ const GalleryForm = ({ defaultValues, studioId, isOnboardingStep }: Props) => {
     }
   };
 
+  if (isLoadingStudioStatus) return <LoadingSpinner height="h-48" />;
+  const disableInput = studioStatus === "reviewing" && user?.role === "user";
+
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <div className="my-5 flex justify-center items-center flex-col rounded-md">
-        <Button
-          className="rounded-full text-sm border-primary hover:bg-primary hover:text-white mt-2"
-          variant="outline"
-          type="button"
-          onClick={handleUploadBtnClick}
-        >
-          <ImageUpIcon /> 上載圖片
-        </Button>
-        <p className="text-gray-500 mt-2 text-sm">上傳的每張相片大小不超過5MB。</p>
-      </div>
+      {!disableInput && (
+        <div className="my-5 flex justify-center items-center flex-col rounded-md">
+          <Button
+            className="rounded-full text-sm border-primary hover:bg-primary hover:text-white mt-2"
+            variant="outline"
+            type="button"
+            onClick={handleUploadBtnClick}
+          >
+            <ImageUpIcon /> 上載圖片
+          </Button>
+          <p className="text-gray-500 mt-2 text-sm">上傳的每張相片大小不超過5MB。</p>
+        </div>
+      )}
       <input
         type="file"
         accept="image/png, image/jpeg, image/jpg"
@@ -191,13 +201,15 @@ const GalleryForm = ({ defaultValues, studioId, isOnboardingStep }: Props) => {
         removeImage={removeImage}
         error={errors.gallery as FieldError[] | undefined}
         imageAlt={"studio image"}
-        allowDeleteImage={true}
+        allowDeleteImage={disableInput ? false : true}
       />
-      <SubmitButton
-        isSubmitting={isSubmitting || isPending}
-        nonSubmittingText={isOnboardingStep ? "往下一步" : "儲存"}
-        withIcon={isOnboardingStep ? true : false}
-      />
+      {!disableInput && (
+        <SubmitButton
+          isSubmitting={isSubmitting || isPending}
+          nonSubmittingText={isOnboardingStep ? "往下一步" : "儲存"}
+          withIcon={isOnboardingStep ? true : false}
+        />
+      )}
     </form>
   );
 };

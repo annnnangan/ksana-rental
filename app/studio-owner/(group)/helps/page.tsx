@@ -1,6 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
+import SectionTitle from "@/components/custom-components/common/SectionTitle";
 
 const articles = [
   {
@@ -23,7 +24,7 @@ const articles = [
 const OwnerGuidelinePage = () => {
   return (
     <>
-      <h1 className="text-primary text-2xl font-bold mb-5">幫助中心</h1>
+      <SectionTitle textColor="text-primary">幫助中心</SectionTitle>
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {articles.map((article) => (
           <Link href={article.href} key={article.href}>

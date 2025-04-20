@@ -17,7 +17,7 @@ import {
 import { Skeleton } from "@/components/shadcn/skeleton";
 import useStudioDashboard from "@/hooks/react-query/studio-panel/useStudioDashboard";
 import { convertTimeToString } from "@/lib/utils/date-time/format-time-utils";
-import { CalendarCheck2, CircleX, Clock5 } from "lucide-react";
+import { CalendarCheck2, CalendarClock, CircleX, Clock5 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useParams, useSearchParams } from "next/navigation";
 
@@ -96,7 +96,7 @@ const StudioPanelDashboardPage = () => {
 
   return (
     <>
-      <SectionTitle>儀表板</SectionTitle>
+      <SectionTitle textColor="text-primary">儀表板</SectionTitle>
 
       <div className="flex flex-col-reverse gap-10 md:gap-5 md:grid md:grid-cols-3">
         <div className="border-gray-300 border-t pt-10 md:border-t-0 md:pt-0 md:col-span-2 md:border-r md:pr-5">
@@ -171,43 +171,52 @@ const StudioPanelDashboardPage = () => {
               <CardDescription></CardDescription>
             </CardHeader>
             <CardContent className="pt-2 md:pt-1 pb-3 px-3 space-y-3">
-              {userStatus == "loading" || isLoading
-                ? Array.from({ length: 5 }, (_, index) => (
-                    <div key={index}>
-                      <Skeleton className="h-20 w-full mt-2" />
-                    </div>
-                  ))
-                : data?.upcoming5Bookings.bookingList.map(
-                    (item: {
-                      reference_no: string;
-                      name: string;
-                      image: string;
-                      booking_date: string;
-                      start_time: string;
-                      end_time: string;
-                    }) => (
-                      <div
-                        className="border border-gray-200 rounded-lg p-3 flex gap-3 shadow"
-                        key={item.reference_no}
-                      >
-                        <AvatarWithFallback avatarUrl={item.image} type={"user"} />
-                        <div>
-                          <p className="font-bold">{item.name}</p>
-                          <div className="flex items-center gap-2">
-                            <CalendarCheck2 size={14} />
-                            <p className="text-sm">{item.booking_date}</p>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Clock5 size={14} />
-                            <p className="text-sm">
-                              {convertTimeToString(item.start_time)} -{" "}
-                              {convertTimeToString(item.end_time)}
-                            </p>
-                          </div>
+              {userStatus == "loading" || isLoading ? (
+                Array.from({ length: 5 }, (_, index) => (
+                  <div key={index}>
+                    <Skeleton className="h-20 w-full mt-2" />
+                  </div>
+                ))
+              ) : data?.upcoming5Bookings.bookingList.length > 0 ? (
+                data?.upcoming5Bookings.bookingList.map(
+                  (item: {
+                    reference_no: string;
+                    name: string;
+                    image: string;
+                    booking_date: string;
+                    start_time: string;
+                    end_time: string;
+                  }) => (
+                    <div
+                      className="border border-gray-200 rounded-lg p-3 flex gap-3 shadow"
+                      key={item.reference_no}
+                    >
+                      <AvatarWithFallback avatarUrl={item.image} type={"user"} />
+                      <div>
+                        <p className="font-bold">{item.name}</p>
+                        <div className="flex items-center gap-2">
+                          <CalendarCheck2 size={14} />
+                          <p className="text-sm">{item.booking_date}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Clock5 size={14} />
+                          <p className="text-sm">
+                            {convertTimeToString(item.start_time)} -{" "}
+                            {convertTimeToString(item.end_time)}
+                          </p>
                         </div>
                       </div>
-                    )
-                  )}
+                    </div>
+                  )
+                )
+              ) : (
+                <SectionFallback
+                  icon={CalendarClock}
+                  iconSize={18}
+                  fallbackText={"最近未有預約"}
+                  textSize="text-xs"
+                />
+              )}
             </CardContent>
           </Card>
         </div>

@@ -4,7 +4,6 @@ import { Checkbox } from "@/components/shadcn/checkbox";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -17,14 +16,17 @@ import {
   EquipmentSchema,
 } from "@/lib/validations/zod-schema/studio/studio-step-schema";
 
-import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useTransition } from "react";
-import { z } from "zod";
-import { toast } from "react-toastify";
 import { saveEquipment } from "@/actions/studio";
 import { equipmentMap } from "@/lib/constants/studio-details";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
+import { useTransition } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
+import { z } from "zod";
+import { useSessionUser } from "@/hooks/use-session-user";
+import useStudioStatus from "@/hooks/react-query/studio-panel/useStudioStatus";
+import LoadingSpinner from "../common/loading/LoadingSpinner";
 
 interface Props {
   defaultValues: string[] | [];
@@ -33,6 +35,10 @@ interface Props {
 }
 
 const EquipmentForm = ({ defaultValues, studioId, isOnboardingStep }: Props) => {
+  const user = useSessionUser();
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+  const { data: studioStatus, isLoading: isLoadingStudioStatus } = useStudioStatus(studioId);
   /* ------------------------- React Hook Form ------------------------ */
   const form = useForm<z.infer<typeof EquipmentSchema>>({
     resolver: zodResolver(EquipmentSchema),
@@ -42,10 +48,6 @@ const EquipmentForm = ({ defaultValues, studioId, isOnboardingStep }: Props) => 
   });
 
   const { isSubmitting } = form.formState;
-  const { errors } = form.formState;
-
-  const [isPending, startTransition] = useTransition();
-  const router = useRouter();
 
   const onSubmit = async (data: EquipmentFormData) => {
     startTransition(() => {
@@ -64,6 +66,9 @@ const EquipmentForm = ({ defaultValues, studioId, isOnboardingStep }: Props) => 
       });
     });
   };
+
+  if (isLoadingStudioStatus) return <LoadingSpinner height="h-48" />;
+  const disableInput = studioStatus === "reviewing" && user?.role === "user";
 
   return (
     <Form {...form}>
@@ -95,6 +100,7 @@ const EquipmentForm = ({ defaultValues, studioId, isOnboardingStep }: Props) => 
                                     field?.value?.filter((value) => value !== item.value)
                                   );
                             }}
+                            disabled={disableInput}
                           />
                         </FormControl>
                         <FormLabel className="text-md font-normal">{item.label}</FormLabel>
@@ -107,11 +113,13 @@ const EquipmentForm = ({ defaultValues, studioId, isOnboardingStep }: Props) => 
             </FormItem>
           )}
         />
-        <SubmitButton
-          isSubmitting={isSubmitting || isPending}
-          nonSubmittingText={isOnboardingStep ? "往下一步" : "儲存"}
-          withIcon={isOnboardingStep ? true : false}
-        />
+        {!disableInput && (
+          <SubmitButton
+            isSubmitting={isSubmitting || isPending}
+            nonSubmittingText={isOnboardingStep ? "往下一步" : "儲存"}
+            withIcon={isOnboardingStep ? true : false}
+          />
+        )}
       </form>
     </Form>
   );

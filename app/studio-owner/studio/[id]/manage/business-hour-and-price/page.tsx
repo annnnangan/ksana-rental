@@ -1,15 +1,13 @@
-import { DayBusinessHour, daysOfWeek, daysOfWeekType, Price } from "@/services/model";
-
-import BusinessHourAndPrice from "@/components/custom-components/studio-details-form/BusinessHourAndPriceForm";
-import DateSpecificHour from "@/components/custom-components/studio-details-form/DateSpecificHour";
 import SectionTitle from "@/components/custom-components/common/SectionTitle";
 import ToastMessageWithRedirect from "@/components/custom-components/common/ToastMessageWithRedirect";
+import BusinessHourAndPrice from "@/components/custom-components/studio-details-form/BusinessHourAndPriceForm";
+import DateSpecificHour from "@/components/custom-components/studio-details-form/DateSpecificHour";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/shadcn/tabs";
 import { sessionUser } from "@/lib/next-auth-config/session-user";
-import { studioService } from "@/services/studio/StudioService";
-import { BusinessHoursAndPriceFormData } from "@/lib/validations/zod-schema/studio/studio-step-schema";
 import { formatDate } from "@/lib/utils/date-time/format-date-utils";
 import { convertTimeToString } from "@/lib/utils/date-time/format-time-utils";
+import { BusinessHoursAndPriceFormData } from "@/lib/validations/zod-schema/studio/studio-step-schema";
+import { studioService } from "@/services/studio/StudioService";
 
 const BusinessHourAndPricePage = async ({ params }: { params: Promise<{ id: string }> }) => {
   //Get Studio ID from URL
@@ -50,20 +48,20 @@ const BusinessHourAndPricePage = async ({ params }: { params: Promise<{ id: stri
 
   return (
     <>
-      <SectionTitle>設定可預約時間及價錢</SectionTitle>
+      <SectionTitle textColor="text-primary">設定可預約時間及價錢</SectionTitle>
       <Tabs defaultValue="weeklyHours" className="">
         <TabsList className="gap-3 overflow-x-auto">
           <TabsTrigger value="weeklyHours">恆常營業時間</TabsTrigger>
           <TabsTrigger value="dateSpecificHour">特定日期可預約時間</TabsTrigger>
         </TabsList>
-        <TabsContent value="weeklyHours">
+        <TabsContent value="weeklyHours" className="mt-5">
           <BusinessHourAndPrice
             studioId={studioId}
             isOnboardingStep={false}
             defaultValue={businessHoursAndPriceValue}
           />
         </TabsContent>
-        <TabsContent value="dateSpecificHour">
+        <TabsContent value="dateSpecificHour" className="mt-5">
           <DateSpecificHour studioId={studioId} dateSpecificHourList={dateSpecificHourList} />
         </TabsContent>
       </Tabs>

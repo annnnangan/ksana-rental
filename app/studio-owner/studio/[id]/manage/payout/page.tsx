@@ -1,5 +1,6 @@
 "use client";
 
+import LoadingSpinner from "@/components/custom-components/common/loading/LoadingSpinner";
 import PaginationWrapper from "@/components/custom-components/common/PaginationWrapper";
 import SectionFallback from "@/components/custom-components/common/SectionFallback";
 import SectionTitle from "@/components/custom-components/common/SectionTitle";
@@ -15,6 +16,7 @@ import {
   TableRow,
 } from "@/components/shadcn/table";
 import useStudioPayoutList from "@/hooks/react-query/studio-panel/useStudioPayoutList";
+import useStudioStatus from "@/hooks/react-query/studio-panel/useStudioStatus";
 import { formatDate } from "@/lib/utils/date-time/format-date-utils";
 import { HandCoins } from "lucide-react";
 import Link from "next/link";
@@ -37,7 +39,8 @@ const limit = 10;
 const PayoutPage = () => {
   const searchParams = useSearchParams();
   const params = useParams();
-  const studioId = params.id;
+  const studioId = params.id as string;
+  const { data: studioStatus, isLoading: isLoadingStudioStatus } = useStudioStatus(studioId);
 
   const [selectedWeek, setSelectedWeek] = useState<DateRange>({
     from: searchParams.get("startDate")
@@ -52,12 +55,17 @@ const PayoutPage = () => {
     page,
     limit,
     studioId as string,
+    { enabled: studioStatus !== "reviewing" ? true : false },
     selectedWeek.from ? formatDate(selectedWeek.from) : undefined
   );
 
+  if (isLoadingStudioStatus) {
+    return <LoadingSpinner height="h-48" />;
+  }
+
   return (
     <>
-      <SectionTitle>結算記錄</SectionTitle>
+      <SectionTitle textColor="text-primary">結算記錄</SectionTitle>
       <div className="flex gap-2">
         <DateFilter selectedWeek={selectedWeek} setSelectedWeek={setSelectedWeek} />
         <Button
@@ -79,13 +87,6 @@ const PayoutPage = () => {
           </TableHeader>
 
           <TableBody>
-            {isError && (
-              <TableRow>
-                <TableCell colSpan={5}>
-                  <SectionFallback icon={HandCoins} fallbackText={"未能取得結算資料。"} />
-                </TableCell>
-              </TableRow>
-            )}
             {isLoading &&
               Array.from({ length: 5 }, (_, index) => (
                 <TableRow key={index} className="border-0">
@@ -94,7 +95,10 @@ const PayoutPage = () => {
                   </TableCell>
                 </TableRow>
               ))}
+
             {!isLoading &&
+              studioStatus !== "reviewing" &&
+              data?.payoutList.length > 0 &&
               data?.payoutList.map(
                 (item: {
                   payout_start_date: string;
@@ -124,7 +128,25 @@ const PayoutPage = () => {
               )}
           </TableBody>
         </Table>
-        {!isLoading && data?.totalCount > limit && (
+        {!isLoading && studioStatus === "reviewing" && (
+          <div className="mt-10">
+            <SectionFallback icon={HandCoins} fallbackText={"暫未有結算"} />
+          </div>
+        )}
+
+        {!isLoading && data?.payoutList.length === 0 && (
+          <div className="mt-10">
+            <SectionFallback icon={HandCoins} fallbackText={"暫未有結算"} />
+          </div>
+        )}
+
+        {isError && (
+          <div className="mt-10">
+            <SectionFallback icon={HandCoins} fallbackText={"未能取得結算資料。"} />
+          </div>
+        )}
+
+        {!isLoading && data?.totalCount > limit && studioStatus !== "reviewing" && (
           <div className="mt-8">
             <PaginationWrapper
               currentPage={page}
