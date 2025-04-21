@@ -11,6 +11,7 @@ import { LoginSchema, RegisterSchema } from "@/lib/validations/zod-schema/auth";
 import { generateVerificationToken } from "@/lib/utils/generate-verification-token";
 import { sendVerificationEmail } from "@/lib/mail";
 import { verificationService } from "@/services/user/VerificationService";
+import { getSession } from "next-auth/react";
 
 export const login = async (values: z.infer<typeof LoginSchema>, redirect?: string) => {
   const validateFields = LoginSchema.safeParse(values);
@@ -39,8 +40,6 @@ export const login = async (values: z.infer<typeof LoginSchema>, redirect?: stri
   try {
     //give this function the provider for login, in this case, it is credentials
     //also give this function the information that is used to sign in
-
-    console.log(redirect);
     await signIn("credentials", {
       email,
       password,

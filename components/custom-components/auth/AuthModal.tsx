@@ -1,12 +1,19 @@
 "use client";
 import { login, register } from "@/actions/auth";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/shadcn/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/shadcn/dialog";
 import { LoginSchema, RegisterSchema } from "@/lib/validations/zod-schema/auth";
 import { X } from "lucide-react";
 import AuthForm from "./AuthForm";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 interface Props {
   isOpenModal: boolean;
@@ -14,6 +21,8 @@ interface Props {
 }
 
 const AuthModal = ({ isOpenModal, setOpenModal }: Props) => {
+  const router = useRouter();
+
   const pathname = usePathname();
   const [authType, setAuthType] = useState<"LOGIN" | "REGISTER">("LOGIN");
   const handleCloseModal = () => {
@@ -27,7 +36,10 @@ const AuthModal = ({ isOpenModal, setOpenModal }: Props) => {
   return (
     <Dialog open={isOpenModal}>
       <DialogContent hideClose className="p-0 max-h-[90vh] overflow-y-auto">
-        <X onClick={handleCloseModal} className="cursor-pointer w-5 h-5 text-gray-500 absolute top-0 right-0 me-5 mt-5" />
+        <X
+          onClick={handleCloseModal}
+          className="cursor-pointer w-5 h-5 text-gray-500 absolute top-0 right-0 me-5 mt-5"
+        />
         <VisuallyHidden>
           <DialogHeader>
             <DialogTitle></DialogTitle>

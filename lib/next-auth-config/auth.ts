@@ -28,7 +28,6 @@ export const {
       const existingUser = (await userService.getUserById(user.id!))?.data;
       // Prevent sign in without email verification
       if (!existingUser?.email_verified) return false;
-      // TODO: Add 2FA check
       return true;
     },
     async session({ token, session }) {
