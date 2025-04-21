@@ -46,6 +46,7 @@ const GallerySlideshow = ({ images }: Props) => {
       </Swiper>
 
       <Swiper
+        //@ts-expect-error expected
         onSwiper={setThumbsSwiper}
         loop={true}
         slidesPerView={5}

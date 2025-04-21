@@ -7,7 +7,9 @@ import Link from "next/link";
 
 const page = async () => {
   const user = await sessionUser();
-  const latestDraftStudioList = await studioOwnerService.getLatestDraftStudioOnboardingStepStatus(user?.id as string);
+  const latestDraftStudioList = await studioOwnerService.getLatestDraftStudioOnboardingStepStatus(
+    user?.id as string
+  );
   if (latestDraftStudioList.data === "") {
     return;
   }
@@ -32,14 +34,28 @@ const page = async () => {
               {/* Step Circle */}
               <div
                 className={`w-8 h-8 flex items-center justify-center rounded-full text-white text-sm font-bold ${
-                  steps?.find((item) => item.step === step.value)?.is_complete ? "bg-primary" : "bg-gray-300"
+                  steps?.find((item: { step: string }) => item.step === step.value)?.is_complete
+                    ? "bg-primary"
+                    : "bg-gray-300"
                 }`}
               >
-                {steps?.find((item) => item.step === step.value)?.is_complete ? <Check /> : index + 1}
+                {steps?.find((item: { step: string }) => item.step === step.value)?.is_complete ? (
+                  <Check />
+                ) : (
+                  index + 1
+                )}
               </div>
 
               {/* Step Label */}
-              <span className={`text-xs md:text-sm mt-2 text-center ${steps?.find((item) => item.step === step.value)?.is_complete ? "text-gray-900" : "text-gray-400"}`}>{step.label}</span>
+              <span
+                className={`text-xs md:text-sm mt-2 text-center ${
+                  steps?.find((item: { step: string }) => item.step === step.value)?.is_complete
+                    ? "text-gray-900"
+                    : "text-gray-400"
+                }`}
+              >
+                {step.label}
+              </span>
             </div>
           </div>
         ))}

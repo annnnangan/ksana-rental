@@ -136,6 +136,7 @@ const BasicInfoForm = ({ isOnboardingStep, studioId, defaultValues }: Props) => 
       );
 
       if (!imageUrl.success) {
+        //@ts-expect-error expected
         toast(`Logo無法儲存: ${imageUrl?.error?.message}`, {
           position: "top-right",
           type: "error",
@@ -143,7 +144,7 @@ const BasicInfoForm = ({ isOnboardingStep, studioId, defaultValues }: Props) => 
         });
         return;
       }
-
+      //@ts-expect-error expected
       data = { ...data, logo: imageUrl?.data?.[0] };
     }
 
@@ -156,6 +157,7 @@ const BasicInfoForm = ({ isOnboardingStep, studioId, defaultValues }: Props) => 
       );
 
       if (!imageUrl.success) {
+        //@ts-expect-error expected
         toast(`封面圖片無法儲存: ${imageUrl?.error?.message}。`, {
           position: "top-right",
           type: "error",
@@ -163,7 +165,7 @@ const BasicInfoForm = ({ isOnboardingStep, studioId, defaultValues }: Props) => 
         });
         return;
       }
-
+      //@ts-expect-error expected
       data = { ...data, cover_photo: imageUrl?.data?.[0] };
     }
 

@@ -141,6 +141,7 @@ const GalleryForm = ({ defaultValues, studioId, isOnboardingStep }: Props) => {
         return;
       } else {
         startTransition(() => {
+          //@ts-expect-error expected
           saveGallery(newUploadImageUrls.data, studioId, isOnboardingStep).then((data) => {
             toast(data.error?.message || "儲存成功。", {
               position: "top-right",

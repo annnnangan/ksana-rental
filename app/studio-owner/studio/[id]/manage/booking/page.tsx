@@ -6,18 +6,8 @@ import ResponsiveTab from "@/components/custom-components/layout/ResponsiveTab";
 import SectionTitle from "@/components/custom-components/common/SectionTitle";
 import BookingTable from "@/components/custom-components/manage-bookings/studio/BookingTable";
 
-interface SearchQuery {
-  tab: string;
-}
-
-interface Params {
-  id: string;
-}
-
-interface Props {
-  searchParams: SearchQuery;
-  params: Params;
-}
+type searchParams = Promise<{ tab: string }>;
+type params = Promise<{ id: string }>;
 
 const tabListMap = [
   { name: "即將開始", query: "confirmed" },
@@ -25,9 +15,16 @@ const tabListMap = [
   { name: "已取消/已失效", query: "canceled-and-expired" },
 ];
 
-const BookingPage = async (props: Props) => {
-  const bookingStatus = (await props.searchParams).tab || "confirmed";
-  const studioId = (await props.params).id;
+const BookingPage = async ({
+  searchParams,
+  params,
+}: {
+  searchParams: searchParams;
+  params: params;
+}) => {
+  const { tab } = await searchParams;
+  const { id: studioId } = await params;
+  const bookingStatus = tab || "confirmed";
 
   const allowedStatuses = ["confirmed", "pending-for-payment", "completed", "canceled-and-expired"];
 

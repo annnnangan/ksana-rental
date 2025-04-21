@@ -14,6 +14,7 @@ export interface StudioQuery {
   page?: string;
   equipment: string;
   orderBy?: string;
+  districts: string;
 }
 
 export interface studioCardInfo {
@@ -37,15 +38,12 @@ export const metadata = {
   title: "探索場地",
 };
 
-const ExploreStudiosPage = async (props: Props) => {
+type searchParams = Promise<StudioQuery>;
+
+const ExploreStudiosPage = async ({ searchParams }: { searchParams: searchParams }) => {
   const user = await auth();
-  const searchParams = await props.searchParams;
-  const currentPage = Number(searchParams["page"]) || 1;
-  const districts = searchParams["location"];
-  const equipment = searchParams["equipment"];
-  const orderBy = searchParams["orderBy"];
-  const date = searchParams["date"];
-  const startTime = searchParams["startTime"];
+  const { page, location: districts, equipment, orderBy, date, startTime } = await searchParams;
+  const currentPage = Number(page) || 1;
 
   const pageSize = 8;
 

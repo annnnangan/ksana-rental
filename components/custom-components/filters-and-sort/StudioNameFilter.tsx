@@ -52,7 +52,6 @@ const StudioNameFilter = <T,>({
           {selectedStudio ? (
             <>
               <AvatarWithFallback
-                //@ts-expect-error expected
                 avatarUrl={studios?.find((studio) => studio?.value == selectedStudio)?.logo}
                 type={"studio"}
               />

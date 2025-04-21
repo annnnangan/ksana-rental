@@ -8,6 +8,8 @@ import QueryClientProvider from "./QueryClientProvider";
 import { CopilotKit } from "@copilotkit/react-core";
 import "@copilotkit/react-ui/styles.css";
 import { ProjectNoticeModal } from "@/components/custom-components/ProjectNoticeModal";
+import { Suspense } from "react";
+import LoadingSpinner from "@/components/custom-components/common/loading/LoadingSpinner";
 
 const notoSansTC = Noto_Sans_TC({
   subsets: ["latin"], // Include subsets as per your use case
@@ -37,7 +39,7 @@ export default function RootLayout({
           <QueryClientProvider>
             <CopilotKit runtimeUrl="/api/copilotkit">
               <ProjectNoticeModal />
-              {children}
+              <Suspense fallback={<LoadingSpinner />}>{children}</Suspense>
             </CopilotKit>
             <ToastContainer />
           </QueryClientProvider>

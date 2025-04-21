@@ -13,8 +13,22 @@ import {
   getSortedRowModel,
 } from "@tanstack/react-table";
 
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/shadcn/table";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/shadcn/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/shadcn/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/shadcn/dialog";
 
 import { ArrowUpDown, ArrowDown, ArrowUp, ChevronRight, ChevronLeft } from "lucide-react";
 
@@ -70,6 +84,7 @@ export default function TicketTable({ data }: Props) {
     return columnHelper.accessor(
       (row) => {
         // transformational
+        //@ts-expect-error expected
         const value = row[columnName];
         if (columnName === "booking_date" && value instanceof Date) {
           return formatDate(new Date(value));
@@ -85,14 +100,20 @@ export default function TicketTable({ data }: Props) {
         id: columnName,
         header: ({ column }) => {
           return (
-            <Button variant="ghost" className="pl-1 w-full flex justify-between" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+            <Button
+              variant="ghost"
+              className="pl-1 w-full flex justify-between"
+              onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            >
               {label}
 
               {column.getIsSorted() === "asc" && <ArrowUp className="ml-2 h-4 w-4" />}
 
               {column.getIsSorted() === "desc" && <ArrowDown className="ml-2 h-4 w-4" />}
 
-              {column.getIsSorted() !== "desc" && column.getIsSorted() !== "asc" && <ArrowUpDown className="ml-2 h-4 w-4" />}
+              {column.getIsSorted() !== "desc" && column.getIsSorted() !== "asc" && (
+                <ArrowUpDown className="ml-2 h-4 w-4" />
+              )}
             </Button>
           );
         },
@@ -139,7 +160,10 @@ export default function TicketTable({ data }: Props) {
           {table.getFlatHeaders().map((header) =>
             header.column.getCanFilter() ? (
               <div key={header.id} className="flex flex-col">
-                <label className="text-sm font-medium">{columnHeadersArrayMap.find((col) => col.columnName === header.id)?.label || "篩選"}</label>
+                <label className="text-sm font-medium">
+                  {columnHeadersArrayMap.find((col) => col.columnName === header.id)?.label ||
+                    "篩選"}
+                </label>
                 <Filter column={header.column} />
               </div>
             ) : null
@@ -151,12 +175,18 @@ export default function TicketTable({ data }: Props) {
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Are you absolutely sure?</DialogTitle>
-                <DialogDescription>This action cannot be undone. This will permanently delete your account and remove your data from our servers.</DialogDescription>
+                <DialogDescription>
+                  This action cannot be undone. This will permanently delete your account and remove
+                  your data from our servers.
+                </DialogDescription>
               </DialogHeader>
               {table.getFlatHeaders().map((header) =>
                 header.column.getCanFilter() ? (
                   <div key={header.id} className="flex flex-col">
-                    <label className="text-sm font-medium">{columnHeadersArrayMap.find((col) => col.columnName === header.id)?.label || "篩選"}</label>
+                    <label className="text-sm font-medium">
+                      {columnHeadersArrayMap.find((col) => col.columnName === header.id)?.label ||
+                        "篩選"}
+                    </label>
                     <Filter column={header.column} />
                   </div>
                 ) : null
@@ -180,8 +210,15 @@ export default function TicketTable({ data }: Props) {
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id} className={`p-2 ${["remarks", "user_name"].includes(header.id) ? "hidden md:table-cell" : ""}`}>
-                    {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                  <TableHead
+                    key={header.id}
+                    className={`p-2 ${
+                      ["remarks", "user_name"].includes(header.id) ? "hidden md:table-cell" : ""
+                    }`}
+                  >
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(header.column.columnDef.header, header.getContext())}
                   </TableHead>
                 ))}
               </TableRow>
@@ -198,7 +235,14 @@ export default function TicketTable({ data }: Props) {
                 }}
               >
                 {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id} className={`${["remarks", "user_name"].includes(cell.column.id) ? "hidden md:table-cell" : ""}`}>
+                  <TableCell
+                    key={cell.id}
+                    className={`${
+                      ["remarks", "user_name"].includes(cell.column.id)
+                        ? "hidden md:table-cell"
+                        : ""
+                    }`}
+                  >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </TableCell>
                 ))}
@@ -212,21 +256,38 @@ export default function TicketTable({ data }: Props) {
           <p className="whitespace-nowrap font-bold">
             {`Page ${table.getState().pagination.pageIndex + 1} of ${table.getPageCount()}`}
             &nbsp;&nbsp;
-            {`[${table.getFilteredRowModel().rows.length} ${table.getFilteredRowModel().rows.length !== 1 ? "total results" : "result"}]`}
+            {`[${table.getFilteredRowModel().rows.length} ${
+              table.getFilteredRowModel().rows.length !== 1 ? "total results" : "result"
+            }]`}
           </p>
         </div>
         <div className="space-x-1">
-          <Button variant="outline" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
+          <Button
+            variant="outline"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
             <ChevronLeft /> 上一頁
           </Button>
-          <Button variant="outline" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
+          <Button
+            variant="outline"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
             <ChevronRight />
             <span className="hidden md:block">下一頁</span>
           </Button>
         </div>
       </div>
 
-      {selectedBooking && openDetailModal && <BookingDetailsModal isOpen={openDetailModal} setOpenModal={setOpenDetailModal} bookingRecord={selectedBooking as StudioBookingRecord} role="studio" />}
+      {selectedBooking && openDetailModal && (
+        <BookingDetailsModal
+          isOpen={openDetailModal}
+          setOpenModal={setOpenDetailModal}
+          bookingRecord={selectedBooking as StudioBookingRecord}
+          role="studio"
+        />
+      )}
     </div>
   );
 }

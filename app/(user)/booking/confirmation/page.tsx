@@ -224,7 +224,7 @@ const BookingConfirmationPage = () => {
             <FormField
               control={form.control}
               name="phone"
-              render={({ field }) => (
+              render={() => (
                 <FormItem className="w-full">
                   <FormLabel className="text-sm" htmlFor="phone">
                     聯絡電話 *
@@ -235,7 +235,6 @@ const BookingConfirmationPage = () => {
                       id="phone"
                       className="form-input text-sm"
                       placeholder="請填寫場地聯絡電話"
-                      {...field}
                       onChange={(e) => {
                         const phoneNumber = e.target.value;
                         // Update the form value with the country code on change

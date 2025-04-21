@@ -9,7 +9,7 @@ import CheckoutForm from "@/components/custom-components/booking/CheckoutForm";
 import LoadingSpinner from "@/components/custom-components/common/loading/LoadingSpinner";
 import SectionTitle from "@/components/custom-components/common/SectionTitle";
 import { useSessionUser } from "@/hooks/use-session-user";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 if (process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY === undefined) {
@@ -19,6 +19,16 @@ if (process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY === undefined) {
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY);
 
 const BookingPaymentPage = () => {
+  return (
+    <>
+      <Suspense fallback={<LoadingSpinner />}>
+        <BookingPaymentContent />
+      </Suspense>
+    </>
+  );
+};
+
+const BookingPaymentContent = () => {
   //Get User Session
   const user = useSessionUser();
   //Get Reference No from query string
@@ -69,6 +79,7 @@ const BookingPaymentPage = () => {
   return (
     <>
       <SectionTitle>付款</SectionTitle>
+
       {isLoading ? (
         <LoadingSpinner height={"h-[100px]"} />
       ) : (

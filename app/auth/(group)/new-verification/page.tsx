@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 
 import { newVerification, resendVerification } from "@/actions/auth";
 import AuthResponse from "@/components/custom-components/auth/AuthResponse";
@@ -8,7 +8,16 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { BeatLoader } from "react-spinners";
+import LoadingSpinner from "@/components/custom-components/common/loading/LoadingSpinner";
 const NewVerificationPage = () => {
+  return (
+    <Suspense fallback={<LoadingSpinner />}>
+      <NewVerificationContent />
+    </Suspense>
+  );
+};
+
+const NewVerificationContent = () => {
   const [error, setError] = useState<string | undefined>();
   const [success, setSuccess] = useState<string | undefined>();
   const searchParams = useSearchParams();

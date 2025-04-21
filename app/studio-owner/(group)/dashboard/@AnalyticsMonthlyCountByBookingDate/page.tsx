@@ -15,8 +15,11 @@ const page = async (props: Props) => {
     dateType: "booking_date",
     userId: user?.id!,
   });
-  const data: { totalCount: number; monthBreakdown: { month: string; total: number }[] } =
-    result.data!;
+  const { total, monthBreakdown } = result.data!;
+  const data = {
+    totalCount: total,
+    monthBreakdown,
+  };
 
   return (
     <>

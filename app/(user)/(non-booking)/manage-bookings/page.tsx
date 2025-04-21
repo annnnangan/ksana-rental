@@ -9,22 +9,14 @@ import { redirect } from "next/navigation";
 import SectionFallback from "@/components/custom-components/common/SectionFallback";
 import { CalendarClock } from "lucide-react";
 
-interface SearchQuery {
-  tab: string;
-}
-
-interface Props {
-  searchParams: SearchQuery;
-}
-
 export const metadata = {
   title: "我的預約",
 };
 
-const ManageBookingsPage = async (props: Props) => {
-  const searchParams = await props.searchParams;
+type searchParams = Promise<{ tab: string }>;
 
-  const bookingStatus = searchParams["tab"];
+const ManageBookingsPage = async ({ searchParams }: { searchParams: searchParams }) => {
+  const { tab: bookingStatus } = await searchParams;
 
   const allowedStatuses = ["confirmed", "completed", "canceled-and-expired"];
 

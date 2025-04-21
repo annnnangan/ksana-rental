@@ -11,26 +11,22 @@ const tabListMap = [
   { name: "Active", query: "active" },
 ];
 
-interface SearchQuery {
-  tab: string;
-}
+type searchParams = Promise<{ tab: string }>;
 
-interface Props {
-  searchParams: SearchQuery;
-}
-
-const page = async (props: Props) => {
+const page = async ({ searchParams }: { searchParams: searchParams }) => {
   const userRole = await sessionUserRole();
   if (userRole !== "admin") {
     return (
       <ToastMessageWithRedirect type={"error"} message={"你沒有此權限。"} redirectPath={"/"} />
     );
   }
-  const activeTab = (await props.searchParams).tab || "awaiting-approval";
+  const { tab } = await searchParams;
 
-  const studioList = (
-    await adminService.getStudioList(activeTab === "awaiting-approval" ? "reviewing" : "active")
-  ).data;
+  const activeTab = tab || "awaiting-approval";
+
+  const studioList =
+    (await adminService.getStudioList(activeTab === "awaiting-approval" ? "reviewing" : "active"))
+      .data || [];
 
   return (
     <div>
