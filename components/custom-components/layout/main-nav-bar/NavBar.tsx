@@ -111,11 +111,11 @@ const NavBar = async () => {
                       </Link>
                     </MenubarItem>
 
-                    <MenubarItem>
+                    {/* <MenubarItem>
                       <Link href="/account-settings" className="w-full">
                         帳號管理
                       </Link>
-                    </MenubarItem>
+                    </MenubarItem> */}
                     {session?.user?.role === "admin" && (
                       <>
                         <MenubarSeparator />
@@ -193,9 +193,9 @@ const NavBar = async () => {
                     我的收藏
                   </ButtonLink>
 
-                  <ButtonLink href={"/account-settings"} className="w-full text-md">
+                  {/* <ButtonLink href={"/account-settings"} className="w-full text-md">
                     帳號管理
-                  </ButtonLink>
+                  </ButtonLink> */}
 
                   {studioCount === 0 && (
                     <>
