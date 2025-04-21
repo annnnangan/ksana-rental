@@ -19,6 +19,10 @@ interface Props {
   searchParams: SearchQuery;
 }
 
+export const metadata = {
+  title: "我的收藏",
+};
+
 const pageSize = 6;
 const BookmarksPage = async (props: Props) => {
   const user = await sessionUser();
