@@ -33,6 +33,10 @@ interface Props {
   searchParams: StudioQuery;
 }
 
+export const metadata = {
+  title: "探索場地",
+};
+
 const ExploreStudiosPage = async (props: Props) => {
   const user = await auth();
   const searchParams = await props.searchParams;

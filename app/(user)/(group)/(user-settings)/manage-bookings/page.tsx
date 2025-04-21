@@ -17,6 +17,10 @@ interface Props {
   searchParams: SearchQuery;
 }
 
+export const metadata = {
+  title: "我的預約",
+};
+
 const ManageBookingsPage = async (props: Props) => {
   const searchParams = await props.searchParams;
 

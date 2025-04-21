@@ -17,6 +17,11 @@ import { auth } from "@/lib/next-auth-config/auth";
 
 import { Calendar1 } from "lucide-react";
 import Link from "next/link";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "管理員後台",
+};
 
 export default async function Layout({ children }: { children: React.ReactNode }) {
   const session = await auth();

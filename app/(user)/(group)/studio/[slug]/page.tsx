@@ -15,6 +15,7 @@ import { GENERAL_ERROR_MESSAGE } from "@/lib/constants/error-message";
 import { studioService } from "@/services/studio/StudioService";
 import { validateStudioService } from "@/services/studio/ValidateStudio";
 import { auth } from "@/lib/next-auth-config/auth";
+import { Metadata } from "next";
 
 export interface StudioInfo {
   slug: string;
@@ -29,6 +30,14 @@ export interface StudioInfo {
   address: string;
   is_bookmarked: boolean;
 }
+
+export const generateMetadata = async ({ params }: { params: Promise<{ slug: string }> }) => {
+  const slug = (await params).slug;
+  const studioName = (await studioService.getStudioNameBySlug(slug)).data;
+  return {
+    title: `${studioName}`,
+  };
+};
 
 const StudioPage = async ({ params }: { params: Promise<{ slug: string }> }) => {
   const user = await auth();

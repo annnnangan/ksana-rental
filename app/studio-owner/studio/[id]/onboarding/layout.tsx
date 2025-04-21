@@ -7,6 +7,10 @@ import { validateStudioService } from "@/services/studio/ValidateStudio";
 
 type Params = Promise<{ id: string }>;
 
+export const metadata = {
+  title: "場地登記",
+};
+
 export default async function Layout({
   children,
   params,

@@ -41,6 +41,15 @@ export class StudioService {
     };
   }
 
+  async getStudioNameBySlug(slug: string) {
+    const studioName = (await this.knex.select("name").from("studio").where({ slug }))[0]?.name;
+
+    return {
+      success: true,
+      data: studioName,
+    };
+  }
+
   async getAllStudiosName({ status = "all" }: { status?: "all" | "active" }) {
     try {
       const mainQuery = this.knex

@@ -30,6 +30,10 @@ interface Props {
   params: Params;
 }
 
+export const metadata = {
+  title: "場地管理",
+};
+
 export default async function Layout({ children, params }: Props) {
   const session = await auth();
 
