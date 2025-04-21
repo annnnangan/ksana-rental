@@ -1,7 +1,6 @@
 import handleError from "@/lib/handlers/error";
 import { UnauthorizedError } from "@/lib/http-errors";
 import { auth } from "@/lib/next-auth-config/auth";
-import { adminService } from "@/services/admin/AdminService";
 import { studioService } from "@/services/studio/StudioService";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -18,7 +17,17 @@ export async function GET(request: NextRequest, props: { params: Promise<{ idOrS
       //check if studio belong to user
     }
 
-    const [basicInfoResponse, businessHoursResponse, priceResponse, equipmentResponse, galleryResponse, doorPasswordResponse, socialResponse, payoutInfoResponse, statusResponse] = await Promise.all([
+    const [
+      basicInfoResponse,
+      businessHoursResponse,
+      priceResponse,
+      equipmentResponse,
+      galleryResponse,
+      doorPasswordResponse,
+      socialResponse,
+      payoutInfoResponse,
+      statusResponse,
+    ] = await Promise.all([
       studioService.getBasicInfoFormData(studioId),
       studioService.getBusinessHoursByStudioId(studioId),
       studioService.getPrice({ studioId: studioId }),
