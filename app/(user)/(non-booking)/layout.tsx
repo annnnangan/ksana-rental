@@ -1,19 +1,14 @@
 "use client";
 import StudioCardLoadingSkeleton from "@/components/custom-components/common/loading/StudioCardLoadingSkeleton";
 
+import StudioCard from "@/components/custom-components/studio-card/StudioCard";
 import { equipmentMap } from "@/lib/constants/studio-details";
 import { districts } from "@/services/model";
 import { useCopilotAction, useCopilotReadable } from "@copilotkit/react-core";
-import {
-  ButtonProps,
-  CopilotKitCSSProperties,
-  CopilotPopup,
-  HeaderProps,
-  useChatContext,
-} from "@copilotkit/react-ui";
+import { ButtonProps, CopilotPopup, HeaderProps, useChatContext } from "@copilotkit/react-ui";
 import React, { useState } from "react";
 import { studioCardInfo } from "./explore-studios/page";
-import StudioCard from "@/components/custom-components/studio-card/StudioCard";
+import Image from "next/image";
 
 function Header({}: HeaderProps) {
   const { setOpen, icons, labels } = useChatContext();
@@ -46,7 +41,7 @@ function Button({}: ButtonProps) {
       {/* Bot Message */}
       {showMessage && (
         <div className="absolute -top-24 -left-8 opacity-100 transition-opacity duration-500">
-          <img src="/assets/bot-message.svg" />
+          <Image src="/assets/bot-message.svg" alt="bot message" width="200" height="200" />
         </div>
       )}
 
@@ -59,7 +54,7 @@ function Button({}: ButtonProps) {
           className={`${open ? "open" : ""} p-3`}
           aria-label={open ? "Close Chat" : "Open Chat"}
         >
-          <img src="/assets/bot.png" />
+          <Image src="/assets/bot.png" alt="bot" width="75" height="75" />
         </button>
       </div>
     </div>

@@ -3,7 +3,6 @@ import { Button } from "@/components/shadcn/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/shadcn/dialog";
 import { CircleX } from "lucide-react";
 
-import { ReviewUserProfile } from "./ReviewSection";
 import AvatarWithFallback from "@/components/custom-components/common/AvatarWithFallback";
 import GallerySlideshow from "@/components/custom-components/studio-page/gallery/GallerySlideshow";
 import BookNowButton from "../../BookNowButton";
@@ -12,7 +11,7 @@ interface Props {
   isOpen: boolean;
   onCloseModal: () => void;
   images: string[];
-  userProfile: ReviewUserProfile;
+  userProfile: { icon: string; name: string };
 }
 
 const ReviewImageModal = ({ isOpen, onCloseModal, images, userProfile }: Props) => {

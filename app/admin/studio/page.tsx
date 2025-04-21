@@ -11,41 +11,22 @@ const tabListMap = [
   { name: "Active", query: "active" },
 ];
 
-interface SearchQuery {
-  tab: string;
-}
+type searchParams = Promise<{ tab: string }>;
 
-interface Props {
-  searchParams: SearchQuery;
-}
-
-const data = [
-  {
-    studio_id: "1",
-    studio_name: "Soul Yogi Studio",
-    studio_slug: "soul-yogi-studio",
-    request_review_date: "2025-03-22",
-  },
-  {
-    studio_id: "2",
-    studio_name: "Olivia Studio",
-    studio_slug: "olivia-studio",
-    request_review_date: "2025-03-23",
-  },
-];
-
-const page = async (props: Props) => {
+const page = async ({ searchParams }: { searchParams: searchParams }) => {
   const userRole = await sessionUserRole();
   if (userRole !== "admin") {
     return (
       <ToastMessageWithRedirect type={"error"} message={"你沒有此權限。"} redirectPath={"/"} />
     );
   }
-  const activeTab = (await props.searchParams).tab || "awaiting-approval";
+  const { tab } = await searchParams;
 
-  const studioList = (
-    await adminService.getStudioList(activeTab === "awaiting-approval" ? "reviewing" : "active")
-  ).data;
+  const activeTab = tab || "awaiting-approval";
+
+  const studioList =
+    (await adminService.getStudioList(activeTab === "awaiting-approval" ? "reviewing" : "active"))
+      .data || [];
 
   return (
     <div>

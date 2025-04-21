@@ -10,18 +10,8 @@ import SocialForm from "@/components/custom-components/studio-details-form/Socia
 import { studioService } from "@/services/studio/StudioService";
 import { Suspense } from "react";
 
-interface SearchQuery {
-  tab: string;
-}
-
-interface Params {
-  id: string;
-}
-
-interface Props {
-  searchParams: SearchQuery;
-  params: Params;
-}
+type searchParams = Promise<{ tab: string }>;
+type params = Promise<{ id: string }>;
 
 const tabListMap = [
   { name: "基本資料", query: "basic-info" },
@@ -32,10 +22,16 @@ const tabListMap = [
   { name: "收款資料", query: "payout-info" },
 ];
 
-const StudioInformationPage = async (props: Props) => {
-  const searchParams = await props.searchParams;
-  const { id: studioId } = await props.params;
-  const activeTab = searchParams["tab"] || "basic-info";
+const StudioInformationPage = async ({
+  searchParams,
+  params,
+}: {
+  searchParams: searchParams;
+  params: params;
+}) => {
+  const { tab } = await searchParams;
+  const { id: studioId } = await params;
+  const activeTab = tab || "basic-info";
 
   // Fetch only the data for the active tab
   const fetchData = async () => {

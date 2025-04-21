@@ -18,13 +18,14 @@ interface SearchQuery {
 interface Props {
   searchParams: SearchQuery;
 }
+type searchParams = Promise<{ page: string }>;
 
 export const metadata = {
   title: "我的收藏",
 };
 
 const pageSize = 6;
-const BookmarksPage = async (props: Props) => {
+const BookmarksPage = async ({ searchParams }: { searchParams: searchParams }) => {
   const user = await sessionUser();
   if (!user) {
     return (
@@ -35,8 +36,8 @@ const BookmarksPage = async (props: Props) => {
       />
     );
   }
-  const searchParams = await props.searchParams;
-  const currentPage = Number(searchParams["page"]) || 1;
+  const { page } = await searchParams;
+  const currentPage = Number(page) || 1;
   const bookmarkResult = await userService.getUserAllStudioBookmark(
     user?.id,
     currentPage,

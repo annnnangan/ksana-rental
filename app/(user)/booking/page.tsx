@@ -37,16 +37,16 @@ const BookingPage = async ({
   }
 
   let bookingStudioBasicInfo;
-  // @ts-ignore
+  //@ts-expect-error expected
   const bookingStudioBasicInfoResult = await studioService.getStudioBasicInfo({ slug: studioSlug });
 
   if (bookingStudioBasicInfoResult.success) {
     bookingStudioBasicInfo = bookingStudioBasicInfoResult.data?.studios[0];
   } else {
-    // @ts-ignore
     return (
       <ToastMessageWithRedirect
         type={"error"}
+        //@ts-expect-error expected
         message={bookingStudioBasicInfoResult?.error.message}
         redirectPath={"/"}
       />

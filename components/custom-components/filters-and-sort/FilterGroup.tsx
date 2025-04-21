@@ -4,27 +4,26 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/shadcn/dialog";
+import { Filter, X } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { StudioQuery } from "../../../app/(user)/(non-booking)/explore-studios/page";
-import DatePicker from "./DatePicker";
+import { Suspense, useState } from "react";
+import DateTimePicker from "./DateTimePicker";
 import EquipmentPicker from "./EquipmentPicker";
 import LocationPicker from "./LocationPicker";
-import TimePicker from "./TimePicker";
-import { Filter, X } from "lucide-react";
-import { useState } from "react";
-import ButtonLink from "../common/buttons/ButtonLink";
-import DateTimePicker from "./DateTimePicker";
+import LoadingSpinner from "../common/loading/LoadingSpinner";
 
-interface Props {
-  isHideEndTime?: boolean;
-}
+const FilterGroup = () => {
+  return (
+    <Suspense fallback={<LoadingSpinner />}>
+      <FilterGroupContent />
+    </Suspense>
+  );
+};
 
-const FilterGroup = ({ isHideEndTime = false }: Props) => {
+const FilterGroupContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isOpenFilterModal, setOpenFilterModal] = useState(false);
@@ -50,7 +49,6 @@ const FilterGroup = ({ isHideEndTime = false }: Props) => {
       <div className="md:flex gap-2 hidden">
         <LocationPicker />
         <DateTimePicker isModal={false} />
-        {/* <TimePicker isHideEndTime={isHideEndTime} /> */}
         <EquipmentPicker isModal={false} />
         <Button variant="ghost" className="text-gray-500 mt-auto" size="sm" onClick={handleRest}>
           <X />

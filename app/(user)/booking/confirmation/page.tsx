@@ -128,6 +128,7 @@ const BookingConfirmationPage = () => {
     usedCredit,
     paidAmount,
     isUsedCredit,
+    reset,
   ]);
 
   const handleSubmit = async (formData: BookingFormData) => {
@@ -135,7 +136,7 @@ const BookingConfirmationPage = () => {
       if (formData.paidAmount > 0) {
         createPendingForPaymentBooking(formData).then((data) => {
           if (!data.success) {
-            //@ts-ignore
+            //@ts-expect-error expected
             toast(data?.error?.message, {
               position: "top-right",
               type: "error",
@@ -149,7 +150,7 @@ const BookingConfirmationPage = () => {
       } else {
         createConfirmedForFreeBooking(formData).then((data) => {
           if (!data.success) {
-            //@ts-ignore
+            //@ts-expect-error expected
             toast(data?.error?.message, {
               position: "top-right",
               type: "error",
@@ -223,7 +224,7 @@ const BookingConfirmationPage = () => {
             <FormField
               control={form.control}
               name="phone"
-              render={({ field }) => (
+              render={() => (
                 <FormItem className="w-full">
                   <FormLabel className="text-sm" htmlFor="phone">
                     聯絡電話 *

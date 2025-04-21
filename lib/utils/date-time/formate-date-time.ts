@@ -1,6 +1,7 @@
 import { isBefore, setHours, setMinutes, setSeconds } from "date-fns";
 
-export function formatDateSpecificHours(data: any[]) {
+export function formatDateSpecificHours(data: []) {
+  // eslint-disable-line @typescript-eslint/no-explicit-any
   const groupedData: Record<string, any[]> = {};
 
   data.forEach(({ date, from, to, price_type }) => {
@@ -30,8 +31,6 @@ export function isPastDateTime(date: Date | string, time: string) {
 
   // Get the current date-time in UTC+8 (HKT)
   const todayDate = new Date();
-  const hktOffset = 8 * 60; // Offset for Hong Kong Time (HKT = UTC+8)
-  const todayDateHKT = new Date(todayDate.getTime() + hktOffset * 60 * 1000);
 
   // Validate if selected date and time are in the past
   return isBefore(selectedDateTime, todayDate);

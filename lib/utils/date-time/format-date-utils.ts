@@ -1,7 +1,15 @@
-import { getDay, isBefore, setHours, setMinutes, setSeconds } from "date-fns";
+import { getDay } from "date-fns";
 import { formatInTimeZone } from "date-fns-tz";
 
-const dayOfWeekList = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const dayOfWeekList = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];
 
 //Format date for frontend
 export function formatDate(date: Date | string) {

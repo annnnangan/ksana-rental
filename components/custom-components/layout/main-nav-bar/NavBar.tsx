@@ -4,7 +4,6 @@ import Link from "next/link";
 import { auth } from "@/lib/next-auth-config/auth";
 import { userService } from "@/services/user/UserService";
 
-import ButtonLink from "../../common/buttons/ButtonLink";
 import { Button } from "@/components/shadcn/button";
 import {
   Menubar,
@@ -22,15 +21,16 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/shadcn/sheet";
-import AvatarWithFallback from "../../common/AvatarWithFallback";
-import LogoutButton from "./LogoutButton";
 import { Menu } from "lucide-react";
+import AvatarWithFallback from "../../common/AvatarWithFallback";
+import ButtonLink from "../../common/buttons/ButtonLink";
+import LogoutButton from "./LogoutButton";
 
 const NavBar = async () => {
   const session = await auth();
 
-  //@ts-ignore
   const studioCount =
+    //@ts-expect-error expected
     (await userService.countStudioByUserId(session?.user?.id))?.data.studio_count || 0;
 
   return (
@@ -83,13 +83,17 @@ const NavBar = async () => {
               <Menubar>
                 <MenubarMenu>
                   <MenubarTrigger>
-                    <AvatarWithFallback avatarUrl={session?.user?.image!} type={"user"} size="xs" />
+                    <AvatarWithFallback
+                      avatarUrl={session ? session?.user?.image : null}
+                      type={"user"}
+                      size="xs"
+                    />
                   </MenubarTrigger>
                   <MenubarContent>
                     <MenubarItem>
                       <div className="flex flex-row gap-2 items-center">
                         <AvatarWithFallback
-                          avatarUrl={session?.user?.image!}
+                          avatarUrl={session ? session?.user?.image : null}
                           type={"user"}
                           size="xs"
                         />
@@ -149,7 +153,11 @@ const NavBar = async () => {
             <SheetDescription></SheetDescription>
 
             <div className="flex flex-col items-center">
-              <AvatarWithFallback avatarUrl={session?.user?.image!} type={"user"} size="lg" />
+              <AvatarWithFallback
+                avatarUrl={session ? session?.user?.image : null}
+                type={"user"}
+                size="lg"
+              />
               {session?.user && (
                 <>
                   <p className="font-bold">{session!.user.name}</p>

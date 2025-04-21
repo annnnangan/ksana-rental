@@ -1,6 +1,13 @@
 "use client";
-import { Label } from "@/components/shadcn/label";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/shadcn/select";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/shadcn/select";
 import { districts } from "@/services/model";
 import { MapPin } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -9,7 +16,9 @@ import { useEffect, useState } from "react";
 const LocationPicker = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [selectedLocation, setSelectedLocation] = useState<string>(searchParams.get("location") || "");
+  const [selectedLocation, setSelectedLocation] = useState<string>(
+    searchParams.get("location") || ""
+  );
 
   useEffect(() => {
     const newLocation = searchParams.get("location") || "";

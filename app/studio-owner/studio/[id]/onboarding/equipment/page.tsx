@@ -11,7 +11,7 @@ const EquipmentPage = async ({ params }: { params: Promise<{ id: string }> }) =>
     return;
   }
 
-  let formDataDefaultValues = formDataResponse.data;
+  const formDataDefaultValues = formDataResponse.data;
 
   return (
     <>

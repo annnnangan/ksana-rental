@@ -82,26 +82,25 @@ const BookingCalendar = ({
   const usedCreditWatch = watch("usedCredit");
   const paidAmountWatch = watch("paidAmount");
 
-  const getPaidAmount = () => {
-    if (startTimeWatch) {
-      if (isUsedCreditWatch) {
-        if (availableCredit > priceWatch) {
-          setValue("usedCredit", priceWatch);
-          setValue("paidAmount", 0);
-        } else {
-          setValue("usedCredit", availableCredit);
-          setValue("paidAmount", priceWatch - availableCredit);
-        }
-      } else {
-        setValue("usedCredit", 0);
-        setValue("paidAmount", priceWatch);
-      }
-    }
-  };
-
   useEffect(() => {
+    const getPaidAmount = () => {
+      if (startTimeWatch) {
+        if (isUsedCreditWatch) {
+          if (availableCredit > priceWatch) {
+            setValue("usedCredit", priceWatch);
+            setValue("paidAmount", 0);
+          } else {
+            setValue("usedCredit", availableCredit);
+            setValue("paidAmount", priceWatch - availableCredit);
+          }
+        } else {
+          setValue("usedCredit", 0);
+          setValue("paidAmount", priceWatch);
+        }
+      }
+    };
     getPaidAmount();
-  }, [startTimeWatch, isUsedCreditWatch, availableCredit]);
+  }, [startTimeWatch, isUsedCreditWatch, availableCredit, priceWatch, setValue]);
 
   useEffect(() => {
     // Get today's date
@@ -111,11 +110,10 @@ const BookingCalendar = ({
     setEndMonth(new Date(today.getFullYear(), today.getMonth() + 3, 0));
   }, []);
 
-  const {
-    data: timeslotsResult,
-    isLoading: isLoadingTimeslots,
-    isError,
-  } = useBookingTimeslots(bookingStudioBasicInfo.slug, formatDate(dateWatch ?? new Date()));
+  const { data: timeslotsResult, isLoading: isLoadingTimeslots } = useBookingTimeslots(
+    bookingStudioBasicInfo.slug,
+    formatDate(dateWatch ?? new Date())
+  );
 
   const onSubmit = async (data: BookingDateTimeSelectFormData) => {
     setBookingInfo({
@@ -172,7 +170,7 @@ const BookingCalendar = ({
                       Array.from({ length: 15 }, (_, i) => <Timeslot isLoading={true} key={i} />)}
 
                     {!isLoadingTimeslots &&
-                      //@ts-ignore
+                      timeslotsResult &&
                       timeslotsResult?.length > 0 &&
                       timeslotsResult?.map((time) => (
                         <Timeslot
@@ -270,7 +268,6 @@ const BookingCalendar = ({
                           setValue("usedCredit", 0);
                         }
                       }}
-                      //@ts-ignore
                       disabled={!startTimeWatch || availableCredit === 0}
                     />
                   )}
@@ -322,7 +319,6 @@ const BookingCalendar = ({
                             setValue("usedCredit", 0);
                           }
                         }}
-                        //@ts-ignore
                         disabled={!startTimeWatch || availableCredit == 0}
                       />
                     )}

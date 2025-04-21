@@ -1,6 +1,6 @@
 import SocialForm from "@/components/custom-components/studio-details-form/SocialForm";
-import StepIntro from "../StepIntro";
 import { studioService } from "@/services/studio/StudioService";
+import StepIntro from "../StepIntro";
 
 const SocialPage = async ({ params }: { params: Promise<{ id: string }> }) => {
   const studioId = (await params).id;
@@ -11,7 +11,7 @@ const SocialPage = async ({ params }: { params: Promise<{ id: string }> }) => {
     return;
   }
 
-  let formDataDefaultValues = formDataResponse.data;
+  const formDataDefaultValues = formDataResponse.data;
 
   return (
     <>

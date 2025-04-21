@@ -1,5 +1,3 @@
-import React, { PropsWithChildren } from "react";
-
 interface Props {
   title: string;
   description?: string;

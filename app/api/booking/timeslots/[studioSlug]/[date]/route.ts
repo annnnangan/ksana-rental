@@ -1,14 +1,20 @@
 import handleError from "@/lib/handlers/error";
-import { ForbiddenError, UnauthorizedError } from "@/lib/http-errors";
+import { ForbiddenError } from "@/lib/http-errors";
 import { sessionUser } from "@/lib/next-auth-config/session-user";
+import {
+  convertIntegerToStringTime,
+  getHourFromTime,
+} from "@/lib/utils/date-time/format-time-utils";
 import { isPastDate, isPastDateTime } from "@/lib/utils/date-time/formate-date-time";
-import { convertIntegerToStringTime, getHourFromTime } from "@/lib/utils/date-time/format-time-utils";
 import { bookingService } from "@/services/booking/BookingService";
 
 import { NextRequest, NextResponse } from "next/server";
 
 // GET Booking Timeslots for a Studio
-export async function GET(request: NextRequest, props: { params: Promise<{ studioSlug: string; date: string }> }) {
+export async function GET(
+  request: NextRequest,
+  props: { params: Promise<{ studioSlug: string; date: string }> }
+) {
   try {
     const studioSlug = (await props.params).studioSlug;
     const date = (await props.params).date;
@@ -36,12 +42,12 @@ export async function GET(request: NextRequest, props: { params: Promise<{ studi
     let loopedOpeningHours;
 
     if (openingHourResponse.success && bookedTimeslotsResponse.success) {
-      //@ts-ignore
+      //@ts-expect-error expected
       if (openingHourResponse?.data[0]?.is_closed === true) {
         return NextResponse.json({ success: true, data: [] }, { status: 201 });
       }
 
-      //@ts-ignore
+      //@ts-expect-error expected
       loopedOpeningHours = openingHourResponse?.data.reduce((acc, current) => {
         const fromTimeInteger = getHourFromTime(current.from, false);
         const toTimeInteger = getHourFromTime(current.to, true);
@@ -50,12 +56,15 @@ export async function GET(request: NextRequest, props: { params: Promise<{ studi
 
         for (let i = fromTimeInteger; i < toTimeInteger; i++) {
           // If the date is today, exclude times that are in the past
-          const isPastSelectedDateTime = isPastDateTime(new Date(date), convertIntegerToStringTime(i));
+          const isPastSelectedDateTime = isPastDateTime(
+            new Date(date),
+            convertIntegerToStringTime(i)
+          );
 
           if (!isPastSelectedDateTime) {
             timeslotsArray.push({
               time: convertIntegerToStringTime(i),
-              //@ts-ignore
+              //@ts-expect-error expected
               is_booked: bookedTimeslotsResponse?.data?.includes(i),
               price: current.price,
               price_type: current.price_type,

@@ -1,9 +1,14 @@
 "use client";
-import { Label } from "@/components/shadcn/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/shadcn/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/shadcn/select";
 import { Clock5 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 interface Props {
   isHideEndTime?: boolean;
@@ -25,25 +30,30 @@ const TimePicker = ({ isHideEndTime = false }: Props) => {
   });
 
   // Validate the startTime and endTime search params
-  const validateTimeParams = (type: string) => {
-    const timeRange = type === "startTime" ? startTimeOptions : endTimeOptions;
+  const validateTimeParams = useCallback(
+    (type: string) => {
+      const timeRange = type === "startTime" ? startTimeOptions : endTimeOptions;
 
-    if (searchParams.get("startTime") && searchParams.get("endTime") && searchParams.get("endTime")! < searchParams.get("startTime")! && type === "endTime") {
-      return "";
-    } else {
-      return timeRange.includes(searchParams.get(type) + ":00") ? searchParams.get(type) + ":00" : "";
-    }
-  };
+      const startTime = searchParams.get("startTime");
+      const endTime = searchParams.get("endTime");
+      const current = searchParams.get(type);
 
+      if (startTime && endTime && endTime < startTime && type === "endTime") {
+        return "";
+      } else {
+        return timeRange.includes(current + ":00") ? current + ":00" : "";
+      }
+    },
+    [searchParams, startTimeOptions, endTimeOptions]
+  );
   const [startTime, setStartTime] = useState<string>(validateTimeParams("startTime"));
   const [endTime, setEndTime] = useState<string>(validateTimeParams("endTime"));
 
   useEffect(() => {
-    const newStartTime = searchParams.get("startTime") || "";
     setStartTime(validateTimeParams("startTime"));
-    const newEndTime = searchParams.get("endTime") || "";
+
     setEndTime(validateTimeParams("endTime"));
-  }, [searchParams]);
+  }, [searchParams, validateTimeParams]);
 
   // Dynamically filter end time options based on selected start time
   // Only return endHour when it is later than startHour
@@ -108,7 +118,11 @@ const TimePicker = ({ isHideEndTime = false }: Props) => {
           {!isHideEndTime && (
             <>
               {/* End Time Picker */}
-              <Select value={endTime} onValueChange={(value) => handleTimeChange("endTime", value)} disabled={!startTime}>
+              <Select
+                value={endTime}
+                onValueChange={(value) => handleTimeChange("endTime", value)}
+                disabled={!startTime}
+              >
                 <SelectTrigger className="w-full bg-white">
                   <div className="flex items-center gap-2">
                     <Clock5 size={16} className="text-gray-500" />

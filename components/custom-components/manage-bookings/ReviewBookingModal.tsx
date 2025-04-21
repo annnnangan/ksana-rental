@@ -25,16 +25,16 @@ import { Controller, useForm } from "react-hook-form";
 
 import { useTransition } from "react";
 
+import { reviewBooking } from "@/actions/booking";
+import { formatDate } from "@/lib/utils/date-time/format-date-utils";
+import { convertTimeToString } from "@/lib/utils/date-time/format-time-utils";
 import {
   addUploadTimestampToFile,
   generateAWSImageUrls,
 } from "@/lib/utils/s3-upload/s3-image-upload-utils";
-import { reviewBooking } from "@/actions/booking";
+import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import SubmitButton from "../common/buttons/SubmitButton";
-import { useRouter } from "next/navigation";
-import { formatDate } from "@/lib/utils/date-time/format-date-utils";
-import { convertTimeToString } from "@/lib/utils/date-time/format-time-utils";
 import { UserBookingRecord } from "./BookingRecordCard";
 
 interface Props {
@@ -239,7 +239,11 @@ const ReviewBookingModal = ({ isOpen, setOpenModal, bookingRecord }: Props) => {
           </div>
 
           <div className="flex items-center gap-3 mt-5">
-            <SubmitButton isSubmitting={isSubmitting} nonSubmittingText="確認" className="w-1/2" />
+            <SubmitButton
+              isSubmitting={isSubmitting || isPending}
+              nonSubmittingText="確認"
+              className="w-1/2"
+            />
 
             <Button
               type="button"

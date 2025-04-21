@@ -14,6 +14,7 @@ export { Adapter, Knex };
 export function KnexAdapter(knex: Knex): Adapter {
   return {
     async createUser(user) {
+      // eslint-disable-line @typescript-eslint/no-unused-vars
       const { emailVerified, ...updatedUserObject } = user;
 
       // Insert user data into `User` table
@@ -23,10 +24,7 @@ export function KnexAdapter(knex: Knex): Adapter {
       });
 
       // Get the full row that was just inserted
-      const dbUsers = await knex("users")
-        .select("*")
-        .where({ email: user.email })
-        .limit(1);
+      const dbUsers = await knex("users").select("*").where({ email: user.email }).limit(1);
 
       // Return the newly inserted user data
       return dbUsers[0];
@@ -74,10 +72,7 @@ export function KnexAdapter(knex: Knex): Adapter {
       await knex("users").where({ id: user.id }).update(user);
 
       // Get the row that was just updated
-      const dbUsers = await knex("users")
-        .select("*")
-        .where({ id: user.id })
-        .limit(1);
+      const dbUsers = await knex("users").select("*").where({ id: user.id }).limit(1);
 
       // Return the user data
       return dbUsers[0];
@@ -115,9 +110,7 @@ export function KnexAdapter(knex: Knex): Adapter {
     },
     async unlinkAccount({ provider, providerAccountId }) {
       // Delete an account row based on provider information
-      await knex("account")
-        .where({ provider, provider_account_id: providerAccountId })
-        .del();
+      await knex("account").where({ provider, provider_account_id: providerAccountId }).del();
     },
     async createSession(session) {
       // Insert a session row into the `Session` table
@@ -149,10 +142,7 @@ export function KnexAdapter(knex: Knex): Adapter {
       if (dbSessions.length === 0) return null;
 
       // If session exists, get the user data for that session
-      const dbUsers = await knex("users")
-        .select("*")
-        .where({ id: dbSessions[0].userId })
-        .limit(1);
+      const dbUsers = await knex("users").select("*").where({ id: dbSessions[0].userId }).limit(1);
 
       // If no user was found, return null
       if (dbUsers.length === 0) return null;
@@ -168,9 +158,7 @@ export function KnexAdapter(knex: Knex): Adapter {
     },
     async updateSession(session) {
       // Update a session row based on the given token
-      await knex("session")
-        .where({ session_token: session.sessionToken })
-        .update(session);
+      await knex("session").where({ session_token: session.sessionToken }).update(session);
 
       // Get the session row that was just updated
       const dbSessions = await knex("session")

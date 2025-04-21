@@ -66,7 +66,7 @@ export const login = async (values: z.infer<typeof LoginSchema>, redirect?: stri
   }
 };
 
-export const register = async (values: z.infer<typeof RegisterSchema>, redirect: string) => {
+export const register = async (values: z.infer<typeof RegisterSchema>, redirect?: string) => {
   const validateFields = RegisterSchema.safeParse(values);
   if (!validateFields.success) {
     return {

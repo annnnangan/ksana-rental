@@ -3,14 +3,13 @@ import { CalendarCheck2, UserRoundSearch } from "lucide-react";
 import Image from "next/image";
 
 import LinkButton from "@/components/animata/button/link-button";
+import SlideUpTransition from "@/components/custom-components/framer-motion/SlideUpTransition";
 import BookingInstructionSection from "@/components/custom-components/homepage/BookingInstructionSection";
 import HomepageStudioSection from "@/components/custom-components/homepage/StudiosSection";
 import NavBar from "@/components/custom-components/layout/main-nav-bar/NavBar";
 import Footer from "@/components/custom-components/layout/MainFooter";
-import SlideUpTransition from "@/components/custom-components/framer-motion/SlideUpTransition";
 import { studioService } from "@/services/studio/StudioService";
 import { Be_Vietnam_Pro } from "next/font/google";
-import bcrypt from "bcryptjs";
 
 const VietnamProFont = Be_Vietnam_Pro({
   subsets: ["latin"],

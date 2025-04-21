@@ -38,7 +38,7 @@ const tabListMap = [
   { name: "收款資料", query: "payout-info" },
 ];
 
-const page = () => {
+const AdminStudioPage = () => {
   const [activeTab, setActiveTab] = useState("basic-info");
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
@@ -46,7 +46,7 @@ const page = () => {
   const params = useParams();
   const studioId = params.id as string;
 
-  const { data, isLoading, isError } = useStudioFormData(studioId);
+  const { data, isLoading } = useStudioFormData(studioId);
 
   const onSubmit = async () => {
     startTransition(() => {
@@ -182,4 +182,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default AdminStudioPage;

@@ -73,6 +73,7 @@ const SocialForm = ({ studioId, defaultValues, isOnboardingStep }: Props) => {
 
   return (
     <Form {...form}>
+      {/* @ts-expect-error expected */}
       <form onSubmit={form.handleSubmit(handleSubmit)} className="w-full space-y-6">
         {socialChannels.map((item) => (
           <FormField
