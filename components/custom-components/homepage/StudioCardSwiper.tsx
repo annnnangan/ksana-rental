@@ -12,7 +12,7 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 
 // import required modules
-import { studioCardInfo } from "@/app/(user)/explore-studios/page";
+import { studioCardInfo } from "@/app/(user)/(non-booking)/explore-studios/page";
 import { Button } from "@/components/shadcn/button";
 import { FreeMode, Pagination } from "swiper/modules";
 import StudioCard from "../studio-card/StudioCard";

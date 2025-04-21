@@ -10,7 +10,7 @@ import {
   DialogTrigger,
 } from "@/components/shadcn/dialog";
 import { useRouter, useSearchParams } from "next/navigation";
-import { StudioQuery } from "../../../app/(user)/explore-studios/page";
+import { StudioQuery } from "../../../app/(user)/(non-booking)/explore-studios/page";
 import DatePicker from "./DatePicker";
 import EquipmentPicker from "./EquipmentPicker";
 import LocationPicker from "./LocationPicker";

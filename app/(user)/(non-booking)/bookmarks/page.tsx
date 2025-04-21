@@ -3,7 +3,7 @@ import { userService } from "@/services/user/UserService";
 import { MapPinHouse } from "lucide-react";
 import { redirect } from "next/navigation";
 
-import { studioCardInfo } from "@/app/(user)/explore-studios/page";
+import { studioCardInfo } from "@/app/(user)/(non-booking)/explore-studios/page";
 import LinkButton from "@/components/animata/button/link-button";
 import PaginationWrapper from "@/components/custom-components/common/PaginationWrapper";
 import SectionFallback from "@/components/custom-components/common/SectionFallback";
