@@ -15,8 +15,9 @@ import useStudioPayoutDetails from "@/hooks/react-query/studio-panel/useStudioPa
 import { payoutMethodMap } from "@/lib/constants/studio-details";
 import Image from "next/image";
 import { differenceInDays, getDay, isAfter, startOfDay, startOfWeek, subDays } from "date-fns";
-import { CircleChevronLeft, Loader2 } from "lucide-react";
+import { CircleChevronLeft, FileText, Loader2 } from "lucide-react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
+import SectionFallback from "@/components/custom-components/common/SectionFallback";
 
 const getPayoutStatus = (status: string | null, totalPayoutAmount: number) => {
   if (status === null && totalPayoutAmount === 0) {
@@ -214,19 +215,27 @@ const PayoutDetailsPage = () => {
                     <Skeleton className="h-5 w-1/2" />
                   ) : (
                     <>
-                      <div className="grid grid-cols-3">
-                        {data?.payoutOverviewData.payout_proof_image_urls.map((image: string) => (
-                          <div className="relative aspect-[3/4]" key={image}>
-                            <Image
-                              src={image}
-                              alt="payout proof image"
-                              fill
-                              sizes="(min-width: 1024px) 200px, 100vw"
-                              className="rounded-md object-contain object-center"
-                            />
-                          </div>
-                        ))}
-                      </div>
+                      {data?.payoutOverviewData?.payout_proof_image_urls ? (
+                        <div className="grid grid-cols-3">
+                          {data?.payoutOverviewData?.payout_proof_image_urls.map(
+                            (image: string) => (
+                              <div className="relative aspect-[3/4]" key={image}>
+                                <Image
+                                  src={image}
+                                  alt="payout proof image"
+                                  fill
+                                  sizes="(min-width: 1024px) 200px, 100vw"
+                                  className="rounded-md object-contain object-center"
+                                />
+                              </div>
+                            )
+                          )}
+                        </div>
+                      ) : (
+                        <div className="flex justify-center items-center">
+                          <SectionFallback icon={FileText} fallbackText={"無收帳證明"} />
+                        </div>
+                      )}
                     </>
                   )}
                 </AccordionContent>
