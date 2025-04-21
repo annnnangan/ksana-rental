@@ -17,7 +17,7 @@ const DeleteDraftStudio = ({ studioName, studioId }: { studioName: string; studi
   const handleDeleteItem = () => {
     startTransition(() => {
       removeDraftStudio(studioId).then((data) => {
-        //@ts-expect-error
+        //@ts-expect-error expected
         toast(data?.success ? "成功刪除場地" : data.error?.message || "無法刪除場地", {
           position: "top-right",
           type: data?.success ? "success" : "error",
@@ -31,7 +31,11 @@ const DeleteDraftStudio = ({ studioName, studioId }: { studioName: string; studi
   return (
     <>
       <div className="relative">
-        <Button variant="ghost" className="absolute top-0 right-0 hover:bg-transparent" onClick={() => setIsDropdownOpen((prev) => !prev)}>
+        <Button
+          variant="ghost"
+          className="absolute top-0 right-0 hover:bg-transparent"
+          onClick={() => setIsDropdownOpen((prev) => !prev)}
+        >
           <EllipsisVertical />
         </Button>
 
@@ -52,7 +56,14 @@ const DeleteDraftStudio = ({ studioName, studioId }: { studioName: string; studi
           </div>
         )}
       </div>
-      <DeleteConfirmationModal children={studioName} isOpenModal={isOpenModal} isDeleting={isPending} setOpenModal={setOpenModal} handleDeleteItem={handleDeleteItem} />
+      <DeleteConfirmationModal
+        isOpenModal={isOpenModal}
+        isDeleting={isPending}
+        setOpenModal={setOpenModal}
+        handleDeleteItem={handleDeleteItem}
+      >
+        {studioName}
+      </DeleteConfirmationModal>
     </>
   );
 };

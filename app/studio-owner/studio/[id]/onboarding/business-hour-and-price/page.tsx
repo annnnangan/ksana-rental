@@ -1,9 +1,7 @@
 import BusinessHourAndPriceForm from "@/components/custom-components/studio-details-form/BusinessHourAndPriceForm";
-import StepIntro from "../StepIntro";
-import { formatDateSpecificHours } from "@/lib/utils/date-time/formate-date-time";
 import { BusinessHoursAndPriceFormData } from "@/lib/validations/zod-schema/studio/studio-step-schema";
-import ToastMessageWithRedirect from "@/components/custom-components/common/ToastMessageWithRedirect";
 import { studioService } from "@/services/studio/StudioService";
+import StepIntro from "../StepIntro";
 
 const BusinessHourAndPricePage = async ({ params }: { params: Promise<{ id: string }> }) => {
   const studioId = (await params).id;

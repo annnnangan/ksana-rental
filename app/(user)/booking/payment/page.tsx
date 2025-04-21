@@ -50,7 +50,7 @@ const BookingPaymentPage = () => {
           setActualPayment(Number(actualPaymentResult.data.actual_payment));
         }
       } catch (error) {
-        // @ts-ignore
+        //@ts-expect-error expected
         toast(error.message, {
           position: "top-right",
           type: "error",
@@ -64,7 +64,7 @@ const BookingPaymentPage = () => {
     if (user) {
       getActualPayment();
     }
-  }, [user]);
+  }, [user, bookingReferenceNumber, router]);
 
   return (
     <>

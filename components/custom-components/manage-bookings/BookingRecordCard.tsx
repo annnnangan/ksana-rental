@@ -5,16 +5,13 @@ import { Building2, Calendar, MapPinHouse } from "lucide-react";
 import { Tooltip } from "react-tooltip";
 import AvatarWithFallback from "../common/AvatarWithFallback";
 
+import { formatDate } from "@/lib/utils/date-time/format-date-utils";
 import { convertTimeToString } from "@/lib/utils/date-time/format-time-utils";
-import {
-  validateCanLeaveBookingReview,
-  validateDoorPasswordAvailability,
-} from "@/lib/utils/date-time/manage-bookings-validation";
+import { validateDoorPasswordAvailability } from "@/lib/utils/date-time/manage-bookings-validation";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import StudioPasswordModal from "./StudioPasswordModal";
 import BookingDetailsModal from "./BookingDetailsModal";
-import { formatDate } from "@/lib/utils/date-time/format-date-utils";
+import StudioPasswordModal from "./StudioPasswordModal";
 
 export interface UserBookingRecord {
   studio_id: string;

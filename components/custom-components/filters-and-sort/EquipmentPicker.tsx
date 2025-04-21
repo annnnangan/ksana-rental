@@ -1,10 +1,15 @@
-import { useState, useEffect } from "react";
 import { Button } from "@/components/shadcn/button";
-import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/shadcn/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/shadcn/dropdown-menu";
 import { equipmentMap } from "@/lib/constants/studio-details";
 import { ChevronDown } from "lucide-react";
-import { useDebounceCallback } from "usehooks-ts";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useDebounceCallback } from "usehooks-ts";
 
 interface Props {
   isModal: boolean;
@@ -13,14 +18,22 @@ interface Props {
 const EquipmentPicker = ({ isModal }: Props) => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  //@ts-ignore
-  const [selectedEquipment, setSelectedEquipment] = useState<string[] | []>(searchParams.get("equipment") ? searchParams.get("equipment")?.split(",") : []);
-  //@ts-ignore
-  const [debouncedSelectedEquipment, setDebouncedSelectedEquipment] = useState<string[] | []>(searchParams.get("equipment") ? searchParams.get("equipment")?.split(",") : []);
+
+  const [selectedEquipment, setSelectedEquipment] = useState<string[] | []>(
+    //@ts-expect-error expected
+    searchParams.get("equipment") ? searchParams.get("equipment")?.split(",") : []
+  );
+
+  const [debouncedSelectedEquipment, setDebouncedSelectedEquipment] = useState<string[] | []>(
+    //@ts-expect-error expected
+    searchParams.get("equipment") ? searchParams.get("equipment")?.split(",") : []
+  );
 
   useEffect(() => {
-    const newEquipment = searchParams.get("equipment") ? searchParams.get("equipment")?.split(",") : [];
-    //@ts-ignore
+    const newEquipment = searchParams.get("equipment")
+      ? searchParams.get("equipment")?.split(",")
+      : [];
+    //@ts-expect-error expected
     setSelectedEquipment(newEquipment);
   }, [searchParams]);
 
@@ -36,10 +49,12 @@ const EquipmentPicker = ({ isModal }: Props) => {
     params.delete("page");
     const query = params.size ? "?" + params.toString() : "";
     router.push("/explore-studios" + query);
-  }, [debouncedSelectedEquipment]);
+  }, [debouncedSelectedEquipment, searchParams, router]);
 
   const handleSelectEquipment = (selectedItem: string, value: string) => {
-    const updatedSelection = selectedEquipment?.some((selected) => selected === value) ? selectedEquipment.filter((item) => item !== value) : [...selectedEquipment, value];
+    const updatedSelection = selectedEquipment?.some((selected) => selected === value)
+      ? selectedEquipment.filter((item) => item !== value)
+      : [...selectedEquipment, value];
     setSelectedEquipment(updatedSelection);
     debounced(updatedSelection);
   };
@@ -53,7 +68,13 @@ const EquipmentPicker = ({ isModal }: Props) => {
             variant="ghost"
             className="flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1"
           >
-            <span className="truncate">{selectedEquipment.length > 0 ? selectedEquipment.map((val) => equipmentMap.find((item) => item.value === val)?.label).join(", ") : "設備"}</span>
+            <span className="truncate">
+              {selectedEquipment.length > 0
+                ? selectedEquipment
+                    .map((val) => equipmentMap.find((item) => item.value === val)?.label)
+                    .join(", ")
+                : "設備"}
+            </span>
             <ChevronDown className="h-4 w-4 opacity-50" />
           </Button>
         </DropdownMenuTrigger>

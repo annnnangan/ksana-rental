@@ -22,13 +22,11 @@ import {
 } from "@/components/shadcn/form";
 import { Input } from "@/components/shadcn/input";
 import { AUTH_FIELD_NAMES, AUTH_FIELD_TYPES } from "@/lib/constants/auth";
+import { DEFAULT_LOGIN_REDIRECT } from "@/lib/next-auth-config/routes";
 import Link from "next/link";
 import { useState, useTransition } from "react";
 import AuthResponse from "./AuthResponse";
 import { SocialLogin } from "./SocialLogin";
-import { DEFAULT_LOGIN_REDIRECT } from "@/lib/next-auth-config/routes";
-import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
 
 interface Props<T extends FieldValues> {
   schema: ZodType<T>;
@@ -56,7 +54,6 @@ const AuthForm = <T extends FieldValues>({
   handleSwitchForm,
   callbackUrl,
 }: Props<T>) => {
-  const router = useRouter();
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
   const [isPending, startTransition] = useTransition();

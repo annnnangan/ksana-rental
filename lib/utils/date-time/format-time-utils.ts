@@ -7,8 +7,8 @@ export function convertStringToTime(time: string | number) {
   if (typeof time == "number") {
     time = time + ":00";
   }
-  let date = new Date(`01/01/2022 ${time}`);
-  let formattedTime = date.toLocaleTimeString("en-US", { hour12: false });
+  const date = new Date(`01/01/2022 ${time}`);
+  const formattedTime = date.toLocaleTimeString("en-US", { hour12: false });
   return formattedTime;
 }
 
@@ -28,7 +28,10 @@ export function convertIntegerToStringTime(hour: number) {
 export function getHourFromTime(time: string, isEndTime: boolean) {
   let timeBreakdown = time.split(":").map(Number); //[0, 0, 0]
   if (isEndTime) {
-    if ((timeBreakdown[0] === 23 && timeBreakdown[1] === 59) || (timeBreakdown[0] === 0 && timeBreakdown[1] === 0)) {
+    if (
+      (timeBreakdown[0] === 23 && timeBreakdown[1] === 59) ||
+      (timeBreakdown[0] === 0 && timeBreakdown[1] === 0)
+    ) {
       timeBreakdown = [24, 0, 0];
     }
   }
@@ -41,7 +44,7 @@ export function calculateBookingEndTime(startTime: string) {
   return convertIntegerToStringTime(parseInt(startTime.split(":")[0]) + bookingDurationInHour);
 }
 
-export function isTimeInRange(bookingTime: string, timeRanges: any[]) {
+export function isTimeInRange(bookingTime: string, timeRanges: []) {
   // Parse the target time as a Date object (use today’s date to create a valid Date)
   const targetDate = parse(bookingTime, "HH:mm:ss", new Date());
 

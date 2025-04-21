@@ -26,7 +26,7 @@ const MobileTopGallery = ({ openListModal, images }: Props) => {
     <>
       <Swiper
         loop={true}
-        onSwiper={(swiper: any) => (swiperRef.current = swiper)}
+        onSwiper={(swiper) => (swiperRef.current = swiper)}
         slidesPerView={1}
         pagination={true}
         modules={[FreeMode, Pagination]}

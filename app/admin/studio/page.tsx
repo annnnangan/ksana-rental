@@ -19,21 +19,6 @@ interface Props {
   searchParams: SearchQuery;
 }
 
-const data = [
-  {
-    studio_id: "1",
-    studio_name: "Soul Yogi Studio",
-    studio_slug: "soul-yogi-studio",
-    request_review_date: "2025-03-22",
-  },
-  {
-    studio_id: "2",
-    studio_name: "Olivia Studio",
-    studio_slug: "olivia-studio",
-    request_review_date: "2025-03-23",
-  },
-];
-
 const page = async (props: Props) => {
   const userRole = await sessionUserRole();
   if (userRole !== "admin") {

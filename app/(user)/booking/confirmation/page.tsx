@@ -128,6 +128,7 @@ const BookingConfirmationPage = () => {
     usedCredit,
     paidAmount,
     isUsedCredit,
+    reset,
   ]);
 
   const handleSubmit = async (formData: BookingFormData) => {
@@ -135,7 +136,7 @@ const BookingConfirmationPage = () => {
       if (formData.paidAmount > 0) {
         createPendingForPaymentBooking(formData).then((data) => {
           if (!data.success) {
-            //@ts-ignore
+            //@ts-expect-error expected
             toast(data?.error?.message, {
               position: "top-right",
               type: "error",
@@ -149,7 +150,7 @@ const BookingConfirmationPage = () => {
       } else {
         createConfirmedForFreeBooking(formData).then((data) => {
           if (!data.success) {
-            //@ts-ignore
+            //@ts-expect-error expected
             toast(data?.error?.message, {
               position: "top-right",
               type: "error",
@@ -234,6 +235,7 @@ const BookingConfirmationPage = () => {
                       id="phone"
                       className="form-input text-sm"
                       placeholder="請填寫場地聯絡電話"
+                      {...field}
                       onChange={(e) => {
                         const phoneNumber = e.target.value;
                         // Update the form value with the country code on change

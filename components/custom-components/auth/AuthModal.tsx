@@ -8,12 +8,11 @@ import {
   DialogTitle,
 } from "@/components/shadcn/dialog";
 import { LoginSchema, RegisterSchema } from "@/lib/validations/zod-schema/auth";
-import { X } from "lucide-react";
-import AuthForm from "./AuthForm";
-import React, { useEffect, useState } from "react";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { usePathname, useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { X } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
+import AuthForm from "./AuthForm";
 
 interface Props {
   isOpenModal: boolean;
@@ -21,8 +20,6 @@ interface Props {
 }
 
 const AuthModal = ({ isOpenModal, setOpenModal }: Props) => {
-  const router = useRouter();
-
   const pathname = usePathname();
   const [authType, setAuthType] = useState<"LOGIN" | "REGISTER">("LOGIN");
   const handleCloseModal = () => {

@@ -18,15 +18,14 @@ import {
   StudioNameSchema,
 } from "@/lib/validations/zod-schema/studio/studio-step-schema";
 
+import { createNewDraftStudio } from "@/actions/studio";
+import { useSessionUser } from "@/hooks/use-session-user";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { useForm } from "react-hook-form";
-import { createNewDraftStudio } from "@/actions/studio";
-import { useSessionUser } from "@/hooks/use-session-user";
 import { toast } from "react-toastify";
-import { useSession } from "next-auth/react";
 
 interface Props {
   hasCreatedStudio: boolean;
@@ -34,7 +33,6 @@ interface Props {
 }
 
 const AddNewStudio = ({ hasCreatedStudio, isDashboard }: Props) => {
-  const user = useSessionUser();
   /* ------------------------- React Hook Form ------------------------ */
   const form = useForm({
     resolver: zodResolver(StudioNameSchema),

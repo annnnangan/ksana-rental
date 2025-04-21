@@ -60,7 +60,7 @@ const AdminStudiosTable = ({
     return columnHelper.accessor(
       (row) => {
         // transformational
-        // @ts-ignore
+        // @ts-expect-error expected
         const value = row[columnName];
         return value;
       },
@@ -137,10 +137,10 @@ const AdminStudiosTable = ({
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows.map((row) => (
-              //@ts-ignore
               <TableRow
                 key={row.id}
                 className="hover:bg-gray-100 cursor-pointer"
+                // @ts-expect-error expected
                 onClick={() => router.push(`/admin/studio/${row.original.studio_id}`)}
               >
                 {row.getVisibleCells().map((cell) => (

@@ -111,7 +111,7 @@ const ConfirmationForm = ({ studioId, isFilledAllSteps }: Props) => {
                 <DialogClose asChild>
                   <div onClick={form.handleSubmit(onSubmit)}>
                     <SubmitButton
-                      isSubmitting={isSubmitting}
+                      isSubmitting={isSubmitting || isPending}
                       submittingText={"申請送出中..."}
                       nonSubmittingText={"確認送出"}
                     />

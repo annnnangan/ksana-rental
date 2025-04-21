@@ -10,7 +10,11 @@ const page = async (props: Props) => {
   const user = await sessionUser();
   const searchParams = await props.searchParams;
   const selectedDateRange = searchParams["dateRange"] || "last-6-months";
-  const result = await dashboardService.getRevenueBreakdownByStudio({ timeframe: selectedDateRange, dateType: "booking_date", userId: user?.id! });
+  const result = await dashboardService.getRevenueBreakdownByStudio({
+    timeframe: selectedDateRange,
+    dateType: "booking_date",
+    userId: user?.id as string,
+  });
   const data: { studio_name: string; total: number }[] = result.data!;
 
   return (

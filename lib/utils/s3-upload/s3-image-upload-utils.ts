@@ -2,14 +2,6 @@ import handleError from "@/lib/handlers/error";
 import { NotFoundError } from "@/lib/http-errors";
 import { ImageType } from "@/lib/validations/file";
 
-const computeSHA256 = async (file: File) => {
-  const buffer = await file.arrayBuffer();
-  const hashBuffer = await crypto.subtle.digest("SHA-256", buffer);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hashHex = hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
-  return hashHex;
-};
-
 export const addUploadTimestampToFile = (file: File, index: number) => {
   // Encode the index into the lastModified timestamp
   const lastModifiedWithIndex = Date.now() + index;
@@ -22,7 +14,11 @@ export const addUploadTimestampToFile = (file: File, index: number) => {
 };
 
 /* Upload Image to S3 and return the image url */
-export const generateAWSImageUrls = async (images: File[], folderName: string, imageType: ImageType) => {
+export const generateAWSImageUrls = async (
+  images: File[],
+  folderName: string,
+  imageType: ImageType
+) => {
   try {
     if (!images) {
       throw new NotFoundError("圖片");

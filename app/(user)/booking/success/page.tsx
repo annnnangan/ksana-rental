@@ -32,22 +32,22 @@ const BookingSuccessPage = async ({
     return <ToastMessageWithRedirect type={"error"} message={"沒有此預約"} redirectPath={"/"} />;
   }
 
-  let bookingRecordResponse = await bookingService.getBookingInfoForBookingSuccessPage(
+  const bookingRecordResponse = await bookingService.getBookingInfoForBookingSuccessPage(
     bookingReference as string,
     session.user.id
   );
   if (!bookingRecordResponse.success) {
-    // @ts-ignore
     return (
       <ToastMessageWithRedirect
         type={"error"}
+        //@ts-expect-error expected
         message={bookingRecordResponse?.error?.message || GENERAL_ERROR_MESSAGE}
         redirectPath={"/"}
       />
     );
   }
 
-  let bookingRecord = bookingRecordResponse.success && bookingRecordResponse.data;
+  const bookingRecord = bookingRecordResponse.success && bookingRecordResponse.data;
 
   return (
     <div className="flex flex-col items-center">

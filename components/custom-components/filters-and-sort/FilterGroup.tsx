@@ -4,27 +4,17 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/shadcn/dialog";
+import { Filter, X } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { StudioQuery } from "../../../app/(user)/(non-booking)/explore-studios/page";
-import DatePicker from "./DatePicker";
+import { useState } from "react";
+import DateTimePicker from "./DateTimePicker";
 import EquipmentPicker from "./EquipmentPicker";
 import LocationPicker from "./LocationPicker";
-import TimePicker from "./TimePicker";
-import { Filter, X } from "lucide-react";
-import { useState } from "react";
-import ButtonLink from "../common/buttons/ButtonLink";
-import DateTimePicker from "./DateTimePicker";
 
-interface Props {
-  isHideEndTime?: boolean;
-}
-
-const FilterGroup = ({ isHideEndTime = false }: Props) => {
+const FilterGroup = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isOpenFilterModal, setOpenFilterModal] = useState(false);

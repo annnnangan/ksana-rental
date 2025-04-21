@@ -1,3 +1,4 @@
+import ToastMessageWithRedirect from "@/components/custom-components/common/ToastMessageWithRedirect";
 import BasicInfo from "@/components/custom-components/studio-page/BasicInfo";
 import TopGallery from "@/components/custom-components/studio-page/gallery/TopGallery";
 import DesktopSectionMenu from "@/components/custom-components/studio-page/section-menu/DesktopSectionMenu";
@@ -9,13 +10,11 @@ import PriceSection from "@/components/custom-components/studio-page/section/Pri
 import ReviewSection from "@/components/custom-components/studio-page/section/review/ReviewSection";
 import SocialMediaSection from "@/components/custom-components/studio-page/section/social-media/SocialMediaSection";
 import SideSection from "@/components/custom-components/studio-page/SideSection";
-import ToastMessageWithRedirect from "@/components/custom-components/common/ToastMessageWithRedirect";
 
 import { GENERAL_ERROR_MESSAGE } from "@/lib/constants/error-message";
+import { auth } from "@/lib/next-auth-config/auth";
 import { studioService } from "@/services/studio/StudioService";
 import { validateStudioService } from "@/services/studio/ValidateStudio";
-import { auth } from "@/lib/next-auth-config/auth";
-import { Metadata } from "next";
 
 export interface StudioInfo {
   slug: string;

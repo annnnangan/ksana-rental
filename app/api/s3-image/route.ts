@@ -1,15 +1,20 @@
-import { NextRequest, NextResponse } from "next/server";
 import { DeleteObjectCommand, PutObjectCommand } from "@aws-sdk/client-s3";
-import crypto from "crypto";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import crypto from "crypto";
+import { NextRequest, NextResponse } from "next/server";
 
 import handleError from "@/lib/handlers/error";
 
 import { ForbiddenError } from "@/lib/http-errors";
-import { allowedImageMineTypes, formattedMineTypes, ImageType, maxImageSizes } from "@/lib/validations/file";
+import {
+  allowedImageMineTypes,
+  formattedMineTypes,
+  ImageType,
+  maxImageSizes,
+} from "@/lib/validations/file";
 
-import { s3Client } from "@/lib/utils/s3-upload/s3-client";
 import { getS3ImageKeyFromS3URL } from "@/lib/utils/s3-upload/get-s3-image-key-from-s3-url";
+import { s3Client } from "@/lib/utils/s3-upload/s3-client";
 
 const generateFileName = (bytes = 32) => crypto.randomBytes(bytes).toString("hex");
 

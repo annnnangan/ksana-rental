@@ -1,12 +1,12 @@
 "use client";
 import PaginationWrapper from "@/components/custom-components/common/PaginationWrapper";
+import SectionFallback from "@/components/custom-components/common/SectionFallback";
 import { Progress } from "@/components/shadcn/progress";
 import { useQuery } from "@tanstack/react-query";
 import { MessageCircle, Star } from "lucide-react";
 import { useState } from "react";
 import Section from "../Section";
 import ReviewCard from "./ReviewCard";
-import SectionFallback from "@/components/custom-components/common/SectionFallback";
 
 export interface Review {
   id: string;
@@ -34,7 +34,7 @@ const pageSize = 5;
 const ReviewSection = ({ ratingOverview, studioSlug }: Props) => {
   const [currentPage, setCurrentPage] = useState(1);
 
-  const { data, isLoading, isError } = useStudioReviews(studioSlug, currentPage, pageSize);
+  const { data, isLoading } = useStudioReviews(studioSlug, currentPage, pageSize);
 
   return (
     <Section title="評價">
@@ -74,17 +74,18 @@ const ReviewSection = ({ ratingOverview, studioSlug }: Props) => {
         {isLoading &&
           Array.from({ length: 5 }, (_, index) => <ReviewCard isLoading={true} key={index} />)}
         {!isLoading &&
-          data?.reviews.length! > 0 &&
+          data?.reviews &&
+          data.reviews.length > 0 &&
           data?.reviews.map((review) => (
             <ReviewCard key={review.id} review={review} isLoading={false} />
           ))}
       </div>
 
-      {!isLoading && data?.total_count! > pageSize && (
+      {!isLoading && data?.total_count && data?.total_count > pageSize && (
         <div className="mt-8">
           <PaginationWrapper
             currentPage={currentPage}
-            itemCount={data?.total_count!}
+            itemCount={data?.total_count}
             pageSize={pageSize}
             useQueryString={false}
             setCurrentPage={setCurrentPage}

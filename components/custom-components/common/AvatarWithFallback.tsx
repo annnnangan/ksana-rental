@@ -5,7 +5,7 @@ import clsx from "clsx";
 
 interface Props {
   size?: "xxs" | "xs" | "sm" | "md" | "lg";
-  avatarUrl: string | null;
+  avatarUrl: string | null | undefined;
   type: "user" | "studio";
   shape?: "circle" | "square";
 }
@@ -23,7 +23,13 @@ const AvatarWithFallback = ({ size = "sm", avatarUrl, type, shape = "circle" }: 
 
   return (
     <Avatar className={avatarSize}>
-      {avatarUrl ? <AvatarImage src={avatarUrl} className="object-cover" /> : <AvatarFallback className={avatarSize}>{type === "user" ? <User /> : <Building2 />}</AvatarFallback>}
+      {avatarUrl ? (
+        <AvatarImage src={avatarUrl} className="object-cover" />
+      ) : (
+        <AvatarFallback className={avatarSize}>
+          {type === "user" ? <User /> : <Building2 />}
+        </AvatarFallback>
+      )}
     </Avatar>
   );
 };

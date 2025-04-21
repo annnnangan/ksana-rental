@@ -11,7 +11,7 @@ const StudioCreatePage = async ({ params }: { params: Promise<{ id: string }> })
     return;
   }
 
-  let basicInfoFormDataDefaultValues = basicInfoFormDataResponse.data;
+  const basicInfoFormDataDefaultValues = basicInfoFormDataResponse.data;
 
   return (
     <div>
