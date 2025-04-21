@@ -19,13 +19,6 @@ const VietnamProFont = Be_Vietnam_Pro({
 
 export default async function Home() {
   const recommendStudios = (await studioService.getRecommendStudios()).data || [];
-  const plainPassword = "AirwavesStrong**";
-
-  const saltRounds = 10;
-  const hashedPassword = await bcrypt.hash(plainPassword, saltRounds);
-
-  console.log("Hashed password:", hashedPassword);
-
   return (
     <div>
       <div className="flex flex-col pb-5 min-h-[700px] bg-[url(/yoga-image-assets/karolina-grabowska-GkXJisd5W1M-unsplash-m.jpg)] bg-cover bg-center">

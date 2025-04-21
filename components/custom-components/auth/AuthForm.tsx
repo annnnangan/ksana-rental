@@ -1,11 +1,25 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { DefaultValues, FieldValues, Path, SubmitHandler, useForm, UseFormReturn } from "react-hook-form";
+import {
+  DefaultValues,
+  FieldValues,
+  Path,
+  SubmitHandler,
+  useForm,
+  UseFormReturn,
+} from "react-hook-form";
 import { ZodType } from "zod";
 
 import { Button } from "@/components/shadcn/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/shadcn/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/shadcn/form";
 import { Input } from "@/components/shadcn/input";
 import { AUTH_FIELD_NAMES, AUTH_FIELD_TYPES } from "@/lib/constants/auth";
 import Link from "next/link";
@@ -13,6 +27,8 @@ import { useState, useTransition } from "react";
 import AuthResponse from "./AuthResponse";
 import { SocialLogin } from "./SocialLogin";
 import { DEFAULT_LOGIN_REDIRECT } from "@/lib/next-auth-config/routes";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 interface Props<T extends FieldValues> {
   schema: ZodType<T>;
@@ -31,8 +47,16 @@ interface Props<T extends FieldValues> {
   callbackUrl?: string;
 }
 
-const AuthForm = <T extends FieldValues>({ type, schema, defaultValues, onSubmit, isModal = false, handleSwitchForm, callbackUrl }: Props<T>) => {
-  // const router = useRouter();
+const AuthForm = <T extends FieldValues>({
+  type,
+  schema,
+  defaultValues,
+  onSubmit,
+  isModal = false,
+  handleSwitchForm,
+  callbackUrl,
+}: Props<T>) => {
+  const router = useRouter();
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
   const [isPending, startTransition] = useTransition();
@@ -66,7 +90,10 @@ const AuthForm = <T extends FieldValues>({ type, schema, defaultValues, onSubmit
           {isLogin ? "還未有帳號？ " : "已有帳號? "}
           {!isModal && (
             <Button variant="link" type="button" className="p-0">
-              <Link href={isLogin ? "/auth/register" : "/auth/login"} className="font-bold text-primary">
+              <Link
+                href={isLogin ? "/auth/register" : "/auth/login"}
+                className="font-bold text-primary"
+              >
                 {isLogin ? "快速註冊" : "馬上登入"}
               </Link>
             </Button>
@@ -84,7 +111,10 @@ const AuthForm = <T extends FieldValues>({ type, schema, defaultValues, onSubmit
       </div>
 
       <div className="flex items-center justify-center gap-3">
-        <span className="flex-1 border-t border-gray-300"></span> <p className="text-gray-400 text-center">{isLogin ? "或使用電郵密碼登入" : "或填寫以下資料創建帳號。"}</p>
+        <span className="flex-1 border-t border-gray-300"></span>{" "}
+        <p className="text-gray-400 text-center">
+          {isLogin ? "或使用電郵密碼登入" : "或填寫以下資料創建帳號。"}
+        </p>
         <span className="flex-1 border-t border-gray-300"></span>{" "}
       </div>
 
@@ -97,9 +127,15 @@ const AuthForm = <T extends FieldValues>({ type, schema, defaultValues, onSubmit
               name={field as Path<T>}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="capitalize">{AUTH_FIELD_NAMES[field.name as keyof typeof AUTH_FIELD_NAMES]}</FormLabel>
+                  <FormLabel className="capitalize">
+                    {AUTH_FIELD_NAMES[field.name as keyof typeof AUTH_FIELD_NAMES]}
+                  </FormLabel>
                   <FormControl>
-                    <Input disabled={isPending} type={AUTH_FIELD_TYPES[field.name as keyof typeof AUTH_FIELD_TYPES]} {...field} />
+                    <Input
+                      disabled={isPending}
+                      type={AUTH_FIELD_TYPES[field.name as keyof typeof AUTH_FIELD_TYPES]}
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
