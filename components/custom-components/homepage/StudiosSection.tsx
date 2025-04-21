@@ -1,4 +1,4 @@
-import { studioCardInfo } from "@/app/(user)/explore-studios/page";
+import { studioCardInfo } from "@/app/(user)/(non-booking)/explore-studios/page";
 import { auth } from "@/lib/next-auth-config/auth";
 import { studioService } from "@/services/studio/StudioService";
 import ButtonLink from "../common/buttons/ButtonLink";

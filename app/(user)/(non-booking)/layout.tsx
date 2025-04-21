@@ -130,7 +130,7 @@ const UserPagesLayout = ({ children }: { children: React.ReactNode }) => {
         return (
           <div className="flex flex-col gap-2">
             {result.data.studios.map((studio: studioCardInfo) => (
-              <StudioCard studio={studio} key={studio.slug} />
+              <StudioCard studio={studio} key={studio.slug} bookmarkRouterRefresh={false} />
             ))}
           </div>
         );

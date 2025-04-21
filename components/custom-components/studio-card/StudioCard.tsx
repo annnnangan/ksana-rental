@@ -1,4 +1,4 @@
-import { studioCardInfo } from "@/app/(user)/explore-studios/page";
+import { studioCardInfo } from "@/app/(user)/(non-booking)/explore-studios/page";
 import StudioLocation from "@/components/custom-components/studio-card/StudioLocation";
 import StudioLogo from "@/components/custom-components/studio-card/StudioLogo";
 import StudioRating from "@/components/custom-components/studio-card/StudioRating";
