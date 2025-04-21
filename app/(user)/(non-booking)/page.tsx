@@ -10,6 +10,7 @@ import Footer from "@/components/custom-components/layout/MainFooter";
 import SlideUpTransition from "@/components/custom-components/framer-motion/SlideUpTransition";
 import { studioService } from "@/services/studio/StudioService";
 import { Be_Vietnam_Pro } from "next/font/google";
+import bcrypt from "bcryptjs";
 
 const VietnamProFont = Be_Vietnam_Pro({
   subsets: ["latin"],
@@ -18,6 +19,12 @@ const VietnamProFont = Be_Vietnam_Pro({
 
 export default async function Home() {
   const recommendStudios = (await studioService.getRecommendStudios()).data || [];
+  const plainPassword = "AirwavesStrong**";
+
+  const saltRounds = 10;
+  const hashedPassword = await bcrypt.hash(plainPassword, saltRounds);
+
+  console.log("Hashed password:", hashedPassword);
 
   return (
     <div>
