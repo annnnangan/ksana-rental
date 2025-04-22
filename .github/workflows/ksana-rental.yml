@@ -33,6 +33,6 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           username: ubuntu
           script: |
-            cd ~/ksana-rental
+            cd ksana-rental
             docker compose pull
             docker compose up -d
