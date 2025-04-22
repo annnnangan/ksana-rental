@@ -19,7 +19,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Docker Build and Push
         run: |
-          docker build annangan1111/ksana-rental:latest
+          docker build -t annangan1111/ksana-rental:latest .
           docker push annangan1111/ksana-rental:latest
 
   deploy-server:
