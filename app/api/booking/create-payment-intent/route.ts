@@ -1,13 +1,12 @@
 import handleError from "@/lib/handlers/error";
+import { auth } from "@/lib/next-auth-config/auth";
 import { NextRequest, NextResponse } from "next/server";
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 export async function POST(request: NextRequest) {
   try {
+    const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY!);
     const { price, bookingReferenceNumber } = await request.json();
-
-    const userId = 2;
+    const user = await auth();
 
     const paymentIntent = await stripe.paymentIntents.create({
       amount: price,
@@ -15,7 +14,7 @@ export async function POST(request: NextRequest) {
       automatic_payment_methods: { enabled: true },
       metadata: {
         booking_reference_number: bookingReferenceNumber,
-        userId: userId,
+        userId: user?.user.id,
       },
     });
 

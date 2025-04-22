@@ -12,11 +12,7 @@ import { useSessionUser } from "@/hooks/use-session-user";
 import { Suspense, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
-if (process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY === undefined) {
-  throw new Error("NEXT_PUBLIC_STRIPE_PUBLIC_KEY is not defined");
-}
-
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY);
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
 
 const BookingPaymentPage = () => {
   return (

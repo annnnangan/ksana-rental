@@ -54,5 +54,6 @@ export const {
   },
   adapter: KnexAdapter(knex),
   session: { strategy: "jwt" },
+  trustHost: true,
   ...authConfig,
 });
