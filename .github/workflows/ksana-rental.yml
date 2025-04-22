@@ -36,3 +36,4 @@ jobs:
             cd ksana-rental
             docker compose pull
             docker compose up -d
+            docker system prune -a
