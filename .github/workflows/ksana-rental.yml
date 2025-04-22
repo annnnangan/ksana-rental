@@ -1,0 +1,38 @@
+name: ksana-rental
+
+on:
+  push:
+    branches:
+      - "main"
+  workflow_dispatch:
+
+jobs:
+  build-server:
+    runs-on: ubuntu-latest
+    container: docker:28.0.4-alpine3.21
+    steps:
+      - uses: actions/checkout@v3
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Docker Build and Push
+        run: |
+          docker build -t annangan1111/ksana-rental:latest .
+          docker push annangan1111/ksana-rental:latest
+
+  deploy-server:
+    needs: build-server
+    runs-on: ubuntu-latest
+    steps:
+      - name: Executing remote ssh
+        uses: appleboy/ssh-action@master
+        with:
+          host: ksana-yoga-rental.site
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          username: ubuntu
+          script: |
+            docker compose pull
+            docker compose up -d
+            docker image prune -f
