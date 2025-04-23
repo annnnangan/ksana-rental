@@ -16,8 +16,6 @@ export async function middleware(req: NextRequest) {
     secret: process.env.NEXTAUTH_SECRET,
     secureCookie: process.env.NODE_ENV === "production" ? true : false,
   });
-
-  console.log("token", token);
   const isLoggedIn = !!token;
   const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
   const isPublicRoute = publicRoutes.some((route) =>
