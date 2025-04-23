@@ -1,12 +1,11 @@
 "use client";
-import AvatarWithFallback from "@/components/custom-components/common/AvatarWithFallback";
 import { ByMonthLineChart } from "@/components/custom-components/charts/ByMonthLineChart";
 import ChartCard from "@/components/custom-components/charts/ChartCard";
 import ScoreCard from "@/components/custom-components/charts/ScoreCard";
+import AvatarWithFallback from "@/components/custom-components/common/AvatarWithFallback";
+import SectionFallback from "@/components/custom-components/common/SectionFallback";
 import SectionTitle from "@/components/custom-components/common/SectionTitle";
 import ReportDateRangePicker from "@/components/custom-components/filters-and-sort/ReportDateRangePicker";
-import SectionFallback from "@/components/custom-components/common/SectionFallback";
-import ToastMessageWithRedirect from "@/components/custom-components/common/ToastMessageWithRedirect";
 import {
   Card,
   CardContent,
@@ -62,29 +61,7 @@ const StudioPanelDashboardPage = () => {
   const params = useParams();
   const studioId = params.id as string;
 
-  const { data, isLoading, isError, error } = useStudioDashboard(studioId, dateRangeParam, {
-    enabled: userStatus === "authenticated",
-  });
-
-  if (userStatus === "unauthenticated") {
-    return (
-      <ToastMessageWithRedirect
-        type={"error"}
-        message={"請先登入。"}
-        redirectPath={"/auth/login"}
-      />
-    );
-  }
-
-  if (isError && error.message === "無權儲取此場地資料。") {
-    return (
-      <ToastMessageWithRedirect
-        type={"error"}
-        message={"無權儲取此場地資料。"}
-        redirectPath={"/"}
-      />
-    );
-  }
+  const { data, isLoading, isError } = useStudioDashboard(studioId, dateRangeParam);
 
   if (isError) {
     return (
