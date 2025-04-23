@@ -1,97 +1,11 @@
-"use client";
-
-import convertToSubcurrency from "@/lib/utils/convert-to-subcurrency-utils";
-import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
-import { useRouter, useSearchParams } from "next/navigation";
+import React from "react";
+import PaymentPageContent from "./PaymentPageContent";
 
-import CheckoutForm from "@/components/custom-components/booking/CheckoutForm";
-import LoadingSpinner from "@/components/custom-components/common/loading/LoadingSpinner";
-import SectionTitle from "@/components/custom-components/common/SectionTitle";
-import { useSessionUser } from "@/hooks/use-session-user";
-import { Suspense, useEffect, useState } from "react";
-import { toast } from "react-toastify";
+const STRIPE_API = process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY;
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
-
-const BookingPaymentPage = () => {
-  return (
-    <>
-      <Suspense fallback={<LoadingSpinner />}>
-        <BookingPaymentContent />
-      </Suspense>
-    </>
-  );
+const page = () => {
+  return <PaymentPageContent STRIPE_API={STRIPE_API!} />;
 };
 
-const BookingPaymentContent = () => {
-  //Get User Session
-  const user = useSessionUser();
-  //Get Reference No from query string
-  const searchParams = useSearchParams();
-  const bookingReferenceNumber = searchParams.get("booking");
-  const router = useRouter();
-  //Use State
-  const [actualPayment, setActualPayment] = useState<number | undefined>(undefined);
-  const [isLoading, setLoading] = useState(false);
-
-  useEffect(() => {
-    const getActualPayment = async () => {
-      try {
-        setLoading(true);
-        const actualPaymentResponse = await fetch(
-          `/api/booking/payment/${bookingReferenceNumber}?userId=${user?.id}`
-        );
-        const actualPaymentResult = await actualPaymentResponse.json();
-
-        if (!actualPaymentResult.success) {
-          toast(actualPaymentResult.error.message, {
-            position: "top-right",
-            type: "error",
-            autoClose: 1000,
-          });
-          router.push("/");
-          return;
-        } else {
-          setActualPayment(Number(actualPaymentResult.data.actual_payment));
-        }
-      } catch (error) {
-        //@ts-expect-error expected
-        toast(error.message, {
-          position: "top-right",
-          type: "error",
-          autoClose: 1000,
-        });
-        router.push("/");
-      } finally {
-        setLoading(false);
-      }
-    };
-    if (user) {
-      getActualPayment();
-    }
-  }, [user, bookingReferenceNumber, router]);
-
-  return (
-    <>
-      <SectionTitle>付款</SectionTitle>
-
-      {isLoading ? (
-        <LoadingSpinner height={"h-[100px]"} />
-      ) : (
-        <Elements
-          stripe={stripePromise}
-          options={{
-            mode: "payment",
-            amount: convertToSubcurrency(actualPayment as number),
-            currency: "hkd",
-          }}
-        >
-          <CheckoutForm amount={actualPayment as number} />
-        </Elements>
-      )}
-    </>
-  );
-};
-
-export default BookingPaymentPage;
+export default page;
