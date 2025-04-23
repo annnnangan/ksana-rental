@@ -6,12 +6,14 @@ import {
   DEFAULT_LOGIN_REDIRECT,
   publicRoutes,
 } from "@/lib/next-auth-config/routes";
+import next from "next";
 
 export async function middleware(req: NextRequest) {
   const { nextUrl } = req;
 
   // Retrieve the user's session using next-auth/jwt
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+  console.log("token", token);
   const isLoggedIn = !!token;
   const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
   const isPublicRoute = publicRoutes.some((route) =>
@@ -33,13 +35,16 @@ export async function middleware(req: NextRequest) {
   }
 
   // Redirect unauthenticated users away from private routes
-  // if (!isLoggedIn && !isPublicRoute) {
-  //   // Store the current URL in the query parameter `redirectTo`
-  //   const redirectUrl = new URL("/auth/login", nextUrl.origin);
-  //   redirectUrl.searchParams.set("redirect", nextUrl.pathname + nextUrl.search);
+  if (!isLoggedIn && !isPublicRoute) {
+    let callbackUrl = nextUrl.pathname;
+    if (nextUrl.search) {
+      callbackUrl += nextUrl.search;
+    }
 
-  //   return NextResponse.redirect(redirectUrl);
-  // }
+    const encodedCallbackUrl = encodeURIComponent(callbackUrl);
+
+    return NextResponse.redirect(new URL(`/auth/login?redirect=${encodedCallbackUrl}`, nextUrl));
+  }
 
   return NextResponse.next();
 }
