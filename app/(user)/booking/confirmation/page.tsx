@@ -35,16 +35,14 @@ import { toast } from "react-toastify";
 
 import { createConfirmedForFreeBooking, createPendingForPaymentBooking } from "@/actions/booking";
 import { Textarea } from "@/components/shadcn/textarea";
-import { useSessionUser } from "@/hooks/use-session-user";
 
 import { formatDate } from "@/lib/utils/date-time/format-date-utils";
+import { calculateBookingEndTime } from "@/lib/utils/date-time/format-time-utils";
 import { BookingFormData, BookingSchema } from "@/lib/validations/zod-schema/booking-schema";
 import useBookingStore from "@/stores/BookingStore";
-import { calculateBookingEndTime } from "@/lib/utils/date-time/format-time-utils";
 import { useQueryClient } from "@tanstack/react-query";
 
 const BookingConfirmationPage = () => {
-  const user = useSessionUser();
   const [toastShown, setToastShown] = useState(false);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
@@ -80,11 +78,6 @@ const BookingConfirmationPage = () => {
   const { isSubmitting } = form.formState;
 
   useEffect(() => {
-    if (!user) {
-      router.push("/auth/login");
-      return;
-    }
-
     if (!date || !startTime || !studioSlug || price < 0) {
       if (!toastShown) {
         // Check if the toast has already been shown
@@ -102,7 +95,7 @@ const BookingConfirmationPage = () => {
         });
       }
     }
-  }, [user, date, startTime, studioSlug, price, usedCredit, paidAmount, toastShown, router]);
+  }, [date, startTime, studioSlug, price, usedCredit, paidAmount, toastShown, router]);
 
   useEffect(() => {
     reset({
