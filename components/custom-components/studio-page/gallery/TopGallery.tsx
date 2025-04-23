@@ -9,9 +9,10 @@ import MobileTopGallery from "./MobileTopGallery";
 
 interface Props {
   images: string[];
+  children: React.ReactNode;
 }
 
-const TopGallery = ({ images }: Props) => {
+const TopGallery = ({ images, children }: Props) => {
   const [isOpenListModal, setOpenListModal] = useState(false);
   const [isOpenSlideshowModal, setOpenSlideshowModal] = useState(false);
 
@@ -42,14 +43,31 @@ const TopGallery = ({ images }: Props) => {
           <MobileTopGallery openListModal={openListModal} images={images} />
         </div>
 
-        <Button className="absolute bottom-0 right-0 md:mr-2 md:mb-2 mr-5 text-[12px]" onClick={openListModal}>
+        <Button
+          className="absolute bottom-0 right-0 md:mr-2 md:mb-2 mr-5 text-[12px]"
+          onClick={openListModal}
+        >
           <ImageIcon /> <span className="hidden min-[320px]:inline"> 查看所有圖片</span>
         </Button>
       </section>
 
-      <GalleryListModal images={images} isOpenListModal={isOpenListModal} onCloseListModal={closeListModal} openSlideshowModal={openSlideshowModal} />
+      <GalleryListModal
+        images={images}
+        isOpenListModal={isOpenListModal}
+        onCloseListModal={closeListModal}
+        openSlideshowModal={openSlideshowModal}
+      >
+        {children}
+      </GalleryListModal>
 
-      <GallerySlideshowModal images={images} isOpen={isOpenSlideshowModal} onCloseModal={closeSlideshowModal} openListModal={openListModal} />
+      <GallerySlideshowModal
+        images={images}
+        isOpen={isOpenSlideshowModal}
+        onCloseModal={closeSlideshowModal}
+        openListModal={openListModal}
+      >
+        {children}
+      </GallerySlideshowModal>
     </>
   );
 };

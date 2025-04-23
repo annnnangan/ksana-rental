@@ -7,7 +7,6 @@ import {
   SelectValue,
 } from "@/components/shadcn/select";
 import { useEffect, useState } from "react";
-import BookNowButtonWrapper from "../BookNowButtonWrapper";
 
 const sectionItemList = [
   {
@@ -36,7 +35,7 @@ const sectionItemList = [
   },
 ];
 
-const MobileSectionMenu = () => {
+const MobileSectionMenu = ({ children }: { children: React.ReactNode }) => {
   const [activeSection, setActiveSection] = useState(sectionItemList[0].sectionId);
 
   useEffect(() => {
@@ -77,9 +76,7 @@ const MobileSectionMenu = () => {
         <SelectTrigger className="w-full bg-white bg-opacity-95 font-bold shadow-lg text-center py-6 justify-start gap-3 relative">
           <SelectValue placeholder="Select a section" />
         </SelectTrigger>
-        <div className="absolute top-1.5 right-2 ">
-          <BookNowButtonWrapper />
-        </div>
+        <div className="absolute top-1.5 right-2 ">{children}</div>
         <SelectContent>
           {sectionItemList.map((section) => (
             <SelectItem
