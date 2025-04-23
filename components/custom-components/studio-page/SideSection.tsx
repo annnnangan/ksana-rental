@@ -1,5 +1,4 @@
-import React from "react";
-import BookNowButton from "./BookNowButton";
+import BookNowButtonWrapper from "./BookNowButtonWrapper";
 
 interface Props {
   peakHourPrice: number;
@@ -20,7 +19,7 @@ const SideSection = ({ peakHourPrice, nonPeakHourPrice }: Props) => {
           <p className="text-lg">HK$ {[[nonPeakHourPrice]]}</p>
         </div>
       </div>
-      <BookNowButton />
+      <BookNowButtonWrapper />
     </div>
   );
 };

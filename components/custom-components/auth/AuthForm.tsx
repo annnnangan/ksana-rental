@@ -27,6 +27,7 @@ import Link from "next/link";
 import { useState, useTransition } from "react";
 import AuthResponse from "./AuthResponse";
 import { SocialLogin } from "./SocialLogin";
+import { toast } from "react-toastify";
 
 interface Props<T extends FieldValues> {
   schema: ZodType<T>;

@@ -1,18 +1,22 @@
-import { getToken } from "next-auth/jwt";
-import { NextRequest, NextResponse } from "next/server";
 import {
   apiAuthPrefix,
   authRoutes,
   DEFAULT_LOGIN_REDIRECT,
   publicRoutes,
 } from "@/lib/next-auth-config/routes";
-import next from "next";
+import { getToken } from "next-auth/jwt";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function middleware(req: NextRequest) {
   const { nextUrl } = req;
 
   // Retrieve the user's session using next-auth/jwt
-  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+  const token = await getToken({
+    req,
+    secret: process.env.NEXTAUTH_SECRET,
+    secureCookie: process.env.NODE_ENV === "production" ? true : false,
+  });
+
   console.log("token", token);
   const isLoggedIn = !!token;
   const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
