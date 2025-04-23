@@ -43,7 +43,7 @@ const MobileTopGallery = ({ openListModal, images }: Props) => {
         <Button onClick={() => swiperRef.current?.slidePrev()} className="rounded-full">
           <ArrowBigLeft />
         </Button>
-        <Button onClick={() => swiperRef.current?.slidePrev()} className="rounded-full ">
+        <Button onClick={() => swiperRef.current?.slideNext()} className="rounded-full ">
           <ArrowBigRight />
         </Button>
       </div>

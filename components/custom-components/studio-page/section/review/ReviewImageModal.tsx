@@ -16,7 +16,7 @@ interface Props {
 const ReviewImageModal = ({ isOpen, onCloseModal, images, userProfile }: Props) => {
   return (
     <Dialog open={isOpen}>
-      <DialogContent className="flex flex-col w-full max-w-6xl h-[90vh] overflow-hidden rounded-lg p-4">
+      <DialogContent className="flex flex-col w-full h-[80vh] overflow-hidden rounded-lg p-4">
         <DialogHeader className="sticky top-0 bg-white z-10 border-b pb-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-x-2">
