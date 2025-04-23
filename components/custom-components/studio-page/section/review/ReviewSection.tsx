@@ -81,11 +81,11 @@ const ReviewSection = ({ ratingOverview, studioSlug }: Props) => {
           ))}
       </div>
 
-      {!isLoading && data?.total_count && data?.total_count > pageSize && (
+      {!isLoading && Number(data?.total_count) > pageSize && (
         <div className="mt-8">
           <PaginationWrapper
             currentPage={currentPage}
-            itemCount={data?.total_count}
+            itemCount={Number(data?.total_count)}
             pageSize={pageSize}
             useQueryString={false}
             setCurrentPage={setCurrentPage}
