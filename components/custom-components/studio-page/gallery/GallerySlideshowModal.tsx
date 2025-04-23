@@ -2,7 +2,6 @@
 import { Button } from "@/components/shadcn/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/shadcn/dialog";
 import { CircleX, Grid2x2 } from "lucide-react";
-import BookNowButtonWrapper from "../BookNowButtonWrapper";
 import GallerySlideshow from "./GallerySlideshow";
 
 interface Props {
@@ -10,9 +9,16 @@ interface Props {
   onCloseModal: () => void;
   openListModal: () => void;
   images: string[];
+  children: React.ReactNode;
 }
 
-const GallerySlideshowModal = ({ isOpen, onCloseModal, openListModal, images }: Props) => {
+const GallerySlideshowModal = ({
+  isOpen,
+  onCloseModal,
+  openListModal,
+  images,
+  children,
+}: Props) => {
   return (
     <Dialog open={isOpen}>
       <DialogContent className="flex flex-col w-full max-w-6xl h-[90vh] overflow-hidden rounded-lg p-4">
@@ -26,7 +32,7 @@ const GallerySlideshowModal = ({ isOpen, onCloseModal, openListModal, images }: 
             </div>
 
             <div className="flex items-center gap-x-2">
-              <BookNowButtonWrapper />
+              {children}
               <Button type="button" variant="ghost" onClick={onCloseModal}>
                 <CircleX />
               </Button>

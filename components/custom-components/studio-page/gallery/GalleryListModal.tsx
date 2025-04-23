@@ -3,13 +3,14 @@ import StudioImage from "@/components/custom-components/studio-card/StudioImage"
 import { Button } from "@/components/shadcn/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/shadcn/dialog";
 import { CircleX, GalleryThumbnails } from "lucide-react";
-import BookNowButtonWrapper from "../BookNowButtonWrapper";
+import React from "react";
 
 interface Props {
   isOpenListModal: boolean;
   onCloseListModal: () => void;
   openSlideshowModal: () => void;
   images: string[];
+  children: React.ReactNode;
 }
 
 const GalleryListModal = ({
@@ -17,6 +18,7 @@ const GalleryListModal = ({
   onCloseListModal,
   openSlideshowModal,
   images,
+  children,
 }: Props) => {
   return (
     <>
@@ -33,8 +35,7 @@ const GalleryListModal = ({
               </div>
 
               <div className="flex items-center gap-x-2">
-                <BookNowButtonWrapper />
-
+                {children}
                 <Button type="button" variant="ghost" onClick={onCloseListModal}>
                   <CircleX />
                 </Button>

@@ -1,5 +1,6 @@
 import ToastMessageWithRedirect from "@/components/custom-components/common/ToastMessageWithRedirect";
 import BasicInfo from "@/components/custom-components/studio-page/BasicInfo";
+import BookNowButtonWrapper from "@/components/custom-components/studio-page/BookNowButtonWrapper";
 import TopGallery from "@/components/custom-components/studio-page/gallery/TopGallery";
 import DesktopSectionMenu from "@/components/custom-components/studio-page/section-menu/DesktopSectionMenu";
 import MobileSectionMenu from "@/components/custom-components/studio-page/section-menu/MobileSectionMenu";
@@ -106,10 +107,14 @@ const StudioPage = async ({ params }: { params: Promise<{ slug: string }> }) => 
 
   return (
     <>
-      <TopGallery images={studioImages!} />
+      <TopGallery images={studioImages!}>
+        <BookNowButtonWrapper />
+      </TopGallery>
       <BasicInfo basicInfo={studioBasicInfo} />
       <DesktopSectionMenu />
-      <MobileSectionMenu />
+      <MobileSectionMenu>
+        <BookNowButtonWrapper />
+      </MobileSectionMenu>
       <div className="flex flex-row gap-5">
         <div className="md:basis-4/6 lg:basis-3/4">
           <DescriptionSection description={studioBasicInfo.description} />
