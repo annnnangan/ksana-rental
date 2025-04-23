@@ -1,10 +1,9 @@
 "use client";
 import { Button } from "@/components/shadcn/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/shadcn/dialog";
-import { CircleX } from "lucide-react";
+import { CircleX, Grid2x2 } from "lucide-react";
+import BookNowButtonWrapper from "../BookNowButtonWrapper";
 import GallerySlideshow from "./GallerySlideshow";
-import { Grid2x2 } from "lucide-react";
-import BookNowButton from "../BookNowButton";
 
 interface Props {
   isOpen: boolean;
@@ -27,7 +26,7 @@ const GallerySlideshowModal = ({ isOpen, onCloseModal, openListModal, images }: 
             </div>
 
             <div className="flex items-center gap-x-2">
-              <BookNowButton />
+              <BookNowButtonWrapper />
               <Button type="button" variant="ghost" onClick={onCloseModal}>
                 <CircleX />
               </Button>

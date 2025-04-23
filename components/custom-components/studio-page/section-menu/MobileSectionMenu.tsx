@@ -1,7 +1,13 @@
 "use client";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/shadcn/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/shadcn/select";
 import { useEffect, useState } from "react";
-import BookNowButton from "../BookNowButton";
+import BookNowButtonWrapper from "../BookNowButtonWrapper";
 
 const sectionItemList = [
   {
@@ -72,11 +78,15 @@ const MobileSectionMenu = () => {
           <SelectValue placeholder="Select a section" />
         </SelectTrigger>
         <div className="absolute top-1.5 right-2 ">
-          <BookNowButton />
+          <BookNowButtonWrapper />
         </div>
         <SelectContent>
           {sectionItemList.map((section) => (
-            <SelectItem key={section.sectionId} value={section.sectionId} className={activeSection === section.sectionId ? "text-primary font-bold" : ""}>
+            <SelectItem
+              key={section.sectionId}
+              value={section.sectionId}
+              className={activeSection === section.sectionId ? "text-primary font-bold" : ""}
+            >
               {section.title}
             </SelectItem>
           ))}
