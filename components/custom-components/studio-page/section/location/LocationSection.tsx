@@ -12,7 +12,11 @@ export interface Coordinates {
 
 async function getLatLngForAddress(address: string, apiKey: string) {
   try {
-    const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`);
+    const response = await fetch(
+      `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
+        address
+      )}&key=${apiKey}`
+    );
 
     if (response.ok) {
       const data = await response.json();
@@ -33,8 +37,10 @@ async function getLatLngForAddress(address: string, apiKey: string) {
 }
 
 const LocationSection = async ({ address }: Props) => {
-  const coordinates: Coordinates = await getLatLngForAddress(address, process.env.NEXT_PUBLIC_MAPS_API_KEY!);
+  const API_KEY = (process.env.NEXT_PUBLIC_MAPS_API_KEY as string) ?? globalThis.MAPS_API_KEY;
+  const coordinates: Coordinates = await getLatLngForAddress(address, API_KEY);
 
+  console.log("LocationSection", API_KEY);
   return (
     <Section title={"場地位置"}>
       <GoogleMapView coordinates={coordinates} />

@@ -7,12 +7,14 @@ interface Props {
 }
 
 const GoogleMapView = ({ coordinates }: Props) => {
+  const API_KEY = (process.env.NEXT_PUBLIC_MAPS_API_KEY as string) ?? globalThis.MAPS_API_KEY;
+  console.log("GoogleMapView", API_KEY);
   return (
     <>
       {
-        <APIProvider apiKey={process.env.NEXT_PUBLIC_MAPS_API_KEY!}>
+        <APIProvider apiKey={API_KEY}>
           <div className="w-full h-[200px]">
-            <Map defaultZoom={20} center={coordinates} mapId={process.env.NEXT_PUBLIC_MAP_ID}>
+            <Map defaultZoom={20} center={coordinates} mapId={"3006abc1f20a98b1"}>
               <AdvancedMarker position={coordinates}>
                 <Pin />
               </AdvancedMarker>
