@@ -1,3 +1,4 @@
+import { TZDate } from "@date-fns/tz";
 import { isBefore, setHours, setMinutes, setSeconds } from "date-fns";
 
 export function formatDateSpecificHours(data: []) {
@@ -30,10 +31,10 @@ export function isPastDateTime(date: Date | string, time: string) {
   const selectedDateTime = setSeconds(setMinutes(setHours(date, hours), minutes), seconds ?? 0);
 
   // Get the current date-time in UTC+8 (HKT)
-  const todayDate = new Date();
+  const tzDate = new TZDate(new Date(), "Asia/Hong_Kong");
 
   // Validate if selected date and time are in the past
-  return isBefore(selectedDateTime, todayDate);
+  return isBefore(selectedDateTime, tzDate);
 }
 
 //accept Date or string (2025-03-16)
