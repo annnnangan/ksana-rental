@@ -82,24 +82,25 @@ const UserPagesLayout = ({ children }: { children: React.ReactNode }) => {
       {
         name: "district",
         type: "string",
-        description: "The district of the yoga studio",
+        description: "The district of the yoga studio. This is optional.",
       },
       {
         name: "equipment",
         type: "string",
-        description: "A list of equipments a yoga studio has. Use a comma to separate each option.",
+        description:
+          "A list of equipments a yoga studio has. Use a comma to separate each option. This is optional.",
       },
       {
         name: "date",
         type: "string",
         description:
-          "The date that the user want to book for the studio. Format the date to YYYY-MM-DD when pass to API",
+          "The date that the user want to book for the studio. Format the date to YYYY-MM-DD when pass to API. This is optional",
       },
       {
         name: "startTime",
         type: "string",
         description:
-          "The start time that the user want to book for the studio. Format the time to xx (e.g. 01) when pass to API. Only accept value from 00 to 23",
+          "The start time that the user want to book for the studio. Format the time to xx (e.g. 01) when pass to API. Only accept value from 00 to 23. This is optional",
       },
     ],
 

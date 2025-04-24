@@ -6,6 +6,7 @@ export const publicRoutes = [
   "/api/studio/*/reviews",
   "/explore-studios",
   "/api/studios/*",
+  "/api/studios",
   "/api/copilotkit",
 ];
 

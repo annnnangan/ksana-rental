@@ -1,9 +1,11 @@
 import handleError from "@/lib/handlers/error";
+import { auth } from "@/lib/next-auth-config/auth";
 import { studioService } from "@/services/studio/StudioService";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
   try {
+    const user = await auth();
     const searchParams = request.nextUrl.searchParams;
     const selectedDistrict = searchParams.get("district") || "";
     const selectedEquipment = searchParams.get("equipment") || "";
@@ -18,6 +20,7 @@ export async function GET(request: NextRequest) {
       equipment: selectedEquipment,
       date: selectedDate,
       startTime: selectedStartTime,
+      userId: user?.user.id,
     });
 
     return NextResponse.json({ success: true, data: result }, { status: 201 });
