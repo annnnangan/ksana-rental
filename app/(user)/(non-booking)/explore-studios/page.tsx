@@ -30,10 +30,6 @@ export interface studioCardInfo {
   is_bookmarked: boolean;
 }
 
-interface Props {
-  searchParams: StudioQuery;
-}
-
 export const metadata = {
   title: "探索場地",
 };

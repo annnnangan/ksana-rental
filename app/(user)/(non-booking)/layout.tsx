@@ -121,7 +121,7 @@ const UserPagesLayout = ({ children }: { children: React.ReactNode }) => {
     render: ({ status, result }) => {
       if (status === "executing" || status === "inProgress") {
         return <StudioCardLoadingSkeleton />;
-      } else if (status === "complete") {
+      } else if (status === "complete" && result?.data?.studios) {
         return (
           <div className="flex flex-col gap-2">
             {result.data.studios.map((studio: studioCardInfo) => (
