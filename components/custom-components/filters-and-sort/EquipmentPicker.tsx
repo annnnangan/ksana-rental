@@ -9,7 +9,6 @@ import { equipmentMap } from "@/lib/constants/studio-details";
 import { ChevronDown } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useDebounceCallback } from "usehooks-ts";
 
 interface Props {
   isModal: boolean;
@@ -19,44 +18,36 @@ const EquipmentPicker = ({ isModal }: Props) => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [selectedEquipment, setSelectedEquipment] = useState<string[] | []>(
-    //@ts-expect-error expected
-    searchParams.get("equipment") ? searchParams.get("equipment")?.split(",") : []
-  );
+  const [selectedEquipment, setSelectedEquipment] = useState<string[]>([]);
 
-  const [debouncedSelectedEquipment, setDebouncedSelectedEquipment] = useState<string[] | []>(
-    //@ts-expect-error expected
-    searchParams.get("equipment") ? searchParams.get("equipment")?.split(",") : []
-  );
-
+  // Keep selectedEquipment in sync with the URL
   useEffect(() => {
-    const newEquipment = searchParams.get("equipment")
-      ? searchParams.get("equipment")?.split(",")
-      : [];
-    //@ts-expect-error expected
-    setSelectedEquipment(newEquipment);
+    const equipmentFromParams = searchParams.get("equipment");
+    const parsed = equipmentFromParams ? equipmentFromParams.split(",") : [];
+    setSelectedEquipment(parsed);
   }, [searchParams]);
 
-  const debounced = useDebounceCallback(setDebouncedSelectedEquipment, 2000);
-
-  useEffect(() => {
+  const updateSearchParams = (newSelection: string[]) => {
     const params = new URLSearchParams(searchParams);
-    if (debouncedSelectedEquipment.length > 0) {
-      params.set("equipment", debouncedSelectedEquipment.join(","));
+
+    if (newSelection.length > 0) {
+      params.set("equipment", newSelection.join(","));
     } else {
       params.delete("equipment");
     }
     params.delete("page");
-    const query = params.size ? "?" + params.toString() : "";
-    router.push("/explore-studios" + query);
-  }, [debouncedSelectedEquipment, searchParams, router]);
 
-  const handleSelectEquipment = (selectedItem: string, value: string) => {
-    const updatedSelection = selectedEquipment?.some((selected) => selected === value)
+    const query = params.size ? `?${params.toString()}` : "";
+    router.push(`/explore-studios${query}`);
+  };
+
+  const handleSelectEquipment = (value: string) => {
+    const updated = selectedEquipment.includes(value)
       ? selectedEquipment.filter((item) => item !== value)
       : [...selectedEquipment, value];
-    setSelectedEquipment(updatedSelection);
-    debounced(updatedSelection);
+
+    setSelectedEquipment(updated);
+    updateSearchParams(updated);
   };
 
   return (
@@ -82,11 +73,9 @@ const EquipmentPicker = ({ isModal }: Props) => {
           {equipmentMap.map((item) => (
             <DropdownMenuCheckboxItem
               key={item.value}
-              checked={selectedEquipment?.some((selected) => selected === item.value)}
-              onCheckedChange={() => handleSelectEquipment(item.label, item.value)} // Pass the label and value
-              onSelect={(e) => {
-                e.preventDefault();
-              }}
+              checked={selectedEquipment.includes(item.value)}
+              onCheckedChange={() => handleSelectEquipment(item.value)}
+              onSelect={(e) => e.preventDefault()}
             >
               {item.label}
             </DropdownMenuCheckboxItem>
