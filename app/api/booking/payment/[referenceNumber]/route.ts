@@ -5,7 +5,10 @@ import { bookingService } from "@/services/booking/BookingService";
 import { NextRequest, NextResponse } from "next/server";
 
 // GET Booking Information By Reference No For Payment
-export async function GET(request: NextRequest, props: { params: Promise<{ referenceNumber: string }> }) {
+export async function GET(
+  request: NextRequest,
+  props: { params: Promise<{ referenceNumber: string }> }
+) {
   try {
     const bookingReference = (await props.params).referenceNumber;
 
@@ -30,13 +33,14 @@ export async function GET(request: NextRequest, props: { params: Promise<{ refer
 }
 
 //Update Status to Confirm
-export async function PATCH(request: NextRequest, props: { params: Promise<{ referenceNumber: string }> }) {
+export async function PATCH(
+  request: NextRequest,
+  props: { params: Promise<{ referenceNumber: string }> }
+) {
   try {
     const params = await props.params;
     const { paymentStatus, stripePaymentId } = await request.json();
     const user = await sessionUser();
-
-    console.log(`Inside route.ts + ${paymentStatus} + ${stripePaymentId}`);
 
     if (paymentStatus !== "succeeded") {
       throw new ForbiddenError("付款失敗，請重試。");
@@ -47,9 +51,11 @@ export async function PATCH(request: NextRequest, props: { params: Promise<{ ref
     }
 
     if (paymentStatus === "succeeded") {
-      const result = await bookingService.updateBookingStatusToConfirmed(params.referenceNumber, user?.id, stripePaymentId);
-
-      console.log(`Result form route: ${result}`);
+      const result = await bookingService.updateBookingStatusToConfirmed(
+        params.referenceNumber,
+        user?.id,
+        stripePaymentId
+      );
 
       if (result.success) {
         return NextResponse.json({ success: true }, { status: 201 });

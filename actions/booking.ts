@@ -175,8 +175,6 @@ export const reviewBooking = async (bookingReferenceNo: string, data: reviewForm
       data
     );
 
-    console.log("Database Response....");
-
     if (!response.success) {
       return response;
     }
