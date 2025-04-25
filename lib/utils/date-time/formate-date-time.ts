@@ -25,7 +25,7 @@ export function formatDateSpecificHours(data: []) {
 }
 
 //accept Date or string (2025-03-16)
-export function isPastDateTime(date: string, time: string): boolean {
+export function isPastDateTime(date: string | Date, time: string): boolean {
   // Combine date and time into a single ISO string
   const formateTime = convertStringToTime(time);
   const isoString = `${date}T${formateTime}.000+08:00`;
