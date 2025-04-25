@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - "main"
+    paths:
+      - "**/*" # Trigger on all changes
+      - "!README.md" # Exclude README.md from triggering the pipeline
   workflow_dispatch:
 
 jobs:
