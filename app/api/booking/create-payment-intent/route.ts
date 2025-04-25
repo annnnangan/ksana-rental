@@ -8,6 +8,8 @@ export async function POST(request: NextRequest) {
     const { price, bookingReferenceNumber } = await request.json();
     const user = await auth();
 
+    console.log("API create-payment-intent - price", price);
+
     const paymentIntent = await stripe.paymentIntents.create({
       amount: price,
       currency: "hkd",

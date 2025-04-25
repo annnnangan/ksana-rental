@@ -2,19 +2,16 @@
 
 import convertToSubcurrency from "@/lib/utils/convert-to-subcurrency-utils";
 import { Elements } from "@stripe/react-stripe-js";
-import { loadStripe, Stripe } from "@stripe/stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import CheckoutForm from "@/components/custom-components/booking/CheckoutForm";
 import LoadingSpinner from "@/components/custom-components/common/loading/LoadingSpinner";
 import SectionTitle from "@/components/custom-components/common/SectionTitle";
-import { useSessionUser } from "@/hooks/use-session-user";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
-const PaymentPageContent = ({ STRIPE_API }: { STRIPE_API: string }) => {
-  //Get User Session
-  const user = useSessionUser();
+const PaymentPageContent = ({ STRIPE_API, userId }: { STRIPE_API: string; userId: string }) => {
   const stripePromise = loadStripe(STRIPE_API);
   //Get Reference No from query string
   const searchParams = useSearchParams();
@@ -28,9 +25,7 @@ const PaymentPageContent = ({ STRIPE_API }: { STRIPE_API: string }) => {
     const getActualPayment = async () => {
       try {
         setLoading(true);
-        const actualPaymentResponse = await fetch(
-          `/api/booking/payment/${bookingReferenceNumber}?userId=${user?.id}`
-        );
+        const actualPaymentResponse = await fetch(`/api/booking/payment/${bookingReferenceNumber}`);
         const actualPaymentResult = await actualPaymentResponse.json();
 
         if (!actualPaymentResult.success) {
@@ -56,10 +51,12 @@ const PaymentPageContent = ({ STRIPE_API }: { STRIPE_API: string }) => {
         setLoading(false);
       }
     };
-    if (user) {
+    if (userId) {
       getActualPayment();
     }
-  }, [user, bookingReferenceNumber, router]);
+  }, [userId, bookingReferenceNumber, router]);
+
+  console.log("client component - PaymentPageContent - actualPayment", actualPayment);
 
   return (
     <>

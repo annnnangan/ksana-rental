@@ -75,7 +75,6 @@ const StudioNameFilter = <T,>({
                   key={studio.value}
                   value={studio.value}
                   onSelect={(currentValue) => {
-                    console.log(currentValue);
                     const studioId = currentValue.split("-")[0];
                     if (studioId == selectedStudio) {
                       setFilter({ ...filter, [filterKey]: "" });
