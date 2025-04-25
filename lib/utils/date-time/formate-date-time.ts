@@ -1,6 +1,7 @@
 import { TZDate } from "@date-fns/tz";
 import { isBefore, setHours, setMinutes, setSeconds } from "date-fns";
 import { DateTime } from "luxon";
+import { convertStringToTime } from "./format-time-utils";
 
 export function formatDateSpecificHours(data: []) {
   // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -24,16 +25,14 @@ export function formatDateSpecificHours(data: []) {
 }
 
 //accept Date or string (2025-03-16)
-export function isPastDateTime(date: Date | string, time: string) {
-  // Split the start time into hours, minutes, and seconds
-  const [hours, minutes, seconds] = time.split(":").map(Number);
+export function isPastDateTime(date: string, time: string): boolean {
+  // Combine date and time into a single ISO string
+  const formateTime = convertStringToTime(time);
+  const isoString = `${date}T${formateTime}.000+08:00`;
 
-  // Combine selected date with start time
-  const selectedDateTime = DateTime.fromJSDate(new Date(date))
-    .set({ hour: hours, minute: minutes, second: seconds || 0 })
-    .setZone("Asia/Hong_Kong"); // Set to Hong Kong timezone
-
-  console.log("selectedDateTimeInHK", selectedDateTime.toString());
+  // Create a luxon DateTime object in the Asia/Hong_Kong timezone
+  const combinedDateTime = DateTime.fromISO(isoString);
+  console.log("combinedDateTime", combinedDateTime);
 
   // Get the current date-time in UTC+8 (Hong Kong Time)
   const currentDateTimeInHK = DateTime.now().setZone("Asia/Hong_Kong");
@@ -41,7 +40,7 @@ export function isPastDateTime(date: Date | string, time: string) {
   console.log("currentDateTimeInHK", currentDateTimeInHK.toString());
 
   // Validate if selected date and time are in the past
-  return selectedDateTime < currentDateTimeInHK;
+  return combinedDateTime < currentDateTimeInHK;
 }
 
 //accept Date or string (2025-03-16)
