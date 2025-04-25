@@ -1,4 +1,4 @@
-<p align="center"><img src="https://firebasestorage.googleapis.com/v0/b/testing-c9537.appspot.com/o/Ksana-rental%2Flogo.png?alt=media&token=2af2689b-8bff-4e48-8ffd-f99ab3d128df" height="auto" width="150"/></p>
+<p align="center"><img src="https://github.com/user-attachments/assets/c260ee6b-3bdb-4707-965e-c63af1d25eef" height="auto" width="150"/></p>
 
 ![Image](https://github.com/user-attachments/assets/0e1e14fd-581a-4803-842c-f1991eeba972)
 
