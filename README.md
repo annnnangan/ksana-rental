@@ -59,17 +59,20 @@ https://github.com/user-attachments/assets/d59c1955-7bb1-49d8-afb6-b75b49b37626
 </details>
 
 <details><summary>☑️ Manage booking (view studio's door password 2 hours before the booking, cancel booking 24 hours before, leave review after booking) </summary>
+
+https://github.com/user-attachments/assets/6a4776de-9f06-4c3c-8041-9da776e5af36
+
 </details>
 
 
 ### Studio Owner
-<details><summary>☑️ Seamlessly switching between rental user and studio owner </summary>
+<details><summary>☑️ Seamlessly switching between rental user and studio owner and different studios</summary>
 
 https://github.com/user-attachments/assets/076705e2-8f94-4bdf-9fae-9068d4548e9d
     
 </details>
 
-<details><summary>☑️ Easy to onboard and manage multiple yoga studios under one user account</summary>
+<details><summary>☑️ Easy to onboard yoga studio</summary>
 </details>
 
 <details><summary>☑️ Set regular business hour and specific date business hour to define the studio availability</summary>
