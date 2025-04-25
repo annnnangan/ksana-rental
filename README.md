@@ -1,6 +1,18 @@
 <p align="center"><img src="https://github.com/user-attachments/assets/c260ee6b-3bdb-4707-965e-c63af1d25eef" height="auto" width="150"/></p>
+<p align="center">Website: https://ksana-yoga-rental.site/</p>
 
 ![Image](https://github.com/user-attachments/assets/0e1e14fd-581a-4803-842c-f1991eeba972)
+
+## Table of Contents
+- [Project Overview](#project-overview)
+- [Project Background](#project-background)
+- [Core Tech Stack](#core-tech-stack)
+- [Features](#features)
+    - [Rental User](#rental-user)
+    -  [Studio Owner](#studio-owner)
+    -  [Admin](#admin)
+- [Setup Instructions](#setup-instructions)
+  
 ## Project Overview
 Ksana Rental is a full-stack web application built entirely by **me** using Next.js with TypeScript. From design to deployment, this solo project showcases my skills in web development and my ability to manage both the frontend and backend.
 
@@ -66,3 +78,5 @@ https://github.com/user-attachments/assets/d59c1955-7bb1-49d8-afb6-b75b49b37626
 
 <details><summary>☑️ Manage weekly payout to studios</summary>
 </details>
+
+## Setup Instructions
