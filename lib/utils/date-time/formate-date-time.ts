@@ -1,5 +1,6 @@
 import { TZDate } from "@date-fns/tz";
 import { isBefore, setHours, setMinutes, setSeconds } from "date-fns";
+import { DateTime } from "luxon";
 
 export function formatDateSpecificHours(data: []) {
   // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -28,15 +29,19 @@ export function isPastDateTime(date: Date | string, time: string) {
   const [hours, minutes, seconds] = time.split(":").map(Number);
 
   // Combine selected date with start time
-  const selectedDateTime = setSeconds(setMinutes(setHours(date, hours), minutes), seconds ?? 0);
+  const selectedDateTime = DateTime.fromJSDate(new Date(date))
+    .set({ hour: hours, minute: minutes, second: seconds || 0 })
+    .setZone("Asia/Hong_Kong"); // Set to Hong Kong timezone
 
-  // Get the current date-time in UTC+8 (HKT)
-  const selectedDateTimeInHK = new TZDate(selectedDateTime, "Asia/Hong_Kong");
-  console.log("selectedDateTimeInHK", selectedDateTimeInHK);
-  const tzDate = new TZDate(new Date(), "Asia/Hong_Kong");
-  console.log("tzDate", tzDate);
+  console.log("selectedDateTimeInHK", selectedDateTime.toString());
+
+  // Get the current date-time in UTC+8 (Hong Kong Time)
+  const currentDateTimeInHK = DateTime.now().setZone("Asia/Hong_Kong");
+
+  console.log("currentDateTimeInHK", currentDateTimeInHK.toString());
+
   // Validate if selected date and time are in the past
-  return isBefore(selectedDateTimeInHK, tzDate);
+  return selectedDateTime < currentDateTimeInHK;
 }
 
 //accept Date or string (2025-03-16)
