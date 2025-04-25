@@ -25,6 +25,7 @@ This website aims to streamline the entire process: users can easily check which
 
 ## Core Tech Stack
 - **Framework:** Next.js with Typescript
+- **AI Chatbot**: Copilotkit
 - **Style:** Tailwind, Shadcn UI
 - **Data Fetching & Caching:** React Query
 - **State Management:** Zustand
