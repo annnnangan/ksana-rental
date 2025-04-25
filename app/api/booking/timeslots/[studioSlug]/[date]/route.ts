@@ -58,6 +58,9 @@ export async function GET(
           // If the date is today, exclude times that are in the past
           const isPastSelectedDateTime = isPastDateTime(date, convertIntegerToStringTime(i));
 
+          console.log("isPastSelectedDateTime", { date, i, isPastSelectedDateTime });
+          console.log("----------------------");
+
           if (!isPastSelectedDateTime) {
             timeslotsArray.push({
               time: convertIntegerToStringTime(i),
