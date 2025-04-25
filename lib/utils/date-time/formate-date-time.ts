@@ -32,8 +32,9 @@ export function isPastDateTime(date: Date | string, time: string) {
 
   // Get the current date-time in UTC+8 (HKT)
   const selectedDateTimeInHK = new TZDate(selectedDateTime, "Asia/Hong_Kong");
+  console.log("selectedDateTimeInHK", selectedDateTimeInHK);
   const tzDate = new TZDate(new Date(), "Asia/Hong_Kong");
-
+  console.log("tzDate", tzDate);
   // Validate if selected date and time are in the past
   return isBefore(selectedDateTimeInHK, tzDate);
 }
