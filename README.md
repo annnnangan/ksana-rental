@@ -63,6 +63,9 @@ https://github.com/user-attachments/assets/d59c1955-7bb1-49d8-afb6-b75b49b37626
 
 ### Studio Owner
 <details><summary>☑️ Seamlessly switching between rental user and studio owner </summary>
+
+https://github.com/user-attachments/assets/076705e2-8f94-4bdf-9fae-9068d4548e9d
+    
 </details>
 
 <details><summary>☑️ Easy to onboard and manage multiple yoga studios under one user account</summary>
