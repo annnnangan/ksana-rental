@@ -1,5 +1,3 @@
-import { TZDate } from "@date-fns/tz";
-import { isBefore, setHours, setMinutes, setSeconds } from "date-fns";
 import { DateTime } from "luxon";
 import { convertStringToTime } from "./format-time-utils";
 
@@ -32,12 +30,9 @@ export function isPastDateTime(date: string | Date, time: string): boolean {
 
   // Create a luxon DateTime object in the Asia/Hong_Kong timezone
   const combinedDateTime = DateTime.fromISO(isoString);
-  console.log("combinedDateTime", combinedDateTime);
 
   // Get the current date-time in UTC+8 (Hong Kong Time)
   const currentDateTimeInHK = DateTime.now().setZone("Asia/Hong_Kong");
-
-  console.log("currentDateTimeInHK", currentDateTimeInHK.toString());
 
   // Validate if selected date and time are in the past
   return combinedDateTime < currentDateTimeInHK;

@@ -8,12 +8,13 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const userInputSlug = searchParams.get("slug");
 
-    console.log(userInputSlug);
-
     if (userInputSlug) {
       const result = await studioService.checkIsSlugExist(userInputSlug);
       if (result.data) {
-        return NextResponse.json({ success: false, error: { message: "此網站別名已被使用，請輸入其他別名。" } }, { status: 201 });
+        return NextResponse.json(
+          { success: false, error: { message: "此網站別名已被使用，請輸入其他別名。" } },
+          { status: 201 }
+        );
       } else {
         return NextResponse.json({ success: true }, { status: 201 });
       }

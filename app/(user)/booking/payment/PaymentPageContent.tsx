@@ -19,7 +19,7 @@ const PaymentPageContent = ({ STRIPE_API, userId }: { STRIPE_API: string; userId
   const router = useRouter();
   //Use State
   const [actualPayment, setActualPayment] = useState<number | undefined>(undefined);
-  const [isLoading, setLoading] = useState(false);
+  const [isLoading, setLoading] = useState(true);
 
   useEffect(() => {
     const getActualPayment = async () => {

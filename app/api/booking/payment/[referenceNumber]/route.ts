@@ -1,5 +1,6 @@
 import handleError from "@/lib/handlers/error";
 import { ForbiddenError, UnauthorizedError } from "@/lib/http-errors";
+import { auth } from "@/lib/next-auth-config/auth";
 import { sessionUser } from "@/lib/next-auth-config/session-user";
 import { bookingService } from "@/services/booking/BookingService";
 import { NextRequest, NextResponse } from "next/server";
@@ -12,19 +13,19 @@ export async function GET(
   try {
     const bookingReference = (await props.params).referenceNumber;
 
-    const url = new URL(request.url);
-    const queryParams = url.searchParams;
-    const userId = queryParams.get("userId");
+    const user = await auth();
 
-    if (!userId) {
+    if (!user) {
       throw new ForbiddenError("請先登入才可預約。");
     }
 
-    const response = await bookingService.getBookingInfoForPayment(bookingReference, userId!);
+    const response = await bookingService.getBookingInfoForPayment(bookingReference, user.user.id);
 
     if (!response.success) {
       return handleError(response, "api") as APIErrorResponse;
     }
+
+    console.log("api payment - response", response.data);
 
     return NextResponse.json({ success: true, data: response.data }, { status: 201 });
   } catch (error) {
