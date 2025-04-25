@@ -1,6 +1,26 @@
 <p align="center"><img src="https://github.com/user-attachments/assets/c260ee6b-3bdb-4707-965e-c63af1d25eef" height="auto" width="150"/></p>
 
 ![Image](https://github.com/user-attachments/assets/0e1e14fd-581a-4803-842c-f1991eeba972)
+## Project Overview
+Ksana Rental is a full-stack web application built entirely by **me** using Next.js with TypeScript. From design to deployment, this solo project showcases my skills in web development and my ability to manage both the frontend and backend.
+
+## Project Background
+As someone who practices spinning hammock, I often need to rent spaces for practice. Every time, I have to message the studio via Instagram DM to ask if the space is available, then wait for a reply. It’s not always clear what studios are available for rent, and sometimes double bookings happen.
+
+From the studio owner’s side, managing bookings manually takes a lot of time — replying to every inquiry and sending out door codes by hand can be quite troublesome.
+
+This website aims to streamline the entire process: users can easily check which studios are available and book them directly. The door code will be visible on the platform 2 hours before the booking starts, so owners don’t have to send it manually. This reduces miscommunication and helps both renters and studio owners save time.
+
+## Core Tech Stack
+- **Framework:** Next.js with Typescript
+- **Style:** Tailwind, Shadcn UI
+- **Data Fetching & Caching:** React Query
+- **State Management:** Zustand
+- **Form & Validation**: React Hook Form with Zod
+- **Database:** Postgres, Knex
+- **Authentication:** Next Auth
+- **Payment**: Stripe
+- **Deployment:** AWS EC2, Docker
 
 ## Features
 ### Rental User
