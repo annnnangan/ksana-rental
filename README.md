@@ -11,6 +11,9 @@ https://github.com/user-attachments/assets/b965e798-e552-4754-891c-6ea90d4394eb
 </details>
 
 <details><summary>☑️ Search different yoga studios based on district, available date and time and equipment</summary>
+
+https://github.com/user-attachments/assets/a119ce52-18ec-498c-a47c-a974496301f5
+
 </details>
 
 <details><summary>☑️ Check yoga studio's availability </summary>
