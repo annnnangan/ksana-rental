@@ -5,6 +5,8 @@ services:
     platform: linux/amd64
     env_file:
       - ./envfile
+    environment:
+      - TZ=Asia/Hong_Kong
     depends_on:
       - postgres
     build:
