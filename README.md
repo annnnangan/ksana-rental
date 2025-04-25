@@ -14,6 +14,9 @@ https://github.com/user-attachments/assets/b965e798-e552-4754-891c-6ea90d4394eb
 </details>
 
 <details><summary>☑️ Check yoga studio's availability </summary>
+  
+https://github.com/user-attachments/assets/fd07dd66-94f6-40cf-8ca2-fec269763e5d
+
 </details>
 
 <details><summary>☑️ Pay and book different yoga studio </summary>
