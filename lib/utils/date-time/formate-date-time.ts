@@ -31,10 +31,11 @@ export function isPastDateTime(date: Date | string, time: string) {
   const selectedDateTime = setSeconds(setMinutes(setHours(date, hours), minutes), seconds ?? 0);
 
   // Get the current date-time in UTC+8 (HKT)
+  const selectedDateTimeInHK = new TZDate(selectedDateTime, "Asia/Hong_Kong");
   const tzDate = new TZDate(new Date(), "Asia/Hong_Kong");
 
   // Validate if selected date and time are in the past
-  return isBefore(selectedDateTime, tzDate);
+  return isBefore(selectedDateTimeInHK, tzDate);
 }
 
 //accept Date or string (2025-03-16)
