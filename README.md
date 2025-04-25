@@ -56,6 +56,9 @@ https://github.com/user-attachments/assets/d59c1955-7bb1-49d8-afb6-b75b49b37626
 </details>
 
 <details><summary>☑️ Pay and book different yoga studio </summary>
+
+https://github.com/user-attachments/assets/e93f48d2-46e8-4746-bcc0-a7ca52a15a03
+
 </details>
 
 <details><summary>☑️ Manage booking (view studio's door password 2 hours before the booking, cancel booking 24 hours before, leave review after booking) </summary>
