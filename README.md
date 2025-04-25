@@ -15,7 +15,7 @@ https://github.com/user-attachments/assets/b965e798-e552-4754-891c-6ea90d4394eb
 
 <details><summary>☑️ Check yoga studio's availability </summary>
   
-https://github.com/user-attachments/assets/fd07dd66-94f6-40cf-8ca2-fec269763e5d
+https://github.com/user-attachments/assets/d59c1955-7bb1-49d8-afb6-b75b49b37626
 
 </details>
 
