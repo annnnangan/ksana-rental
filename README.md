@@ -5,6 +5,9 @@
 ## Features
 ### Rental User
 <details><summary>☑️ Search for yoga studios with criteria using the AI chatbot built with CopilotKit</summary>
+  
+https://github.com/user-attachments/assets/b965e798-e552-4754-891c-6ea90d4394eb
+
 </details>
 
 <details><summary>☑️ Search different yoga studios based on district, available date and time and equipment</summary>
