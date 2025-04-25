@@ -73,6 +73,12 @@ https://github.com/user-attachments/assets/076705e2-8f94-4bdf-9fae-9068d4548e9d
 </details>
 
 <details><summary>☑️ Set regular business hour and specific date business hour to define the studio availability</summary>
+
+https://github.com/user-attachments/assets/3ea74e03-295c-4941-bb64-f9d514ad1942
+    
+</details>
+
+
 </details>
 
 ### Admin
