@@ -20,7 +20,6 @@ export class ValidateStudioService {
         data: { studio_id: result },
       };
     } catch (error) {
-      console.dir(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -52,7 +51,11 @@ export class ValidateStudioService {
 
   async validateStudioStatus(status: string, userId: string, studioId: string) {
     try {
-      const result = await this.knex.select("status").from("studio").where({ user_id: userId, id: studioId }).first();
+      const result = await this.knex
+        .select("status")
+        .from("studio")
+        .where({ user_id: userId, id: studioId })
+        .first();
 
       if (result.status !== status) {
         throw new UnauthorizedError("不符合場地狀態");
@@ -62,14 +65,17 @@ export class ValidateStudioService {
         success: true,
       };
     } catch (error) {
-      console.dir(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
 
   async validateIsStudioBelongToUser(userId: string, studioId: string) {
     try {
-      const result = await this.knex.select("id").from("studio").where({ user_id: userId, id: studioId }).first();
+      const result = await this.knex
+        .select("id")
+        .from("studio")
+        .where({ user_id: userId, id: studioId })
+        .first();
 
       if (!result) {
         throw new NotFoundError("場地");
@@ -79,7 +85,6 @@ export class ValidateStudioService {
         success: true,
       };
     } catch (error) {
-      console.dir(error);
       return handleError(error, "server") as ActionResponse;
     }
   }

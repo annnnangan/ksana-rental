@@ -25,7 +25,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ success: true, data: result }, { status: 201 });
   } catch (error) {
-    console.dir(error);
     return handleError(error, "api") as APIErrorResponse;
   }
 }

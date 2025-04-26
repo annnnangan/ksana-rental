@@ -20,7 +20,6 @@ export async function GET(request: NextRequest) {
       }
     }
   } catch (error) {
-    console.dir(error);
     return handleError(error, "api") as APIErrorResponse;
   }
 }

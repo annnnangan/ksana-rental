@@ -23,7 +23,6 @@ export class StudioOwnerService {
         data: studios,
       };
     } catch (error) {
-      console.dir(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -39,7 +38,6 @@ export class StudioOwnerService {
 
       return { success: true, data: result };
     } catch (error) {
-      console.log(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -68,7 +66,6 @@ export class StudioOwnerService {
         return { success: true, data: "" };
       }
     } catch (error) {
-      console.log(error);
       return handleError(error, "server") as ActionResponse;
     }
   }

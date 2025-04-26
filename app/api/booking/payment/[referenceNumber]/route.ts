@@ -25,8 +25,6 @@ export async function GET(
       return handleError(response, "api") as APIErrorResponse;
     }
 
-    console.log("api payment - response", response.data);
-
     return NextResponse.json({ success: true, data: response.data }, { status: 201 });
   } catch (error) {
     return handleError(error, "api") as APIErrorResponse;

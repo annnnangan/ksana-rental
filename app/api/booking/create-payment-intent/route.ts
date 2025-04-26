@@ -4,11 +4,10 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY!);
     const { price, bookingReferenceNumber } = await request.json();
     const user = await auth();
-
-    console.log("API create-payment-intent - price", price);
 
     const paymentIntent = await stripe.paymentIntents.create({
       amount: price,

@@ -37,7 +37,6 @@ export async function GET(request: NextRequest, props: { params: Promise<{ idOrS
       { status: 201 }
     );
   } catch (error) {
-    console.dir(error);
     return handleError(error, "api") as APIErrorResponse;
   }
 }

@@ -39,7 +39,6 @@ export class PayoutService {
         data: completed_booking_list,
       };
     } catch (error) {
-      console.dir(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -77,7 +76,6 @@ export class PayoutService {
         data: dispute_booking_list,
       };
     } catch (error) {
-      console.dir(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -129,7 +127,7 @@ export class PayoutService {
       };
     } catch (error) {
       await txn.rollback();
-      console.dir(error);
+
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -185,7 +183,6 @@ export class PayoutService {
         },
       };
     } catch (error) {
-      console.dir(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -372,7 +369,6 @@ export class PayoutService {
         data: { totalCount: Number(totalCount?.total_count), payoutList: result },
       };
     } catch (error) {
-      console.dir(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -433,7 +429,6 @@ export class PayoutService {
 
       return { success: true, data: { totalCount: totalCount, payoutList: result } };
     } catch (error) {
-      console.dir(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -536,7 +531,6 @@ export class PayoutService {
         data: { totalCount: totalCount, payoutList: result },
       };
     } catch (error) {
-      console.dir(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -655,7 +649,6 @@ export class PayoutService {
         data: result[0],
       };
     } catch (error) {
-      console.dir(error);
       return handleError(error, "server") as ActionResponse;
     }
   }

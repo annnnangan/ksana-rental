@@ -99,7 +99,6 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({ success: true }, { status: 201 });
   } catch (error) {
-    console.dir(error);
     return handleError(error, "api") as APIErrorResponse;
   }
 }

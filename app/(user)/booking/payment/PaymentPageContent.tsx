@@ -56,8 +56,6 @@ const PaymentPageContent = ({ STRIPE_API, userId }: { STRIPE_API: string; userId
     }
   }, [userId, bookingReferenceNumber, router]);
 
-  console.log("client component - PaymentPageContent - actualPayment", actualPayment);
-
   return (
     <>
       <SectionTitle>付款</SectionTitle>

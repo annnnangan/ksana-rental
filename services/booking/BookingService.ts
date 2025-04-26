@@ -163,7 +163,6 @@ export class BookingService {
         data: openingHour,
       };
     } catch (error) {
-      console.log(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -205,7 +204,6 @@ export class BookingService {
         data: formattedBookedTimeslot,
       };
     } catch (error) {
-      console.log(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -290,7 +288,6 @@ export class BookingService {
         data: insertedData[0],
       };
     } catch (error) {
-      console.dir(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -448,7 +445,6 @@ export class BookingService {
         data: bookingRecord,
       };
     } catch (error) {
-      console.dir(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -527,7 +523,6 @@ export class BookingService {
         data: bookingsRecordsWithStatus,
       };
     } catch (error) {
-      console.dir(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -750,7 +745,6 @@ export class BookingService {
       await txn.commit();
       return { success: true };
     } catch (error) {
-      console.log(error);
       await txn.rollback(); // Rollback in case of an error
       return handleError(error, "server") as ActionResponse;
     }

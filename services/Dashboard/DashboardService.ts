@@ -53,7 +53,6 @@ export class DashboardService {
         data: totalBookings[0],
       };
     } catch (error) {
-      console.dir(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -84,7 +83,6 @@ export class DashboardService {
         data: counts,
       };
     } catch (error) {
-      console.dir(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -110,7 +108,6 @@ export class DashboardService {
 
       return { success: true, data: result };
     } catch (error) {
-      console.log(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -196,7 +193,6 @@ export class DashboardService {
         data: { total: Number(totalBookingCount[0].total), monthBreakdown: result },
       };
     } catch (error) {
-      console.log(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -281,7 +277,6 @@ export class DashboardService {
         data: { total: Number(totalBookingRevenue[0].total), monthBreakdown: result },
       };
     } catch (error) {
-      console.log(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -362,7 +357,6 @@ export class DashboardService {
         data: { total: Number(totalResult[0].total), monthBreakdown: result },
       };
     } catch (error) {
-      console.log(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -386,7 +380,6 @@ export class DashboardService {
 
       return { success: true, data: { bookingList } };
     } catch (error) {
-      console.log(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -439,7 +432,6 @@ export class DashboardService {
 
       return { success: true, data: bookingCountBreakdownByStudio };
     } catch (error) {
-      console.log(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -489,7 +481,6 @@ export class DashboardService {
 
       return { success: true, data: data };
     } catch (error) {
-      console.log(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -544,7 +535,6 @@ export class DashboardService {
         data: { total: Number(totalQuery[0].total), monthBreakdown: result },
       };
     } catch (error) {
-      console.log(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -597,7 +587,6 @@ export class DashboardService {
         data: { total: Number(totalQuery[0].total), monthBreakdown: result },
       };
     } catch (error) {
-      console.log(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -650,7 +639,6 @@ export class DashboardService {
         data: { total: Number(totalQuery[0].total), monthBreakdown: result },
       };
     } catch (error) {
-      console.log(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -703,7 +691,6 @@ export class DashboardService {
         data: { total: Number(totalQuery[0].total), monthBreakdown: result },
       };
     } catch (error) {
-      console.log(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -734,7 +721,6 @@ export class DashboardService {
 
       return { success: true, data: studios };
     } catch (error) {
-      console.log(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
