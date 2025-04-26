@@ -11,7 +11,7 @@
     - [Rental User](#rental-user)
     -  [Studio Owner](#studio-owner)
     -  [Admin](#admin)
-- [Setup Instructions](#setup-instructions)
+- [Getting Started](#getting-started)
   
 ## Project Overview
 Ksana Rental is a full-stack web application built entirely by **me** using Next.js with TypeScript. From design to deployment, this solo project showcases my skills in web development and my ability to manage both the frontend and backend.
@@ -34,6 +34,7 @@ This website aims to streamline the entire process: users can easily check which
 - **Authentication:** Next Auth
 - **Payment**: Stripe
 - **Email Service**: Resend
+- **Image Storage**: AWS S3
 - **Deployment:** AWS (EC2, Route53), Docker
 
 ## Features
@@ -96,4 +97,66 @@ https://github.com/user-attachments/assets/3ea74e03-295c-4941-bb64-f9d514ad1942
 <details><summary>☑️ Manage weekly payout to studios</summary>
 </details>
 
-## Setup Instructions
+
+<details><summary>☑️ Manage homepage recommended studio list</summary>
+
+
+https://github.com/user-attachments/assets/aa4f6b49-c1af-4ffe-a8cd-2e5de7bef107
+
+
+</details>
+
+## Getting Started
+To get a local copy up and running follow these simple example steps.
+
+1. Apply to get API Key for the below services
+- Stripe
+- AWS S3
+- Next Auth
+- Resend
+- Google Gemini
+- Google OAuth
+- Google Map
+
+2. Create a `.env.local` file
+   
+    ```dosini
+   POSTGRES_DB=
+   POSTGRES_USER=
+   POSTGRES_PASSWORD=
+   POSTGRES_HOST=localhost
+   NEXT_PUBLIC_STRIPE_PUBLIC_KEY=
+   STRIPE_SECRET_KEY=
+   AWS_BUCKET_NAME=
+   AWS_BUCKET_REGION=
+   AWS_ACCESS_KEY=
+   AWS_SECRET_KEY=
+   NEXT_PUBLIC_MAPS_API_KEY=
+   NEXT_PUBLIC_MAP_ID=
+   NEXTAUTH_SECRET=
+   GOOGLE_CLIENT_ID=
+   GOOGLE_CLIENT_SECRET=
+   RESEND_API_KEY=
+   NEXT_PUBLIC_APP_URL=http://localhost:3000
+   GOOGLE_API_KEY=
+    ```
+3. Install yarn packages
+    ```sh
+    yarn install 
+    ```
+4. Go to migration > 20241105144644_create-user.js and generate new hashed password for sample user data
+   ```sh
+   import bcrypt from "bcryptjs";
+   const password = "12345678"
+   const saltRounds = 10
+   const result = await bcrypt.hash(password, saltRounds);
+   ```
+5. Run knex migrate and knex seed to preapre sample database and data
+   ```sh
+   yarn knex migrate:latest
+   yarn knex seed:run
+   ```
+6. Start the server
+   ```sh
+   yarn start
+   ```
