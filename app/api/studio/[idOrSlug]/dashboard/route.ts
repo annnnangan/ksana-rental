@@ -17,7 +17,10 @@ export async function GET(request: NextRequest, props: { params: Promise<{ idOrS
       throw new UnauthorizedError("請先登入。");
     }
 
-    const isStudioBelongUserResponse = await validateStudioService.validateIsStudioBelongToUser(user?.user.id, studioId);
+    const isStudioBelongUserResponse = await validateStudioService.validateIsStudioBelongToUser(
+      user?.user.id,
+      studioId
+    );
 
     if (!isStudioBelongUserResponse.success) {
       throw new UnauthorizedError("無權儲取此場地資料。");
@@ -25,14 +28,20 @@ export async function GET(request: NextRequest, props: { params: Promise<{ idOrS
 
     if (isStudioBelongUserResponse.success) {
       const dateType: "booking_date" | "created_at" = "booking_date";
-      const [bookingCountResponse, revenueResponse, payoutResponse, upcoming5BookingsResponse] = await Promise.all([
-        dashboardService.getStudioBookingCount({ timeframe, dateType, studioId }),
-        dashboardService.getStudioExpectedRevenue({ timeframe, dateType, studioId }),
-        dashboardService.getStudioPayout({ timeframe, studioId }),
-        dashboardService.getUpcoming5Bookings({ studioId }),
-      ]);
+      const [bookingCountResponse, revenueResponse, payoutResponse, upcoming5BookingsResponse] =
+        await Promise.all([
+          dashboardService.getStudioBookingCount({ timeframe, dateType, studioId }),
+          dashboardService.getStudioExpectedRevenue({ timeframe, dateType, studioId }),
+          dashboardService.getStudioPayout({ timeframe, studioId }),
+          dashboardService.getUpcoming5Bookings({ studioId }),
+        ]);
 
-      if (revenueResponse.success && bookingCountResponse.success && payoutResponse.success && upcoming5BookingsResponse.success) {
+      if (
+        revenueResponse.success &&
+        bookingCountResponse.success &&
+        payoutResponse.success &&
+        upcoming5BookingsResponse.success
+      ) {
         return NextResponse.json(
           {
             success: true,
@@ -48,7 +57,6 @@ export async function GET(request: NextRequest, props: { params: Promise<{ idOrS
       }
     }
   } catch (error) {
-    console.dir(error);
     return handleError(error, "api") as APIErrorResponse;
   }
 }

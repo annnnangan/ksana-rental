@@ -17,7 +17,6 @@ const PayoutBreakdownTable = <ColumnKeys extends string>({
   columns,
   values,
 }: Props<ColumnKeys>) => {
-  console.log(values);
   return (
     <>
       <p className="mb-2 text-neutral-400">Total Records: {values.length}</p>

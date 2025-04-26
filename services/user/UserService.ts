@@ -135,7 +135,6 @@ export class UserService {
         data: bookingsRecordsWithStatus,
       };
     } catch (error) {
-      console.dir(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -157,7 +156,6 @@ export class UserService {
         data: userCreditAmount,
       };
     } catch (error) {
-      console.log(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -217,7 +215,6 @@ export class UserService {
         data: { bookmarkList, totalCount: Number(totalCount.totalCount) },
       };
     } catch (error) {
-      console.log(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -251,7 +248,6 @@ export class UserService {
         };
       }
     } catch (error) {
-      console.log(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -282,7 +278,6 @@ export class UserService {
         };
       }
     } catch (error) {
-      console.log(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -315,7 +310,6 @@ export class UserService {
         };
       }
     } catch (error) {
-      console.log(error);
       return handleError(error, "server") as ActionResponse;
     }
   }

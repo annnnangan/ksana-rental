@@ -9,7 +9,13 @@ export class ValidateBookingService {
 
   async validateIsBookingBelongUser(bookingReferenceNumber: string, userId: string) {
     try {
-      const result = (await this.knex.select("id").from("booking").where("reference_no", bookingReferenceNumber).andWhere("user_id", userId))[0];
+      const result = (
+        await this.knex
+          .select("id")
+          .from("booking")
+          .where("reference_no", bookingReferenceNumber)
+          .andWhere("user_id", userId)
+      )[0];
 
       if (!result) {
         throw new NotFoundError("預約");
@@ -19,7 +25,6 @@ export class ValidateBookingService {
         success: true,
       };
     } catch (error) {
-      console.log(error);
       return handleError(error, "server") as ActionResponse;
     }
   }

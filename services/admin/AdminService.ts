@@ -15,7 +15,6 @@ export class AdminService {
         data: "",
       };
     } catch (error) {
-      console.dir(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -41,7 +40,6 @@ export class AdminService {
         data: result,
       };
     } catch (error) {
-      console.dir(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -67,7 +65,7 @@ export class AdminService {
       return { success: true };
     } catch (error) {
       await txn.rollback();
-      console.dir(error);
+
       return handleError(error, "server") as ActionResponse;
     }
   }

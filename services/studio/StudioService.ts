@@ -69,7 +69,6 @@ export class StudioService {
         data: studios,
       };
     } catch (error) {
-      console.dir(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -104,7 +103,6 @@ export class StudioService {
         data: studioList,
       };
     } catch (error) {
-      console.dir(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -119,7 +117,6 @@ export class StudioService {
         data: status,
       };
     } catch (error) {
-      console.dir(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -388,7 +385,6 @@ export class StudioService {
         data: { studios, totalCount },
       };
     } catch (error) {
-      console.dir(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -442,7 +438,6 @@ export class StudioService {
         },
       };
     } catch (error) {
-      console.dir(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -517,7 +512,6 @@ export class StudioService {
         data: { reviews: formatResult, total_count: Number(formatCount) },
       };
     } catch (error) {
-      console.dir(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -539,7 +533,6 @@ export class StudioService {
         data: result,
       };
     } catch (error) {
-      console.dir(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -572,7 +565,7 @@ export class StudioService {
       };
     } catch (error) {
       await txn.rollback();
-      console.dir(error);
+
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -594,7 +587,7 @@ export class StudioService {
       return { success: true, data: "" };
     } catch (error) {
       await txn.rollback();
-      console.dir(error);
+
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -609,7 +602,6 @@ export class StudioService {
         data: studio_id,
       };
     } catch (error) {
-      console.dir(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -637,7 +629,6 @@ export class StudioService {
       await txn.commit();
       return { success: true };
     } catch (error) {
-      console.dir(error);
       await txn.rollback(); // Rollback in case of an error
       return handleError(error, "server") as ActionResponse;
     }
@@ -671,7 +662,6 @@ export class StudioService {
         data: sanitizedResult,
       };
     } catch (error) {
-      console.dir(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -724,7 +714,6 @@ export class StudioService {
       await txn.commit();
       return { success: true };
     } catch (error) {
-      console.dir(error);
       await txn.rollback(); // Rollback in case of an error
       return handleError(error, "server") as ActionResponse;
     }
@@ -753,7 +742,6 @@ export class StudioService {
         data: result,
       };
     } catch (error) {
-      console.dir(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -778,7 +766,6 @@ export class StudioService {
 
       return { success: true };
     } catch (error) {
-      console.dir(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -887,7 +874,6 @@ export class StudioService {
       await txn.commit();
       return { success: true };
     } catch (error) {
-      console.dir(error);
       await txn.rollback(); // Rollback in case of an error
       return handleError(error, "server") as ActionResponse;
     }
@@ -941,7 +927,6 @@ export class StudioService {
         data: businessHoursObject,
       };
     } catch (error) {
-      console.dir(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -975,7 +960,6 @@ export class StudioService {
         data: pricesObject,
       };
     } catch (error) {
-      console.dir(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -1029,7 +1013,6 @@ export class StudioService {
       await txn.commit();
       return { success: true };
     } catch (error) {
-      console.dir(error);
       await txn.rollback(); // Rollback in case of an error
       return handleError(error, "server") as ActionResponse;
     }
@@ -1064,7 +1047,6 @@ export class StudioService {
         data: equipmentArray,
       };
     } catch (error) {
-      console.dir(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -1099,7 +1081,6 @@ export class StudioService {
         data: galleryArray,
       };
     } catch (error) {
-      console.dir(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -1126,7 +1107,6 @@ export class StudioService {
       await txn.commit();
       return { success: true };
     } catch (error) {
-      console.dir(error);
       await txn.rollback(); // Rollback in case of an error
       return handleError(error, "server") as ActionResponse;
     }
@@ -1154,7 +1134,6 @@ export class StudioService {
 
       return { success: true };
     } catch (error) {
-      console.dir(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -1177,7 +1156,6 @@ export class StudioService {
         data: door_password,
       };
     } catch (error) {
-      console.dir(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -1196,7 +1174,6 @@ export class StudioService {
       await txn.commit();
       return { success: true };
     } catch (error) {
-      console.dir(error);
       await txn.rollback(); // Rollback in case of an error
       return handleError(error, "server") as ActionResponse;
     }
@@ -1237,7 +1214,6 @@ export class StudioService {
         data: socialList,
       };
     } catch (error) {
-      console.dir(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -1271,7 +1247,6 @@ export class StudioService {
       await txn.commit();
       return { success: true };
     } catch (error) {
-      console.dir(error);
       await txn.rollback(); // Rollback in case of an error
       return handleError(error, "server") as ActionResponse;
     }
@@ -1290,7 +1265,6 @@ export class StudioService {
         data: result[0] === "null" ? "" : result[0],
       };
     } catch (error) {
-      console.dir(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
@@ -1326,7 +1300,6 @@ export class StudioService {
       await txn.commit();
       return { success: true };
     } catch (error) {
-      console.dir(error);
       await txn.rollback(); // Rollback in case of an error
       return handleError(error, "server") as ActionResponse;
     }
@@ -1372,7 +1345,6 @@ export class StudioService {
       await txn.commit();
       return { success: true };
     } catch (error) {
-      console.dir(error);
       await txn.rollback();
       return handleError(error, "server") as ActionResponse;
     }
@@ -1395,7 +1367,6 @@ export class StudioService {
 
       return { success: true };
     } catch (error) {
-      console.dir(error);
       return handleError(error, "server") as ActionResponse;
     }
   }
