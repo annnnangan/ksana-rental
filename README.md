@@ -6,7 +6,7 @@
 ## Table of Contents
 - [Project Overview](#project-overview)
 - [Project Background](#project-background)
-- [Core Tech Stack](#core-tech-stack)
+- [Tech Stack](#tech-stack)
 - [Features](#features)
     - [Rental User](#rental-user)
     -  [Studio Owner](#studio-owner)
@@ -23,7 +23,7 @@ From the studio owner’s side, managing bookings manually takes a lot of time �
 
 This website aims to streamline the entire process: users can easily check which studios are available and book them directly. The door code will be visible on the platform 2 hours before the booking starts, so owners don’t have to send it manually. This reduces miscommunication and helps both renters and studio owners save time.
 
-## Core Tech Stack
+## Tech Stack
 - **Framework:** Next.js with Typescript
 - **AI Chatbot**: Copilotkit
 - **Style:** Tailwind, Shadcn UI
@@ -33,7 +33,8 @@ This website aims to streamline the entire process: users can easily check which
 - **Database:** Postgres, Knex
 - **Authentication:** Next Auth
 - **Payment**: Stripe
-- **Deployment:** AWS EC2, Docker
+- **Email Service**: Resend
+- **Deployment:** AWS (EC2, Route53), Docker
 
 ## Features
 ### Rental User
