@@ -81,9 +81,18 @@ https://github.com/user-attachments/assets/076705e2-8f94-4bdf-9fae-9068d4548e9d
 </details>
 
 <details><summary>☑️ Set regular business hour and specific date business hour to define the studio availability</summary>
+<br>
 
-https://github.com/user-attachments/assets/3ea74e03-295c-4941-bb64-f9d514ad1942
+- In the example below, the studio has made Mondays unavailable for booking and has removed all timeslots originally set on Mondays.
     
+https://github.com/user-attachments/assets/3343a270-ab77-4194-b11f-6af6529d1e86
+
+<br>
+
+- In the example below, although the studio is generally unavailable for booking on Mondays, it has specifically opened timeslots for May 5th. When users view the booking calendar, they will see that only May 5th (a Monday) has available timeslots.
+
+https://github.com/user-attachments/assets/23b8689b-fb33-47f5-970d-22d358079488
+
 </details>
 
 
