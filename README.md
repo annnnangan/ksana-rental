@@ -110,6 +110,9 @@ https://github.com/user-attachments/assets/b4fc129d-32f4-42f4-99c2-94b1ec4e8c9f
 </details>
 
 <details><summary>☑️ Manage weekly payout to studios</summary>
+
+https://github.com/user-attachments/assets/f890fca6-c825-4f55-be94-010bca99d309
+
 </details>
 
 
