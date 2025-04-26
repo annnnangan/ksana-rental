@@ -143,7 +143,10 @@ const BookingCalendar = ({
                 <Calendar
                   mode="single"
                   selected={dateWatch}
-                  onSelect={(date) => setValue("date", date!)}
+                  onSelect={(date) => {
+                    setValue("date", date!);
+                    setValue("startTime", "");
+                  }}
                   required
                   className="rounded-md border"
                   initialFocus
