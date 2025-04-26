@@ -78,6 +78,9 @@ https://github.com/user-attachments/assets/076705e2-8f94-4bdf-9fae-9068d4548e9d
 </details>
 
 <details><summary>☑️ Easy to onboard yoga studio</summary>
+    
+https://github.com/user-attachments/assets/4e509633-dffe-4b7a-90b2-1855431d43d2
+
 </details>
 
 <details><summary>☑️ Set regular business hour and specific date business hour to define the studio availability</summary>
@@ -101,6 +104,9 @@ https://github.com/user-attachments/assets/23b8689b-fb33-47f5-970d-22d358079488
 ### Admin
 
 <details><summary>☑️ Approve studio creation by studio owner</summary>
+
+https://github.com/user-attachments/assets/b4fc129d-32f4-42f4-99c2-94b1ec4e8c9f
+
 </details>
 
 <details><summary>☑️ Manage weekly payout to studios</summary>
