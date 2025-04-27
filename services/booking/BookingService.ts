@@ -110,9 +110,8 @@ export class BookingService {
   async getStudioOpeningHourByDate(date: string, studioSlug: string) {
     try {
       // 👁 Check if studio exist
-      const isStudioExistResponse = await validateStudioService.validateIsStudioExistBySlug(
-        studioSlug
-      );
+      const isStudioExistResponse =
+        await validateStudioService.validateIsStudioExistBySlug(studioSlug);
 
       if (!isStudioExistResponse.success) {
         return isStudioExistResponse;
@@ -170,9 +169,8 @@ export class BookingService {
   async getStudioBookedTimeslotByDate(date: string, studioSlug: string) {
     try {
       // 👁 Check if studio exist
-      const isStudioExistResponse = await validateStudioService.validateIsStudioExistBySlug(
-        studioSlug
-      );
+      const isStudioExistResponse =
+        await validateStudioService.validateIsStudioExistBySlug(studioSlug);
 
       if (!isStudioExistResponse.success) {
         return isStudioExistResponse;
@@ -447,6 +445,28 @@ export class BookingService {
     } catch (error) {
       return handleError(error, "server") as ActionResponse;
     }
+  }
+
+  async getBookingConfirmationEmailInfo(bookingReference: string) {
+    const bookingInfo = (
+      await this.knex("booking")
+        .select(
+          "booking.date",
+          "booking.start_time",
+          "booking.end_time",
+          "studio.name AS studio_name",
+          "studio.address AS studio_address",
+          "users.email AS user_email"
+        )
+        .leftJoin("studio", "booking.studio_id", "studio.id")
+        .leftJoin("users", "booking.user_id", "users.id")
+        .where("booking.reference_no", bookingReference)
+    )[0];
+
+    return {
+      success: true,
+      data: bookingInfo,
+    };
   }
 
   /* -------------------------------------------------- 📚 Get Booking List ------------------------------------------------------------ */

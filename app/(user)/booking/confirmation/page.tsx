@@ -33,7 +33,11 @@ import { useEffect, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 
-import { createConfirmedForFreeBooking, createPendingForPaymentBooking } from "@/actions/booking";
+import {
+  createConfirmedForFreeBooking,
+  createPendingForPaymentBooking,
+  sendBookingConfirmation,
+} from "@/actions/booking";
 import { Textarea } from "@/components/shadcn/textarea";
 
 import { formatDate } from "@/lib/utils/date-time/format-date-utils";
@@ -67,7 +71,6 @@ const BookingConfirmationPage = () => {
   const form = useForm<BookingFormData>({
     resolver: zodResolver(BookingSchema),
     defaultValues: {
-      username: "",
       phone: "",
       remarks: "",
       agreeBookingTerms: false,
@@ -141,7 +144,7 @@ const BookingConfirmationPage = () => {
           }
         });
       } else {
-        createConfirmedForFreeBooking(formData).then((data) => {
+        createConfirmedForFreeBooking(formData).then(async (data) => {
           if (!data.success) {
             //@ts-expect-error expected
             toast(data?.error?.message, {
@@ -151,6 +154,7 @@ const BookingConfirmationPage = () => {
             });
             router.push(`/booking?slug=${studioSlug}`);
           } else {
+            startTransition(() => sendBookingConfirmation(data.data.reference_no!));
             router.push(`/booking/success?booking=${data.data.reference_no}`);
           }
         });
@@ -193,27 +197,6 @@ const BookingConfirmationPage = () => {
         <div className="flex flex-col space-y-2 bg-gray-50 p-5 rounded-lg">
           <p className="font-bold mb-2">場地使用者聯絡資料</p>
           <div className="space-y-4">
-            <FormField
-              control={form.control}
-              name="username"
-              render={({ field }) => (
-                <FormItem className="w-full">
-                  <FormLabel className="text-sm" htmlFor="username">
-                    名稱 *
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      type="text"
-                      id="username"
-                      className={`form-input text-sm`}
-                      placeholder="請輸入使用者名稱"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             <FormField
               control={form.control}
               name="phone"

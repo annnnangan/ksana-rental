@@ -4,8 +4,9 @@ import convertToSubcurrency from "@/lib/utils/convert-to-subcurrency-utils";
 import { PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import { useRouter } from "next/navigation";
 
+import { sendBookingConfirmation } from "@/actions/booking";
 import { useSearchParams } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useTransition } from "react";
 import { toast } from "react-toastify";
 import SubmitButton from "../common/buttons/SubmitButton";
 import LoadingSpinner from "../common/loading/LoadingSpinner";
@@ -24,6 +25,7 @@ const CheckoutForm = ({ amount }: Props) => {
   const [errorMessage, setErrorMessage] = useState<string>();
   const [clientSecret, setClientSecret] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   // Create payment intent
   useEffect(() => {
@@ -92,6 +94,7 @@ const CheckoutForm = ({ amount }: Props) => {
         const res = await response.json();
         // Redirect user to the success page
         if (res.success) {
+          startTransition(() => sendBookingConfirmation(bookingReferenceNumber!));
           router.refresh();
           router.push(`/booking/success?booking=${bookingReferenceNumber}`);
         }
@@ -116,7 +119,7 @@ const CheckoutForm = ({ amount }: Props) => {
     <form onSubmit={handleSubmit}>
       {clientSecret && <PaymentElement />}
       <SubmitButton
-        isSubmitting={!stripe || loading}
+        isSubmitting={!stripe || loading || isPending}
         submittingText="付款處理中"
         nonSubmittingText={`付款HK$ ${amount}`}
         className="w-full"
