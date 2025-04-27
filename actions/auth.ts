@@ -2,16 +2,15 @@
 
 import * as z from "zod";
 
-import { AuthError } from "next-auth";
-import bcrypt from "bcryptjs";
-import { DEFAULT_LOGIN_REDIRECT } from "@/lib/next-auth-config/routes";
-import { userService } from "@/services/user/UserService";
-import { signIn } from "@/lib/next-auth-config/auth";
-import { LoginSchema, RegisterSchema } from "@/lib/validations/zod-schema/auth";
-import { generateVerificationToken } from "@/lib/utils/generate-verification-token";
 import { sendVerificationEmail } from "@/lib/mail";
+import { signIn } from "@/lib/next-auth-config/auth";
+import { DEFAULT_LOGIN_REDIRECT } from "@/lib/next-auth-config/routes";
+import { generateVerificationToken } from "@/lib/utils/generate-verification-token";
+import { LoginSchema, RegisterSchema } from "@/lib/validations/zod-schema/auth";
+import { userService } from "@/services/user/UserService";
 import { verificationService } from "@/services/user/VerificationService";
-import { getSession } from "next-auth/react";
+import bcrypt from "bcryptjs";
+import { AuthError } from "next-auth";
 
 export const login = async (values: z.infer<typeof LoginSchema>, redirect?: string) => {
   const validateFields = LoginSchema.safeParse(values);
