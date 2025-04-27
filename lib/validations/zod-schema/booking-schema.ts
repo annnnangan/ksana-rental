@@ -23,7 +23,6 @@ export const BookingSchema = z.object({
   price: z.number().nonnegative(),
   usedCredit: z.number().nonnegative().default(0),
   paidAmount: z.number().nonnegative(),
-  username: z.string().min(2, "請填寫名稱。"),
   phone: z.string().refine(isValidPhoneNumber, "請填寫正確電話號碼。"),
   remarks: z.string().optional(),
   agreeBookingTerms: z

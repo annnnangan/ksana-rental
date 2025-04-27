@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "data": "yarn knex migrate:rollback && yarn knex migrate:latest && yarn knex seed:run",
-    "migration": "yarn knex migrate:rollback && yarn knex migrate:latest"
+    "migration": "yarn knex migrate:rollback && yarn knex migrate:latest",
+    "preview-email": "email dev --dir emails/layout -p 3030"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.703.0",
@@ -38,6 +39,7 @@
     "@radix-ui/react-tabs": "^1.1.2",
     "@radix-ui/react-tooltip": "^1.1.8",
     "@radix-ui/react-visually-hidden": "^1.1.0",
+    "@react-email/components": "0.0.36",
     "@smastrom/react-rating": "^1.5.0",
     "@stripe/react-stripe-js": "^3.0.0",
     "@stripe/stripe-js": "^5.2.0",
@@ -95,6 +97,7 @@
     "eslint": "^8",
     "eslint-config-next": "15.2.4",
     "postcss": "^8",
+    "react-email": "4.0.7",
     "tailwindcss": "^3.4.1",
     "turbo": "^2.3.4",
     "typescript": "^5"

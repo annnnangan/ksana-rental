@@ -1,5 +1,6 @@
 "use server";
 
+import { sendBookingConfirmationEmail } from "@/emails/mail";
 import handleError from "@/lib/handlers/error";
 import {
   ForbiddenError,
@@ -70,6 +71,19 @@ export const createConfirmedForFreeBooking = async (data: BookingFormData) => {
   } catch (error) {
     return handleError(error, "server") as ActionResponse;
   }
+};
+
+export const sendBookingConfirmation = async (bookingReference: string) => {
+  const result = await bookingService.getBookingConfirmationEmailInfo(bookingReference);
+  const { date, start_time, end_time, studio_name, studio_address, user_email } = result.data;
+  await sendBookingConfirmationEmail(
+    date,
+    start_time,
+    end_time,
+    studio_name,
+    studio_address,
+    user_email
+  );
 };
 
 export const cancelBooking = async ({
