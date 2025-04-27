@@ -34,7 +34,7 @@ This website aims to streamline the entire process: users can easily check which
 - **Database:** Postgres, Knex
 - **Authentication:** Next Auth
 - **Payment**: Stripe
-- **Email Service**: Resend
+- **Email**: React Email with Resend
 - **Image Storage**: AWS S3
 - **Deployment:** AWS (EC2, Route53), Docker
 
