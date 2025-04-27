@@ -7,6 +7,7 @@
 - [Project Overview](#project-overview)
 - [Project Background](#project-background)
 - [Tech Stack](#tech-stack)
+- [Payment Notes](#payment-notes)
 - [Features](#features)
     - [Rental User](#rental-user)
     -  [Studio Owner](#studio-owner)
@@ -36,6 +37,9 @@ This website aims to streamline the entire process: users can easily check which
 - **Email Service**: Resend
 - **Image Storage**: AWS S3
 - **Deployment:** AWS (EC2, Route53), Docker
+
+## Payment Notes
+Stripe is in test mode so you could use the test card [here](https://docs.stripe.com/testing#cards) to complete the booking.
 
 ## Features
 ### Rental User
