@@ -12,6 +12,7 @@
     - [Rental User](#rental-user)
     -  [Studio Owner](#studio-owner)
     -  [Admin](#admin)
+- [Folder Structures](#folder-structures)
 - [Getting Started](#getting-started)
   
 ## Project Overview
@@ -127,6 +128,74 @@ https://github.com/user-attachments/assets/aa4f6b49-c1af-4ffe-a8cd-2e5de7bef107
 
 
 </details>
+
+## Folder Structure
+```
+├── Dockerfile            #Docker file for building an image
+├── docker-compose.yml    #Docker compose file
+├── actions               #Next.js server actions
+│   ├── admin.ts
+│   ├── auth.ts
+│   ├── booking.ts
+│   └── studio.ts
+├── app
+├── (user)
+│   ├── (non-booking)
+│   │   ├── about
+│   │   └── terms-and-conditions
+│   │   ├── faq           
+│   │   ├── explore-studios       #Routes: Studio list page
+│   │   ├── studio                #Routes: Studio details page
+│   │   ├── bookmarks             #Routes: User bookmarks page
+│   │   ├── manage-bookings       #Routes: User manage bookings
+│   │   ├── page.tsx              #Routes: Homepage
+│   └── booking                   #Routes: Booking related pages 
+│   ├── admin                     #Routes: Admin panel
+│   ├── api                       #API
+│   ├── auth                      #Routes: Auth
+│   ├── studio-owner              #Routes: Studio owner panel
+│   ├── (group)
+│   │   ├── dashboard             
+│   │   ├── helps
+│   │   └── studios
+│   └── studio                    
+│       └── [id]
+│           ├── manage           #Routes: Studio panel
+│           └── onboarding       #Routes: Studio onBoarding stpes
+│   ├── favicon.ico
+│   ├── fonts                
+│   ├── globals.css
+│   ├── layout.tsx                #Global layout
+│   ├── not-found.tsx             #Global not found layout
+│   ├── QueryClientProvider.tsx
+├── components
+│   ├── animata                #Components from animata
+│   ├── custom-components      #Own created components
+│   └── shadcn                 #Components from shadcn
+├── emails                    
+│   ├── layout                 #Email layout
+│   └── mail.ts                #Email configuration
+├── hooks                      #React Hooks
+│   ├── react-query
+│   ├── use-mobile.tsx
+│   └── use-session-user.tsx
+├── lib                  
+│   ├── constants
+│   ├── handlers
+│   ├── http-errors.ts     #Error format
+│   ├── http-response.d.ts #Response format
+│   ├── next-auth-config   #Next auth configuration
+│   ├── utils              #Repeatly used functions
+│   └── validations        #Zod validation schema
+├── knexfile.js        
+├── middleware.ts          #Next.js Middleware
+├── migrations             #Database migration
+├── seeds                  #Database seed data
+├── public                 #Local images
+├── services               #PostgresSQL logic
+├── stores                 #Zustand stores
+├── tailwind.config.ts
+```
 
 ## Getting Started
 To get a local copy up and running follow these simple example steps.
