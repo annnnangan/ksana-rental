@@ -12,7 +12,7 @@
     - [Rental User](#rental-user)
     -  [Studio Owner](#studio-owner)
     -  [Admin](#admin)
-- [Folder Structures](#folder-structures)
+- [Folder Structure](#folder-structure)
 - [Getting Started](#getting-started)
   
 ## Project Overview
