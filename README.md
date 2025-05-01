@@ -37,7 +37,7 @@ This website aims to streamline the entire process: users can easily check which
 - **Payment**: Stripe
 - **Email**: React Email with Resend
 - **Image Storage**: AWS S3
-- **Deployment:** AWS (EC2, Route53), Docker
+- **Deployment:** AWS (EC2, Route53), Docker, GitHub Actions CI/CD
 
 ## Payment Notes
 Stripe is in test mode so you could use the test card [here](https://docs.stripe.com/testing#cards) to complete the booking.
