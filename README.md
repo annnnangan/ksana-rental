@@ -1,31 +1,41 @@
-<p align="center"><img src="https://github.com/user-attachments/assets/c260ee6b-3bdb-4707-965e-c63af1d25eef" height="auto" width="150"/></p>
-<p align="center">Website: https://ksana-yoga-rental.site/</p>
+<div align="center">
+  <br />
+    <a href="https://ksana-yoga-rental.site" target="_blank">
+      <img src="https://github.com/user-attachments/assets/f02837e6-6b67-4303-80fb-c2fdc72a52ce" alt="Project Banner">
+    </a>
+  <br />
+  <div>
+    <img alt="Nextjs Badge" src="https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white">
+    <img alt="Tailwind" src="https://img.shields.io/badge/postgresql-4169e1?style=for-the-badge&logo=postgresql&logoColor=white" />
+    <img alt="Tailwind" src="https://img.shields.io/badge/-Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" />
+  </div>
+  <h3 align="center">🧘🏻‍♀️Ksana Rental🧘🏻‍♀</h3>
 
-![Image](https://github.com/user-attachments/assets/0e1e14fd-581a-4803-842c-f1991eeba972)
+  <div align="center">
+     Ksana Rental (https://ksana-yoga-rental.site/) is a full-stack platform for real-time yoga studio bookings, empowering owners to list spaces with flexible hours and per-timeslot pricing, and enabling users to book instantly without back-and-forth.
+    </div>
+</div>
 
-## Table of Contents
-- [Project Overview](#project-overview)
-- [Project Background](#project-background)
-- [Tech Stack](#tech-stack)
-- [Payment Notes](#payment-notes)
-- [Features](#features)
+## 📋 Table of Contents
+- 🤖 [Project Background](#-project-background)
+- ⚙️ [Tech Stack](#%EF%B8%8F-tech-stack)
+- 📝 [Payment Notes](#-payment-notes)
+- ✨ [Features](#-features)
     - [Rental User](#rental-user)
     -  [Studio Owner](#studio-owner)
     -  [Admin](#admin)
-- [Folder Structure](#folder-structure)
-- [Getting Started](#getting-started)
+- 🗂️ [Folder Structure](#%EF%B8%8F-folder-structure)
+- 🚩 [Getting Started](#-getting-started)
   
-## Project Overview
-Ksana Rental is a full-stack web application built entirely by **me** using Next.js with TypeScript. From design to deployment, this solo project showcases my skills in web development and my ability to manage both the frontend and backend.
 
-## Project Background
+## 🤖 Project Background
 As someone who practices spinning hammock, I often need to rent spaces for practice. Every time, I have to message the studio via Instagram DM to ask if the space is available, then wait for a reply. It’s not always clear what studios are available for rent, and sometimes double bookings happen.
 
 From the studio owner’s side, managing bookings manually takes a lot of time — replying to every inquiry and sending out door codes by hand can be quite troublesome.
 
 This website aims to streamline the entire process: users can easily check which studios are available and book them directly. The door code will be visible on the platform 2 hours before the booking starts, so owners don’t have to send it manually. This reduces miscommunication and helps both renters and studio owners save time.
 
-## Tech Stack
+## ⚙️ Tech Stack
 - **Framework:** Next.js with Typescript
 - **AI Chatbot**: Copilotkit
 - **Style:** Tailwind, Shadcn UI
@@ -39,10 +49,10 @@ This website aims to streamline the entire process: users can easily check which
 - **Image Storage**: AWS S3
 - **Deployment:** AWS (EC2, Route53), Docker, GitHub Actions CI/CD
 
-## Payment Notes
+## 📝 Payment Notes
 Stripe is in test mode so you could use the test card [here](https://docs.stripe.com/testing#cards) to complete the booking.
 
-## Features
+## ✨ Features
 ### Rental User
 <details><summary>☑️ Search for yoga studios with criteria using the AI chatbot built with CopilotKit</summary>
   
@@ -129,7 +139,8 @@ https://github.com/user-attachments/assets/aa4f6b49-c1af-4ffe-a8cd-2e5de7bef107
 
 </details>
 
-## Folder Structure
+
+## 🗂️ Folder Structure
 ```
 ├── Dockerfile            #Docker file for building an image
 ├── docker-compose.yml    #Docker compose file
@@ -197,7 +208,7 @@ https://github.com/user-attachments/assets/aa4f6b49-c1af-4ffe-a8cd-2e5de7bef107
 ├── tailwind.config.ts
 ```
 
-## Getting Started
+## 🚩 Getting Started
 To get a local copy up and running follow these simple example steps.
 
 1. Apply to get API Key for the below services
