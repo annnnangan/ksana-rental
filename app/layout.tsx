@@ -59,15 +59,15 @@ export default function RootLayout({
       <GoogleTagManager gtmId="GTM-WZTCKC7T" />
       <body className={`${notoSansTC.className} antialiased`}>
         <SessionProvider>
-          <UserID>
-            <QueryClientProvider>
-              <CopilotKit runtimeUrl="/api/copilotkit">
-                <ProjectNoticeModal />
-                <Suspense fallback={<LoadingSpinner />}>{children}</Suspense>
-              </CopilotKit>
-              <ToastContainer />
-            </QueryClientProvider>
-          </UserID>
+          <QueryClientProvider>
+            <CopilotKit runtimeUrl="/api/copilotkit">
+              <ProjectNoticeModal />
+              <Suspense fallback={<LoadingSpinner />}>
+                <UserID>{children}</UserID>
+              </Suspense>
+            </CopilotKit>
+            <ToastContainer />
+          </QueryClientProvider>
         </SessionProvider>
       </body>
     </html>
