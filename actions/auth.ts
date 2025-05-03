@@ -2,6 +2,7 @@
 
 import * as z from "zod";
 
+import { sendVerificationEmail } from "@/emails/mail";
 import { signIn } from "@/lib/next-auth-config/auth";
 import { DEFAULT_LOGIN_REDIRECT } from "@/lib/next-auth-config/routes";
 import { generateVerificationToken } from "@/lib/utils/generate-verification-token";
@@ -10,7 +11,6 @@ import { userService } from "@/services/user/UserService";
 import { verificationService } from "@/services/user/VerificationService";
 import bcrypt from "bcryptjs";
 import { AuthError } from "next-auth";
-import { sendVerificationEmail } from "@/emails/mail";
 
 export const login = async (values: z.infer<typeof LoginSchema>, redirect?: string) => {
   const validateFields = LoginSchema.safeParse(values);
