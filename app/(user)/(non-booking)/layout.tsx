@@ -10,6 +10,8 @@ import React, { useState } from "react";
 import { studioCardInfo } from "./explore-studios/page";
 import Image from "next/image";
 
+
+// From Gordon: Header better be in its own file
 function Header({}: HeaderProps) {
   const { setOpen, icons, labels } = useChatContext();
 
@@ -24,7 +26,7 @@ function Header({}: HeaderProps) {
     </div>
   );
 }
-
+// From Gordon: Button better be in its own file
 function Button({}: ButtonProps) {
   const { open, setOpen } = useChatContext();
   const [showMessage, setShowMessage] = useState(false);

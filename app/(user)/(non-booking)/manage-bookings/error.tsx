@@ -3,6 +3,8 @@
 import ButtonLink from "@/components/custom-components/common/buttons/ButtonLink";
 import { TriangleAlert } from "lucide-react";
 
+
+// Could show here what the error is. For example, with an error code.
 const error = () => {
   return (
     <div className="flex flex-col justify-center items-center mt-10 md:mt-28">

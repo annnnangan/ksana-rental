@@ -34,6 +34,8 @@ const ManageBookingsPage = async ({ searchParams }: { searchParams: searchParams
       />
     );
 
+  // From Gordon: bookingRecords does not have type checking here. It would be easier for your to maintain if it has type from the 
+  // userService.
   const bookingRecords =
     (await userService.getBookingsByUserId(session?.user.id, bookingStatus))?.data || [];
 

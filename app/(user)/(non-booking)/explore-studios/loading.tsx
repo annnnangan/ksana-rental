@@ -1,6 +1,7 @@
 import { Skeleton } from "@/components/shadcn/skeleton";
 import React from "react";
 
+// From Gordon: Very good to implement the loading page!
 const ExploreStudiosLoading = () => {
   return (
     <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

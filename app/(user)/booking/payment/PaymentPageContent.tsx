@@ -22,6 +22,7 @@ const PaymentPageContent = ({ STRIPE_API, userId }: { STRIPE_API: string; userId
   const [isLoading, setLoading] = useState(true);
 
   useEffect(() => {
+    // From Gordon: refactor this getActualPayment from this component to easily understand the code.
     const getActualPayment = async () => {
       try {
         setLoading(true);

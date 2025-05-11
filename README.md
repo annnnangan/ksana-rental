@@ -1,3 +1,8 @@
+From Gordon: Better to avoid using html for the title unless it is really necessary.
+And `align=center` is deprecated in modern web.
+Please also use Prettier for your application such that you can auto format your code.
+I have prettier installed in my VScode so you should see some extra formatting in the files that I have modified.
+
 <div align="center">
   <br />
     <a href="https://ksana-yoga-rental.site" target="_blank">
@@ -17,18 +22,19 @@
 </div>
 
 ## 📋 Table of Contents
+
 - 🤖 [Project Background](#-project-background)
 - ⚙️ [Tech Stack](#%EF%B8%8F-tech-stack)
 - 📝 [Payment Notes](#-payment-notes)
 - ✨ [Features](#-features)
-    - [Rental User](#rental-user)
-    -  [Studio Owner](#studio-owner)
-    -  [Admin](#admin)
+  - [Rental User](#rental-user)
+  - [Studio Owner](#studio-owner)
+  - [Admin](#admin)
 - 🗂️ [Folder Structure](#%EF%B8%8F-folder-structure)
 - 🚩 [Getting Started](#-getting-started)
-  
 
 ## 🤖 Project Background
+
 As someone who practices spinning hammock, I often need to rent spaces for practice. Every time, I have to message the studio via Instagram DM to ask if the space is available, then wait for a reply. It’s not always clear what studios are available for rent, and sometimes double bookings happen.
 
 From the studio owner’s side, managing bookings manually takes a lot of time — replying to every inquiry and sending out door codes by hand can be quite troublesome.
@@ -36,6 +42,7 @@ From the studio owner’s side, managing bookings manually takes a lot of time �
 This website aims to streamline the entire process: users can easily check which studios are available and book them directly. The door code will be visible on the platform 2 hours before the booking starts, so owners don’t have to send it manually. This reduces miscommunication and helps both renters and studio owners save time.
 
 ## ⚙️ Tech Stack
+
 - **Framework:** Next.js with Typescript
 - **AI Chatbot**: Copilotkit
 - **Style:** Tailwind, Shadcn UI
@@ -50,10 +57,13 @@ This website aims to streamline the entire process: users can easily check which
 - **Deployment:** AWS (EC2, Route53), Docker, GitHub Actions CI/CD
 
 ## 📝 Payment Notes
+
 Stripe is in test mode so you could use the test card [here](https://docs.stripe.com/testing#cards) to complete the booking.
 
 ## ✨ Features
+
 ### Rental User
+
 <details><summary>☑️ Search for yoga studios with criteria using the AI chatbot built with CopilotKit</summary>
   
 https://github.com/user-attachments/assets/b965e798-e552-4754-891c-6ea90d4394eb
@@ -84,12 +94,12 @@ https://github.com/user-attachments/assets/6a4776de-9f06-4c3c-8041-9da776e5af36
 
 </details>
 
-
 ### Studio Owner
+
 <details><summary>☑️ Seamlessly switching between rental user and studio owner and different studios</summary>
 
 https://github.com/user-attachments/assets/076705e2-8f94-4bdf-9fae-9068d4548e9d
-    
+
 </details>
 
 <details><summary>☑️ Easy to onboard yoga studio</summary>
@@ -102,7 +112,7 @@ https://github.com/user-attachments/assets/4e509633-dffe-4b7a-90b2-1855431d43d2
 <br>
 
 - In the example below, the studio has made Mondays unavailable for booking and has removed all timeslots originally set on Mondays.
-    
+
 https://github.com/user-attachments/assets/3343a270-ab77-4194-b11f-6af6529d1e86
 
 <br>
@@ -112,7 +122,6 @@ https://github.com/user-attachments/assets/3343a270-ab77-4194-b11f-6af6529d1e86
 https://github.com/user-attachments/assets/23b8689b-fb33-47f5-970d-22d358079488
 
 </details>
-
 
 </details>
 
@@ -130,17 +139,14 @@ https://github.com/user-attachments/assets/f890fca6-c825-4f55-be94-010bca99d309
 
 </details>
 
-
 <details><summary>☑️ Manage homepage recommended studio list</summary>
-
 
 https://github.com/user-attachments/assets/aa4f6b49-c1af-4ffe-a8cd-2e5de7bef107
 
-
 </details>
 
-
 ## 🗂️ Folder Structure
+
 ```
 ├── Dockerfile            #Docker file for building an image
 ├── docker-compose.yml    #Docker compose file
@@ -154,27 +160,27 @@ https://github.com/user-attachments/assets/aa4f6b49-c1af-4ffe-a8cd-2e5de7bef107
 │   ├── (non-booking)
 │   │   ├── about
 │   │   └── terms-and-conditions
-│   │   ├── faq           
+│   │   ├── faq
 │   │   ├── explore-studios       #Routes: Studio list page
 │   │   ├── studio                #Routes: Studio details page
 │   │   ├── bookmarks             #Routes: User bookmarks page
 │   │   ├── manage-bookings       #Routes: User manage bookings
 │   │   ├── page.tsx              #Routes: Homepage
-│   └── booking                   #Routes: Booking related pages 
+│   └── booking                   #Routes: Booking related pages
 │   ├── admin                     #Routes: Admin panel
 │   ├── api                       #API
 │   ├── auth                      #Routes: Auth
 │   ├── studio-owner              #Routes: Studio owner panel
 │   ├── (group)
-│   │   ├── dashboard             
+│   │   ├── dashboard
 │   │   ├── helps
 │   │   └── studios
-│   └── studio                    
+│   └── studio
 │       └── [id]
 │           ├── manage           #Routes: Studio panel
 │           └── onboarding       #Routes: Studio onBoarding stpes
 │   ├── favicon.ico
-│   ├── fonts                
+│   ├── fonts
 │   ├── globals.css
 │   ├── layout.tsx                #Global layout
 │   ├── not-found.tsx             #Global not found layout
@@ -183,14 +189,14 @@ https://github.com/user-attachments/assets/aa4f6b49-c1af-4ffe-a8cd-2e5de7bef107
 │   ├── animata                #Components from animata
 │   ├── custom-components      #Own created components
 │   └── shadcn                 #Components from shadcn
-├── emails                    
+├── emails
 │   ├── layout                 #Email layout
 │   └── mail.ts                #Email configuration
 ├── hooks                      #React Hooks
 │   ├── react-query
 │   ├── use-mobile.tsx
 │   └── use-session-user.tsx
-├── lib                  
+├── lib
 │   ├── constants
 │   ├── handlers
 │   ├── http-errors.ts     #Error format
@@ -198,7 +204,7 @@ https://github.com/user-attachments/assets/aa4f6b49-c1af-4ffe-a8cd-2e5de7bef107
 │   ├── next-auth-config   #Next auth configuration
 │   ├── utils              #Repeatly used functions
 │   └── validations        #Zod validation schema
-├── knexfile.js        
+├── knexfile.js
 ├── middleware.ts          #Next.js Middleware
 ├── migrations             #Database migration
 ├── seeds                  #Database seed data
@@ -209,9 +215,11 @@ https://github.com/user-attachments/assets/aa4f6b49-c1af-4ffe-a8cd-2e5de7bef107
 ```
 
 ## 🚩 Getting Started
+
 To get a local copy up and running follow these simple example steps.
 
 1. Apply to get API Key for the below services
+
 - Stripe
 - AWS S3
 - Next Auth
@@ -220,9 +228,11 @@ To get a local copy up and running follow these simple example steps.
 - Google OAuth
 - Google Map
 
+From Gordon: You can have a file called `.env.sample` to show other developers what the variables are.
+
 2. Create a `.env.local` file
-   
-    ```dosini
+
+   ```dosini
    POSTGRES_DB=
    POSTGRES_USER=
    POSTGRES_PASSWORD=
@@ -241,11 +251,12 @@ To get a local copy up and running follow these simple example steps.
    RESEND_API_KEY=
    NEXT_PUBLIC_APP_URL=http://localhost:3000
    GOOGLE_API_KEY=
-    ```
+   ```
+
 3. Install yarn packages
-    ```sh
-    yarn install 
-    ```
+   ```sh
+   yarn install
+   ```
 4. Go to migration > 20241105144644_create-user.js and generate new hashed password for sample user data
    ```sh
    import bcrypt from "bcryptjs";

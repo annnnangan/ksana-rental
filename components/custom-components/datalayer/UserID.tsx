@@ -13,6 +13,7 @@ export default function UserID({ children }: { children: React.ReactNode }) {
       const session = await getSession();
 
       if (session?.user?.id) {
+        // Use Zustand to store global state like this dataLayer
         window.dataLayer = window.dataLayer || [];
         window.dataLayer.push({
           event: "fetch_user_id",

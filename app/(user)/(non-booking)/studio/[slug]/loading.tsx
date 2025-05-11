@@ -1,6 +1,7 @@
 import React from "react";
 import { Skeleton } from "@/components/shadcn/skeleton";
 
+// From Gordon: Again, good to have loading page.
 const StudioPageLoading = () => {
   return (
     <div className="space-y-4">

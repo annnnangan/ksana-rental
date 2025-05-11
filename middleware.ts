@@ -23,6 +23,12 @@ export async function middleware(req: NextRequest) {
   );
   const isAuthRoute = authRoutes.includes(nextUrl.pathname);
 
+  // From Gordon: you can simplify the following logic to make it easier to follow.
+  // Basically you have the following three cases.
+  // 1. If the user is logging in, then redirect to new URL(DEFAULT_LOGIN_REDIRECT, nextUrl)
+  // 2. If the user is accessing private route, but not authenticated, redirect to /auth/login?redirect=XXXX
+  // 3. return NextResponse.next()
+
   // Everyone should be able to login/register
   if (isApiAuthRoute) {
     return NextResponse.next();
@@ -45,7 +51,9 @@ export async function middleware(req: NextRequest) {
 
     const encodedCallbackUrl = encodeURIComponent(callbackUrl);
 
-    return NextResponse.redirect(new URL(`/auth/login?redirect=${encodedCallbackUrl}`, nextUrl));
+    return NextResponse.redirect(
+      new URL(`/auth/login?redirect=${encodedCallbackUrl}`, nextUrl)
+    );
   }
 
   return NextResponse.next();

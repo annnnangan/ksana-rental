@@ -62,6 +62,8 @@ const StudioPage = async ({ params }: { params: Promise<{ slug: string }> }) => 
   let studioPice;
   let studioRatingOverview;
 
+  // From Gordon: Try to encapsulate all these logics in a service method instead of having them in the page.tsx
+  // It could quickly get messy if you are trying to load a lot of data.
   try {
     const [
       basicInfoResult,

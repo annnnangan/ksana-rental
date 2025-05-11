@@ -51,6 +51,7 @@ const BookingConfirmationPage = () => {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
+  // From Gordon: if there are too many fields, it is better to just keep the bookingInfo such that it includes the context.
   const {
     bookingInfo: {
       date,
@@ -100,6 +101,8 @@ const BookingConfirmationPage = () => {
     }
   }, [date, startTime, studioSlug, price, usedCredit, paidAmount, toastShown, router]);
 
+  // From Gordon: this userEffect is dangerous because it relies on the fields but the reset function could alter all those fields.
+  // causing a infinite loop.
   useEffect(() => {
     reset({
       date: date,
@@ -127,9 +130,11 @@ const BookingConfirmationPage = () => {
     reset,
   ]);
 
+  // From Gordon, use a different name to avoid confusion.
   const handleSubmit = async (formData: BookingFormData) => {
     startTransition(() => {
       if (formData.paidAmount > 0) {
+        // From Gordon, just use Async here, no need to use promise chain.
         createPendingForPaymentBooking(formData).then((data) => {
           if (!data.success) {
             //@ts-expect-error expected
