@@ -1,8 +1,3 @@
-From Gordon: Better to avoid using html for the title unless it is really necessary.
-And `align=center` is deprecated in modern web.
-Please also use Prettier for your application such that you can auto format your code.
-I have prettier installed in my VScode so you should see some extra formatting in the files that I have modified.
-
 <div align="center">
   <br />
     <a href="https://ksana-yoga-rental.site" target="_blank">
@@ -227,8 +222,6 @@ To get a local copy up and running follow these simple example steps.
 - Google Gemini
 - Google OAuth
 - Google Map
-
-From Gordon: You can have a file called `.env.sample` to show other developers what the variables are.
 
 2. Create a `.env.local` file
 
