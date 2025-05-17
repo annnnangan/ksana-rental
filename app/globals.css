@@ -61,3 +61,21 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+.calendar-card .fc-col-header {
+  width: 100% !important;
+}
+
+.calendar-card .fc-timegrid-slots,
+.calendar-card .fc-timegrid-slots table {
+  width: 100% !important;
+}
+
+.calendar-card .fc-timegrid-cols,
+.calendar-card .fc-timegrid-cols table {
+  width: 100% !important;
+}
+
+.calendar-card .fc-timegrid-body {
+  width: 100% !important;
+}
