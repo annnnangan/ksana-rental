@@ -547,6 +547,46 @@ export class BookingService {
     }
   }
 
+  async getConfirmBookingByWeek({
+    startDate,
+    endDate,
+    studioId,
+  }: {
+    startDate: string;
+    endDate: string;
+    studioId: string;
+  }) {
+    try {
+      const bookingRecords = await this.knex
+        .from("booking")
+        .select(
+          this.knex.raw(
+            `(booking.date + booking.start_time)::timestamptz AT TIME ZONE 'Asia/Hong_Kong' AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Hong_Kong' as start`
+          ),
+          this.knex.raw(
+            `(booking.date + booking.end_time)::timestamptz AT TIME ZONE 'Asia/Hong_Kong' AT TIME ZONE 'UTC' AT TIME ZONE 'Asia/Hong_Kong' as end`
+          ),
+          this.knex.raw(`TO_CHAR(DATE_TRUNC('day', booking.date), 'YYYY-MM-DD') AS booking_date`),
+          "booking.remarks",
+          "users.name as title",
+          "booking.whatsapp as user_phone"
+        )
+        .leftJoin("users", "booking.user_id", "users.id")
+        .where("booking.studio_id", studioId)
+        .andWhere("booking.status", "confirmed")
+        .andWhere("booking.date", ">=", startDate)
+        .andWhere("booking.date", "<=", endDate)
+        .orderBy("booking.date", "desc");
+
+      return {
+        success: true,
+        data: bookingRecords,
+      };
+    } catch (error) {
+      return handleError(error, "server") as ActionResponse;
+    }
+  }
+
   async getBookingInfoByReferenceNo(bookingReferenceNo: string) {
     try {
       // Find the booking first to make sure it exists

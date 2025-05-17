@@ -1,5 +1,12 @@
 "use client";
-import { CalendarCog, CalendarRange, CircleGauge, HandCoins, House } from "lucide-react";
+import {
+  CalendarCog,
+  CalendarRange,
+  CircleGauge,
+  ClipboardList,
+  HandCoins,
+  House,
+} from "lucide-react";
 import { useParams } from "next/navigation";
 import { NavItems, SidebarNavItems } from "./SidebarNavItems";
 
@@ -20,8 +27,13 @@ export function StudioPanelNavItems() {
         icon: CalendarCog,
       },
       {
-        title: "所有預約",
+        title: "管理預約",
         url: `/studio-owner/studio/${studioId}/manage/booking`,
+        icon: ClipboardList,
+      },
+      {
+        title: "預約日曆",
+        url: `/studio-owner/studio/${studioId}/manage/calendar`,
         icon: CalendarRange,
       },
       {

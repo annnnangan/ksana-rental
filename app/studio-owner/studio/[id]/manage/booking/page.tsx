@@ -53,6 +53,7 @@ const BookingPage = async ({
   return (
     <div>
       <SectionTitle textColor="text-primary">所有預約</SectionTitle>
+
       <ResponsiveTab activeTab={bookingStatus} tabListMap={tabListMap} />
 
       <BookingTable data={bookingRecords} />
